@@ -8,7 +8,7 @@
 #include "textureloader.h"
 #include "grid.h"
 
-// TODO: Modules: https://docs.microsoft.com/en-us/cpp/cpp/modules-cpp?view=msvc-160
+// TODO: Modules (eventually): https://docs.microsoft.com/en-us/cpp/cpp/modules-cpp?view=msvc-160
 class Window {
 private:
     struct sdl_deleter {
@@ -28,10 +28,9 @@ private:
 public:
     Window(int width, int height);
     ~Window();
-
+ 
     bool initialiseWindow(void);
     void loop(void);
     
-    void setGrid(std::shared_ptr<Grid> grid);
-    std::shared_ptr<Grid> getGrid(void);
+    void setGridTileTexture(int x, int y, const std::string& texture);
 };

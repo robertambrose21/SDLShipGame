@@ -45,11 +45,6 @@ bool Window::initialiseWindow(void) {
     textureLoader = std::make_shared<TextureLoader>(renderer);
 
     grid = std::make_shared<Grid>(20, 20, height);
-    for(auto i = 0; i < 20; i++) {
-        for(auto j = 0; j < 20; j++) {
-            grid->setTile(i, j, textureLoader->getTexture("../assets/floor1.png"));
-        }
-    }
 
     return true;
 }
@@ -71,10 +66,6 @@ void Window::loop(void) {
     }
 }
 
-std::shared_ptr<Grid> Window::getGrid(void) {
-    return grid;
-}
-
-void Window::setGrid(std::shared_ptr<Grid> grid) {
-    this->grid = grid;
+void Window::setGridTileTexture(int x, int y, const std::string& texture) {
+    grid->setTile(x, y, textureLoader->getTexture(texture));
 }
