@@ -47,7 +47,7 @@ bool Window::initialiseWindow(void) {
     grid = std::make_shared<Grid>(20, 20, height);
     for(auto i = 0; i < 20; i++) {
         for(auto j = 0; j < 20; j++) {
-            grid->setTile(i, j, Tile(1, textureLoader->getTexture("../assets/floor1.png")));
+            grid->setTile(i, j, textureLoader->getTexture("../assets/floor1.png"));
         }
     }
 
