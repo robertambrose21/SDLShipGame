@@ -6,10 +6,10 @@ Grid::Grid(int width, int height, int windowHeight) :
     windowHeight(windowHeight),
     tileSize(windowHeight / height)
 {
-    data.resize(height, std::vector<Texture>(width));
+    data.resize(height, std::vector<std::shared_ptr<Texture>>(width));
 }
 
-void Grid::setTile(int x, int y, Texture tile) {
+void Grid::setTile(int x, int y, std::shared_ptr<Texture> tile) {
     data[y][x] = tile;
 }
 
@@ -17,7 +17,7 @@ void Grid::draw(std::shared_ptr<SDL_Renderer> renderer) {
     for(auto y = 0; y < height; y++) {
         for(auto x = 0; x < width; x++) {
             SDL_Rect dst = getTilePosition(x, y);
-            data[y][x].draw(renderer, NULL, &dst);
+            data[y][x]->draw(renderer, NULL, &dst);
         }
     }
 }

@@ -11,12 +11,12 @@ private:
     int windowHeight;
     int tileSize;
 
-    std::vector<std::vector<Texture>> data;
+    std::vector<std::vector<std::shared_ptr<Texture>>> data;
 
 public:
     Grid(int width, int height, int windowHeight);
 
-    void setTile(int x, int y, Texture tile);
+    void setTile(int x, int y, std::shared_ptr<Texture> tile);
     void draw(std::shared_ptr<SDL_Renderer> renderer);
 
     SDL_Rect getTilePosition(int x, int y);

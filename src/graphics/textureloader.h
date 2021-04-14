@@ -35,13 +35,13 @@ private:
         void operator()(SDL_Texture *p) const { }
     };
 
-    std::map<std::string, Texture> loadedTextures;
+    std::map<std::string, std::shared_ptr<Texture> > loadedTextures;
     std::shared_ptr<SDL_Renderer> renderer;
 
 public:
     TextureLoader(std::shared_ptr<SDL_Renderer> renderer);
 
-    Texture getTexture(std::string path);
+    std::shared_ptr<Texture> getTexture(std::string path);
 
     class TextureLoaderException : public std::exception {
     private:

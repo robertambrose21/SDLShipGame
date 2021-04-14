@@ -21,7 +21,7 @@ TextureLoader::TextureLoader(std::shared_ptr<SDL_Renderer> renderer) :
     renderer(renderer)
 { }
 
-Texture TextureLoader::getTexture(std::string path) {
+std::shared_ptr<Texture> TextureLoader::getTexture(std::string path) {
     if(loadedTextures.contains(path)) {
         return loadedTextures[path];
     }
@@ -41,7 +41,7 @@ Texture TextureLoader::getTexture(std::string path) {
         throw TextureLoaderException("Unable to create texture from \'" + path + "\': " + SDL_GetError());
     }
 
-    loadedTextures[path] = Texture(std::move(texture), path);
+    loadedTextures[path] = std::make_shared<Texture>(std::move(texture), path);
 
     return loadedTextures[path];
 }

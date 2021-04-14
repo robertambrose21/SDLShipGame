@@ -11,14 +11,14 @@ private:
         int x, y;
     } Position;
 
-    Texture texture;
+    std::shared_ptr<Texture> texture;
     std::shared_ptr<Grid> grid;
 
     Position position;
 public:
     PlayerController(std::shared_ptr<Grid> grid);
 
-    void setTexture(Texture texture);
+    void setTexture(std::shared_ptr<Texture> texture);
     void draw(std::shared_ptr<SDL_Renderer> renderer);
     void handleKeyPress(SDL_Event event);
 };

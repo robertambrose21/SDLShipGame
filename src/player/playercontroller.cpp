@@ -6,13 +6,13 @@ PlayerController::PlayerController(std::shared_ptr<Grid> grid) :
     position = { 0, 0 };
 }
 
-void PlayerController::setTexture(Texture texture) {
+void PlayerController::setTexture(std::shared_ptr<Texture> texture) {
     this->texture = texture;
 }
 
 void PlayerController::draw(std::shared_ptr<SDL_Renderer> renderer) {
     SDL_Rect realPosition = grid->getTilePosition(position.x, position.y);
-    texture.draw(renderer, NULL, &realPosition);
+    texture->draw(renderer, NULL, &realPosition);
 }
 
 // TODO: Turn on rather than running off key repeats
