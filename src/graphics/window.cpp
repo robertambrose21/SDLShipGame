@@ -58,14 +58,40 @@ void Window::loop(void) {
             if(e.type == SDL_QUIT) {
                 quit = true;
             }
+
+            for(auto worker : logicWorkers) {
+                worker(e, quit);
+            }
         }
 
         SDL_RenderClear(renderer.get());
+
         grid->draw(renderer);
+
+        for(auto worker : drawWorkers) {
+            worker(renderer, quit);
+        }
+
         SDL_RenderPresent(renderer.get());
     }
 }
 
+void Window::addLoopLogicWorker(std::function<void(SDL_Event, bool&)> worker) {
+    logicWorkers.push_back(worker);
+}
+
+void Window::addLoopDrawWorker(std::function<void(std::shared_ptr<SDL_Renderer>, bool&)> worker) {
+    drawWorkers.push_back(worker);
+}
+
 void Window::setGridTileTexture(int x, int y, const std::string& texture) {
     grid->setTile(x, y, textureLoader->getTexture(texture));
+}
+
+std::shared_ptr<Grid> Window::getGrid(void) {
+    return grid;
+}
+
+std::shared_ptr<TextureLoader> Window::getTextureLoader(void) {
+    return textureLoader;
 }

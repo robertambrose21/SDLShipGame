@@ -1,8 +1,19 @@
 #include "graphics/window.h"
+#include "player/playercontroller.h"
 
 int main() {
 	Window window(1024, 768);
     window.initialiseWindow();
+
+    PlayerController player(window.getGrid());
+    player.setTexture(window.getTextureLoader()->getTexture("../assets/player.png"));
+
+    window.addLoopDrawWorker([&](auto renderer, bool& quit) {
+        player.draw(renderer);
+    });
+    window.addLoopLogicWorker([&](SDL_Event e, bool& quit) {
+        player.handleKeyPress(e);
+    });
 
     for(auto i = 0; i < 20; i++) {
         for(auto j = 0; j < 20; j++) {
