@@ -1,24 +1,23 @@
 #pragma once
 
 #include <SDL2/SDL.h>
+#include <glm/glm.hpp>
 
 #include "../graphics/grid.h"
 #include "../graphics/textureloader.h"
 
 class PlayerController {
 private:
-    typedef struct {
-        int x, y;
-    } Position;
-
     std::shared_ptr<Texture> texture;
     std::shared_ptr<Grid> grid;
 
-    Position position;
+    glm::ivec2 moveVector;
+    glm::ivec2 position;
 public:
     PlayerController(std::shared_ptr<Grid> grid);
 
     void setTexture(std::shared_ptr<Texture> texture);
     void draw(std::shared_ptr<SDL_Renderer> renderer);
     void handleKeyPress(SDL_Event event);
+    void move(const Uint32& timeSinceLastFrame);
 };

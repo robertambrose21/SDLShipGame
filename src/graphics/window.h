@@ -26,8 +26,9 @@ private:
     std::shared_ptr<TextureLoader> textureLoader;
     std::shared_ptr<Grid> grid;
 
-    std::vector<std::function<void(SDL_Event, bool&)>> logicWorkers;
+    std::vector<std::function<void(const Uint32&, bool&)>> logicWorkers;
     std::vector<std::function<void(std::shared_ptr<SDL_Renderer>, bool&)>> drawWorkers;
+    std::vector<std::function<void(SDL_Event, bool&)>> eventWorkers;
     
 public:
     Window(int width, int height);
@@ -36,8 +37,9 @@ public:
     bool initialiseWindow(void);
     void loop(void);
 
-    void addLoopLogicWorker(std::function<void(SDL_Event, bool&)> worker);
+    void addLoopLogicWorker(std::function<void(const Uint32&, bool&)> worker);
     void addLoopDrawWorker(std::function<void(std::shared_ptr<SDL_Renderer>, bool&)> worker);
+    void addLoopEventWorker(std::function<void(SDL_Event, bool&)> worker);
     
     void setGridTileTexture(int x, int y, const std::string& texture);
     std::shared_ptr<Grid> getGrid(void);

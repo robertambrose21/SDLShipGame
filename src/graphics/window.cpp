@@ -53,15 +53,26 @@ void Window::loop(void) {
     bool quit = false;
     SDL_Event e;
 
+    auto startTime = SDL_GetTicks();
+    auto currentTime = startTime;
+    auto timeSinceLastFrame = 0;
+
     while(!quit) {
+        timeSinceLastFrame = SDL_GetTicks() - currentTime;
+        currentTime = SDL_GetTicks();
+
         while(SDL_PollEvent(&e) != 0) {
             if(e.type == SDL_QUIT) {
                 quit = true;
             }
 
-            for(auto worker : logicWorkers) {
+            for(auto worker : eventWorkers) {
                 worker(e, quit);
             }
+        }
+
+        for(auto worker : logicWorkers) {
+            worker(timeSinceLastFrame, quit);
         }
 
         SDL_RenderClear(renderer.get());
@@ -76,12 +87,16 @@ void Window::loop(void) {
     }
 }
 
-void Window::addLoopLogicWorker(std::function<void(SDL_Event, bool&)> worker) {
+void Window::addLoopLogicWorker(std::function<void(const Uint32&, bool&)> worker) {
     logicWorkers.push_back(worker);
 }
 
 void Window::addLoopDrawWorker(std::function<void(std::shared_ptr<SDL_Renderer>, bool&)> worker) {
     drawWorkers.push_back(worker);
+}
+
+void Window::addLoopEventWorker(std::function<void(SDL_Event, bool&)> worker) {
+    eventWorkers.push_back(worker);
 }
 
 void Window::setGridTileTexture(int x, int y, const std::string& texture) {

@@ -11,7 +11,10 @@ int main() {
     window.addLoopDrawWorker([&](auto renderer, bool& quit) {
         player.draw(renderer);
     });
-    window.addLoopLogicWorker([&](SDL_Event e, bool& quit) {
+    window.addLoopLogicWorker([&](const Uint32& timeSinceLastFrame, bool& quit) {
+        player.move(timeSinceLastFrame);
+    });
+    window.addLoopEventWorker([&](SDL_Event e, bool& quit) {
         player.handleKeyPress(e);
     });
 
