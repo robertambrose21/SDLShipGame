@@ -13,8 +13,13 @@ private:
 
     glm::ivec2 moveVector;
     glm::ivec2 position;
+    glm::vec2 partialPosition;
+
+    int movesPerTurn;
+
+    Uint32 timeSinceLastMoved;
 public:
-    PlayerController(std::shared_ptr<Grid> grid);
+    PlayerController(std::shared_ptr<Grid> grid, int movesPerTurn = 1);
 
     void setTexture(std::shared_ptr<Texture> texture);
     void draw(std::shared_ptr<SDL_Renderer> renderer);

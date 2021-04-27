@@ -5,7 +5,7 @@ int main() {
 	Window window(1024, 768);
     window.initialiseWindow();
 
-    PlayerController player(window.getGrid());
+    PlayerController player(window.getGrid(), 2);
     player.setTexture(window.getTextureLoader()->getTexture("../assets/player.png"));
 
     window.addLoopDrawWorker([&](auto renderer, bool& quit) {

@@ -1,8 +1,13 @@
 #include "playercontroller.h"
 
-PlayerController::PlayerController(std::shared_ptr<Grid> grid) :
+const Uint32 MOVES_PER_SECOND = 5;
+
+PlayerController::PlayerController(std::shared_ptr<Grid> grid, int movesPerTurn) :
     grid(grid),
+    movesPerTurn(movesPerTurn),
+    timeSinceLastMoved(0),
     position({0, 0}),
+    partialPosition({ 0.0f, 0.0f }),
     moveVector({0, 0})
 { }
 
@@ -57,5 +62,6 @@ void PlayerController::handleKeyPress(SDL_Event event) {
 }
 
 void PlayerController::move(const Uint32& timeSinceLastFrame) {
-    position += moveVector * (int) timeSinceLastFrame;
+    partialPosition += glm::vec2(moveVector) * (timeSinceLastFrame / (1000.0f / (MOVES_PER_SECOND * movesPerTurn)));
+    position = partialPosition;
 }
