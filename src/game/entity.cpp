@@ -1,11 +1,10 @@
 #include "entity.h"
 
-const Uint32 MOVES_PER_SECOND = 5;
-
 Entity::Entity(std::shared_ptr<Grid> grid, const std::string& name, int movesPerTurn) :
     grid(grid),
     name(name),
     movesPerTurn(movesPerTurn),
+    partialPosition({ 0.0f, 0.0f }),
     position({0, 0})
 { }
 
@@ -22,10 +21,24 @@ int Entity::getMovesPerTurn(void) const {
     return movesPerTurn;
 }
 
+const float Entity::getSpeed(void) {
+    return 1000.0f / (MOVES_PER_SECOND * getMovesPerTurn());
+}
+
 glm::ivec2 Entity::getPosition(void) const {
     return position;
 }
 
 void Entity::setPosition(const glm::ivec2& position) {
+    this->partialPosition = position;
     this->position = position;
+}
+
+glm::vec2 Entity::getPartialPosition(void) const {
+    return partialPosition;
+}
+
+void Entity::setPartialPosition(const glm::vec2& partialPosition) {
+    this->partialPosition = partialPosition;
+    this->position = partialPosition;
 }

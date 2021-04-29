@@ -10,7 +10,6 @@
 class PlayerController : public Entity {
 private:
     glm::ivec2 moveVector;
-    glm::vec2 partialPosition;
 
 public:
     PlayerController(std::shared_ptr<Grid> grid, int movesPerTurn = 1);
