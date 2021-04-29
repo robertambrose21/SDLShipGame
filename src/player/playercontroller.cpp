@@ -3,7 +3,7 @@
 const Uint32 MOVES_PER_SECOND = 5;
 
 PlayerController::PlayerController(std::shared_ptr<Grid> grid, int movesPerTurn) :
-    Entity(grid, "Player", movesPerTurn),,
+    Entity(grid, "Player", movesPerTurn),
     partialPosition({ 0.0f, 0.0f }),
     moveVector({0, 0})
 { }
