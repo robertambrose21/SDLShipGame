@@ -10,7 +10,8 @@ include_directories(${SDL2_INCLUDE_DIRS} ${SDL2_IMAGE_DIRS})
 
 add_subdirectory(src/graphics)
 add_subdirectory(src/player)
+add_subdirectory(src/game)
 
 add_executable(Test src/main.cpp)
 set_target_properties(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX CXX_STANDARD 20)
-target_link_libraries(Test GraphicsLib PlayerLib)
+target_link_libraries(Test GraphicsLib GameLib PlayerLib)

@@ -12,7 +12,7 @@ int main() {
         player.draw(renderer);
     });
     window.addLoopLogicWorker([&](const Uint32& timeSinceLastFrame, bool& quit) {
-        player.move(timeSinceLastFrame);
+        player.update(timeSinceLastFrame, quit);
     });
     window.addLoopEventWorker([&](SDL_Event e, bool& quit) {
         player.handleKeyPress(e);
