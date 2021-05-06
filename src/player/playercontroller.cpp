@@ -1,11 +1,15 @@
 #include "playercontroller.h"
 
-PlayerController::PlayerController(std::shared_ptr<Grid> grid, int movesPerTurn) :
-    Entity(grid, "Player", movesPerTurn),
-    moveVector({0, 0})
+PlayerController::PlayerController(std::shared_ptr<Grid> grid) :
+    Entity(grid, "Player", { 2, 10 }),
+    moveVector({ 0, 0 })
 { }
 
 void PlayerController::handleKeyPress(SDL_Event event) {
+    handleMovement(event);
+}
+
+void PlayerController::handleMovement(SDL_Event event) {
     if(event.type == SDL_KEYDOWN && event.key.repeat == 0) {
         switch(event.key.keysym.sym) {
             case SDLK_w:

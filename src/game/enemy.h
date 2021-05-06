@@ -12,7 +12,7 @@ public:
         std::shared_ptr<Grid> grid,
         const std::string& name,
         std::shared_ptr<PlayerController> player,
-        int movesPerTurn = 1
+        Entity::Stats stats
     );
 
     void update(const Uint32& timeSinceLastFrame, bool& quit);

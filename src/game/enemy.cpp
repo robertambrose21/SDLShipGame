@@ -4,9 +4,9 @@ Enemy::Enemy(
     std::shared_ptr<Grid> grid,
     const std::string& name, 
     std::shared_ptr<PlayerController> player, 
-    int movesPerTurn
+    Entity::Stats stats
 ) :
-    Entity(grid, name, movesPerTurn),
+    Entity(grid, name, stats),
     player(player)
 { }
 

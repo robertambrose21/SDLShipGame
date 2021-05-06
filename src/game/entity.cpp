@@ -1,11 +1,11 @@
 #include "entity.h"
 
-Entity::Entity(std::shared_ptr<Grid> grid, const std::string& name, int movesPerTurn) :
+Entity::Entity(std::shared_ptr<Grid> grid, const std::string& name, Stats stats) :
     grid(grid),
     name(name),
-    movesPerTurn(movesPerTurn),
+    stats(stats),
     partialPosition({ 0.0f, 0.0f }),
-    position({0, 0})
+    position({ 0, 0 })
 { }
 
 void Entity::setTexture(std::shared_ptr<Texture> texture) {
@@ -17,12 +17,12 @@ void Entity::draw(std::shared_ptr<SDL_Renderer> renderer) {
     texture->draw(renderer, NULL, &realPosition);
 }
 
-int Entity::getMovesPerTurn(void) const {
-    return movesPerTurn;
+Entity::Stats Entity::getStats(void) const {
+    return stats;
 }
 
 const float Entity::getSpeed(void) {
-    return 1000.0f / (MOVES_PER_SECOND * getMovesPerTurn());
+    return 1000.0f / (MOVES_PER_SECOND * getStats().movesPerTurn);
 }
 
 glm::ivec2 Entity::getPosition(void) const {

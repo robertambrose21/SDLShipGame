@@ -6,10 +6,15 @@ int main() {
 	Window window(1024, 768);
     window.initialiseWindow();
 
-    auto player = std::make_shared<PlayerController>(window.getGrid(), 2);
+    auto player = std::make_shared<PlayerController>(window.getGrid());
     player->setTexture(window.getTextureLoader()->getTexture("../assets/player.png"));
 
-    auto enemy = std::make_shared<Enemy>(window.getGrid(), "Space Worm", player, 1);
+    // TODO: Figure out why we can't just inline this struct
+    Entity::Stats s;
+    s.movesPerTurn = 1;
+    s.hp = 1;
+
+    auto enemy = std::make_shared<Enemy>(window.getGrid(), "Space Worm", player, s);
     enemy->setPosition(glm::ivec2(0, window.getGrid()->getHeight() - 1));
     enemy->setTexture(window.getTextureLoader()->getTexture("../assets/spaceworm.png"));
 
