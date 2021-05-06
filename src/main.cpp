@@ -28,6 +28,7 @@ int main() {
     });
     window.addLoopEventWorker([&](SDL_Event e, bool& quit) {
         player->handleKeyPress(e);
+        player->handleMouseEvent(e);
     });
 
     for(auto i = 0; i < 20; i++) {

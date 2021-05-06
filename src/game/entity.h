@@ -14,7 +14,6 @@ public:
 
 private:
     std::shared_ptr<Texture> texture;
-    std::shared_ptr<Grid> grid;
 
     glm::ivec2 position;
     glm::vec2 partialPosition;
@@ -22,6 +21,9 @@ private:
     Stats stats;
 
     std::string name;
+
+protected:
+    std::shared_ptr<Grid> grid;
 public:
 
     const Uint32 MOVES_PER_SECOND = 5;
@@ -31,7 +33,6 @@ public:
     void setTexture(std::shared_ptr<Texture> texture);
     void draw(std::shared_ptr<SDL_Renderer> renderer);
 
-    virtual void handleKeyPress(SDL_Event event) { };
     virtual void update(const Uint32& timeSinceLastFrame, bool& quit) = 0;
 
     Stats getStats(void) const;
