@@ -16,14 +16,15 @@ void Grid::setTile(int x, int y, std::shared_ptr<Texture> tile) {
 void Grid::draw(std::shared_ptr<SDL_Renderer> renderer) {
     for(auto y = 0; y < height; y++) {
         for(auto x = 0; x < width; x++) {
-            SDL_Rect dst = getTilePosition(x, y);
+            auto position = getTilePosition(x, y);
+            SDL_Rect dst = { position.x, position.y, tileSize, tileSize };
             data[y][x]->draw(renderer, NULL, &dst);
         }
     }
 }
 
-SDL_Rect Grid::getTilePosition(int x, int y) {
-    return { x * tileSize, y * tileSize, tileSize, tileSize };
+glm::ivec2 Grid::getTilePosition(int x, int y) const {
+    return { x * tileSize, y * tileSize };
 }
 
 int Grid::getTileSize(void) const {

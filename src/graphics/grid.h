@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <glm/glm.hpp>
 
 #include "textureloader.h"
 
@@ -19,7 +20,7 @@ public:
     void setTile(int x, int y, std::shared_ptr<Texture> tile);
     void draw(std::shared_ptr<SDL_Renderer> renderer);
 
-    SDL_Rect getTilePosition(int x, int y);
+    glm::ivec2 getTilePosition(int x, int y) const;
     int getTileSize(void) const;
 
     int getWidth(void) const;

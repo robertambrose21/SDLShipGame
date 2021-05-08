@@ -13,8 +13,9 @@ void Entity::setTexture(std::shared_ptr<Texture> texture) {
 }
 
 void Entity::draw(std::shared_ptr<SDL_Renderer> renderer) {
-    SDL_Rect realPosition = grid->getTilePosition(position.x, position.y);
-    texture->draw(renderer, NULL, &realPosition);
+    auto realPosition = grid->getTilePosition(position.x, position.y);
+    SDL_Rect dst = { realPosition.x, realPosition.y, grid->getTileSize(), grid->getTileSize() };
+    texture->draw(renderer, NULL, &dst);
 }
 
 Entity::Stats Entity::getStats(void) const {
