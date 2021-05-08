@@ -9,7 +9,7 @@ private:
 
 public:
     Enemy(
-        std::shared_ptr<Grid> grid,
+        std::shared_ptr<GridRenderer> grid,
         const std::string& name,
         std::shared_ptr<PlayerController> player,
         Entity::Stats stats

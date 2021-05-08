@@ -5,7 +5,7 @@
 
 #include "textureloader.h"
 
-class Grid {
+class GridRenderer {
 private:
     int width;
     int height;
@@ -15,7 +15,7 @@ private:
     std::vector<std::vector<std::shared_ptr<Texture>>> data;
 
 public:
-    Grid(int width, int height, int windowHeight);
+    GridRenderer(int width, int height, int windowHeight);
 
     void setTile(int x, int y, std::shared_ptr<Texture> tile);
     void draw(std::shared_ptr<SDL_Renderer> renderer);

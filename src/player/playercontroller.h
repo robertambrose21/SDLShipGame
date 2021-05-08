@@ -4,7 +4,7 @@
 #include <glm/glm.hpp>
 #include <iostream>
 
-#include "../graphics/grid.h"
+#include "../graphics/gridrenderer.h"
 #include "../graphics/textureloader.h"
 #include "../game/entity.h"
 
@@ -15,7 +15,7 @@ private:
     glm::vec2 direction;
 
 public:
-    PlayerController(std::shared_ptr<Grid> grid);
+    PlayerController(std::shared_ptr<GridRenderer> grid);
 
     void handleKeyPress(SDL_Event event);
     void handleMouseEvent(SDL_Event event);

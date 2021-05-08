@@ -7,7 +7,7 @@
 #include <functional>
 
 #include "textureloader.h"
-#include "grid.h"
+#include "gridrenderer.h"
 
 // TODO: Modules (eventually): https://docs.microsoft.com/en-us/cpp/cpp/modules-cpp?view=msvc-160
 class Window {
@@ -24,7 +24,7 @@ private:
     std::shared_ptr<SDL_Renderer> renderer;
 
     std::shared_ptr<TextureLoader> textureLoader;
-    std::shared_ptr<Grid> grid;
+    std::shared_ptr<GridRenderer> grid;
 
     std::vector<std::function<void(const Uint32&, bool&)>> logicWorkers;
     std::vector<std::function<void(std::shared_ptr<SDL_Renderer>, bool&)>> drawWorkers;
@@ -42,7 +42,7 @@ public:
     void addLoopEventWorker(std::function<void(SDL_Event, bool&)> worker);
     
     void setGridTileTexture(int x, int y, const std::string& texture);
-    std::shared_ptr<Grid> getGrid(void);
+    std::shared_ptr<GridRenderer> getGrid(void);
 
     // TODO: Think about a better place to put this
     std::shared_ptr<TextureLoader> getTextureLoader(void);

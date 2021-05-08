@@ -44,7 +44,7 @@ bool Window::initialiseWindow(void) {
 
     textureLoader = std::make_shared<TextureLoader>(renderer);
 
-    grid = std::make_shared<Grid>(20, 20, height);
+    grid = std::make_shared<GridRenderer>(20, 20, height);
 
     return true;
 }
@@ -103,7 +103,7 @@ void Window::setGridTileTexture(int x, int y, const std::string& texture) {
     grid->setTile(x, y, textureLoader->getTexture(texture));
 }
 
-std::shared_ptr<Grid> Window::getGrid(void) {
+std::shared_ptr<GridRenderer> Window::getGrid(void) {
     return grid;
 }
 

@@ -1,6 +1,6 @@
 #include "entity.h"
 
-Entity::Entity(std::shared_ptr<Grid> grid, const std::string& name, Stats stats) :
+Entity::Entity(std::shared_ptr<GridRenderer> grid, const std::string& name, Stats stats) :
     grid(grid),
     name(name),
     stats(stats),

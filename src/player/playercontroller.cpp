@@ -1,6 +1,6 @@
 #include "playercontroller.h"
 
-PlayerController::PlayerController(std::shared_ptr<Grid> grid) :
+PlayerController::PlayerController(std::shared_ptr<GridRenderer> grid) :
     Entity(grid, "Player", { 2, 10 }),
     destination({ 0, 0}),
     direction({ 0.0f, 0.0f })

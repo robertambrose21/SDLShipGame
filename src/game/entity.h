@@ -3,7 +3,7 @@
 #include <glm/glm.hpp>
 #include <string>
 
-#include "../graphics/grid.h"
+#include "../graphics/gridrenderer.h"
 
 class Entity {
 public:
@@ -23,12 +23,12 @@ private:
     std::string name;
 
 protected:
-    std::shared_ptr<Grid> grid;
+    std::shared_ptr<GridRenderer> grid;
 public:
 
     const Uint32 MOVES_PER_SECOND = 5;
 
-    Entity(std::shared_ptr<Grid> grid, const std::string& name, Stats stats);
+    Entity(std::shared_ptr<GridRenderer> grid, const std::string& name, Stats stats);
 
     void setTexture(std::shared_ptr<Texture> texture);
     void draw(std::shared_ptr<SDL_Renderer> renderer);
