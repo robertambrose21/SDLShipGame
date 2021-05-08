@@ -7,12 +7,12 @@
 #include "../graphics/gridrenderer.h"
 #include "../graphics/textureloader.h"
 #include "../game/entity.h"
+#include "player.h"
 
-// TODO: Split player entity and player controller
-class PlayerController : public Entity {
+class PlayerController {
 private:
-    glm::ivec2 destination;
-    glm::vec2 direction;
+    std::shared_ptr<Player> player;
+    std::shared_ptr<GridRenderer> grid;
 
 public:
     PlayerController(std::shared_ptr<GridRenderer> grid);
@@ -20,5 +20,5 @@ public:
     void handleKeyPress(SDL_Event event);
     void handleMouseEvent(SDL_Event event);
 
-    void update(const Uint32& timeSinceLastFrame, bool& quit);
+    std::shared_ptr<Player> getEntity(void);
 };

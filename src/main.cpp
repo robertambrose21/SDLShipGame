@@ -7,7 +7,7 @@ int main() {
     window.initialiseWindow();
 
     auto player = std::make_shared<PlayerController>(window.getGrid());
-    player->setTexture(window.getTextureLoader()->getTexture("../assets/player.png"));
+    player->getEntity()->setTexture(window.getTextureLoader()->getTexture("../assets/player.png"));
 
     // TODO: Figure out why we can't just inline this struct
     Entity::Stats s;
@@ -19,11 +19,11 @@ int main() {
     enemy->setTexture(window.getTextureLoader()->getTexture("../assets/spaceworm.png"));
 
     window.addLoopDrawWorker([&](auto renderer, bool& quit) {
-        player->draw(renderer);
+        player->getEntity()->draw(renderer);
         enemy->draw(renderer);
     });
     window.addLoopLogicWorker([&](const Uint32& timeSinceLastFrame, bool& quit) {
-        player->update(timeSinceLastFrame, quit);
+        player->getEntity()->update(timeSinceLastFrame, quit);
         enemy->update(timeSinceLastFrame, quit);
     });
     window.addLoopEventWorker([&](SDL_Event e, bool& quit) {
