@@ -1,9 +1,11 @@
 #include "window.h"
 
-Window::Window(int width, int height) :
+Window::Window(int width, int height, std::shared_ptr<Grid> grid) :
     width(width),
     height(height)
-{ }
+{
+    gridRenderer = std::make_shared<GridRenderer>(grid, height);
+}
 
 Window::~Window() {
     IMG_Quit();
@@ -44,8 +46,6 @@ bool Window::initialiseWindow(void) {
 
     textureLoader = std::make_shared<TextureLoader>(renderer);
 
-    grid = std::make_shared<GridRenderer>(20, 20, height);
-
     return true;
 }
 
@@ -77,7 +77,7 @@ void Window::loop(void) {
 
         SDL_RenderClear(renderer.get());
 
-        grid->draw(renderer);
+        gridRenderer->draw(renderer);
 
         for(auto worker : drawWorkers) {
             worker(renderer, quit);
@@ -99,12 +99,13 @@ void Window::addLoopEventWorker(std::function<void(SDL_Event, bool&)> worker) {
     eventWorkers.push_back(worker);
 }
 
-void Window::setGridTileTexture(int x, int y, const std::string& texture) {
-    grid->setTile(x, y, textureLoader->getTexture(texture));
+void Window::setGridTileTexture(const int& tileId, const std::string& texture) {
+    // gridRenderer->setTile(x, y, textureLoader->getTexture(texture));
+    gridRenderer->setTileTexture(tileId, textureLoader->getTexture(texture));
 }
 
-std::shared_ptr<GridRenderer> Window::getGrid(void) {
-    return grid;
+std::shared_ptr<GridRenderer> Window::getGridRenderer(void) {
+    return gridRenderer;
 }
 
 std::shared_ptr<TextureLoader> Window::getTextureLoader(void) {

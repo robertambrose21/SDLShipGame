@@ -3,10 +3,12 @@
 #include "game/enemy.h"
 
 int main() {
-	Window window(1024, 768);
+    auto grid = std::make_shared<Grid>(20, 20);
+
+	Window window(1024, 768, grid);
     window.initialiseWindow();
 
-    auto player = std::make_shared<PlayerController>(window.getGrid());
+    auto player = std::make_shared<PlayerController>(window.getGridRenderer());
     player->getEntity()->setTexture(window.getTextureLoader()->getTexture("../assets/player.png"));
 
     // TODO: Figure out why we can't just inline this struct
@@ -14,8 +16,8 @@ int main() {
     s.movesPerTurn = 1;
     s.hp = 1;
 
-    auto enemy = std::make_shared<Enemy>(window.getGrid(), "Space Worm", player, s);
-    enemy->setPosition(glm::ivec2(0, window.getGrid()->getHeight() - 1));
+    auto enemy = std::make_shared<Enemy>(window.getGridRenderer(), "Space Worm", player, s);
+    enemy->setPosition(glm::ivec2(0, grid->getHeight() - 1));
     enemy->setTexture(window.getTextureLoader()->getTexture("../assets/spaceworm.png"));
 
     window.addLoopDrawWorker([&](auto renderer, bool& quit) {
@@ -31,9 +33,11 @@ int main() {
         player->handleMouseEvent(e);
     });
 
-    for(auto i = 0; i < 20; i++) {
-        for(auto j = 0; j < 20; j++) {
-            window.setGridTileTexture(i, j, "../assets/floor1.png");
+    window.setGridTileTexture(1, "../assets/floor1.png");
+
+    for(auto i = 0; i < grid->getWidth(); i++) {
+        for(auto j = 0; j < grid->getHeight(); j++) {
+            grid->setTile(i, j, { 1, true });
         }
     }
 

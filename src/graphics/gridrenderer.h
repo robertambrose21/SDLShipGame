@@ -4,25 +4,22 @@
 #include <glm/glm.hpp>
 
 #include "textureloader.h"
+#include "../core/grid.h"
 
 class GridRenderer {
 private:
-    int width;
-    int height;
     int windowHeight;
     int tileSize;
 
-    std::vector<std::vector<std::shared_ptr<Texture>>> data;
+    std::map<int, std::shared_ptr<Texture>> tileTextures;
+    std::shared_ptr<Grid> grid;
 
 public:
-    GridRenderer(int width, int height, int windowHeight);
+    GridRenderer(std::shared_ptr<Grid> grid, int windowHeight);
 
-    void setTile(int x, int y, std::shared_ptr<Texture> tile);
+    void setTileTexture(const int& tileId, std::shared_ptr<Texture> texture);
     void draw(std::shared_ptr<SDL_Renderer> renderer);
 
     glm::ivec2 getTilePosition(int x, int y) const;
     int getTileSize(void) const;
-
-    int getWidth(void) const;
-    int getHeight(void) const;
 };
