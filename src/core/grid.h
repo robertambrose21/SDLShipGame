@@ -30,6 +30,7 @@ private:
 
     // Path finding
     int getManhattanDistance(const glm::ivec2& source, const glm::ivec2& destination) const;
+    int getDistanceWeight(const glm::ivec2& currentNode, const glm::ivec2& neighbour);
     glm::ivec2 getLowestFScoreNode(
         std::set<glm::ivec2> open,
         std::map<glm::ivec2, int> fScore
@@ -54,5 +55,4 @@ public:
     Tile getTileAt(const int& x, const int& y) const;
 
     std::deque<glm::ivec2> findPath(const glm::ivec2& source, const glm::ivec2& destination);
-    
 };

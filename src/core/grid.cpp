@@ -64,7 +64,7 @@ std::deque<glm::ivec2> Grid::findPath(const glm::ivec2& source, const glm::ivec2
 
         open.erase(currentNode);
         for(auto neighbour : getNeighbours(currentNode)) {
-            auto tentativeGScore = gScore[currentNode] + glm::distance(glm::vec2(currentNode), glm::vec2(neighbour));
+            auto tentativeGScore = gScore[currentNode] + getDistanceWeight(currentNode, neighbour);
 
             if(!gScore.contains(neighbour) || tentativeGScore < gScore[neighbour]) {
                 cameFrom[neighbour] = currentNode;
@@ -93,6 +93,10 @@ std::deque<glm::ivec2> Grid::findPath(const glm::ivec2& source, const glm::ivec2
 
 int Grid::getManhattanDistance(const glm::ivec2& source, const glm::ivec2& destination) const {
     return std::abs(source.x - destination.x) + std::abs(source.y - destination.y);
+}
+
+int Grid::getDistanceWeight(const glm::ivec2& currentNode, const glm::ivec2& neighbour) {
+    return currentNode.x != neighbour.x && currentNode.y != neighbour.y ? 14 : 10;
 }
 
 glm::ivec2 Grid::getLowestFScoreNode(
@@ -129,7 +133,7 @@ std::set<glm::ivec2> Grid::getNeighbours(const glm::ivec2& node) {
 }
 
 bool Grid::isNodeInBounds(const glm::ivec2& node) const {
-    return node.x >= 0 && node.x <= width && node.y >= 0 && node.y <= height;
+    return node.x >= 0 && node.x < width && node.y >= 0 && node.y < height;
 }
 
 std::deque<glm::ivec2> Grid::buildPath(
