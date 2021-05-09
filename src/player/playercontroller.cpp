@@ -14,7 +14,8 @@ void PlayerController::handleMouseEvent(SDL_Event event) {
     if(event.type == SDL_MOUSEBUTTONDOWN) {
         int x, y;
         SDL_GetMouseState(&x, &y);
-        player->setDestination(glm::ivec2(x, y) / grid->getTileSize());
+        auto [dX, dY] = grid->getTileIndices(glm::ivec2(x, y));
+        player->setPath(grid->getGrid()->findPath(player->getPosition(), glm::ivec2(dX, dY)));
     }
 }
 

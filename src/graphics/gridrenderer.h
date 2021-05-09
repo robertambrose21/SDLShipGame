@@ -21,5 +21,8 @@ public:
     void draw(std::shared_ptr<SDL_Renderer> renderer);
 
     glm::ivec2 getTilePosition(int x, int y) const;
+    std::pair<int, int> getTileIndices(const glm::ivec2& position) const;
     int getTileSize(void) const;
+
+    std::shared_ptr<Grid> getGrid(void);
 };

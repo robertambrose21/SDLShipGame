@@ -5,13 +5,12 @@
 
 class Player : public Entity {
 private:
-    glm::ivec2 destination;
-    glm::vec2 direction;
+    std::deque<glm::ivec2> path;
+    Uint32 timeSinceLastMoved;
 
 public:
     Player(std::shared_ptr<GridRenderer> grid);
 
     void update(const Uint32& timeSinceLastFrame, bool& quit);
-
-    void setDestination(const glm::ivec2& destination);
+    void setPath(std::deque<glm::ivec2> path);
 };

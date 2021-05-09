@@ -16,7 +16,6 @@ private:
     std::shared_ptr<Texture> texture;
 
     glm::ivec2 position;
-    glm::vec2 partialPosition;
 
     Stats stats;
 
@@ -24,6 +23,7 @@ private:
 
 protected:
     std::shared_ptr<GridRenderer> grid;
+
 public:
 
     const Uint32 MOVES_PER_SECOND = 5;
@@ -40,7 +40,4 @@ public:
 
     glm::ivec2 getPosition(void) const;
     void setPosition(const glm::ivec2& position);
-
-    glm::vec2 getPartialPosition(void) const;
-    void setPartialPosition(const glm::vec2& partialPosition);
 };

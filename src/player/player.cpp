@@ -2,19 +2,23 @@
 
 Player::Player(std::shared_ptr<GridRenderer> grid) :
     Entity(grid, "Player", { 2, 10 }),
-    destination({ 0, 0}),
-    direction({ 0.0f, 0.0f })
+    timeSinceLastMoved(0)
 { }
 
 void Player::update(const Uint32& timeSinceLastFrame, bool& quit) {
-    if(getPosition() == destination) {
+    if(path.empty()) {
         return;
     }
 
-    setPartialPosition(getPartialPosition() + (direction * (timeSinceLastFrame / getSpeed())));
+    timeSinceLastMoved += timeSinceLastFrame;
+
+    if(timeSinceLastMoved > getSpeed()) {
+        setPosition(path.front());
+        path.pop_front();
+        timeSinceLastMoved = 0;
+    }
 }
 
-void Player::setDestination(const glm::ivec2& destination) {
-    this->destination = destination;
-    direction = glm::normalize(glm::vec2(destination) - getPartialPosition());
+void Player::setPath(std::deque<glm::ivec2> path) {
+    this->path = path;
 }

@@ -11,7 +11,5 @@ Enemy::Enemy(
 { }
 
 void Enemy::update(const Uint32& timeSinceLastFrame, bool& quit) {
-    glm::vec2 direction = glm::normalize(player->getEntity()->getPartialPosition() - getPartialPosition());
-
-    setPartialPosition(getPartialPosition() + direction * (timeSinceLastFrame / getSpeed()));
+    //
 }

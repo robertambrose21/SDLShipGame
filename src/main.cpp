@@ -5,6 +5,17 @@
 int main() {
     auto grid = std::make_shared<Grid>(20, 20);
 
+    for(auto i = 0; i < grid->getWidth(); i++) {
+        for(auto j = 0; j < grid->getHeight(); j++) {
+            if(i == 10 && j != 12) {
+                grid->setTile(i, j, { 2, false });
+            }
+            else {
+                grid->setTile(i, j, { 1, true });
+            }
+        }
+    }
+
 	Window window(1024, 768, grid);
     window.initialiseWindow();
 
@@ -34,12 +45,7 @@ int main() {
     });
 
     window.setGridTileTexture(1, "../assets/floor1.png");
-
-    for(auto i = 0; i < grid->getWidth(); i++) {
-        for(auto j = 0; j < grid->getHeight(); j++) {
-            grid->setTile(i, j, { 1, true });
-        }
-    }
+    window.setGridTileTexture(2, "../assets/wall.png");
 
     window.loop();
 

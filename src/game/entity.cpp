@@ -4,7 +4,6 @@ Entity::Entity(std::shared_ptr<GridRenderer> grid, const std::string& name, Stat
     grid(grid),
     name(name),
     stats(stats),
-    partialPosition({ 0.0f, 0.0f }),
     position({ 0, 0 })
 { }
 
@@ -31,15 +30,5 @@ glm::ivec2 Entity::getPosition(void) const {
 }
 
 void Entity::setPosition(const glm::ivec2& position) {
-    this->partialPosition = position;
     this->position = position;
-}
-
-glm::vec2 Entity::getPartialPosition(void) const {
-    return partialPosition;
-}
-
-void Entity::setPartialPosition(const glm::vec2& partialPosition) {
-    this->partialPosition = partialPosition;
-    this->position = partialPosition;
 }
