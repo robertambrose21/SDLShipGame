@@ -6,6 +6,7 @@ Player::Player(std::shared_ptr<GridRenderer> grid) :
 { }
 
 void Player::update(const Uint32& timeSinceLastFrame, bool& quit) {
+    // TODO: Put movement code elsewhere so it can also be used by enemy/other entites
     if(path.empty()) {
         return;
     }

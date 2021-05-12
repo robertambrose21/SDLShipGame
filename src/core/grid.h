@@ -1,20 +1,12 @@
 #pragma once
 
-#include <glm/glm.hpp>
+#include "glmimport.h"
 #include <vector>
 #include <iostream>
 #include <map>
 #include <set>
 #include <deque>
 #include <limits.h>
-
-// Fix using glm vec2s as map keys
-namespace glm {
-    template <typename T, precision P>
-    bool operator<(const tvec2<T, P>& a,const tvec2<T, P>& b) {
-        return (a.x < b.x || (a.x == b.x && a.y < b.y));
-    }
-}
 
 typedef struct _tile {
     int id;

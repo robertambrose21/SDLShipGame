@@ -25,6 +25,10 @@ const float Entity::getSpeed(void) {
     return 1000.0f / (MOVES_PER_SECOND * getStats().movesPerTurn);
 }
 
+void Entity::doDamage(const int& amount) {
+    stats.hp -= amount;
+}
+
 glm::ivec2 Entity::getPosition(void) const {
     return position;
 }

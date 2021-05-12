@@ -19,29 +19,28 @@ int main() {
 	Window window(1024, 768, grid);
     window.initialiseWindow();
 
-    auto player = std::make_shared<PlayerController>(window.getGridRenderer());
-    player->getEntity()->setTexture(window.getTextureLoader()->getTexture("../assets/player.png"));
+    auto entityPool = std::make_shared<EntityPool>();
+    auto playerController = std::make_shared<PlayerController>(window.getGridRenderer(), entityPool);
+    playerController->getEntity()->setTexture(window.getTextureLoader()->getTexture("../assets/player.png"));
 
     // TODO: Figure out why we can't just inline this struct
     Entity::Stats s;
     s.movesPerTurn = 1;
     s.hp = 1;
 
-    auto enemy = std::make_shared<Enemy>(window.getGridRenderer(), "Space Worm", player, s);
+    auto enemy = entityPool->createEntity(std::make_shared<Enemy>(window.getGridRenderer(), "Space Worm", playerController, s));
     enemy->setPosition(glm::ivec2(0, grid->getHeight() - 1));
     enemy->setTexture(window.getTextureLoader()->getTexture("../assets/spaceworm.png"));
 
     window.addLoopDrawWorker([&](auto renderer, bool& quit) {
-        player->getEntity()->draw(renderer);
-        enemy->draw(renderer);
+        entityPool->drawEntities(renderer);
     });
     window.addLoopLogicWorker([&](const Uint32& timeSinceLastFrame, bool& quit) {
-        player->getEntity()->update(timeSinceLastFrame, quit);
-        enemy->update(timeSinceLastFrame, quit);
+        entityPool->updateEntities(timeSinceLastFrame, quit);
     });
     window.addLoopEventWorker([&](SDL_Event e, bool& quit) {
-        player->handleKeyPress(e);
-        player->handleMouseEvent(e);
+        playerController->handleKeyPress(e);
+        playerController->handleMouseEvent(e);
     });
 
     window.setGridTileTexture(1, "../assets/floor1.png");
