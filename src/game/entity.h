@@ -20,6 +20,7 @@ private:
     Stats stats;
 
     std::string name;
+    int movesLeft;
 
 protected:
     std::shared_ptr<GridRenderer> grid;
@@ -40,4 +41,9 @@ public:
 
     glm::ivec2 getPosition(void) const;
     void setPosition(const glm::ivec2& position);
+
+    int getMovesLeft(void) const;
+    void useMoves(const int& numMoves);
+
+    void nextTurn(void);
 };

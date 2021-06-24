@@ -4,7 +4,8 @@ Entity::Entity(std::shared_ptr<GridRenderer> grid, const std::string& name, Stat
     grid(grid),
     name(name),
     stats(stats),
-    position({ 0, 0 })
+    position({ 0, 0 }),
+    movesLeft(0)
 { }
 
 void Entity::setTexture(std::shared_ptr<Texture> texture) {
@@ -35,4 +36,20 @@ glm::ivec2 Entity::getPosition(void) const {
 
 void Entity::setPosition(const glm::ivec2& position) {
     this->position = position;
+}
+
+int Entity::getMovesLeft(void) const {
+    return movesLeft;
+}
+
+void Entity::useMoves(const int& numMoves) {
+    movesLeft -= numMoves;
+    
+    if(movesLeft < 0) {
+        movesLeft = 0;
+    }
+}
+
+void Entity::nextTurn(void) {
+    movesLeft = stats.movesPerTurn;
 }
