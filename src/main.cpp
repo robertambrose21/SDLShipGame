@@ -35,6 +35,12 @@ int main() {
     enemy->setPosition(glm::ivec2(0, grid->getHeight() - 1));
     enemy->setTexture(window.getTextureLoader()->getTexture("../assets/spaceworm.png"));
 
+    auto enemy2 = entityPool->createEntity(
+        std::make_shared<Enemy>(window.getGridRenderer(), "Space Worm", playerController->getEntity(), s)
+    );
+    enemy2->setPosition(glm::ivec2(5, grid->getHeight() - 3));
+    enemy2->setTexture(window.getTextureLoader()->getTexture("../assets/spaceworm.png"));
+
     window.addLoopDrawWorker([&](auto renderer, bool& quit) {
         entityPool->drawEntities(renderer);
     });
