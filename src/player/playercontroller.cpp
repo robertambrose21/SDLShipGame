@@ -34,9 +34,7 @@ void PlayerController::handleMouseEvent(SDL_Event event) {
 
 void PlayerController::move(const glm::ivec2& mouseCoords) {
     auto [dX, dY] = grid->getTileIndices(mouseCoords);
-    auto path = grid->getGrid()->findPath(player->getPosition(), glm::ivec2(dX, dY));
-    path.pop_front();
-    player->setPath(path);
+    player->findPath(glm::ivec2(dX, dY));
 }
 
 std::shared_ptr<Player> PlayerController::getEntity(void) {

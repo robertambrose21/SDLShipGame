@@ -3,7 +3,7 @@
 Enemy::Enemy(
     std::shared_ptr<GridRenderer> grid,
     const std::string& name, 
-    std::shared_ptr<PlayerController> player, 
+    std::shared_ptr<Player> player, 
     Entity::Stats stats
 ) :
     Entity(grid, name, stats),
@@ -11,5 +11,5 @@ Enemy::Enemy(
 { }
 
 void Enemy::additionalUpdate(const Uint32& timeSinceLastFrame, bool& quit) {
-    //
+    findPath(player->getPosition());
 }

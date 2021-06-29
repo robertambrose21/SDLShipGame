@@ -1,7 +1,7 @@
 #include "entitypool.h"
 
 EntityPool::EntityPool() :
-    isPlayersTurn(true)
+    isPlayersTurn(false)
 { }
 
 void EntityPool::updateEntities(Uint32 timeSinceLastFrame, bool& quit) {

@@ -49,7 +49,7 @@ public:
 
     glm::ivec2 getPosition(void) const;
     void setPosition(const glm::ivec2& position);
-    void setPath(std::deque<glm::ivec2> path);
+    bool findPath(const glm::ivec2& target);
 
     int getMovesLeft(void) const;
     void useMoves(const int& numMoves);
