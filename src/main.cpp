@@ -24,19 +24,14 @@ int main() {
     playerController->getEntity()->setTexture(window.getTextureLoader()->getTexture("../assets/player.png"));
     entityPool->setPlayerEntity(playerController->getEntity());
 
-    // TODO: Figure out why we can't just inline this struct
-    Entity::Stats s;
-    s.movesPerTurn = 1;
-    s.hp = 1;
-
     auto enemy = entityPool->createEntity(
-        std::make_shared<Enemy>(window.getGridRenderer(), "Space Worm", playerController->getEntity(), s)
+        std::make_shared<Enemy>(window.getGridRenderer(), "Space Worm", playerController->getEntity(), (Entity::Stats) { 5, 1 })
     );
     enemy->setPosition(glm::ivec2(0, grid->getHeight() - 1));
     enemy->setTexture(window.getTextureLoader()->getTexture("../assets/spaceworm.png"));
 
     auto enemy2 = entityPool->createEntity(
-        std::make_shared<Enemy>(window.getGridRenderer(), "Space Worm", playerController->getEntity(), s)
+        std::make_shared<Enemy>(window.getGridRenderer(), "Space Worm", playerController->getEntity(), (Entity::Stats) { 5, 1 })
     );
     enemy2->setPosition(glm::ivec2(5, grid->getHeight() - 3));
     enemy2->setTexture(window.getTextureLoader()->getTexture("../assets/spaceworm.png"));
