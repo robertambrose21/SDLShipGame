@@ -15,5 +15,5 @@ public:
         Entity::Stats stats
     );
 
-    void update(const Uint32& timeSinceLastFrame, bool& quit);
+    void additionalUpdate(const Uint32& timeSinceLastFrame, bool& quit);
 };

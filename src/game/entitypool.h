@@ -7,8 +7,12 @@
 class EntityPool {
 private:
     std::set<std::shared_ptr<Entity>> entities;
+    std::shared_ptr<Entity> player;
+    bool isPlayersTurn;
 
     void updateEntity(std::shared_ptr<Entity> entity, Uint32 timeSinceLastFrame, bool& quit);
+
+    bool canProgressToNextTurn(std::shared_ptr<Entity> entity);
 
 public:
     EntityPool();
@@ -18,4 +22,8 @@ public:
 
     std::shared_ptr<Entity> createEntity(std::shared_ptr<Entity> entity);
     std::set<std::shared_ptr<Entity>> getEntities(void);
+
+    void setPlayerEntity(std::shared_ptr<Entity> player);
+
+    void nextTurn(void);
 };

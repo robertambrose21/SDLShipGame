@@ -1,6 +1,10 @@
 #include "entity.h"
 
-Entity::Entity(std::shared_ptr<GridRenderer> grid, const std::string& name, Stats stats) :
+Entity::Entity(
+    std::shared_ptr<GridRenderer> grid,
+    const std::string& name,
+    Stats stats
+) :
     grid(grid),
     name(name),
     stats(stats),
@@ -16,6 +20,27 @@ void Entity::draw(std::shared_ptr<SDL_Renderer> renderer) {
     auto realPosition = grid->getTilePosition(position.x, position.y);
     SDL_Rect dst = { realPosition.x, realPosition.y, grid->getTileSize(), grid->getTileSize() };
     texture->draw(renderer, NULL, &dst);
+}
+
+void Entity::update(const Uint32& timeSinceLastFrame, bool& quit) {
+    if(getMovesLeft() == 0) {
+        return;
+    }
+
+    if(path.empty()) {
+        return;
+    }
+
+    timeSinceLastMoved += timeSinceLastFrame;
+
+    if(timeSinceLastMoved > getSpeed()) {
+        setPosition(path.front());
+        path.pop_front();
+        timeSinceLastMoved = 0;
+        useMoves(1);
+    }
+
+    additionalUpdate(timeSinceLastFrame, quit);
 }
 
 Entity::Stats Entity::getStats(void) const {
@@ -36,6 +61,10 @@ glm::ivec2 Entity::getPosition(void) const {
 
 void Entity::setPosition(const glm::ivec2& position) {
     this->position = position;
+}
+
+void Entity::setPath(std::deque<glm::ivec2> path) {
+    this->path = path;
 }
 
 int Entity::getMovesLeft(void) const {

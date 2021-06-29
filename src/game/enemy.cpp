@@ -10,6 +10,6 @@ Enemy::Enemy(
     player(player)
 { }
 
-void Enemy::update(const Uint32& timeSinceLastFrame, bool& quit) {
+void Enemy::additionalUpdate(const Uint32& timeSinceLastFrame, bool& quit) {
     //
 }

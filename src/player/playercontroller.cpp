@@ -4,7 +4,7 @@ PlayerController::PlayerController(std::shared_ptr<GridRenderer> grid, std::shar
     grid(grid),
     entityPool(entityPool)
 {
-    player = std::dynamic_pointer_cast<Player>(entityPool->createEntity(std::make_shared<Player>(grid)));
+    player = std::make_shared<Player>(grid);
 }
 
 void PlayerController::handleKeyPress(SDL_Event event) {

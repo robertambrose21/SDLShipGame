@@ -16,6 +16,8 @@ private:
     std::shared_ptr<Texture> texture;
 
     glm::ivec2 position;
+    std::deque<glm::ivec2> path;
+    Uint32 timeSinceLastMoved;
 
     Stats stats;
 
@@ -25,12 +27,18 @@ private:
 protected:
     std::shared_ptr<GridRenderer> grid;
 
+    virtual void additionalUpdate(const Uint32& timeSinceLastFrame, bool& quit) = 0;
+
 public:
     const Uint32 MOVES_PER_SECOND = 5;
 
-    Entity(std::shared_ptr<GridRenderer> grid, const std::string& name, Stats stats);
+    Entity(
+        std::shared_ptr<GridRenderer> grid,
+        const std::string& name,
+        Stats stats
+    );
 
-    virtual void update(const Uint32& timeSinceLastFrame, bool& quit) = 0;
+    void update(const Uint32& timeSinceLastFrame, bool& quit);
 
     void setTexture(std::shared_ptr<Texture> texture);
     void draw(std::shared_ptr<SDL_Renderer> renderer);
@@ -41,6 +49,7 @@ public:
 
     glm::ivec2 getPosition(void) const;
     void setPosition(const glm::ivec2& position);
+    void setPath(std::deque<glm::ivec2> path);
 
     int getMovesLeft(void) const;
     void useMoves(const int& numMoves);
