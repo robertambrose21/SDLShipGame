@@ -1,2 +1,8 @@
 build/
 assets/
+
+*.cmake
+*.a
+**/CMakeFiles
+CMakeCache.txt
+Makefile
