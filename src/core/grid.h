@@ -29,6 +29,8 @@ private:
     ) const;
     std::set<glm::ivec2> getNeighbours(const glm::ivec2& node);
     bool isNodeInBounds(const glm::ivec2& node) const;
+    bool isNodeWalkable(const glm::ivec2& node) const;
+    std::string nodeToString(const glm::ivec2& node) const;
     std::deque<glm::ivec2> buildPath(
         std::map<glm::ivec2, glm::ivec2> cameFrom,
         glm::ivec2 currentNode

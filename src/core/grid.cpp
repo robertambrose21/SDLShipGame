@@ -31,6 +31,10 @@ Tile Grid::getTileAt(const int& x, const int& y) const {
 }
 
 std::deque<glm::ivec2> Grid::findPath(const glm::ivec2& source, const glm::ivec2& destination) {
+    if(!isNodeWalkable(source) || !isNodeWalkable(destination)) {
+        return std::deque<glm::ivec2>();
+    }
+
     if(!isNodeInBounds(source) || !isNodeInBounds(destination)) {
         std::cout << "Path exceeded grid boundaries, no path found. source: (" 
             << source.x
@@ -123,7 +127,7 @@ std::set<glm::ivec2> Grid::getNeighbours(const glm::ivec2& node) {
         for(int y = -1; y < 2; y++) {
             auto neighbour = node + glm::ivec2(x, y);
 
-            if(!(x == 0 && y == 0) && isNodeInBounds(neighbour) && getTileAt(node.x, node.y).isWalkable) {
+            if(!(x == 0 && y == 0) && isNodeInBounds(neighbour) && isNodeWalkable(node)) {
                 neighbours.insert(neighbour);
             }
         }
@@ -134,6 +138,10 @@ std::set<glm::ivec2> Grid::getNeighbours(const glm::ivec2& node) {
 
 bool Grid::isNodeInBounds(const glm::ivec2& node) const {
     return node.x >= 0 && node.x < width && node.y >= 0 && node.y < height;
+}
+
+bool Grid::isNodeWalkable(const glm::ivec2& node) const {
+    return getTileAt(node.x, node.y).isWalkable;
 }
 
 std::deque<glm::ivec2> Grid::buildPath(

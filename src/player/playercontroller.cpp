@@ -22,9 +22,11 @@ void PlayerController::handleMouseEvent(SDL_Event event) {
             break;
 
         case SDL_BUTTON_RIGHT:
-            for(auto entity : entityPool->getEntities()) {
+            auto [dX, dY] = grid->getTileIndices(glm::ivec2(x, y));
+
+            for(auto entity : entityPool->getEntitiesOnTile(dX, dY)) {
                 if(entity != player) {
-                    entity->doDamage(1);
+                    player->shoot(entity);
                 }
             }
             break;

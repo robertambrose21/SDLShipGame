@@ -23,11 +23,11 @@ void Entity::draw(std::shared_ptr<SDL_Renderer> renderer) {
 }
 
 void Entity::update(const Uint32& timeSinceLastFrame, bool& quit) {
-    additionalUpdate(timeSinceLastFrame, quit);
-    
     if(getMovesLeft() == 0) {
         return;
     }
+
+    additionalUpdate(timeSinceLastFrame, quit);
 
     if(path.empty()) {
         return;
@@ -63,11 +63,28 @@ void Entity::setPosition(const glm::ivec2& position) {
     this->position = position;
 }
 
-bool Entity::findPath(const glm::ivec2& target) {
+bool Entity::findPath(const glm::ivec2& target, const int& stopShortSteps) {
     auto path = grid->getGrid()->findPath(getPosition(), target);
-    path.pop_front(); // Remove the initial path node which is just the entities current position
+
+    if(path.empty()) {
+        return false;
+    }
+
+    // Remove the initial path node which is just the entities current position
+    path.pop_front(); 
+
+    if(path.size() >= stopShortSteps) {
+        for(auto i = 0; i < stopShortSteps; i++) {
+            path.pop_back();
+        }
+    }
+
     this->path = path;
     return !path.empty();
+}
+
+bool Entity::isNeighbour(std::shared_ptr<Entity> entity) const {
+    return glm::distance(glm::vec2(getPosition()), glm::vec2(entity->getPosition())) < 2;
 }
 
 int Entity::getMovesLeft(void) const {

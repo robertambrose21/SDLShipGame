@@ -45,6 +45,18 @@ std::set<std::shared_ptr<Entity>> EntityPool::getEntities(void) {
     return entities;
 }
 
+std::set<std::shared_ptr<Entity>> EntityPool::getEntitiesOnTile(const int& x, const int& y) {
+    std::set<std::shared_ptr<Entity>> entitiesOnTile;
+
+    for(auto entity : entities) {
+        if(entity->getPosition() == glm::ivec2(x, y)) {
+            entitiesOnTile.insert(entity);
+        }
+    }
+
+    return entitiesOnTile;
+}
+
 void EntityPool::nextTurn(void) {
     if(player == nullptr) {
         return;
@@ -62,7 +74,7 @@ void EntityPool::nextTurn(void) {
 }
 
 bool EntityPool::canProgressToNextTurn(std::shared_ptr<Entity> entity) {
-    return entity->getMovesLeft() == 0;
+    return entity->getMovesLeft() == 0 || entity->endTurnCondition();
 }
 
 void EntityPool::setPlayerEntity(std::shared_ptr<Entity> player) {

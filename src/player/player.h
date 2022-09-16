@@ -10,4 +10,7 @@ public:
     Player(std::shared_ptr<GridRenderer> grid);
 
     void additionalUpdate(const Uint32& timeSinceLastFrame, bool& quit);
+    bool endTurnCondition(void);
+
+    void shoot(std::shared_ptr<Entity> entity);
 };

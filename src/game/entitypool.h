@@ -22,6 +22,7 @@ public:
 
     std::shared_ptr<Entity> createEntity(std::shared_ptr<Entity> entity);
     std::set<std::shared_ptr<Entity>> getEntities(void);
+    std::set<std::shared_ptr<Entity>> getEntitiesOnTile(const int& x, const int& y);
 
     void setPlayerEntity(std::shared_ptr<Entity> player);
 

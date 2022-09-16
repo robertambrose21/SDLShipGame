@@ -1,8 +1,8 @@
 #pragma once
 
-#include <glm/glm.hpp>
 #include <string>
 
+#include "../core/glmimport.h"
 #include "../graphics/gridrenderer.h"
 
 class Entity {
@@ -28,6 +28,7 @@ protected:
     std::shared_ptr<GridRenderer> grid;
 
     virtual void additionalUpdate(const Uint32& timeSinceLastFrame, bool& quit) = 0;
+    
 
 public:
     const Uint32 MOVES_PER_SECOND = 5;
@@ -49,10 +50,13 @@ public:
 
     glm::ivec2 getPosition(void) const;
     void setPosition(const glm::ivec2& position);
-    bool findPath(const glm::ivec2& target);
+    bool findPath(const glm::ivec2& target, const int& stopShortSteps = 0);
+    bool isNeighbour(std::shared_ptr<Entity> entity) const;
 
     int getMovesLeft(void) const;
     void useMoves(const int& numMoves);
 
     void nextTurn(void);
+
+    virtual bool endTurnCondition(void) = 0;
 };
