@@ -26,12 +26,16 @@ void PlayerController::handleMouseEvent(SDL_Event event) {
 
             for(auto entity : entityPool->getEntitiesOnTile(dX, dY)) {
                 if(entity != player) {
-                    player->shoot(entity);
+                    player->attack(entity, currentWeapon);
                 }
             }
             break;
         }
     }
+}
+
+void PlayerController::setCurrentWeapon(std::shared_ptr<Weapon> weapon) {
+    currentWeapon = weapon;
 }
 
 void PlayerController::move(const glm::ivec2& mouseCoords) {

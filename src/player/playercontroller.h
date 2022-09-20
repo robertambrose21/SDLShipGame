@@ -8,6 +8,7 @@
 #include "../graphics/textureloader.h"
 #include "../game/entity.h"
 #include "../game/entitypool.h"
+#include "../game/weapon.h"
 #include "player.h"
 
 class PlayerController {
@@ -16,6 +17,8 @@ private:
     std::shared_ptr<GridRenderer> grid;
     std::shared_ptr<EntityPool> entityPool;
 
+    std::shared_ptr<Weapon> currentWeapon;
+
     void move(const glm::ivec2& mouseCoords);
 
 public:
@@ -23,6 +26,7 @@ public:
 
     void handleKeyPress(SDL_Event event);
     void handleMouseEvent(SDL_Event event);
+    void setCurrentWeapon(std::shared_ptr<Weapon> weapon);
 
     std::shared_ptr<Player> getEntity(void);
 };

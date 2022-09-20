@@ -4,6 +4,9 @@
 
 #include "../core/glmimport.h"
 #include "../graphics/gridrenderer.h"
+#include "weapon.h"
+
+class Weapon;
 
 class Entity {
 public:
@@ -20,6 +23,7 @@ private:
     Uint32 timeSinceLastMoved;
 
     Stats stats;
+    std::vector<std::shared_ptr<Weapon>> weapons;
 
     std::string name;
     int movesLeft;
@@ -28,7 +32,6 @@ protected:
     std::shared_ptr<GridRenderer> grid;
 
     virtual void additionalUpdate(const Uint32& timeSinceLastFrame, bool& quit) = 0;
-    
 
 public:
     const Uint32 MOVES_PER_SECOND = 5;
@@ -36,7 +39,8 @@ public:
     Entity(
         std::shared_ptr<GridRenderer> grid,
         const std::string& name,
-        Stats stats
+        Stats stats,
+        std::vector<std::shared_ptr<Weapon>> weapons
     );
 
     void update(const Uint32& timeSinceLastFrame, bool& quit);
@@ -46,7 +50,14 @@ public:
 
     Stats getStats(void) const;
     const float getSpeed(void);
-    void doDamage(const int& amount);
+    void takeDamage(const int& amount);
+    void attack(std::shared_ptr<Entity> target, std::shared_ptr<Weapon> weapon);
+
+    std::vector<std::shared_ptr<Weapon>> getWeapons(void) const;
+    std::shared_ptr<Weapon> addWeapon(Weapon weapon);
+    void removeWeapon(const std::string& name);
+
+    std::string getName(void) const;
 
     glm::ivec2 getPosition(void) const;
     void setPosition(const glm::ivec2& position);

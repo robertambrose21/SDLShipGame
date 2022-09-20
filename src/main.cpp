@@ -22,16 +22,31 @@ int main() {
     auto entityPool = std::make_shared<EntityPool>();
     auto playerController = std::make_shared<PlayerController>(window.getGridRenderer(), entityPool);
     playerController->getEntity()->setTexture(window.getTextureLoader()->getTexture("../assets/player.png"));
+    auto pistol = playerController->getEntity()->addWeapon(Weapon("Pistol", Weapon::Stats { 1, 100, 8 }));
+    playerController->setCurrentWeapon(pistol);
+
     entityPool->setPlayerEntity(playerController->getEntity());
 
+    auto teeth = std::make_shared<Weapon>("Teeth", (Weapon::Stats) { 1, 1, -1 });
+
     auto enemy = entityPool->createEntity(
-        std::make_shared<Enemy>(window.getGridRenderer(), "Space Worm", playerController->getEntity(), (Entity::Stats) { 5, 1 })
+        std::make_shared<Enemy>(
+            window.getGridRenderer(), 
+            "Space Worm", 
+            playerController->getEntity(), 
+            Entity::Stats { 5, 1 },
+            std::vector<std::shared_ptr<Weapon>> { teeth })
     );
     enemy->setPosition(glm::ivec2(0, grid->getHeight() - 1));
     enemy->setTexture(window.getTextureLoader()->getTexture("../assets/spaceworm.png"));
 
     auto enemy2 = entityPool->createEntity(
-        std::make_shared<Enemy>(window.getGridRenderer(), "Space Worm", playerController->getEntity(), (Entity::Stats) { 5, 1 })
+        std::make_shared<Enemy>(
+            window.getGridRenderer(), 
+            "Space Worm", 
+            playerController->getEntity(), 
+            Entity::Stats { 5, 1 },
+            std::vector<std::shared_ptr<Weapon>> { teeth })
     );
     enemy2->setPosition(glm::ivec2(5, grid->getHeight() - 3));
     enemy2->setTexture(window.getTextureLoader()->getTexture("../assets/spaceworm.png"));

@@ -4,10 +4,12 @@ Enemy::Enemy(
     std::shared_ptr<GridRenderer> grid,
     const std::string& name, 
     std::shared_ptr<Player> player, 
-    Entity::Stats stats
+    Entity::Stats stats,
+    std::vector<std::shared_ptr<Weapon>> weapons
 ) :
-    Entity(grid, name, stats),
-    player(player)
+    Entity(grid, name, stats, weapons),
+    player(player),
+    teeth(weapons[0])
 { }
 
 // Need to tweak this so the player cannot overlap the enemy
@@ -25,9 +27,6 @@ bool Enemy::endTurnCondition(void) {
 }
 
 void Enemy::bite(void) {
-    int damage = 1;
-    player->doDamage(1);
+    attack(player, teeth);
     useMoves(getStats().movesPerTurn);
-
-    std::cout << "Bit the player for [" << damage << "] damage, player now has [" << player->getStats().hp << "] hp" << std::endl;
 }

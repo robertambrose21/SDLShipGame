@@ -3,11 +3,13 @@
 Entity::Entity(
     std::shared_ptr<GridRenderer> grid,
     const std::string& name,
-    Stats stats
+    Stats stats,
+    std::vector<std::shared_ptr<Weapon>> weapons
 ) :
     grid(grid),
     name(name),
     stats(stats),
+    weapons(weapons),
     position({ 0, 0 }),
     movesLeft(0)
 { }
@@ -51,8 +53,52 @@ const float Entity::getSpeed(void) {
     return 1000.0f / (MOVES_PER_SECOND * getStats().movesPerTurn);
 }
 
-void Entity::doDamage(const int& amount) {
+void Entity::takeDamage(const int& amount) {
     stats.hp -= amount;
+}
+
+void Entity::attack(std::shared_ptr<Entity> target, std::shared_ptr<Weapon> weapon) {
+    auto targetName = target->getName();
+
+    weapon->use(target);
+
+    std::cout
+        << "["
+        << name
+        << "] attacked the [" 
+        << targetName
+        << "] for [" 
+        << weapon->getStats().damage 
+        << "] damage with ["
+        << weapon->getName()
+        << "], ["
+        << targetName
+        << "] now has [" 
+        << (target == nullptr ? 0 : target->getStats().hp)
+        << "] hp" 
+        << std::endl;
+}
+
+std::vector<std::shared_ptr<Weapon>> Entity::getWeapons(void) const {
+    return weapons;
+}
+
+std::shared_ptr<Weapon> Entity::addWeapon(Weapon weapon) {
+    auto weaponPtr = std::make_shared<Weapon>(weapon);
+    weapons.push_back(weaponPtr);
+    return weaponPtr;
+}
+
+void Entity::removeWeapon(const std::string& name) {
+    for(auto i = 0; i < weapons.size(); i++) {
+        if(weapons[i]->getName() == name) {
+            weapons.erase(weapons.begin() + i);
+        }
+    }
+}
+
+std::string Entity::getName(void) const {
+    return name;
 }
 
 glm::ivec2 Entity::getPosition(void) const {

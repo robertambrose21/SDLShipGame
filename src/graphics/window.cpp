@@ -49,6 +49,7 @@ bool Window::initialiseWindow(void) {
     return true;
 }
 
+// TODO: Consider moving loop logic out of the graphics module
 void Window::loop(void) {
     bool quit = false;
     SDL_Event e;
