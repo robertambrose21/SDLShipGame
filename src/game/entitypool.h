@@ -6,6 +6,7 @@
 
 class EntityPool {
 private:
+    std::set<std::shared_ptr<Entity>> entitiesForDeletion;
     std::set<std::shared_ptr<Entity>> entities;
     std::shared_ptr<Entity> player;
     bool isPlayersTurn;

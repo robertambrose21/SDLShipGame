@@ -10,9 +10,15 @@ void EntityPool::updateEntities(Uint32 timeSinceLastFrame, bool& quit) {
     bool nonPlayerNextTurn = !isPlayersTurn;
 
     for(auto entity : entities) {
-        updateEntity(entity, timeSinceLastFrame, quit);
         nonPlayerNextTurn = nonPlayerNextTurn && canProgressToNextTurn(entity);
+        updateEntity(entity, timeSinceLastFrame, quit);
     }
+
+    for(auto entity : entitiesForDeletion) {
+        entities.erase(std::find(entities.begin(), entities.end(), entity));
+    }
+    
+    entitiesForDeletion.clear();
 
     if(nonPlayerNextTurn || (isPlayersTurn && canProgressToNextTurn(player))) {
         nextTurn();
@@ -21,7 +27,7 @@ void EntityPool::updateEntities(Uint32 timeSinceLastFrame, bool& quit) {
 
 void EntityPool::updateEntity(std::shared_ptr<Entity> entity, Uint32 timeSinceLastFrame, bool& quit) {
     if(entity->getStats().hp <= 0) {
-        entities.erase(std::find(entities.begin(), entities.end(), entity));
+        entitiesForDeletion.insert(entity);
         return;
     }
 

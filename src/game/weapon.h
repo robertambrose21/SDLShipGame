@@ -3,9 +3,12 @@
 #include <string>
 #include <functional>
 #include <memory>
+
 #include "entity.h"
+#include "projectile.h"
 
 class Entity;
+class Projectile;
 
 class Weapon {
 public:
@@ -19,12 +22,20 @@ private:
     std::string name;
     Stats stats;
 
-    std::function<void(void)> onHitEvent;
+    std::shared_ptr<Texture> projectileTexture;
+    std::vector<std::shared_ptr<Projectile>> projectiles;
+    std::vector<std::shared_ptr<Projectile>> projectilesForDeletion;
+
+    std::shared_ptr<GridRenderer> grid;
 
 public:
-    Weapon(const std::string& name, Stats stats);
+    Weapon(std::shared_ptr<GridRenderer> grid, const std::string& name, Stats stats);
 
-    void use(std::shared_ptr<Entity> target);
+    void use(glm::ivec2 position, std::shared_ptr<Entity> target);
+    void draw(std::shared_ptr<SDL_Renderer> renderer);
+    void update(const Uint32& timeSinceLastFrame);
+
+    void setProjectileTexture(std::shared_ptr<Texture> projectileTexture);
 
     Stats getStats(void) const;
     std::string getName(void) const;

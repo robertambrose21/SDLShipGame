@@ -22,9 +22,17 @@ void Entity::draw(std::shared_ptr<SDL_Renderer> renderer) {
     auto realPosition = grid->getTilePosition(position.x, position.y);
     SDL_Rect dst = { realPosition.x, realPosition.y, grid->getTileSize(), grid->getTileSize() };
     texture->draw(renderer, NULL, &dst);
+
+    for(auto weapon : weapons) {
+        weapon->draw(renderer);
+    }
 }
 
 void Entity::update(const Uint32& timeSinceLastFrame, bool& quit) {
+    for(auto weapon : weapons) {
+        weapon->update(timeSinceLastFrame);
+    }
+
     if(getMovesLeft() == 0) {
         return;
     }
@@ -60,7 +68,7 @@ void Entity::takeDamage(const int& amount) {
 void Entity::attack(std::shared_ptr<Entity> target, std::shared_ptr<Weapon> weapon) {
     auto targetName = target->getName();
 
-    weapon->use(target);
+    weapon->use(position, target);
 
     std::cout
         << "["
@@ -74,7 +82,7 @@ void Entity::attack(std::shared_ptr<Entity> target, std::shared_ptr<Weapon> weap
         << "], ["
         << targetName
         << "] now has [" 
-        << (target == nullptr ? 0 : target->getStats().hp)
+        << (target == nullptr ? 0 : target->getStats().hp - weapon->getStats().damage)
         << "] hp" 
         << std::endl;
 }

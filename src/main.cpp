@@ -22,12 +22,15 @@ int main() {
     auto entityPool = std::make_shared<EntityPool>();
     auto playerController = std::make_shared<PlayerController>(window.getGridRenderer(), entityPool);
     playerController->getEntity()->setTexture(window.getTextureLoader()->getTexture("../assets/player.png"));
-    auto pistol = playerController->getEntity()->addWeapon(Weapon("Pistol", Weapon::Stats { 1, 100, 8 }));
+    
+    auto pistolTemp = Weapon(window.getGridRenderer(), "Pistol", Weapon::Stats { 1, 100, 8 });
+    pistolTemp.setProjectileTexture(window.getTextureLoader()->getTexture("../assets/bullet.png"));
+    auto pistol = playerController->getEntity()->addWeapon(pistolTemp);
     playerController->setCurrentWeapon(pistol);
 
     entityPool->setPlayerEntity(playerController->getEntity());
 
-    auto teeth = std::make_shared<Weapon>("Teeth", (Weapon::Stats) { 1, 1, -1 });
+    auto teeth = std::make_shared<Weapon>(window.getGridRenderer(), "Teeth", (Weapon::Stats) { 1, 1, -1 });
 
     auto enemy = entityPool->createEntity(
         std::make_shared<Enemy>(
@@ -51,13 +54,13 @@ int main() {
     enemy2->setPosition(glm::ivec2(5, grid->getHeight() - 3));
     enemy2->setTexture(window.getTextureLoader()->getTexture("../assets/spaceworm.png"));
 
-    window.addLoopDrawWorker([&](auto renderer, bool& quit) {
+    window.addLoopDrawWorker([&](auto renderer, auto& quit) {
         entityPool->drawEntities(renderer);
     });
-    window.addLoopLogicWorker([&](const Uint32& timeSinceLastFrame, bool& quit) {
+    window.addLoopLogicWorker([&](auto timeSinceLastFrame, auto& quit) {
         entityPool->updateEntities(timeSinceLastFrame, quit);
     });
-    window.addLoopEventWorker([&](SDL_Event e, bool& quit) {
+    window.addLoopEventWorker([&](auto e, auto& quit) {
         playerController->handleKeyPress(e);
         playerController->handleMouseEvent(e);
     });
