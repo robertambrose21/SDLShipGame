@@ -91,10 +91,9 @@ std::vector<std::shared_ptr<Weapon>> Entity::getWeapons(void) const {
     return weapons;
 }
 
-std::shared_ptr<Weapon> Entity::addWeapon(Weapon weapon) {
-    auto weaponPtr = std::make_shared<Weapon>(weapon);
-    weapons.push_back(weaponPtr);
-    return weaponPtr;
+std::shared_ptr<Weapon> Entity::addWeapon(std::shared_ptr<Weapon> weapon) {
+    weapons.push_back(weapon);
+    return weapon;
 }
 
 void Entity::removeWeapon(const std::string& name) {

@@ -27,7 +27,7 @@ private:
 
     float step;
 
-    std::function<void(std::shared_ptr<Entity>)> onHitCallback;
+    int weaponBaseDamage;
 
 public:
     Projectile(
@@ -36,7 +36,7 @@ public:
         glm::ivec2 startPosition,
         std::shared_ptr<Entity> target,
         Stats stats,
-        std::function<void(std::shared_ptr<Entity>)> onHitCallback
+        int weaponBaseDamage
     );
 
     void draw(std::shared_ptr<SDL_Renderer> renderer);

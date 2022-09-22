@@ -11,14 +11,14 @@ Projectile::Projectile(
     glm::ivec2 startPosition,
     std::shared_ptr<Entity> target,
     Stats stats,
-    std::function<void(std::shared_ptr<Entity>)> onHitCallback
+    int weaponBaseDamage
 ) :
     grid(grid),
     texture(texture),
     startPosition(startPosition),
     target(target),
     stats(stats),
-    onHitCallback(onHitCallback),
+    weaponBaseDamage(weaponBaseDamage),
     step(0.0f)
 { }
 
@@ -34,7 +34,7 @@ void Projectile::update(const Uint32& timeSinceLastFrame) {
     position = lerp(startPosition, target->getPosition(), (step / 1000.0f) * stats.speed);
 
     if(hasReachedTarget()) {
-        onHitCallback(target);
+        target->takeDamage((float) weaponBaseDamage * stats.damageMultiplier);
     }
 }
 

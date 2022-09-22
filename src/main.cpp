@@ -1,6 +1,8 @@
 #include "graphics/window.h"
 #include "player/playercontroller.h"
 #include "game/enemy.h"
+#include "game/projectileweapon.h"
+#include "game/meleeweapon.h"
 
 int main() {
     auto grid = std::make_shared<Grid>(20, 20);
@@ -23,14 +25,14 @@ int main() {
     auto playerController = std::make_shared<PlayerController>(window.getGridRenderer(), entityPool);
     playerController->getEntity()->setTexture(window.getTextureLoader()->getTexture("../assets/player.png"));
     
-    auto pistolTemp = Weapon(window.getGridRenderer(), "Pistol", Weapon::Stats { 1, 100, 8 });
-    pistolTemp.setProjectileTexture(window.getTextureLoader()->getTexture("../assets/bullet.png"));
+    auto pistolTemp = std::make_shared<ProjectileWeapon>(window.getGridRenderer(), "Pistol", Weapon::Stats { 1, 100, 8 });
+    pistolTemp->setProjectileTexture(window.getTextureLoader()->getTexture("../assets/bullet.png"));
     auto pistol = playerController->getEntity()->addWeapon(pistolTemp);
     playerController->setCurrentWeapon(pistol);
 
     entityPool->setPlayerEntity(playerController->getEntity());
 
-    auto teeth = std::make_shared<Weapon>(window.getGridRenderer(), "Teeth", (Weapon::Stats) { 1, 1, -1 });
+    auto teeth = std::make_shared<MeleeWeapon>(window.getGridRenderer(), "Teeth", (Weapon::Stats) { 1, 1, -1 });
 
     auto enemy = entityPool->createEntity(
         std::make_shared<Enemy>(

@@ -54,7 +54,7 @@ public:
     void attack(std::shared_ptr<Entity> target, std::shared_ptr<Weapon> weapon);
 
     std::vector<std::shared_ptr<Weapon>> getWeapons(void) const;
-    std::shared_ptr<Weapon> addWeapon(Weapon weapon);
+    std::shared_ptr<Weapon> addWeapon(std::shared_ptr<Weapon> weapon);
     void removeWeapon(const std::string& name);
 
     std::string getName(void) const;
