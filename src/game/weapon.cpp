@@ -1,7 +1,7 @@
 #include "weapon.h"
 
-Weapon::Weapon(std::shared_ptr<GridRenderer> grid, const std::string& name, Stats stats) :
-    grid(grid),
+Weapon::Weapon(std::shared_ptr<GridRenderer> gridRenderer, const std::string& name, Stats stats) :
+    gridRenderer(gridRenderer),
     name(name),
     stats(stats),
     usesLeft(stats.uses)

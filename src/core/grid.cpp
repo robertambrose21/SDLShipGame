@@ -30,6 +30,50 @@ Tile Grid::getTileAt(const int& x, const int& y) const {
     return data[y][x];
 }
 
+std::vector<glm::ivec2> Grid::getTilesInCircle(const int& x, const int& y, float radius) {
+    int squareHalfSize = std::floor(radius);
+    int upperX = std::max(x + squareHalfSize + 1, x);
+    int lowerX = std::min(x - squareHalfSize, x);
+    int upperY = std::max(y + squareHalfSize + 1, y);
+    int lowerY = std::min(y - squareHalfSize, y);
+
+    // Store as float so we can get more accurate distance measurements
+    std::vector<glm::vec2> square;
+
+    for(int i = lowerX; i < upperX; i++) {
+        for(int j = lowerY; j < upperY; j++) {
+            square.push_back(glm::vec2(i, j));
+        }
+    }
+
+    std::vector<glm::ivec2> tilePositions;
+    
+    for(auto position : square) {
+        if(isTileInRange(x, y, position, radius)) {
+            tilePositions.push_back(position);
+        }
+    }
+
+    return tilePositions;
+}
+
+bool Grid::isTileInRange(const int& x, const int& y, glm::vec2 position, float distance) {
+    glm::vec2 corners[] = {
+        glm::vec2(x - .5f, y - .5f),
+        glm::vec2(x - .5f, y + .5f),
+        glm::vec2(x + .5f, y - .5f),
+        glm::vec2(x + .5f, y + .5f)
+    };
+
+    for(auto corner : corners) {
+        if(glm::distance(corner, position) <= distance) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 std::deque<glm::ivec2> Grid::findPath(const glm::ivec2& source, const glm::ivec2& destination) {
     if(!isNodeWalkable(source) || !isNodeWalkable(destination)) {
         return std::deque<glm::ivec2>();

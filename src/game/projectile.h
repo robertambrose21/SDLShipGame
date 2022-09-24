@@ -32,6 +32,8 @@ private:
 
     std::function<void(std::shared_ptr<Grid>, std::shared_ptr<Entity>)> onHitCallback;
 
+    float getStep(void) const;
+
 public:
     Projectile(
         std::shared_ptr<GridRenderer> grid,

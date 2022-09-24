@@ -10,6 +10,7 @@ add_library(
     projectile.cpp 
     projectileweapon.cpp 
     meleeweapon.cpp
+    areaofeffect.cpp
 )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX CXX_STANDARD 20)

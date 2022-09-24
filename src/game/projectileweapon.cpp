@@ -1,18 +1,27 @@
 #include "projectileweapon.h"
 
-ProjectileWeapon::ProjectileWeapon(std::shared_ptr<GridRenderer> grid, const std::string& name, Stats stats) :
-    Weapon(grid, name, stats)
+ProjectileWeapon::ProjectileWeapon(
+    std::shared_ptr<GridRenderer> gridRenderer, 
+    const std::string& name, 
+    Stats stats,
+    std::shared_ptr<Texture> eTexture
+) :
+    Weapon(gridRenderer, name, stats),
+    eTexture(eTexture)
 { }
 
 void ProjectileWeapon::onUse(glm::ivec2 position, std::shared_ptr<Entity> target) {
     if(projectileTexture != nullptr) {
         projectiles.push_back(std::make_shared<Projectile>(
-            grid, 
+            gridRenderer, 
             projectileTexture, 
             position, 
             target,
             Projectile::Stats { 1, 50 },
-            stats.damage
+            stats.damage,
+            [&](auto grid, auto entity) {
+                aoe = std::make_shared<AreaOfEffect>(gridRenderer, eTexture, entity->getPosition(), 2.0f);
+            }
         ));
     }
 }
@@ -20,6 +29,10 @@ void ProjectileWeapon::onUse(glm::ivec2 position, std::shared_ptr<Entity> target
 void ProjectileWeapon::draw(std::shared_ptr<SDL_Renderer> renderer) {
     for(auto projectile : projectiles) {
         projectile->draw(renderer);
+    }
+
+    if(aoe != nullptr) {
+        aoe->draw(renderer);
     }
 }
 

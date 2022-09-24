@@ -24,12 +24,12 @@ protected:
 
     int usesLeft;
 
-    std::shared_ptr<GridRenderer> grid;
+    std::shared_ptr<GridRenderer> gridRenderer;
 
     virtual void onUse(glm::ivec2 position, std::shared_ptr<Entity> target) = 0;
 
 public:
-    Weapon(std::shared_ptr<GridRenderer> grid, const std::string& name, Stats stats);
+    Weapon(std::shared_ptr<GridRenderer> gridRenderer, const std::string& name, Stats stats);
 
     void use(glm::ivec2 position, std::shared_ptr<Entity> target);
     void reset(void);

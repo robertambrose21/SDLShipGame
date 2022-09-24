@@ -1,7 +1,7 @@
 #include "meleeweapon.h"
 
-MeleeWeapon::MeleeWeapon(std::shared_ptr<GridRenderer> grid, const std::string& name, Stats stats) :
-    Weapon(grid, name, stats)
+MeleeWeapon::MeleeWeapon(std::shared_ptr<GridRenderer> gridRenderer, const std::string& name, Stats stats) :
+    Weapon(gridRenderer, name, stats)
 { }
 
 void MeleeWeapon::onUse(glm::ivec2 position, std::shared_ptr<Entity> target) {

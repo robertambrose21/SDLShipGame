@@ -25,7 +25,12 @@ int main() {
     auto playerController = std::make_shared<PlayerController>(window.getGridRenderer(), entityPool);
     playerController->getEntity()->setTexture(window.getTextureLoader()->getTexture("../assets/player.png"));
     
-    auto pistolTemp = std::make_shared<ProjectileWeapon>(window.getGridRenderer(), "Pistol", Weapon::Stats { 1, 100, 2 });
+    auto pistolTemp = std::make_shared<ProjectileWeapon>(
+        window.getGridRenderer(), 
+        "Pistol", 
+        Weapon::Stats { 1, 100, 2 },
+        window.getTextureLoader()->getTexture("../assets/explosion.png")
+    );
     pistolTemp->setProjectileTexture(window.getTextureLoader()->getTexture("../assets/bullet.png"));
     auto pistol = playerController->getEntity()->addWeapon(pistolTemp);
     playerController->getEntity()->setCurrentWeapon(pistol);

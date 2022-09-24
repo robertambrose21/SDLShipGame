@@ -35,15 +35,18 @@ void Projectile::draw(std::shared_ptr<SDL_Renderer> renderer) {
 void Projectile::update(const Uint32& timeSinceLastFrame) {
     timeSinceLive += timeSinceLastFrame;
 
-    auto step = ((timeSinceLive / 1000.0f) * stats.speed) / distanceToTarget;
-
-    position = lerp(startPosition, target->getPosition(), step);
+    position = lerp(startPosition, target->getPosition(), getStep());
 
     if(hasReachedTarget()) {
         target->takeDamage((float) weaponBaseDamage * stats.damageMultiplier);
+        onHitCallback(grid->getGrid(), target);
     }
 }
 
 bool Projectile::hasReachedTarget(void) const {
-    return ((timeSinceLive / 1000.0f) * stats.speed) / distanceToTarget >= 1.0f;
+    return getStep() >= 1.0f;
+}
+
+float Projectile::getStep(void) const {
+    return ((timeSinceLive / 1000.0f) * stats.speed) / distanceToTarget;
 }
