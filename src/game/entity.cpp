@@ -104,6 +104,14 @@ void Entity::removeWeapon(const std::string& name) {
     }
 }
 
+void Entity::setCurrentWeapon(std::shared_ptr<Weapon> weapon) {
+    currentWeapon = weapon;
+}
+
+std::shared_ptr<Weapon> Entity::getCurrentWeapon(void) {
+    return currentWeapon;
+}
+
 std::string Entity::getName(void) const {
     return name;
 }
@@ -144,6 +152,10 @@ int Entity::getMovesLeft(void) const {
     return movesLeft;
 }
 
+bool Entity::isTurnInProgress(void) const {
+    return getMovesLeft() > 0 && currentWeapon->getUsesLeft() > 0;
+}
+
 void Entity::useMoves(const int& numMoves) {
     movesLeft -= numMoves;
     
@@ -154,4 +166,8 @@ void Entity::useMoves(const int& numMoves) {
 
 void Entity::nextTurn(void) {
     movesLeft = stats.movesPerTurn;
+    
+    for(auto weapon : weapons) {
+        weapon->reset();
+    }
 }

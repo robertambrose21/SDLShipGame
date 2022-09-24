@@ -25,6 +25,8 @@ private:
     Stats stats;
     std::vector<std::shared_ptr<Weapon>> weapons;
 
+    std::shared_ptr<Weapon> currentWeapon;
+
     std::string name;
     int movesLeft;
 
@@ -56,6 +58,8 @@ public:
     std::vector<std::shared_ptr<Weapon>> getWeapons(void) const;
     std::shared_ptr<Weapon> addWeapon(std::shared_ptr<Weapon> weapon);
     void removeWeapon(const std::string& name);
+    void setCurrentWeapon(std::shared_ptr<Weapon> weapon);
+    std::shared_ptr<Weapon> getCurrentWeapon(void);
 
     std::string getName(void) const;
 
@@ -65,6 +69,7 @@ public:
     bool isNeighbour(std::shared_ptr<Entity> entity) const;
 
     int getMovesLeft(void) const;
+    bool isTurnInProgress(void) const;
     void useMoves(const int& numMoves);
 
     void nextTurn(void);

@@ -22,15 +22,23 @@ protected:
     std::string name;
     Stats stats;
 
+    int usesLeft;
+
     std::shared_ptr<GridRenderer> grid;
+
+    virtual void onUse(glm::ivec2 position, std::shared_ptr<Entity> target) = 0;
 
 public:
     Weapon(std::shared_ptr<GridRenderer> grid, const std::string& name, Stats stats);
 
-    virtual void use(glm::ivec2 position, std::shared_ptr<Entity> target) = 0;
+    void use(glm::ivec2 position, std::shared_ptr<Entity> target);
+    void reset(void);
+
     virtual void draw(std::shared_ptr<SDL_Renderer> renderer) = 0;
     virtual void update(const Uint32& timeSinceLastFrame) = 0;
 
     Stats getStats(void) const;
+    int getUsesLeft(void) const;
+
     std::string getName(void) const;
 };

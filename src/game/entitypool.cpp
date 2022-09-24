@@ -80,7 +80,7 @@ void EntityPool::nextTurn(void) {
 }
 
 bool EntityPool::canProgressToNextTurn(std::shared_ptr<Entity> entity) {
-    return entity->getMovesLeft() == 0 || entity->endTurnCondition();
+    return !entity->isTurnInProgress() || entity->endTurnCondition();
 }
 
 void EntityPool::setPlayerEntity(std::shared_ptr<Entity> player) {

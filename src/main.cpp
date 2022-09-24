@@ -25,36 +25,38 @@ int main() {
     auto playerController = std::make_shared<PlayerController>(window.getGridRenderer(), entityPool);
     playerController->getEntity()->setTexture(window.getTextureLoader()->getTexture("../assets/player.png"));
     
-    auto pistolTemp = std::make_shared<ProjectileWeapon>(window.getGridRenderer(), "Pistol", Weapon::Stats { 1, 100, 8 });
+    auto pistolTemp = std::make_shared<ProjectileWeapon>(window.getGridRenderer(), "Pistol", Weapon::Stats { 1, 100, 2 });
     pistolTemp->setProjectileTexture(window.getTextureLoader()->getTexture("../assets/bullet.png"));
     auto pistol = playerController->getEntity()->addWeapon(pistolTemp);
-    playerController->setCurrentWeapon(pistol);
+    playerController->getEntity()->setCurrentWeapon(pistol);
 
     entityPool->setPlayerEntity(playerController->getEntity());
 
-    auto teeth = std::make_shared<MeleeWeapon>(window.getGridRenderer(), "Teeth", (Weapon::Stats) { 1, 1, -1 });
+    auto teeth = std::make_shared<MeleeWeapon>(window.getGridRenderer(), "Teeth", (Weapon::Stats) { 1, 1, 1 });
 
     auto enemy = entityPool->createEntity(
         std::make_shared<Enemy>(
             window.getGridRenderer(), 
             "Space Worm", 
             playerController->getEntity(), 
-            Entity::Stats { 5, 1 },
+            Entity::Stats { 5, 2 },
             std::vector<std::shared_ptr<Weapon>> { teeth })
     );
     enemy->setPosition(glm::ivec2(0, grid->getHeight() - 1));
     enemy->setTexture(window.getTextureLoader()->getTexture("../assets/spaceworm.png"));
+    enemy->setCurrentWeapon(teeth);
 
     auto enemy2 = entityPool->createEntity(
         std::make_shared<Enemy>(
             window.getGridRenderer(), 
             "Space Worm", 
             playerController->getEntity(), 
-            Entity::Stats { 5, 1 },
+            Entity::Stats { 5, 2 },
             std::vector<std::shared_ptr<Weapon>> { teeth })
     );
     enemy2->setPosition(glm::ivec2(5, grid->getHeight() - 3));
     enemy2->setTexture(window.getTextureLoader()->getTexture("../assets/spaceworm.png"));
+    enemy2->setCurrentWeapon(teeth);
 
     window.addLoopDrawWorker([&](auto renderer, auto& quit) {
         entityPool->drawEntities(renderer);

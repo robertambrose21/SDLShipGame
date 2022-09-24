@@ -3,11 +3,26 @@
 Weapon::Weapon(std::shared_ptr<GridRenderer> grid, const std::string& name, Stats stats) :
     grid(grid),
     name(name),
-    stats(stats)
+    stats(stats),
+    usesLeft(stats.uses)
 { }
+
+void Weapon::use(glm::ivec2 position, std::shared_ptr<Entity> target) {
+    onUse(position, target);
+
+    usesLeft--;
+}
+
+void Weapon::reset(void) {
+    usesLeft = stats.uses;
+}
 
 Weapon::Stats Weapon::getStats(void) const {
     return stats;
+}
+
+int Weapon::getUsesLeft(void) const {
+    return usesLeft;
 }
 
 std::string Weapon::getName(void) const {

@@ -4,7 +4,7 @@ MeleeWeapon::MeleeWeapon(std::shared_ptr<GridRenderer> grid, const std::string& 
     Weapon(grid, name, stats)
 { }
 
-void MeleeWeapon::use(glm::ivec2 position, std::shared_ptr<Entity> target) {
+void MeleeWeapon::onUse(glm::ivec2 position, std::shared_ptr<Entity> target) {
     target->takeDamage(stats.damage);
 }
 

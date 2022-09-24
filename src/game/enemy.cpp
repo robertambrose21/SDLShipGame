@@ -23,7 +23,7 @@ void Enemy::additionalUpdate(const Uint32& timeSinceLastFrame, bool& quit) {
 }
 
 bool Enemy::endTurnCondition(void) {
-    return isNeighbour(player);
+    return false;
 }
 
 void Enemy::bite(void) {

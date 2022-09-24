@@ -11,7 +11,8 @@ Projectile::Projectile(
     glm::ivec2 startPosition,
     std::shared_ptr<Entity> target,
     Stats stats,
-    int weaponBaseDamage
+    int weaponBaseDamage,
+    std::function<void(std::shared_ptr<Grid>, std::shared_ptr<Entity>)> onHitCallback
 ) :
     grid(grid),
     texture(texture),
@@ -19,8 +20,11 @@ Projectile::Projectile(
     target(target),
     stats(stats),
     weaponBaseDamage(weaponBaseDamage),
-    step(0.0f)
-{ }
+    onHitCallback(onHitCallback),
+    timeSinceLive(0.0f)
+{
+    distanceToTarget = glm::distance(glm::vec2(target->getPosition()), glm::vec2(startPosition));
+}
 
 void Projectile::draw(std::shared_ptr<SDL_Renderer> renderer) {
     auto realPosition = grid->getTilePosition(position.x, position.y);
@@ -29,9 +33,11 @@ void Projectile::draw(std::shared_ptr<SDL_Renderer> renderer) {
 }
 
 void Projectile::update(const Uint32& timeSinceLastFrame) {
-    step += timeSinceLastFrame;
+    timeSinceLive += timeSinceLastFrame;
 
-    position = lerp(startPosition, target->getPosition(), (step / 1000.0f) * stats.speed);
+    auto step = ((timeSinceLive / 1000.0f) * stats.speed) / distanceToTarget;
+
+    position = lerp(startPosition, target->getPosition(), step);
 
     if(hasReachedTarget()) {
         target->takeDamage((float) weaponBaseDamage * stats.damageMultiplier);
@@ -39,5 +45,5 @@ void Projectile::update(const Uint32& timeSinceLastFrame) {
 }
 
 bool Projectile::hasReachedTarget(void) const {
-    return (step / 1000.0f) * stats.speed >= 1.0f;
+    return ((timeSinceLive / 1000.0f) * stats.speed) / distanceToTarget >= 1.0f;
 }

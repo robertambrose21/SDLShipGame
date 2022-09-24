@@ -4,14 +4,14 @@ ProjectileWeapon::ProjectileWeapon(std::shared_ptr<GridRenderer> grid, const std
     Weapon(grid, name, stats)
 { }
 
-void ProjectileWeapon::use(glm::ivec2 position, std::shared_ptr<Entity> target) {
+void ProjectileWeapon::onUse(glm::ivec2 position, std::shared_ptr<Entity> target) {
     if(projectileTexture != nullptr) {
         projectiles.push_back(std::make_shared<Projectile>(
             grid, 
             projectileTexture, 
             position, 
             target,
-            Projectile::Stats { 1, 2 },
+            Projectile::Stats { 1, 50 },
             stats.damage
         ));
     }

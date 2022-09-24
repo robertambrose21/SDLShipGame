@@ -25,9 +25,12 @@ private:
     glm::ivec2 startPosition;
     std::shared_ptr<Entity> target;
 
-    float step;
+    float timeSinceLive;
+    float distanceToTarget;
 
     int weaponBaseDamage;
+
+    std::function<void(std::shared_ptr<Grid>, std::shared_ptr<Entity>)> onHitCallback;
 
 public:
     Projectile(
@@ -36,7 +39,9 @@ public:
         glm::ivec2 startPosition,
         std::shared_ptr<Entity> target,
         Stats stats,
-        int weaponBaseDamage
+        int weaponBaseDamage,
+        std::function<void(std::shared_ptr<Grid>, std::shared_ptr<Entity>)> onHitCallback = 
+            [](std::shared_ptr<Grid>, std::shared_ptr<Entity>){ }
     );
 
     void draw(std::shared_ptr<SDL_Renderer> renderer);
