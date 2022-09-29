@@ -3,13 +3,11 @@
 Entity::Entity(
     std::shared_ptr<GridRenderer> grid,
     const std::string& name,
-    Stats stats,
-    std::vector<std::shared_ptr<Weapon>> weapons
+    Stats stats
 ) :
     grid(grid),
     name(name),
     stats(stats),
-    weapons(weapons),
     position({ 0, 0 }),
     movesLeft(0)
 { }
@@ -153,7 +151,7 @@ int Entity::getMovesLeft(void) const {
 }
 
 bool Entity::isTurnInProgress(void) const {
-    return getMovesLeft() > 0 && currentWeapon->getUsesLeft() > 0;
+    return getMovesLeft() > 0 && !currentWeapon->hasFinished();
 }
 
 void Entity::useMoves(const int& numMoves) {

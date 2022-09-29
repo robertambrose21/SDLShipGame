@@ -41,8 +41,7 @@ public:
     Entity(
         std::shared_ptr<GridRenderer> grid,
         const std::string& name,
-        Stats stats,
-        std::vector<std::shared_ptr<Weapon>> weapons
+        Stats stats
     );
 
     void update(const Uint32& timeSinceLastFrame, bool& quit);

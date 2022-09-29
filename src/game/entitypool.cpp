@@ -1,7 +1,8 @@
 #include "entitypool.h"
 
 EntityPool::EntityPool() :
-    isPlayersTurn(false)
+    isPlayersTurn(false),
+    turnNumber(0)
 { }
 
 void EntityPool::updateEntities(Uint32 timeSinceLastFrame, bool& quit) {
@@ -72,11 +73,17 @@ void EntityPool::nextTurn(void) {
 
     if(isPlayersTurn) {
         player->nextTurn();
+        turnNumber++;
+        std::cout << "Turn number: [" << turnNumber << "]" << std::endl;
     } else {
         for(auto entity : entities) {
             entity->nextTurn();
         }
     }
+}
+
+int EntityPool::getTurnNumber(void) const {
+    return turnNumber;
 }
 
 bool EntityPool::canProgressToNextTurn(std::shared_ptr<Entity> entity) {

@@ -4,11 +4,14 @@
 
 #include "entity.h"
 
+// TODO: Eventually extend for multiple players
 class EntityPool {
 private:
     std::set<std::shared_ptr<Entity>> entitiesForDeletion;
     std::set<std::shared_ptr<Entity>> entities;
     std::shared_ptr<Entity> player;
+    
+    int turnNumber;
     bool isPlayersTurn;
 
     void updateEntity(std::shared_ptr<Entity> entity, Uint32 timeSinceLastFrame, bool& quit);
@@ -28,4 +31,5 @@ public:
     void setPlayerEntity(std::shared_ptr<Entity> player);
 
     void nextTurn(void);
+    int getTurnNumber(void) const;
 };

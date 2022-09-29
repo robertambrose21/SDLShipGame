@@ -28,4 +28,6 @@ public:
 
     void draw(std::shared_ptr<SDL_Renderer> renderer);
     void update(const Uint32& timeSinceLastFrame);
+
+    Stats getStats(void) const;
 };

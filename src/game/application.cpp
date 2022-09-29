@@ -6,7 +6,7 @@ Application::Application() {
     entityPool = std::make_shared<EntityPool>();
     projectilePool = std::make_shared<ProjectilePool>();
     playerController = std::make_shared<PlayerController>(window->getGridRenderer(), entityPool);
-    areaOfEffectPool = std::make_shared<AreaOfEffectPool>();
+    areaOfEffectPool = std::make_shared<AreaOfEffectPool>(entityPool);
 
     context = std::make_shared<ApplicationContext>(window, entityPool, projectilePool, areaOfEffectPool);
 }
@@ -28,6 +28,7 @@ void Application::initialise(void) {
     playerController->getEntity()->setTexture(window->getTextureLoader()->getTexture("../assets/player.png"));
     
     auto pistolTemp = std::make_shared<ProjectileWeapon>(
+        playerController->getEntity(),
         window->getGridRenderer(), 
         "Pistol", 
         Weapon::Stats { 1, 100, 2 },
@@ -51,18 +52,17 @@ void Application::initialise(void) {
 
     entityPool->setPlayerEntity(playerController->getEntity());
 
-    auto teeth = std::make_shared<MeleeWeapon>(window->getGridRenderer(), "Teeth", (Weapon::Stats) { 1, 1, 1 });
-
+    // TODO: Weapon blueprints
     auto enemy = entityPool->createEntity(
         std::make_shared<Enemy>(
             window->getGridRenderer(), 
             "Space Worm", 
             playerController->getEntity(), 
-            Entity::Stats { 5, 2 },
-            std::vector<std::shared_ptr<Weapon>> { teeth })
-    );
+            Entity::Stats { 5, 2 }
+    ));
     enemy->setPosition(glm::ivec2(0, grid->getHeight() - 1));
     enemy->setTexture(window->getTextureLoader()->getTexture("../assets/spaceworm.png"));
+    auto teeth = std::make_shared<MeleeWeapon>(enemy, window->getGridRenderer(), "Teeth", (Weapon::Stats) { 1, 1, 1 });
     enemy->setCurrentWeapon(teeth);
 
     auto enemy2 = entityPool->createEntity(
@@ -70,12 +70,12 @@ void Application::initialise(void) {
             window->getGridRenderer(), 
             "Space Worm", 
             playerController->getEntity(), 
-            Entity::Stats { 5, 2 },
-            std::vector<std::shared_ptr<Weapon>> { teeth })
-    );
+            Entity::Stats { 5, 2 }
+    ));
     enemy2->setPosition(glm::ivec2(5, grid->getHeight() - 3));
     enemy2->setTexture(window->getTextureLoader()->getTexture("../assets/spaceworm.png"));
-    enemy2->setCurrentWeapon(teeth);
+    auto teeth2 = std::make_shared<MeleeWeapon>(enemy2, window->getGridRenderer(), "Teeth", (Weapon::Stats) { 1, 1, 1 });
+    enemy2->setCurrentWeapon(teeth2);
 
     window->addLoopDrawWorker([&](auto renderer, auto& quit) {
         entityPool->drawEntities(renderer);

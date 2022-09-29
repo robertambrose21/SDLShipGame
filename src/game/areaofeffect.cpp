@@ -25,3 +25,7 @@ void AreaOfEffect::draw(std::shared_ptr<SDL_Renderer> renderer) {
 void AreaOfEffect::update(const Uint32& timeSinceLastFrame) {
     //
 }
+
+AreaOfEffect::Stats AreaOfEffect::getStats(void) const {
+    return stats;
+}

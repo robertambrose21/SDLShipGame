@@ -3,28 +3,38 @@
 ProjectilePool::ProjectilePool()
 { }
 
-void ProjectilePool::add(std::shared_ptr<Projectile> projectile) {
-    projectiles.push_back(projectile);
+void ProjectilePool::add(std::shared_ptr<Projectile> projectile, std::shared_ptr<Entity> owner) {
+    projectiles[owner].push_back(projectile);
 }
 
 void ProjectilePool::draw(std::shared_ptr<SDL_Renderer> renderer) {
-    for(auto projectile : projectiles) {
-        projectile->draw(renderer);
+    for(auto [owner, projectilesForOwner] : projectiles) {
+        for(auto projectile : projectilesForOwner) {
+            projectile->draw(renderer);
+        }
     }
 }
 
 void ProjectilePool::update(const Uint32& timeSinceLastFrame) {
-    for(auto projectile : projectiles) {
-        projectile->update(timeSinceLastFrame);
+    for(auto [owner, projectilesForOwner] : projectiles) {
+        for(auto projectile : projectilesForOwner) {
+            projectile->update(timeSinceLastFrame);
 
-        if(projectile->hasReachedTarget()) {
-            projectilesForDeletion.push_back(projectile);
+            if(projectile->hasReachedTarget()) {
+                projectilesForDeletion[owner].push_back(projectile);
+            }
         }
     }
 
-    for(auto projectile : projectilesForDeletion) {
-        projectiles.erase(std::find(projectiles.begin(), projectiles.end(), projectile));
+    for(auto [owner, projectilesForOwner] : projectilesForDeletion) {
+        for(auto projectile : projectilesForOwner) {
+            projectiles[owner].erase(std::find(projectiles[owner].begin(), projectiles[owner].end(), projectile));
+        }
     }
     
     projectilesForDeletion.clear();
+}
+
+std::vector<std::shared_ptr<Projectile>> ProjectilePool::getProjectilesForOwner(std::shared_ptr<Entity> owner) {
+    return projectiles[owner];
 }
