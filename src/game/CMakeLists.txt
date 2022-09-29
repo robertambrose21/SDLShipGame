@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.0.0)
 project(GameLib VERSION 0.1.0)
 
 add_library(
-    ${PROJECT_NAME} 
+    ${PROJECT_NAME}
     enemy.cpp 
     entity.cpp 
     entitypool.cpp 
@@ -11,6 +11,10 @@ add_library(
     projectileweapon.cpp 
     meleeweapon.cpp
     areaofeffect.cpp
+    application.cpp
+    applicationcontext.cpp
+    projectilepool.cpp
+    areaofeffectpool.cpp
 )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX CXX_STANDARD 20)

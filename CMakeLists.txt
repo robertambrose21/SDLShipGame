@@ -15,4 +15,4 @@ add_subdirectory(src/core)
 
 add_executable(Test src/main.cpp)
 set_target_properties(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX CXX_STANDARD 20)
-target_link_libraries(Test CoreLib GraphicsLib GameLib PlayerLib)
+target_link_libraries(Test GameLib CoreLib GraphicsLib PlayerLib)
