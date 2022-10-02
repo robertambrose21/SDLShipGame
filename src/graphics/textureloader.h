@@ -30,9 +30,11 @@ public:
 class TextureLoader {
 private:
     struct sdl_deleter {
-        void operator()(SDL_Window *p) const { }
-        void operator()(SDL_Renderer *p) const { }
-        void operator()(SDL_Texture *p) const { }
+        void operator()(SDL_Window *p) const    { }
+        void operator()(SDL_Renderer *p) const  { }
+        void operator()(SDL_Texture *p) const   { }
+        void operator()(SDL_Surface *p) const   { }
+        void operator()(SDL_RWops *p) const     { }
     };
 
     std::map<std::string, std::shared_ptr<Texture> > loadedTextures;

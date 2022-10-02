@@ -26,7 +26,10 @@ std::shared_ptr<Texture> TextureLoader::getTexture(std::string path) {
         return loadedTextures[path];
     }
 
-    auto surface = std::unique_ptr<SDL_Surface>(IMG_Load(path.c_str()));
+    auto surface = std::unique_ptr<SDL_Surface, sdl_deleter>(
+        IMG_Load(path.c_str()),
+        sdl_deleter()
+    );
 
     if(surface == nullptr) {
         throw TextureLoaderException("Unable to load image: \'" + path + "\': " + SDL_GetError());
@@ -42,6 +45,8 @@ std::shared_ptr<Texture> TextureLoader::getTexture(std::string path) {
     }
 
     loadedTextures[path] = std::make_shared<Texture>(std::move(texture), path);
+
+    SDL_FreeSurface(surface.get());
 
     return loadedTextures[path];
 }

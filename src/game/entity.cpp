@@ -9,7 +9,8 @@ Entity::Entity(
     name(name),
     stats(stats),
     position({ 0, 0 }),
-    movesLeft(0)
+    movesLeft(0),
+    timeSinceLastMoved(0)
 { }
 
 void Entity::setTexture(std::shared_ptr<Texture> texture) {
