@@ -52,6 +52,12 @@ void TurnController::nextParticipantTurn(void) {
     }
 
     auto& entities = participants[currentParticipant].entities;
+
+    if(entities.size() == 0) {
+        nextParticipantTurn();
+        return;
+    }
+
     std::set<std::shared_ptr<Entity>> entitiesForDeletion;
 
     for(auto entity : participants[currentParticipant].entities) {
@@ -67,6 +73,10 @@ void TurnController::nextParticipantTurn(void) {
     }
     
     entitiesForDeletion.clear();
+}
+
+void TurnController::passCurrentParticipant(void) {
+    nextParticipantTurn();
 }
 
 int TurnController::getTurnNumber(void) const {

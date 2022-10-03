@@ -8,7 +8,16 @@ PlayerController::PlayerController(std::shared_ptr<GridRenderer> grid, std::shar
 }
 
 void PlayerController::handleKeyPress(SDL_Event event) {
-    //
+    if(event.type == SDL_KEYDOWN) {
+        switch(event.key.keysym.sym) {
+            case SDLK_p:
+                Application::getContext()->getTurnController()->passCurrentParticipant();
+                break;
+
+            default:
+                break;
+        }
+    }
 }
 
 void PlayerController::handleMouseEvent(SDL_Event event) {

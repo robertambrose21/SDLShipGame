@@ -18,6 +18,7 @@ private:
     std::vector<Participant> participants;
 
     bool canProgressToNextTurn(std::shared_ptr<Entity> entity);
+    void nextParticipantTurn(void);
 
 public:
     TurnController();
@@ -26,7 +27,8 @@ public:
 
     void addParticipant(std::set<std::shared_ptr<Entity>> entities, bool isPlayer);
     void reset(void);
+    
+    void passCurrentParticipant(void);
 
-    void nextParticipantTurn(void);
     int getTurnNumber(void) const;
 };

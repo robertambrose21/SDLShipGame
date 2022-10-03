@@ -33,11 +33,11 @@ void Entity::update(const Uint32& timeSinceLastFrame, bool& quit) {
         weapon->update(timeSinceLastFrame);
     }
 
+    additionalUpdate(timeSinceLastFrame, quit);
+    
     if(getMovesLeft() == 0) {
         return;
     }
-
-    additionalUpdate(timeSinceLastFrame, quit);
 
     if(path.empty()) {
         return;
@@ -73,22 +73,6 @@ void Entity::attack(std::shared_ptr<Entity> target, std::shared_ptr<Weapon> weap
     auto targetName = target->getName();
 
     weapon->use(position, target);
-
-    std::cout
-        << "["
-        << name
-        << "] attacked the [" 
-        << targetName
-        << "] for [" 
-        << weapon->getStats().damage 
-        << "] damage with ["
-        << weapon->getName()
-        << "], ["
-        << targetName
-        << "] now has [" 
-        << (target == nullptr ? 0 : target->getCurrentHP() - weapon->getStats().damage)
-        << "] hp" 
-        << std::endl;
 }
 
 std::vector<std::shared_ptr<Weapon>> Entity::getWeapons(void) const {
@@ -157,7 +141,7 @@ int Entity::getMovesLeft(void) const {
 }
 
 bool Entity::isTurnInProgress(void) const {
-    return getMovesLeft() > 0 && !currentWeapon->hasFinished();
+    return getMovesLeft() > 0 || !currentWeapon->hasFinished();
 }
 
 void Entity::useMoves(const int& numMoves) {

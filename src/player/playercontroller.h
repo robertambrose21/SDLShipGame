@@ -4,6 +4,7 @@
 #include <glm/glm.hpp>
 #include <iostream>
 
+#include "../game/application.h"
 #include "../graphics/gridrenderer.h"
 #include "../graphics/textureloader.h"
 #include "../game/entity.h"

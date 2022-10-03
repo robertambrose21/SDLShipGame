@@ -62,7 +62,8 @@ void Application::initialise(void) {
     ));
     enemy->setPosition(glm::ivec2(0, grid->getHeight() - 1));
     enemy->setTexture(window->getTextureLoader()->getTexture("../assets/spaceworm.png"));
-    auto teeth = std::make_shared<MeleeWeapon>(enemy, window->getGridRenderer(), "Teeth", (Weapon::Stats) { 1, 1, 1 });
+    auto teeth = std::make_shared<MeleeWeapon>(enemy, window->getGridRenderer(), "Teeth", (Weapon::Stats) { 1, 2, 1 });
+    enemy->addWeapon(teeth);
     enemy->setCurrentWeapon(teeth);
 
     auto enemy2 = entityPool->addEntity(
@@ -74,7 +75,8 @@ void Application::initialise(void) {
     ));
     enemy2->setPosition(glm::ivec2(5, grid->getHeight() - 3));
     enemy2->setTexture(window->getTextureLoader()->getTexture("../assets/spaceworm.png"));
-    auto teeth2 = std::make_shared<MeleeWeapon>(enemy2, window->getGridRenderer(), "Teeth", (Weapon::Stats) { 1, 1, 1 });
+    auto teeth2 = std::make_shared<MeleeWeapon>(enemy2, window->getGridRenderer(), "Teeth", (Weapon::Stats) { 1, 2, 1 });
+    enemy->addWeapon(teeth2);
     enemy2->setCurrentWeapon(teeth2);
 
     auto enemy3 = entityPool->addEntity(
@@ -86,8 +88,9 @@ void Application::initialise(void) {
     ));
     enemy3->setPosition(glm::ivec2(7, grid->getHeight() - 3));
     enemy3->setTexture(window->getTextureLoader()->getTexture("../assets/spaceworm.png"));
-    auto teeth3 = std::make_shared<MeleeWeapon>(enemy3, window->getGridRenderer(), "Teeth", (Weapon::Stats) { 1, 1, 1 });
-    enemy3->setCurrentWeapon(teeth2);
+    auto teeth3 = std::make_shared<MeleeWeapon>(enemy3, window->getGridRenderer(), "Teeth", (Weapon::Stats) { 1, 2, 1 });
+    enemy3->addWeapon(teeth3);
+    enemy3->setCurrentWeapon(teeth3);
 
     turnController->addParticipant({ playerController->getEntity() }, true);
     turnController->addParticipant({ enemy, enemy2, enemy3 }, false);

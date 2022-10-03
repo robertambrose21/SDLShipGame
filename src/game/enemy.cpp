@@ -13,7 +13,10 @@ Enemy::Enemy(
 // Need to tweak this so the player cannot overlap the enemy
 void Enemy::additionalUpdate(const Uint32& timeSinceLastFrame, bool& quit) {
     if(isNeighbour(player)) {
-        bite();
+        attack(player, getCurrentWeapon());
+    }
+    else if(getMovesLeft() <= 0) {
+        getCurrentWeapon()->setFinished();
     }
     else {
         findPath(player->getPosition(), 1);
@@ -22,9 +25,4 @@ void Enemy::additionalUpdate(const Uint32& timeSinceLastFrame, bool& quit) {
 
 bool Enemy::endTurnCondition(void) {
     return false;
-}
-
-void Enemy::bite(void) {
-    attack(player, getCurrentWeapon());
-    useMoves(getStats().movesPerTurn);
 }
