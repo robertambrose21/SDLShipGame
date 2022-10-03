@@ -3,11 +3,14 @@
 AreaOfEffect::AreaOfEffect(
     std::shared_ptr<GridRenderer> gridRenderer,
     std::shared_ptr<Texture> texture,
+    int liveTurn,
     glm::ivec2 position, 
     Stats stats
 ) :
     gridRenderer(gridRenderer),
     texture(texture),
+    liveTurn(liveTurn),
+    position(position),
     stats(stats)
 {
     effectedTilePositions = gridRenderer->getGrid()->getTilesInCircle(position.x, position.y, stats.radius);

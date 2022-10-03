@@ -1,11 +1,11 @@
 #include "areaofeffectpool.h"
 
-AreaOfEffectPool::AreaOfEffectPool(std::shared_ptr<EntityPool> entityPool) :
-    entityPool(entityPool)
+AreaOfEffectPool::AreaOfEffectPool(std::shared_ptr<TurnController> turnController) :
+    turnController(turnController)
 { }
 
 void AreaOfEffectPool::add(std::shared_ptr<AreaOfEffect> areaOfEffect) {
-    aoeObjects.push_back(std::make_pair(entityPool->getTurnNumber(), areaOfEffect));
+    aoeObjects.push_back(std::make_pair(turnController->getTurnNumber(), areaOfEffect));
 }
 
 void AreaOfEffectPool::draw(std::shared_ptr<SDL_Renderer> renderer) {
@@ -20,7 +20,7 @@ void AreaOfEffectPool::update(const Uint32& timeSinceLastFrame) {
 
         areaOfEffect->update(timeSinceLastFrame);
 
-        if(entityPool->getTurnNumber() - startTurn >= areaOfEffect->getStats().turns) {
+        if(turnController->getTurnNumber() - startTurn >= areaOfEffect->getStats().turns) {
             aoeObjectsForDeletion.push_back(aoeObject);
         }
     }

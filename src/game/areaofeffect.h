@@ -16,12 +16,15 @@ private:
 
     std::vector<glm::ivec2> effectedTilePositions;
 
+    int liveTurn;
+    glm::ivec2 position;
     Stats stats;
 
 public:
     AreaOfEffect(
         std::shared_ptr<GridRenderer> gridRenderer, 
-        std::shared_ptr<Texture> texture, 
+        std::shared_ptr<Texture> texture,
+        int liveTurn,
         glm::ivec2 position, 
         Stats stats
     );

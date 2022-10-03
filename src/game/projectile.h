@@ -18,13 +18,13 @@ public:
     typedef struct _blueprint {
         Stats stats;
         std::shared_ptr<Texture> texture;
-        std::function<void(std::shared_ptr<Grid>, std::shared_ptr<Entity>)> onHitCallback;
+        std::function<void(std::shared_ptr<Grid>, std::shared_ptr<Entity>, int)> onHitCallback;
 
         _blueprint(
             Stats stats, 
             std::shared_ptr<Texture> texture,
-            std::function<void(std::shared_ptr<Grid>, std::shared_ptr<Entity>)> onHitCallback =
-                [](std::shared_ptr<Grid>, std::shared_ptr<Entity>){ }
+            std::function<void(std::shared_ptr<Grid>, std::shared_ptr<Entity>, int)> onHitCallback =
+                [](std::shared_ptr<Grid>, std::shared_ptr<Entity>, int){ }
         ) :
             stats(stats),
             texture(texture),
@@ -47,7 +47,7 @@ private:
 
     int weaponBaseDamage;
 
-    std::function<void(std::shared_ptr<Grid>, std::shared_ptr<Entity>)> onHitCallback;
+    std::function<void(std::shared_ptr<Grid>, std::shared_ptr<Entity>, int)> onHitCallback;
 
     float getStep(void) const;
 
@@ -59,8 +59,8 @@ public:
         std::shared_ptr<Entity> target,
         Stats stats,
         int weaponBaseDamage,
-        std::function<void(std::shared_ptr<Grid>, std::shared_ptr<Entity>)> onHitCallback = 
-            [](std::shared_ptr<Grid>, std::shared_ptr<Entity>){ }
+        std::function<void(std::shared_ptr<Grid>, std::shared_ptr<Entity>, int)> onHitCallback = 
+            [](std::shared_ptr<Grid>, std::shared_ptr<Entity>, int){ }
     );
 
     static std::shared_ptr<Projectile> create(

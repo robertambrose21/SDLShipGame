@@ -5,6 +5,7 @@
 #include "applicationcontext.h"
 #include "projectilepool.h"
 #include "areaofeffectpool.h"
+#include "turncontroller.h"
 
 #include "enemy.h"
 #include "projectileweapon.h"
@@ -20,6 +21,7 @@ private:
     std::shared_ptr<ProjectilePool> projectilePool;
     std::shared_ptr<AreaOfEffectPool> areaOfEffectPool;
     std::shared_ptr<PlayerController> playerController;
+    std::shared_ptr<TurnController> turnController;
 
     std::shared_ptr<ApplicationContext> context;
 

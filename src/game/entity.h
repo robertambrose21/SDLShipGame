@@ -29,6 +29,7 @@ private:
 
     std::string name;
     int movesLeft;
+    int currentHP;
 
 protected:
     std::shared_ptr<GridRenderer> grid;
@@ -51,6 +52,7 @@ public:
 
     Stats getStats(void) const;
     const float getSpeed(void);
+    int getCurrentHP(void) const;
     void takeDamage(const int& amount);
     void attack(std::shared_ptr<Entity> target, std::shared_ptr<Weapon> weapon);
 
@@ -72,6 +74,7 @@ public:
     void useMoves(const int& numMoves);
 
     void nextTurn(void);
+    void reset(void);
 
     virtual bool endTurnCondition(void) = 0;
 };

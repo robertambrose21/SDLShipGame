@@ -3,17 +3,17 @@
 #include <vector>
 
 #include "areaofeffect.h"
-#include "entitypool.h"
+#include "turncontroller.h"
 
 class AreaOfEffectPool {
 private:
     std::vector<std::pair<int, std::shared_ptr<AreaOfEffect>>> aoeObjects;
     std::vector<std::pair<int, std::shared_ptr<AreaOfEffect>>> aoeObjectsForDeletion;
 
-    std::shared_ptr<EntityPool> entityPool;
+    std::shared_ptr<TurnController> turnController;
 
 public:
-    AreaOfEffectPool(std::shared_ptr<EntityPool> entityPool);
+    AreaOfEffectPool(std::shared_ptr<TurnController> turnController);
 
     void add(std::shared_ptr<AreaOfEffect> areaOfEffect);
 

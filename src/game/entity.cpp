@@ -10,6 +10,7 @@ Entity::Entity(
     stats(stats),
     position({ 0, 0 }),
     movesLeft(0),
+    currentHP(stats.hp),
     timeSinceLastMoved(0)
 { }
 
@@ -60,8 +61,12 @@ const float Entity::getSpeed(void) {
     return 1000.0f / (MOVES_PER_SECOND * getStats().movesPerTurn);
 }
 
+int Entity::getCurrentHP(void) const {
+    return currentHP;
+}
+
 void Entity::takeDamage(const int& amount) {
-    stats.hp -= amount;
+    currentHP -= amount;
 }
 
 void Entity::attack(std::shared_ptr<Entity> target, std::shared_ptr<Weapon> weapon) {
@@ -81,7 +86,7 @@ void Entity::attack(std::shared_ptr<Entity> target, std::shared_ptr<Weapon> weap
         << "], ["
         << targetName
         << "] now has [" 
-        << (target == nullptr ? 0 : target->getStats().hp - weapon->getStats().damage)
+        << (target == nullptr ? 0 : target->getCurrentHP() - weapon->getStats().damage)
         << "] hp" 
         << std::endl;
 }
@@ -166,6 +171,15 @@ void Entity::useMoves(const int& numMoves) {
 void Entity::nextTurn(void) {
     movesLeft = stats.movesPerTurn;
     
+    for(auto weapon : weapons) {
+        weapon->reset();
+    }
+}
+
+void Entity::reset(void) {
+    movesLeft = 0;
+    currentHP = stats.hp;
+
     for(auto weapon : weapons) {
         weapon->reset();
     }

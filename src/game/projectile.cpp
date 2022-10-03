@@ -12,7 +12,7 @@ Projectile::Projectile(
     std::shared_ptr<Entity> target,
     Stats stats,
     int weaponBaseDamage,
-    std::function<void(std::shared_ptr<Grid>, std::shared_ptr<Entity>)> onHitCallback
+    std::function<void(std::shared_ptr<Grid>, std::shared_ptr<Entity>, int)> onHitCallback
 ) :
     grid(grid),
     texture(texture),
@@ -39,7 +39,7 @@ void Projectile::update(const Uint32& timeSinceLastFrame) {
 
     if(hasReachedTarget()) {
         target->takeDamage((float) weaponBaseDamage * stats.damageMultiplier);
-        onHitCallback(grid->getGrid(), target);
+        onHitCallback(grid->getGrid(), target, 1);
     }
 }
 

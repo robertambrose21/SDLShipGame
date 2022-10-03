@@ -20,7 +20,7 @@ void Weapon::use(glm::ivec2 position, std::shared_ptr<Entity> target) {
 }
 
 bool Weapon::hasFinished(void) {
-    return usesLeft == 0;
+    return usesLeft <= 0;
 }
 
 void Weapon::reset(void) {

@@ -1,33 +1,23 @@
 #include "entitypool.h"
 
-EntityPool::EntityPool() :
-    isPlayersTurn(false),
-    turnNumber(0)
+EntityPool::EntityPool()
 { }
 
 void EntityPool::updateEntities(Uint32 timeSinceLastFrame, bool& quit) {
-    player->update(timeSinceLastFrame, quit);
-
-    bool nonPlayerNextTurn = !isPlayersTurn;
-
     for(auto entity : entities) {
-        nonPlayerNextTurn = nonPlayerNextTurn && canProgressToNextTurn(entity);
         updateEntity(entity, timeSinceLastFrame, quit);
     }
 
     for(auto entity : entitiesForDeletion) {
         entities.erase(std::find(entities.begin(), entities.end(), entity));
+        std::cout << "[" << entity->getName() << "] died" << std::endl;
     }
     
     entitiesForDeletion.clear();
-
-    if(nonPlayerNextTurn || (isPlayersTurn && canProgressToNextTurn(player))) {
-        nextTurn();
-    }
 }
 
 void EntityPool::updateEntity(std::shared_ptr<Entity> entity, Uint32 timeSinceLastFrame, bool& quit) {
-    if(entity->getStats().hp <= 0) {
+    if(entity->getCurrentHP() <= 0) {
         entitiesForDeletion.insert(entity);
         return;
     }
@@ -36,14 +26,12 @@ void EntityPool::updateEntity(std::shared_ptr<Entity> entity, Uint32 timeSinceLa
 }
 
 void EntityPool::drawEntities(std::shared_ptr<SDL_Renderer> renderer) {
-    player->draw(renderer);
-
     for(auto entity : entities) {
         entity->draw(renderer);
     }
 }
 
-std::shared_ptr<Entity> EntityPool::createEntity(std::shared_ptr<Entity> entity) {
+std::shared_ptr<Entity> EntityPool::addEntity(std::shared_ptr<Entity> entity) {
     entities.insert(entity);
     return entity;
 }
@@ -62,34 +50,4 @@ std::set<std::shared_ptr<Entity>> EntityPool::getEntitiesOnTile(const int& x, co
     }
 
     return entitiesOnTile;
-}
-
-void EntityPool::nextTurn(void) {
-    if(player == nullptr) {
-        return;
-    }
-
-    isPlayersTurn = entities.empty() || !isPlayersTurn;
-
-    if(isPlayersTurn) {
-        player->nextTurn();
-        turnNumber++;
-        std::cout << "Turn number: [" << turnNumber << "]" << std::endl;
-    } else {
-        for(auto entity : entities) {
-            entity->nextTurn();
-        }
-    }
-}
-
-int EntityPool::getTurnNumber(void) const {
-    return turnNumber;
-}
-
-bool EntityPool::canProgressToNextTurn(std::shared_ptr<Entity> entity) {
-    return !entity->isTurnInProgress() || entity->endTurnCondition();
-}
-
-void EntityPool::setPlayerEntity(std::shared_ptr<Entity> player) {
-    this->player = player;
 }
