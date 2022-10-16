@@ -59,7 +59,7 @@ void Application::initialise(void) {
             "Space Worm", 
             Entity::Stats { 5, 2 }
     ));
-    enemy3->setPosition(glm::ivec2(7, grid->getHeight() - 3));
+    enemy3->setPosition(glm::ivec2(17, grid->getHeight() - 3));
     enemy3->setTexture(window->getTextureLoader()->getTexture("../assets/spaceworm.png"));
     enemy3->setSelectedTexture(window->getTextureLoader()->getTexture("../assets/selection.png"));
     auto teeth3 = std::make_shared<MeleeWeapon>(enemy3, window->getGridRenderer(), "Teeth", (Weapon::Stats) { 1, 2, 1 });
@@ -67,7 +67,8 @@ void Application::initialise(void) {
     enemy3->setCurrentWeapon(teeth3);
 
     playerController->setParticipant(turnController->addParticipant({ player, player2 }, true));
-    turnController->addParticipant({ enemy, enemy2, enemy3 }, false);
+    turnController->addParticipant({ enemy, enemy2 }, false);
+    turnController->addParticipant({ enemy3 }, false);
     turnController->reset();
 
     window->addLoopDrawWorker([&](auto renderer, auto& quit) {
