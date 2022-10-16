@@ -11,17 +11,26 @@ Entity::Entity(
     position({ 0, 0 }),
     movesLeft(0),
     currentHP(stats.hp),
-    timeSinceLastMoved(0)
+    timeSinceLastMoved(0),
+    selected(false)
 { }
 
 void Entity::setTexture(std::shared_ptr<Texture> texture) {
     this->texture = texture;
 }
 
+void Entity::setSelectedTexture(std::shared_ptr<Texture> selectedTexture) {
+    this->selectedTexture = selectedTexture;
+}
+
 void Entity::draw(std::shared_ptr<SDL_Renderer> renderer) {
     auto realPosition = grid->getTilePosition(position.x, position.y);
     SDL_Rect dst = { realPosition.x, realPosition.y, grid->getTileSize(), grid->getTileSize() };
     texture->draw(renderer, NULL, &dst);
+
+    if(selected) {
+        selectedTexture->draw(renderer, NULL, &dst);
+    }
 
     for(auto weapon : weapons) {
         weapon->draw(renderer);
@@ -51,6 +60,14 @@ void Entity::update(const Uint32& timeSinceLastFrame, bool& quit) {
         timeSinceLastMoved = 0;
         useMoves(1);
     }
+}
+
+void Entity::setSelected(bool selected) {
+    this->selected = selected;
+}
+
+bool Entity::isSelected(void) const {
+    return selected;
 }
 
 Entity::Stats Entity::getStats(void) const {
@@ -108,6 +125,10 @@ glm::ivec2 Entity::getPosition(void) const {
     return position;
 }
 
+bool Entity::isOnTile(const int& x, const int& y) {
+    return position == glm::ivec2(x, y);
+}
+
 void Entity::setPosition(const glm::ivec2& position) {
     this->position = position;
 }
@@ -154,6 +175,7 @@ void Entity::useMoves(const int& numMoves) {
 
 void Entity::nextTurn(void) {
     movesLeft = stats.movesPerTurn;
+    path.clear();
     
     for(auto weapon : weapons) {
         weapon->reset();
@@ -163,6 +185,7 @@ void Entity::nextTurn(void) {
 void Entity::reset(void) {
     movesLeft = 0;
     currentHP = stats.hp;
+    path.clear();
 
     for(auto weapon : weapons) {
         weapon->reset();

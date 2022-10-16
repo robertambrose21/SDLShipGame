@@ -25,11 +25,13 @@ void Application::initialise(void) {
     }
 
     window->initialiseWindow();
-
-    playerController->getEntity()->setTexture(window->getTextureLoader()->getTexture("../assets/player.png"));
+    
+    auto player = std::make_shared<Player>(window->getGridRenderer());
+    player->setTexture(window->getTextureLoader()->getTexture("../assets/player.png"));
+    player->setSelectedTexture(window->getTextureLoader()->getTexture("../assets/selection.png"));
     
     auto pistolTemp = std::make_shared<ProjectileWeapon>(
-        playerController->getEntity(),
+        player,
         window->getGridRenderer(), 
         "Pistol", 
         Weapon::Stats { 1, 100, 2 },
@@ -48,20 +50,50 @@ void Application::initialise(void) {
         )
         
     );
-    auto pistol = playerController->getEntity()->addWeapon(pistolTemp);
-    playerController->getEntity()->setCurrentWeapon(pistol);
-    entityPool->addEntity(playerController->getEntity());
+    auto pistol = player->addWeapon(pistolTemp);
+    player->setCurrentWeapon(pistol);
+    entityPool->addEntity(player);
+
+    auto player2 = std::make_shared<Player>(window->getGridRenderer());
+    player2->setTexture(window->getTextureLoader()->getTexture("../assets/player.png"));
+    player2->setSelectedTexture(window->getTextureLoader()->getTexture("../assets/selection.png"));
+    player2->setPosition(glm::ivec2(2, 1));
+
+    auto pistolTemp2 = std::make_shared<ProjectileWeapon>(
+        player2,
+        window->getGridRenderer(), 
+        "Pistol", 
+        Weapon::Stats { 1, 100, 2 },
+        Projectile::Blueprint(
+            Projectile::Stats { 1, 50 },
+            window->getTextureLoader()->getTexture("../assets/bullet.png"),
+            [&](auto grid, auto entity, auto turnNumber) {
+                areaOfEffectPool->add(std::make_shared<AreaOfEffect>(
+                    window->getGridRenderer(), 
+                    window->getTextureLoader()->getTexture("../assets/explosion.png"), 
+                    turnNumber,
+                    entity->getPosition(),
+                    AreaOfEffect::Stats { 2.0f, 1 }
+                ));
+            }
+        )
+        
+    );
+    auto pistol2 = player2->addWeapon(pistolTemp2);
+    player2->setCurrentWeapon(pistol2);
+    entityPool->addEntity(player2);
 
     // TODO: Weapon blueprints
     auto enemy = entityPool->addEntity(
         std::make_shared<Enemy>(
             window->getGridRenderer(), 
             "Space Worm", 
-            playerController->getEntity(), 
+            player, 
             Entity::Stats { 5, 2 }
     ));
     enemy->setPosition(glm::ivec2(0, grid->getHeight() - 1));
     enemy->setTexture(window->getTextureLoader()->getTexture("../assets/spaceworm.png"));
+    enemy->setSelectedTexture(window->getTextureLoader()->getTexture("../assets/selection.png"));
     auto teeth = std::make_shared<MeleeWeapon>(enemy, window->getGridRenderer(), "Teeth", (Weapon::Stats) { 1, 2, 1 });
     enemy->addWeapon(teeth);
     enemy->setCurrentWeapon(teeth);
@@ -70,11 +102,12 @@ void Application::initialise(void) {
         std::make_shared<Enemy>(
             window->getGridRenderer(), 
             "Space Worm", 
-            playerController->getEntity(), 
+            player, 
             Entity::Stats { 5, 2 }
     ));
     enemy2->setPosition(glm::ivec2(5, grid->getHeight() - 3));
     enemy2->setTexture(window->getTextureLoader()->getTexture("../assets/spaceworm.png"));
+    enemy2->setSelectedTexture(window->getTextureLoader()->getTexture("../assets/selection.png"));
     auto teeth2 = std::make_shared<MeleeWeapon>(enemy2, window->getGridRenderer(), "Teeth", (Weapon::Stats) { 1, 2, 1 });
     enemy->addWeapon(teeth2);
     enemy2->setCurrentWeapon(teeth2);
@@ -83,16 +116,17 @@ void Application::initialise(void) {
         std::make_shared<Enemy>(
             window->getGridRenderer(), 
             "Space Worm", 
-            playerController->getEntity(), 
+            player, 
             Entity::Stats { 5, 2 }
     ));
     enemy3->setPosition(glm::ivec2(7, grid->getHeight() - 3));
     enemy3->setTexture(window->getTextureLoader()->getTexture("../assets/spaceworm.png"));
+    enemy3->setSelectedTexture(window->getTextureLoader()->getTexture("../assets/selection.png"));
     auto teeth3 = std::make_shared<MeleeWeapon>(enemy3, window->getGridRenderer(), "Teeth", (Weapon::Stats) { 1, 2, 1 });
     enemy3->addWeapon(teeth3);
     enemy3->setCurrentWeapon(teeth3);
 
-    turnController->addParticipant({ playerController->getEntity() }, true);
+    playerController->setParticipant(turnController->addParticipant({ player, player2 }, true));
     turnController->addParticipant({ enemy, enemy2, enemy3 }, false);
     turnController->reset();
 

@@ -39,15 +39,3 @@ std::shared_ptr<Entity> EntityPool::addEntity(std::shared_ptr<Entity> entity) {
 std::set<std::shared_ptr<Entity>> EntityPool::getEntities(void) {
     return entities;
 }
-
-std::set<std::shared_ptr<Entity>> EntityPool::getEntitiesOnTile(const int& x, const int& y) {
-    std::set<std::shared_ptr<Entity>> entitiesOnTile;
-
-    for(auto entity : entities) {
-        if(entity->getPosition() == glm::ivec2(x, y)) {
-            entitiesOnTile.insert(entity);
-        }
-    }
-
-    return entitiesOnTile;
-}

@@ -19,5 +19,4 @@ public:
 
     std::shared_ptr<Entity> addEntity(std::shared_ptr<Entity> entity);
     std::set<std::shared_ptr<Entity>> getEntities(void);
-    std::set<std::shared_ptr<Entity>> getEntitiesOnTile(const int& x, const int& y);
 };

@@ -3,9 +3,7 @@
 PlayerController::PlayerController(std::shared_ptr<GridRenderer> grid, std::shared_ptr<EntityPool> entityPool) :
     grid(grid),
     entityPool(entityPool)
-{
-    player = std::make_shared<Player>(grid);
-}
+{ }
 
 void PlayerController::handleKeyPress(SDL_Event event) {
     if(event.type == SDL_KEYDOWN) {
@@ -25,29 +23,62 @@ void PlayerController::handleMouseEvent(SDL_Event event) {
         int x, y;
         SDL_GetMouseState(&x, &y);
 
+        auto [dX, dY] = grid->getTileIndices(glm::ivec2(x, y));
+
         switch(event.button.button) {
-        case SDL_BUTTON_LEFT:
-            move(glm::ivec2(x, y));
-            break;
+            case SDL_BUTTON_LEFT: {
+                auto entity = Entity::filterByTile(dX, dY, participant->entities);
 
-        case SDL_BUTTON_RIGHT:
-            auto [dX, dY] = grid->getTileIndices(glm::ivec2(x, y));
-
-            for(auto entity : entityPool->getEntitiesOnTile(dX, dY)) {
-                if(entity != player) {
-                    player->attack(entity, player->getCurrentWeapon());
-                }
+                toggleSelection(entity);
+                break;
             }
-            break;
+        
+
+            case SDL_BUTTON_RIGHT: {
+                auto target = Entity::filterByTile(dX, dY, entityPool->getEntities());
+
+                if(target != nullptr) {
+                    for(auto entity : selectedEntities) {
+                        entity->attack(target, entity->getCurrentWeapon());
+                    }
+                }
+                else {
+                    move(glm::ivec2(x, y));
+                }
+                
+                break;
+            }
         }
+    }
+}
+
+void PlayerController::toggleSelection(std::shared_ptr<Entity> entity) {
+    if(entity == nullptr) {
+        return;
+    }
+
+    if(entity->isSelected()) {
+        selectedEntities.erase(std::find(selectedEntities.begin(), selectedEntities.end(), entity));
+        entity->setSelected(false);
+    }
+    else {
+        selectedEntities.push_back(entity);
+        entity->setSelected(true);
     }
 }
 
 void PlayerController::move(const glm::ivec2& mouseCoords) {
     auto [dX, dY] = grid->getTileIndices(mouseCoords);
-    player->findPath(glm::ivec2(dX, dY));
+
+    for(auto entity : selectedEntities) {
+        entity->findPath(glm::ivec2(dX, dY));
+    }
 }
 
-std::shared_ptr<Player> PlayerController::getEntity(void) {
-    return player;
+std::vector<std::shared_ptr<Entity>> PlayerController::getSelectedEntities(void) {
+    return selectedEntities;
+}
+
+void PlayerController::setParticipant(std::shared_ptr<TurnController::Participant> participant) {
+    this->participant = participant;
 }

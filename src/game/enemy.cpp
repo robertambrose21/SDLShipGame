@@ -7,13 +7,19 @@ Enemy::Enemy(
     Entity::Stats stats
 ) :
     Entity(grid, name, stats),
-    player(player)
+    player(player),
+    canPassTurn(false)
 { }
 
 // Need to tweak this so the player cannot overlap the enemy
 void Enemy::additionalUpdate(const Uint32& timeSinceLastFrame, bool& quit) {
     if(isNeighbour(player)) {
-        attack(player, getCurrentWeapon());
+        if(getCurrentWeapon()->hasFinished()) {
+            canPassTurn = true;
+        }
+        else {
+            attack(player, getCurrentWeapon());
+        }
     }
     else if(getMovesLeft() <= 0) {
         getCurrentWeapon()->setFinished();
@@ -24,5 +30,10 @@ void Enemy::additionalUpdate(const Uint32& timeSinceLastFrame, bool& quit) {
 }
 
 bool Enemy::endTurnCondition(void) {
-    return false;
+    return canPassTurn;
+}
+
+void Enemy::nextTurn() {
+    Entity::nextTurn();
+    canPassTurn = false;
 }

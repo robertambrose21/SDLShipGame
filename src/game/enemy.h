@@ -8,6 +8,7 @@
 class Enemy : public Entity {
 private:
     std::shared_ptr<Player> player;
+    bool canPassTurn;
 
 public:
     Enemy(
@@ -19,4 +20,6 @@ public:
 
     void additionalUpdate(const Uint32& timeSinceLastFrame, bool& quit);
     bool endTurnCondition(void);
+
+    void nextTurn();
 };

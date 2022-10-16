@@ -12,7 +12,7 @@ void TurnController::update(Uint32 timeSinceLastFrame) {
 
     bool nextTurn = true;
 
-    for(auto entity : participants[currentParticipant].entities) {
+    for(auto entity : participants[currentParticipant]->entities) {
         nextTurn = nextTurn && canProgressToNextTurn(entity);
     }
 
@@ -21,19 +21,26 @@ void TurnController::update(Uint32 timeSinceLastFrame) {
     }
 }
 
-void TurnController::addParticipant(std::set<std::shared_ptr<Entity>> entities, bool isPlayer) {
+std::shared_ptr<TurnController::Participant> TurnController::addParticipant(
+    std::set<std::shared_ptr<Entity>> entities, 
+    bool isPlayer
+) {
     Participant participant;
-    participant.order = participants.size();
+    participant.id = participants.size();
     participant.entities = entities;
     participant.isPlayer = isPlayer;
 
-    participants.push_back(participant);
+    auto participantPtr = std::make_shared<Participant>(participant);
+
+    participants.push_back(participantPtr);
+
+    return participantPtr;
 }
 
 void TurnController::reset(void) {
     for(auto participant : participants) {
-        for(auto entity : participant.entities) {
-            if(participant.order > 0) {
+        for(auto entity : participant->entities) {
+            if(participant->id > 0) {
                 entity->reset();
             }
             else {
@@ -51,7 +58,7 @@ void TurnController::nextParticipantTurn(void) {
         std::cout << "Turn number: [" << turnNumber << "]" << std::endl;
     }
 
-    auto& entities = participants[currentParticipant].entities;
+    auto& entities = participants[currentParticipant]->entities;
 
     if(entities.size() == 0) {
         nextParticipantTurn();
@@ -60,7 +67,7 @@ void TurnController::nextParticipantTurn(void) {
 
     std::set<std::shared_ptr<Entity>> entitiesForDeletion;
 
-    for(auto entity : participants[currentParticipant].entities) {
+    for(auto entity : participants[currentParticipant]->entities) {
         entity->nextTurn();
 
         if(entity->getCurrentHP() <= 0) {
