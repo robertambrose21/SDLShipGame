@@ -7,7 +7,7 @@ class Player : public Entity {
 private:
 
 public:
-    Player(std::shared_ptr<GridRenderer> grid);
+    Player();
 
     void additionalUpdate(const Uint32& timeSinceLastFrame, bool& quit);
     bool endTurnCondition(void);

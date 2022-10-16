@@ -34,6 +34,8 @@ private:
     int movesLeft;
     int currentHP;
 
+    int participantId;
+
 protected:
     std::shared_ptr<GridRenderer> grid;
 
@@ -43,7 +45,6 @@ public:
     const Uint32 MOVES_PER_SECOND = 5;
 
     Entity(
-        std::shared_ptr<GridRenderer> grid,
         const std::string& name,
         Stats stats
     );
@@ -96,8 +97,10 @@ public:
     bool isTurnInProgress(void) const;
     void useMoves(const int& numMoves);
 
-    virtual void nextTurn(void);
-    void reset(void);
+    void setParticipantId(int participantId);
+    int getParticipantId(void) const;
 
+    void reset(void);
+    virtual void nextTurn(void);
     virtual bool endTurnCondition(void) = 0;
 };

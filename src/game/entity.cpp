@@ -1,11 +1,10 @@
 #include "entity.h"
+#include "application.h"
 
 Entity::Entity(
-    std::shared_ptr<GridRenderer> grid,
     const std::string& name,
     Stats stats
 ) :
-    grid(grid),
     name(name),
     stats(stats),
     position({ 0, 0 }),
@@ -13,7 +12,9 @@ Entity::Entity(
     currentHP(stats.hp),
     timeSinceLastMoved(0),
     selected(false)
-{ }
+{
+    grid = Application::getContext()->getWindow()->getGridRenderer();
+}
 
 void Entity::setTexture(std::shared_ptr<Texture> texture) {
     this->texture = texture;
@@ -190,4 +191,12 @@ void Entity::reset(void) {
     for(auto weapon : weapons) {
         weapon->reset();
     }
+}
+
+void Entity::setParticipantId(int participantId) {
+    this->participantId = participantId;
+}
+
+int Entity::getParticipantId(void) const {
+    return participantId;
 }

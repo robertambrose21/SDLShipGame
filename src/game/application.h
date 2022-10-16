@@ -42,4 +42,7 @@ public:
 
     void initialise(void);
     void run(void);
+
+    // Temp
+    std::shared_ptr<Entity> addPlayer(glm::ivec2 position);
 };

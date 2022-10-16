@@ -30,6 +30,10 @@ std::shared_ptr<TurnController::Participant> TurnController::addParticipant(
     participant.entities = entities;
     participant.isPlayer = isPlayer;
 
+    for(auto entity : entities) {
+        entity->setParticipantId(participant.id);
+    }
+
     auto participantPtr = std::make_shared<Participant>(participant);
 
     participants.push_back(participantPtr);
