@@ -2,8 +2,8 @@
 
 #include <memory>
 
-#include "../../yojimbo/yojimbo.h"
-#include "../../yojimbo/shared.h"
+#include "yojimbo/yojimbo.h"
+#include "yojimbo/shared.h"
 
 static const uint8_t DEFAULT_PRIVATE_KEY[yojimbo::KeyBytes] = { 0 };
 

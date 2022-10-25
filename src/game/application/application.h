@@ -1,15 +1,15 @@
 #pragma once
 
-#include "../graphics/window.h"
-#include "../player/playercontroller.h"
+#include "graphics/window.h"
+#include "player/playercontroller.h"
 #include "applicationcontext.h"
-#include "projectilepool.h"
-#include "areaofeffectpool.h"
+#include "game/weapons/projectilepool.h"
+#include "game/weapons/areaofeffectpool.h"
 #include "turncontroller.h"
 
-#include "enemy.h"
-#include "projectileweapon.h"
-#include "meleeweapon.h"
+#include "game/entities/enemy.h"
+#include "game/weapons/projectileweapon.h"
+#include "game/weapons/meleeweapon.h"
 
 class PlayerController;
 

@@ -1,9 +1,9 @@
 #pragma once
 
-#include "../graphics/window.h"
-#include "entitypool.h"
-#include "projectilepool.h"
-#include "areaofeffectpool.h"
+#include "graphics/window.h"
+#include "game/entities/entitypool.h"
+#include "game/weapons/projectilepool.h"
+#include "game/weapons/areaofeffectpool.h"
 #include "turncontroller.h"
 
 class ApplicationContext {

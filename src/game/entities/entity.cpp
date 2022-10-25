@@ -1,5 +1,5 @@
 #include "entity.h"
-#include "application.h"
+#include "game/application/application.h"
 
 Entity::Entity(
     const std::string& name,

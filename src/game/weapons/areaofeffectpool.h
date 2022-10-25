@@ -3,7 +3,7 @@
 #include <vector>
 
 #include "areaofeffect.h"
-#include "turncontroller.h"
+#include "game/application/turncontroller.h"
 
 class AreaOfEffectPool {
 private:

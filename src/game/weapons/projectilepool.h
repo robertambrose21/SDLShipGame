@@ -4,7 +4,7 @@
 #include <vector>
 
 #include "projectile.h"
-#include "entity.h"
+#include "game/entities/entity.h"
 
 class ProjectilePool {
 private:

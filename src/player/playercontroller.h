@@ -4,13 +4,13 @@
 #include <glm/glm.hpp>
 #include <iostream>
 
-#include "../game/application.h"
-#include "../graphics/gridrenderer.h"
-#include "../graphics/textureloader.h"
-#include "../game/entity.h"
-#include "../game/entitypool.h"
-#include "../game/weapon.h"
-#include "../game/turncontroller.h"
+#include "game/application/application.h"
+#include "graphics/gridrenderer.h"
+#include "graphics/textureloader.h"
+#include "game/entities/entity.h"
+#include "game/entities/entitypool.h"
+#include "game/weapons/weapon.h"
+#include "game/application/turncontroller.h"
 #include "player.h"
 
 class PlayerController {

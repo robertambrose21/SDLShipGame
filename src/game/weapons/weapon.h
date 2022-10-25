@@ -4,7 +4,7 @@
 #include <functional>
 #include <memory>
 
-#include "entity.h"
+#include "game/entities/entity.h"
 #include "projectile.h"
 
 class Entity;

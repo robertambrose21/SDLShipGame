@@ -2,9 +2,9 @@
 
 #include <string>
 
-#include "../core/glmimport.h"
-#include "../graphics/gridrenderer.h"
-#include "weapon.h"
+#include "core/glmimport.h"
+#include "graphics/gridrenderer.h"
+#include "game/weapons/weapon.h"
 
 class Weapon;
 

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../core/glmimport.h"
-#include "../graphics/gridrenderer.h"
+#include "core/glmimport.h"
+#include "graphics/gridrenderer.h"
 
 class AreaOfEffect {
 public:

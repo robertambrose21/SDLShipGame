@@ -2,9 +2,9 @@
 
 #include <functional>
 
-#include "../core/glmimport.h"
-#include "../graphics/gridrenderer.h"
-#include "entity.h"
+#include "core/glmimport.h"
+#include "graphics/gridrenderer.h"
+#include "game/entities/entity.h"
 
 class Entity;
 

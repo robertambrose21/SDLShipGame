@@ -3,8 +3,8 @@
 #include <limits>
 
 #include "entity.h"
-#include "../player/player.h"
-#include "meleeweapon.h"
+#include "player/player.h"
+#include "game/weapons/meleeweapon.h"
 #include "entitypool.h"
 
 class Enemy : public Entity {

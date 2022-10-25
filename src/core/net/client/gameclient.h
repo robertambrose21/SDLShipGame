@@ -3,8 +3,8 @@
 #include <iostream>
 #include <queue>
 
-#include "../../yojimbo/yojimbo.h"
-#include "gameadapter.h"
+#include "yojimbo/yojimbo.h"
+#include "core/net/gameadapter.h"
 
 class GameClient {
 private:

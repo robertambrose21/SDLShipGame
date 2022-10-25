@@ -2,7 +2,7 @@
 
 #include <set>
 
-#include "entitypool.h"
+#include "game/entities/entitypool.h"
 
 class TurnController {
 public:

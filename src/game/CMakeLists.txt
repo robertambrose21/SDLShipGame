@@ -1,23 +1,25 @@
 cmake_minimum_required(VERSION 3.0.0)
 project(GameLib VERSION 0.1.0)
 
+include_directories(../)
+
 add_library(
     ${PROJECT_NAME}
-    enemy.cpp 
-    entity.cpp 
-    entitypool.cpp 
-    weapon.cpp 
-    projectile.cpp 
-    projectileweapon.cpp 
-    meleeweapon.cpp
-    areaofeffect.cpp
-    serverapplication.cpp
-    clientapplication.cpp
-    application.cpp
-    applicationcontext.cpp
-    projectilepool.cpp
-    areaofeffectpool.cpp
-    turncontroller.cpp
+    entities/enemy.cpp 
+    entities/entity.cpp 
+    entities/entitypool.cpp 
+    weapons/weapon.cpp 
+    weapons/projectile.cpp 
+    weapons/projectileweapon.cpp 
+    weapons/meleeweapon.cpp
+    weapons/areaofeffect.cpp
+    application/serverapplication.cpp
+    application/clientapplication.cpp
+    application/application.cpp
+    application/applicationcontext.cpp
+    weapons/projectilepool.cpp
+    weapons/areaofeffectpool.cpp
+    application/turncontroller.cpp
 )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX CXX_STANDARD 20)

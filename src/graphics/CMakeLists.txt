@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.0.0)
 project(GraphicsLib VERSION 0.1.0)
 
+include_directories(../)
+
 add_library(${PROJECT_NAME} window.cpp textureloader.cpp gridrenderer.cpp)
 
 set_target_properties(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX CXX_STANDARD 20)

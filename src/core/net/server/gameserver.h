@@ -3,8 +3,8 @@
 #include <memory>
 #include <iostream>
 
-#include "../../yojimbo/yojimbo.h"
-#include "gameadapter.h"
+#include "yojimbo/yojimbo.h"
+#include "core/net/gameadapter.h"
 
 class GameServer {
 private:

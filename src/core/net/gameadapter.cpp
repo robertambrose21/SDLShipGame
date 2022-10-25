@@ -1,5 +1,5 @@
 #include "gameadapter.h"
-#include "gameserver.h"
+#include "server/gameserver.h"
 
 GameAdapter::~GameAdapter()
 { }

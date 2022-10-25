@@ -3,7 +3,7 @@
 #include "weapon.h"
 #include "projectile.h"
 #include "areaofeffect.h"
-#include "application.h"
+#include "game/application/application.h"
 
 class ProjectileWeapon : public Weapon {
 private:

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../graphics/gridrenderer.h"
-#include "../game/entity.h"
+#include "graphics/gridrenderer.h"
+#include "game/entities/entity.h"
 
 class Player : public Entity {
 private:

@@ -4,7 +4,7 @@
 #include <glm/glm.hpp>
 
 #include "textureloader.h"
-#include "../core/grid.h"
+#include "core/grid/grid.h"
 
 class GridRenderer {
 private:

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../core/gameserver.h"
+#include "core/net/server/gameserver.h"
 #include "application.h"
 
 class ServerApplication {

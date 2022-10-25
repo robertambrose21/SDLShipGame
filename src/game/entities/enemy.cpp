@@ -1,5 +1,5 @@
 #include "enemy.h"
-#include "application.h"
+#include "game/application/application.h"
 
 Enemy::Enemy(
     const std::string& name,
