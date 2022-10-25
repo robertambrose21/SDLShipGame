@@ -1,10 +1,5 @@
 #include "projectile.h"
 
-// TODO: Move elsewhere
-glm::vec2 lerp(glm::vec2 x, glm::vec2 y, float t) {
-    return x * (1 - t) + y * t;
-}
-
 Projectile::Projectile(
     std::shared_ptr<GridRenderer> grid,
     std::shared_ptr<Texture> texture,
@@ -35,7 +30,7 @@ void Projectile::draw(std::shared_ptr<SDL_Renderer> renderer) {
 void Projectile::update(const Uint32& timeSinceLastFrame) {
     timeSinceLive += timeSinceLastFrame;
 
-    position = lerp(startPosition, target->getPosition(), getStep());
+    position = glm::lerp(startPosition, target->getPosition(), getStep());
 
     if(hasReachedTarget()) {
         target->takeDamage((float) weaponBaseDamage * stats.damageMultiplier);

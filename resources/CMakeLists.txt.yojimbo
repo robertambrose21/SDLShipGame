@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.0.0)
 project(yojimbo)
 
 find_package(Sodium REQUIRED)
+find_package(MbedTLS REQUIRED)
 
 include_directories(netcode.io reliable.io)
 
@@ -13,10 +14,12 @@ add_library(
     netcode.io/netcode.h
     reliable.io/reliable.c
     reliable.io/reliable.h
+    tlsf/tlsf.h
     tlsf/tlsf.c
-    tlsf/tlsf.c
+    certs.h
+    certs.c
 )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX CXX_STANDARD 20)
 
-target_link_libraries(yojimbo sodium)
+target_link_libraries(${PROJECT_NAME} ${MBEDTLS_LIBRARY} ${MBEDX509_LIBRARY} ${MBEDCRYPTO_LIBRARY} sodium)

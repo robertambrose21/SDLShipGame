@@ -8,4 +8,6 @@ namespace glm {
     bool operator<(const tvec2<T, P>& a,const tvec2<T, P>& b) {
         return (a.x < b.x || (a.x == b.x && a.y < b.y));
     }
+
+    vec2 lerp(vec2 x, vec2 y, float t);
 }

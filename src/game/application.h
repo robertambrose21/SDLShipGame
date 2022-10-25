@@ -26,6 +26,7 @@ private:
     std::shared_ptr<ApplicationContext> context;
 
     Application();
+    ~Application();
 
 public:
     static Application& instance() {
@@ -39,7 +40,7 @@ public:
     static std::shared_ptr<ApplicationContext> getContext(void) {
         return instance().context;
     }
-
+    
     void initialise(void);
     void run(void);
 

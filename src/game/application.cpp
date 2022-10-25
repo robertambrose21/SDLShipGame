@@ -12,6 +12,9 @@ Application::Application() {
     context = std::make_shared<ApplicationContext>(window, entityPool, projectilePool, areaOfEffectPool, turnController);
 }
 
+Application::~Application() 
+{ }
+
 void Application::initialise(void) {
     for(auto i = 0; i < grid->getWidth(); i++) {
         for(auto j = 0; j < grid->getHeight(); j++) {

@@ -11,6 +11,8 @@ add_library(
     projectileweapon.cpp 
     meleeweapon.cpp
     areaofeffect.cpp
+    serverapplication.cpp
+    clientapplication.cpp
     application.cpp
     applicationcontext.cpp
     projectilepool.cpp
