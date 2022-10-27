@@ -17,17 +17,17 @@ public:
 
     typedef struct _blueprint {
         Stats stats;
-        std::shared_ptr<Texture> texture;
+        uint8_t textureId;
         std::function<void(std::shared_ptr<Grid>, std::shared_ptr<Entity>, int)> onHitCallback;
 
         _blueprint(
             Stats stats, 
-            std::shared_ptr<Texture> texture,
+            uint8_t textureId,
             std::function<void(std::shared_ptr<Grid>, std::shared_ptr<Entity>, int)> onHitCallback =
                 [](std::shared_ptr<Grid>, std::shared_ptr<Entity>, int){ }
         ) :
             stats(stats),
-            texture(texture),
+            textureId(textureId),
             onHitCallback(onHitCallback)
         { }
     } Blueprint;
@@ -36,7 +36,7 @@ private:
     Stats stats;
 
     std::shared_ptr<Grid> grid;
-    std::shared_ptr<Texture> texture;
+    uint8_t textureId;
 
     glm::ivec2 position;
     glm::ivec2 startPosition;
@@ -54,7 +54,7 @@ private:
 public:
     Projectile(
         std::shared_ptr<Grid> grid,
-        std::shared_ptr<Texture> texture,
+        uint8_t textureId,
         glm::ivec2 startPosition,
         std::shared_ptr<Entity> target,
         Stats stats,
@@ -72,7 +72,7 @@ public:
     ) {
         return std::make_shared<Projectile>(
             grid,
-            blueprint.texture, 
+            blueprint.textureId, 
             startPosition, 
             target, 
             blueprint.stats, 
@@ -81,7 +81,7 @@ public:
         );
     }
 
-    void draw(std::shared_ptr<SDL_Renderer> renderer, std::shared_ptr<GridRenderer> gridRenderer);
+    void draw(std::shared_ptr<GraphicsContext> graphicsContext);
     void update(const Uint32& timeSinceLastFrame);
 
     bool hasReachedTarget(void) const;

@@ -16,25 +16,23 @@ Entity::Entity(
     grid = Application::getContext()->getGrid();
 }
 
-void Entity::setTexture(std::shared_ptr<Texture> texture) {
-    this->texture = texture;
+void Entity::setTextureId(const uint8_t& textureId) {
+    this->textureId = textureId;
 }
 
-void Entity::setSelectedTexture(std::shared_ptr<Texture> selectedTexture) {
-    this->selectedTexture = selectedTexture;
+void Entity::setSelectedTextureId(const uint8_t& selectedTextureId) {
+    this->selectedTextureId = selectedTextureId;
 }
 
-void Entity::draw(std::shared_ptr<SDL_Renderer> renderer, std::shared_ptr<GridRenderer> gridRenderer) {
-    auto realPosition = gridRenderer->getTilePosition(position.x, position.y);
-    SDL_Rect dst = { realPosition.x, realPosition.y, gridRenderer->getTileSize(), gridRenderer->getTileSize() };
-    texture->draw(renderer, NULL, &dst);
+void Entity::draw(std::shared_ptr<GraphicsContext> graphicsContext) {
+    graphicsContext->getGridRenderer()->draw(graphicsContext, textureId, position);
 
     if(selected) {
-        selectedTexture->draw(renderer, NULL, &dst);
+        graphicsContext->getGridRenderer()->draw(graphicsContext, selectedTextureId, position);
     }
 
     for(auto weapon : weapons) {
-        weapon->draw(renderer, gridRenderer);
+        weapon->draw(graphicsContext);
     }
 }
 

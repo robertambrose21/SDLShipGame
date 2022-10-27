@@ -16,8 +16,8 @@ public:
     } Stats;
 
 private:
-    std::shared_ptr<Texture> texture;
-    std::shared_ptr<Texture> selectedTexture;
+    uint8_t textureId;
+    uint8_t selectedTextureId;
 
     bool selected;
 
@@ -65,9 +65,9 @@ public:
 
     void update(const Uint32& timeSinceLastFrame, bool& quit);
 
-    void setTexture(std::shared_ptr<Texture> texture);
-    void setSelectedTexture(std::shared_ptr<Texture> selectedTexture);
-    void draw(std::shared_ptr<SDL_Renderer> renderer, std::shared_ptr<GridRenderer> grid);
+    void setTextureId(const uint8_t& textureId);
+    void setSelectedTextureId(const uint8_t& selectedTexture);
+    void draw(std::shared_ptr<GraphicsContext> graphicsContext);
 
     void setSelected(bool selected);
     bool isSelected(void) const;

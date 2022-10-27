@@ -25,6 +25,12 @@ void GridRenderer::draw(std::shared_ptr<SDL_Renderer> renderer) {
     }
 }
 
+void GridRenderer::draw(std::shared_ptr<GraphicsContext> graphicsContext, const uint8_t& textureId, const glm::ivec2& position) {
+    auto realPosition = getTilePosition(position.x, position.y);
+    SDL_Rect dst = { realPosition.x, realPosition.y, getTileSize(), getTileSize() };
+    graphicsContext->getTextureLoader()->loadTexture(textureId)->draw(graphicsContext->getRenderer(), NULL, &dst);
+}
+
 glm::ivec2 GridRenderer::getTilePosition(int x, int y) const {
     return { x * tileSize, y * tileSize };
 }

@@ -19,9 +19,26 @@ void Texture::draw(
 
 TextureLoader::TextureLoader(std::shared_ptr<SDL_Renderer> renderer) :
     renderer(renderer)
-{ }
+{
+    std::ifstream f("../assets/data/textures/textures.json");
+    json data = json::parse(f);
 
-std::shared_ptr<Texture> TextureLoader::getTexture(std::string path) {
+    auto texturesData = data["textures"].get<std::vector<json>>();
+
+    for(auto textureData : texturesData) {
+        auto id = textureData["id"].get<uint8_t>();
+        auto name = textureData["name"].get<std::string>();
+        auto path = "../assets/data/" + textureData["path"].get<std::string>();
+
+        availableTextures[id] = { id, name, path };
+    }   
+}
+
+std::shared_ptr<Texture> TextureLoader::loadTexture(const uint8_t& id) {
+    return loadTexture(availableTextures[id].path);
+}
+
+std::shared_ptr<Texture> TextureLoader::loadTexture(const std::string& path) {
     if(loadedTextures.contains(path)) {
         return loadedTextures[path];
     }

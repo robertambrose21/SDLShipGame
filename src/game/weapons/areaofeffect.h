@@ -12,7 +12,7 @@ public:
 
 private:
     std::shared_ptr<Grid> grid;
-    std::shared_ptr<Texture> texture;
+    uint8_t textureId;
 
     std::vector<glm::ivec2> effectedTilePositions;
 
@@ -23,13 +23,13 @@ private:
 public:
     AreaOfEffect(
         std::shared_ptr<Grid> grid, 
-        std::shared_ptr<Texture> texture,
+        uint8_t textureId,
         int liveTurn,
         glm::ivec2 position, 
         Stats stats
     );
 
-    void draw(std::shared_ptr<SDL_Renderer> renderer, std::shared_ptr<GridRenderer> gridRenderer);
+    void draw(std::shared_ptr<GraphicsContext> graphicsContext);
     void update(const Uint32& timeSinceLastFrame);
 
     Stats getStats(void) const;

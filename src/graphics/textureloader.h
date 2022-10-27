@@ -5,6 +5,12 @@
 #include <memory>
 #include <map>
 #include <exception>
+#include <fstream>
+#include <iostream>
+
+#include "core/json.hpp"
+
+using json = nlohmann::json;
 
 class Texture {
 private:
@@ -37,13 +43,21 @@ private:
         void operator()(SDL_RWops *p) const     { }
     };
 
-    std::map<std::string, std::shared_ptr<Texture> > loadedTextures;
+    typedef struct _textureData {
+        uint8_t id;
+        std::string name;
+        std::string path;
+    } TextureData;
+
+    std::map<uint8_t, TextureData> availableTextures;
+    std::map<std::string, std::shared_ptr<Texture>> loadedTextures;
     std::shared_ptr<SDL_Renderer> renderer;
 
 public:
     TextureLoader(std::shared_ptr<SDL_Renderer> renderer);
 
-    std::shared_ptr<Texture> getTexture(std::string path);
+    std::shared_ptr<Texture> loadTexture(const uint8_t& id);
+    std::shared_ptr<Texture> loadTexture(const std::string& path);
 
     class TextureLoaderException : public std::exception {
     private:

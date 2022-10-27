@@ -1,8 +1,12 @@
 #pragma once
 
 #include <set>
+#include <fstream>
 
+#include "core/json.hpp"
 #include "entity.h"
+
+using json = nlohmann::json;
 
 class EntityPool {
 private:
@@ -15,8 +19,9 @@ public:
     EntityPool();
 
     void updateEntities(Uint32 timeSinceLastFrame, bool& quit);
-    void drawEntities(std::shared_ptr<SDL_Renderer> renderer, std::shared_ptr<GridRenderer> gridRenderer);
+    void drawEntities(std::shared_ptr<GraphicsContext> graphicsContext);
 
     std::shared_ptr<Entity> addEntity(std::shared_ptr<Entity> entity);
+    // std::shared_ptr<Entity> addEntity(const std::string& path);
     std::set<std::shared_ptr<Entity>> getEntities(void);
 };

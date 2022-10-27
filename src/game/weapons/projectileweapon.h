@@ -21,7 +21,7 @@ public:
         Projectile::Blueprint projectileBlueprint
     );
     
-    void draw(std::shared_ptr<SDL_Renderer> renderer, std::shared_ptr<GridRenderer> gridRenderer);
+    void draw(std::shared_ptr<GraphicsContext> graphicsContext);
     void update(const Uint32& timeSinceLastFrame);
     bool hasFinished(void);
 

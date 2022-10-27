@@ -7,10 +7,10 @@ void ProjectilePool::add(std::shared_ptr<Projectile> projectile, std::shared_ptr
     projectiles[owner].push_back(projectile);
 }
 
-void ProjectilePool::draw(std::shared_ptr<SDL_Renderer> renderer, std::shared_ptr<GridRenderer> gridRenderer) {
+void ProjectilePool::draw(std::shared_ptr<GraphicsContext> graphicsContext) {
     for(auto [owner, projectilesForOwner] : projectiles) {
         for(auto projectile : projectilesForOwner) {
-            projectile->draw(renderer, gridRenderer);
+            projectile->draw(graphicsContext);
         }
     }
 }

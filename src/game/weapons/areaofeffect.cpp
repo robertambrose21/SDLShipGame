@@ -2,13 +2,13 @@
 
 AreaOfEffect::AreaOfEffect(
     std::shared_ptr<Grid> grid,
-    std::shared_ptr<Texture> texture,
+    uint8_t textureId,
     int liveTurn,
     glm::ivec2 position, 
     Stats stats
 ) :
     grid(grid),
-    texture(texture),
+    textureId(textureId),
     liveTurn(liveTurn),
     position(position),
     stats(stats)
@@ -16,12 +16,9 @@ AreaOfEffect::AreaOfEffect(
     effectedTilePositions = grid->getTilesInCircle(position.x, position.y, stats.radius);
 }
 
-// TODO: Move this draw stuff to a common function
-void AreaOfEffect::draw(std::shared_ptr<SDL_Renderer> renderer, std::shared_ptr<GridRenderer> gridRenderer) {
+void AreaOfEffect::draw(std::shared_ptr<GraphicsContext> graphicsContext) {
     for(auto position : effectedTilePositions) {
-        auto realPosition = gridRenderer->getTilePosition(position.x, position.y);
-        SDL_Rect dst = { realPosition.x, realPosition.y, gridRenderer->getTileSize(), gridRenderer->getTileSize() };
-        texture->draw(renderer, NULL, &dst);
+        graphicsContext->getGridRenderer()->draw(graphicsContext, textureId, position);
     }
 }
 

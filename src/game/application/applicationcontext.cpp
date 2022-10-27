@@ -37,3 +37,7 @@ std::shared_ptr<TurnController> ApplicationContext::getTurnController(void) {
 std::shared_ptr<Grid> ApplicationContext::getGrid(void) {
     return getWindow()->getGridRenderer()->getGrid();
 }
+
+std::shared_ptr<GraphicsContext> ApplicationContext::getGraphicsContext(void) {
+    return getWindow()->getGraphicsContext();
+}

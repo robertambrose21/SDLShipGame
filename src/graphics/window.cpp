@@ -50,6 +50,7 @@ bool Window::initialiseWindow(bool headless) {
     }
 
     textureLoader = std::make_shared<TextureLoader>(renderer);
+    graphicsContext = std::make_shared<GraphicsContext>(renderer, textureLoader, gridRenderer);
 
     return true;
 }
@@ -86,7 +87,7 @@ void Window::loop(void) {
         gridRenderer->draw(renderer);
 
         for(auto worker : drawWorkers) {
-            worker(renderer, gridRenderer, quit);
+            worker(graphicsContext, quit);
         }
 
         SDL_RenderPresent(renderer.get());
@@ -97,7 +98,7 @@ void Window::addLoopLogicWorker(std::function<void(const Uint32&, bool&)> worker
     logicWorkers.push_back(worker);
 }
 
-void Window::addLoopDrawWorker(std::function<void(std::shared_ptr<SDL_Renderer>, std::shared_ptr<GridRenderer>, bool&)> worker) {
+void Window::addLoopDrawWorker(std::function<void(std::shared_ptr<GraphicsContext>, bool&)> worker) {
     drawWorkers.push_back(worker);
 }
 
@@ -107,7 +108,7 @@ void Window::addLoopEventWorker(std::function<void(SDL_Event, bool&)> worker) {
 
 void Window::setGridTileTexture(const int& tileId, const std::string& texture) {
     // gridRenderer->setTile(x, y, textureLoader->getTexture(texture));
-    gridRenderer->setTileTexture(tileId, textureLoader->getTexture(texture));
+    gridRenderer->setTileTexture(tileId, textureLoader->loadTexture(texture));
 }
 
 std::shared_ptr<GridRenderer> Window::getGridRenderer(void) {
@@ -116,4 +117,9 @@ std::shared_ptr<GridRenderer> Window::getGridRenderer(void) {
 
 std::shared_ptr<TextureLoader> Window::getTextureLoader(void) {
     return textureLoader;
+}
+
+std::shared_ptr<GraphicsContext> Window::getGraphicsContext(void) {
+    // TODO: Throw exception if not loaded
+    return graphicsContext;
 }

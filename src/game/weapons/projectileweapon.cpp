@@ -18,7 +18,7 @@ void ProjectileWeapon::onUse(glm::ivec2 position, std::shared_ptr<Entity> target
     );
 }
 
-void ProjectileWeapon::draw(std::shared_ptr<SDL_Renderer> renderer, std::shared_ptr<GridRenderer> gridRenderer) {
+void ProjectileWeapon::draw(std::shared_ptr<GraphicsContext> graphicsContext) {
     // no-op
 }
 

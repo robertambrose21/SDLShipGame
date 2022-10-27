@@ -13,7 +13,7 @@ void MeleeWeapon::onUse(glm::ivec2 position, std::shared_ptr<Entity> target) {
     target->takeDamage(stats.damage);
 }
 
-void MeleeWeapon::draw(std::shared_ptr<SDL_Renderer> renderer, std::shared_ptr<GridRenderer> gridRenderer) {
+void MeleeWeapon::draw(std::shared_ptr<GraphicsContext> graphicsContext) {
     // no-op
 }
 

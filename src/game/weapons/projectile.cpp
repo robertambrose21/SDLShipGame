@@ -2,7 +2,7 @@
 
 Projectile::Projectile(
     std::shared_ptr<Grid> grid,
-    std::shared_ptr<Texture> texture,
+    uint8_t textureId,
     glm::ivec2 startPosition,
     std::shared_ptr<Entity> target,
     Stats stats,
@@ -10,7 +10,7 @@ Projectile::Projectile(
     std::function<void(std::shared_ptr<Grid>, std::shared_ptr<Entity>, int)> onHitCallback
 ) :
     grid(grid),
-    texture(texture),
+    textureId(textureId),
     startPosition(startPosition),
     target(target),
     stats(stats),
@@ -21,10 +21,8 @@ Projectile::Projectile(
     distanceToTarget = glm::distance(glm::vec2(target->getPosition()), glm::vec2(startPosition));
 }
 
-void Projectile::draw(std::shared_ptr<SDL_Renderer> renderer, std::shared_ptr<GridRenderer> gridRenderer) {
-    auto realPosition = gridRenderer->getTilePosition(position.x, position.y);
-    SDL_Rect dst = { realPosition.x, realPosition.y, gridRenderer->getTileSize(), gridRenderer->getTileSize() };
-    texture->draw(renderer, NULL, &dst);
+void Projectile::draw(std::shared_ptr<GraphicsContext> graphicsContext) {
+    graphicsContext->getGridRenderer()->draw(graphicsContext, textureId, position);
 }
 
 void Projectile::update(const Uint32& timeSinceLastFrame) {
