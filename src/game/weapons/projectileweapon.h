@@ -15,13 +15,13 @@ private:
 public:
     ProjectileWeapon(
         std::shared_ptr<Entity> owner,
-        std::shared_ptr<GridRenderer> gridRenderer, 
+        std::shared_ptr<Grid> grid, 
         const std::string& name, 
         Stats stats, 
         Projectile::Blueprint projectileBlueprint
     );
     
-    void draw(std::shared_ptr<SDL_Renderer> renderer);
+    void draw(std::shared_ptr<SDL_Renderer> renderer, std::shared_ptr<GridRenderer> gridRenderer);
     void update(const Uint32& timeSinceLastFrame);
     bool hasFinished(void);
 

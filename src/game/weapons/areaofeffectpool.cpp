@@ -8,9 +8,9 @@ void AreaOfEffectPool::add(std::shared_ptr<AreaOfEffect> areaOfEffect) {
     aoeObjects.push_back(std::make_pair(turnController->getTurnNumber(), areaOfEffect));
 }
 
-void AreaOfEffectPool::draw(std::shared_ptr<SDL_Renderer> renderer) {
+void AreaOfEffectPool::draw(std::shared_ptr<SDL_Renderer> renderer, std::shared_ptr<GridRenderer> gridRenderer) {
     for(auto areaOfEffect : aoeObjects) {
-        areaOfEffect.second->draw(renderer);
+        areaOfEffect.second->draw(renderer, gridRenderer);
     }
 }
 

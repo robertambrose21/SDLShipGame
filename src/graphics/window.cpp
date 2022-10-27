@@ -2,7 +2,8 @@
 
 Window::Window(int width, int height, std::shared_ptr<Grid> grid) :
     width(width),
-    height(height)
+    height(height),
+    headless(headless)
 {
     gridRenderer = std::make_shared<GridRenderer>(grid, height);
 }
@@ -11,7 +12,11 @@ Window::~Window() {
     IMG_Quit();
 }
 
-bool Window::initialiseWindow(void) {
+bool Window::initialiseWindow(bool headless) {
+    if(headless) {
+        return true;
+    }
+
     if(SDL_Init(SDL_INIT_VIDEO) < 0) {
         std::cout << "SDL could not be initialized: " << SDL_GetError() << std::endl;
         return false;
@@ -81,7 +86,7 @@ void Window::loop(void) {
         gridRenderer->draw(renderer);
 
         for(auto worker : drawWorkers) {
-            worker(renderer, quit);
+            worker(renderer, gridRenderer, quit);
         }
 
         SDL_RenderPresent(renderer.get());
@@ -92,7 +97,7 @@ void Window::addLoopLogicWorker(std::function<void(const Uint32&, bool&)> worker
     logicWorkers.push_back(worker);
 }
 
-void Window::addLoopDrawWorker(std::function<void(std::shared_ptr<SDL_Renderer>, bool&)> worker) {
+void Window::addLoopDrawWorker(std::function<void(std::shared_ptr<SDL_Renderer>, std::shared_ptr<GridRenderer>, bool&)> worker) {
     drawWorkers.push_back(worker);
 }
 

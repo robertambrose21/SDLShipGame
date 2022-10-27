@@ -33,3 +33,7 @@ std::shared_ptr<AreaOfEffectPool> ApplicationContext::getAreaOfEffectPool(void) 
 std::shared_ptr<TurnController> ApplicationContext::getTurnController(void) {
     return turnController;
 }
+
+std::shared_ptr<Grid> ApplicationContext::getGrid(void) {
+    return getWindow()->getGridRenderer()->getGrid();
+}

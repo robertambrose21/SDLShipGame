@@ -17,6 +17,6 @@ public:
 
     void add(std::shared_ptr<AreaOfEffect> areaOfEffect);
 
-    void draw(std::shared_ptr<SDL_Renderer> renderer);
+    void draw(std::shared_ptr<SDL_Renderer> renderer, std::shared_ptr<GridRenderer> gridRenderer);
     void update(const Uint32& timeSinceLastFrame);
 };

@@ -2,12 +2,12 @@
 
 Weapon::Weapon(
     std::shared_ptr<Entity> owner,
-    std::shared_ptr<GridRenderer> gridRenderer, 
+    std::shared_ptr<Grid> grid, 
     const std::string& name, 
     Stats stats
 ) :
     owner(owner),
-    gridRenderer(gridRenderer),
+    grid(grid),
     name(name),
     stats(stats),
     usesLeft(stats.uses)

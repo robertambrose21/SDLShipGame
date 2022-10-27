@@ -13,7 +13,7 @@ Entity::Entity(
     timeSinceLastMoved(0),
     selected(false)
 {
-    grid = Application::getContext()->getWindow()->getGridRenderer();
+    grid = Application::getContext()->getGrid();
 }
 
 void Entity::setTexture(std::shared_ptr<Texture> texture) {
@@ -24,9 +24,9 @@ void Entity::setSelectedTexture(std::shared_ptr<Texture> selectedTexture) {
     this->selectedTexture = selectedTexture;
 }
 
-void Entity::draw(std::shared_ptr<SDL_Renderer> renderer) {
-    auto realPosition = grid->getTilePosition(position.x, position.y);
-    SDL_Rect dst = { realPosition.x, realPosition.y, grid->getTileSize(), grid->getTileSize() };
+void Entity::draw(std::shared_ptr<SDL_Renderer> renderer, std::shared_ptr<GridRenderer> gridRenderer) {
+    auto realPosition = gridRenderer->getTilePosition(position.x, position.y);
+    SDL_Rect dst = { realPosition.x, realPosition.y, gridRenderer->getTileSize(), gridRenderer->getTileSize() };
     texture->draw(renderer, NULL, &dst);
 
     if(selected) {
@@ -34,7 +34,7 @@ void Entity::draw(std::shared_ptr<SDL_Renderer> renderer) {
     }
 
     for(auto weapon : weapons) {
-        weapon->draw(renderer);
+        weapon->draw(renderer, gridRenderer);
     }
 }
 
@@ -135,7 +135,7 @@ void Entity::setPosition(const glm::ivec2& position) {
 }
 
 bool Entity::findPath(const glm::ivec2& target, const int& stopShortSteps) {
-    auto path = grid->getGrid()->findPath(getPosition(), target);
+    auto path = grid->findPath(getPosition(), target);
 
     if(path.empty()) {
         return false;

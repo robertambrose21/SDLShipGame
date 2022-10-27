@@ -25,9 +25,9 @@ void EntityPool::updateEntity(std::shared_ptr<Entity> entity, Uint32 timeSinceLa
     entity->update(timeSinceLastFrame, quit);
 }
 
-void EntityPool::drawEntities(std::shared_ptr<SDL_Renderer> renderer) {
+void EntityPool::drawEntities(std::shared_ptr<SDL_Renderer> renderer, std::shared_ptr<GridRenderer> gridRenderer) {
     for(auto entity : entities) {
-        entity->draw(renderer);
+        entity->draw(renderer, gridRenderer);
     }
 }
 

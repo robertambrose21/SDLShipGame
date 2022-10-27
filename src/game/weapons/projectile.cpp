@@ -1,7 +1,7 @@
 #include "projectile.h"
 
 Projectile::Projectile(
-    std::shared_ptr<GridRenderer> grid,
+    std::shared_ptr<Grid> grid,
     std::shared_ptr<Texture> texture,
     glm::ivec2 startPosition,
     std::shared_ptr<Entity> target,
@@ -21,9 +21,9 @@ Projectile::Projectile(
     distanceToTarget = glm::distance(glm::vec2(target->getPosition()), glm::vec2(startPosition));
 }
 
-void Projectile::draw(std::shared_ptr<SDL_Renderer> renderer) {
-    auto realPosition = grid->getTilePosition(position.x, position.y);
-    SDL_Rect dst = { realPosition.x, realPosition.y, grid->getTileSize(), grid->getTileSize() };
+void Projectile::draw(std::shared_ptr<SDL_Renderer> renderer, std::shared_ptr<GridRenderer> gridRenderer) {
+    auto realPosition = gridRenderer->getTilePosition(position.x, position.y);
+    SDL_Rect dst = { realPosition.x, realPosition.y, gridRenderer->getTileSize(), gridRenderer->getTileSize() };
     texture->draw(renderer, NULL, &dst);
 }
 
@@ -34,7 +34,7 @@ void Projectile::update(const Uint32& timeSinceLastFrame) {
 
     if(hasReachedTarget()) {
         target->takeDamage((float) weaponBaseDamage * stats.damageMultiplier);
-        onHitCallback(grid->getGrid(), target, 1);
+        onHitCallback(grid, target, 1);
     }
 }
 

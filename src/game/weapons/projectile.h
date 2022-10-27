@@ -35,7 +35,7 @@ public:
 private:
     Stats stats;
 
-    std::shared_ptr<GridRenderer> grid;
+    std::shared_ptr<Grid> grid;
     std::shared_ptr<Texture> texture;
 
     glm::ivec2 position;
@@ -53,7 +53,7 @@ private:
 
 public:
     Projectile(
-        std::shared_ptr<GridRenderer> grid,
+        std::shared_ptr<Grid> grid,
         std::shared_ptr<Texture> texture,
         glm::ivec2 startPosition,
         std::shared_ptr<Entity> target,
@@ -64,14 +64,14 @@ public:
     );
 
     static std::shared_ptr<Projectile> create(
+        std::shared_ptr<Grid> grid,
         Blueprint blueprint, 
-        std::shared_ptr<GridRenderer> grid,
         glm::ivec2 startPosition,
         std::shared_ptr<Entity> target,
         int weaponBaseDamage
     ) {
         return std::make_shared<Projectile>(
-            grid, 
+            grid,
             blueprint.texture, 
             startPosition, 
             target, 
@@ -81,7 +81,7 @@ public:
         );
     }
 
-    void draw(std::shared_ptr<SDL_Renderer> renderer);
+    void draw(std::shared_ptr<SDL_Renderer> renderer, std::shared_ptr<GridRenderer> gridRenderer);
     void update(const Uint32& timeSinceLastFrame);
 
     bool hasReachedTarget(void) const;

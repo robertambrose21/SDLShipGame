@@ -41,7 +41,7 @@ public:
         return instance().context;
     }
     
-    void initialise(void);
+    void initialise(bool headless = false);
     void run(void);
 
     // Temp

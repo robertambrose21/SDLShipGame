@@ -37,7 +37,7 @@ private:
     int participantId;
 
 protected:
-    std::shared_ptr<GridRenderer> grid;
+    std::shared_ptr<Grid> grid;
 
     virtual void additionalUpdate(const Uint32& timeSinceLastFrame, bool& quit) = 0;
 
@@ -67,7 +67,7 @@ public:
 
     void setTexture(std::shared_ptr<Texture> texture);
     void setSelectedTexture(std::shared_ptr<Texture> selectedTexture);
-    void draw(std::shared_ptr<SDL_Renderer> renderer);
+    void draw(std::shared_ptr<SDL_Renderer> renderer, std::shared_ptr<GridRenderer> grid);
 
     void setSelected(bool selected);
     bool isSelected(void) const;

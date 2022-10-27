@@ -16,7 +16,7 @@ public:
 
     void add(std::shared_ptr<Projectile> projectile, std::shared_ptr<Entity> owner);
 
-    void draw(std::shared_ptr<SDL_Renderer> renderer);
+    void draw(std::shared_ptr<SDL_Renderer> renderer, std::shared_ptr<GridRenderer> gridRenderer);
     void update(const Uint32& timeSinceLastFrame);
 
     std::vector<std::shared_ptr<Projectile>> getProjectilesForOwner(std::shared_ptr<Entity> owner);

@@ -25,14 +25,14 @@ protected:
 
     int usesLeft;
 
-    std::shared_ptr<GridRenderer> gridRenderer;
+    std::shared_ptr<Grid> grid;
 
     virtual void onUse(glm::ivec2 position, std::shared_ptr<Entity> target) = 0;
 
 public:
     Weapon(
         std::shared_ptr<Entity> owner,
-        std::shared_ptr<GridRenderer> gridRenderer, 
+        std::shared_ptr<Grid> grid, 
         const std::string& name, 
         Stats stats
     );
@@ -42,7 +42,7 @@ public:
     void setFinished(void);
     bool isInRange(glm::ivec2 position);
 
-    virtual void draw(std::shared_ptr<SDL_Renderer> renderer) = 0;
+    virtual void draw(std::shared_ptr<SDL_Renderer> renderer, std::shared_ptr<GridRenderer> gridRenderer) = 0;
     virtual void update(const Uint32& timeSinceLastFrame) = 0;
     virtual bool hasFinished(void);
 

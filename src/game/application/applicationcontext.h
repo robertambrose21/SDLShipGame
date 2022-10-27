@@ -23,6 +23,7 @@ public:
         std::shared_ptr<TurnController> turnController
     );
 
+    std::shared_ptr<Grid> getGrid(void);
     std::shared_ptr<Window> getWindow(void);
     std::shared_ptr<EntityPool> getEntityPool(void);
     std::shared_ptr<ProjectilePool> getProjectilePool(void);

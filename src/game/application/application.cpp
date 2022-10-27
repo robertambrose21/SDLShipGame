@@ -15,7 +15,7 @@ Application::Application() {
 Application::~Application() 
 { }
 
-void Application::initialise(void) {
+void Application::initialise(bool headless) {
     for(auto i = 0; i < grid->getWidth(); i++) {
         for(auto j = 0; j < grid->getHeight(); j++) {
             if(i == 10 && j != 12) {
@@ -27,7 +27,7 @@ void Application::initialise(void) {
         }
     }
 
-    window->initialiseWindow();
+    window->initialiseWindow(false);
     
     auto player = addPlayer(glm::ivec2(0, 0));
     auto player2 = addPlayer(glm::ivec2(2, 1));
@@ -41,7 +41,7 @@ void Application::initialise(void) {
     enemy->setPosition(glm::ivec2(0, grid->getHeight() - 1));
     enemy->setTexture(window->getTextureLoader()->getTexture("../assets/spaceworm.png"));
     enemy->setSelectedTexture(window->getTextureLoader()->getTexture("../assets/selection.png"));
-    auto teeth = std::make_shared<MeleeWeapon>(enemy, window->getGridRenderer(), "Teeth", (Weapon::Stats) { 1, 2, 1 });
+    auto teeth = std::make_shared<MeleeWeapon>(enemy, window->getGridRenderer()->getGrid(), "Teeth", (Weapon::Stats) { 1, 2, 1 });
     enemy->addWeapon(teeth);
     enemy->setCurrentWeapon(teeth);
 
@@ -53,7 +53,7 @@ void Application::initialise(void) {
     enemy2->setPosition(glm::ivec2(5, grid->getHeight() - 3));
     enemy2->setTexture(window->getTextureLoader()->getTexture("../assets/spaceworm.png"));
     enemy2->setSelectedTexture(window->getTextureLoader()->getTexture("../assets/selection.png"));
-    auto teeth2 = std::make_shared<MeleeWeapon>(enemy2, window->getGridRenderer(), "Teeth", (Weapon::Stats) { 1, 2, 1 });
+    auto teeth2 = std::make_shared<MeleeWeapon>(enemy2, window->getGridRenderer()->getGrid(), "Teeth", (Weapon::Stats) { 1, 2, 1 });
     enemy->addWeapon(teeth2);
     enemy2->setCurrentWeapon(teeth2);
 
@@ -65,7 +65,7 @@ void Application::initialise(void) {
     enemy3->setPosition(glm::ivec2(17, grid->getHeight() - 3));
     enemy3->setTexture(window->getTextureLoader()->getTexture("../assets/spaceworm.png"));
     enemy3->setSelectedTexture(window->getTextureLoader()->getTexture("../assets/selection.png"));
-    auto teeth3 = std::make_shared<MeleeWeapon>(enemy3, window->getGridRenderer(), "Teeth", (Weapon::Stats) { 1, 2, 1 });
+    auto teeth3 = std::make_shared<MeleeWeapon>(enemy3, window->getGridRenderer()->getGrid(), "Teeth", (Weapon::Stats) { 1, 2, 1 });
     enemy3->addWeapon(teeth3);
     enemy3->setCurrentWeapon(teeth3);
 
@@ -74,10 +74,10 @@ void Application::initialise(void) {
     turnController->addParticipant({ enemy3 }, false);
     turnController->reset();
 
-    window->addLoopDrawWorker([&](auto renderer, auto& quit) {
-        entityPool->drawEntities(renderer);
-        projectilePool->draw(renderer);
-        areaOfEffectPool->draw(renderer);
+    window->addLoopDrawWorker([&](auto renderer, auto gridRenderer, auto& quit) {
+        entityPool->drawEntities(renderer, gridRenderer);
+        projectilePool->draw(renderer, gridRenderer);
+        areaOfEffectPool->draw(renderer, gridRenderer);
     });
     window->addLoopLogicWorker([&](auto timeSinceLastFrame, auto& quit) {
         turnController->update(timeSinceLastFrame);
@@ -102,7 +102,7 @@ std::shared_ptr<Entity> Application::addPlayer(glm::ivec2 position) {
     
     auto pistolTemp = std::make_shared<ProjectileWeapon>(
         player,
-        window->getGridRenderer(), 
+        window->getGridRenderer()->getGrid(), 
         "Pistol", 
         Weapon::Stats { 1, 100, 2 },
         Projectile::Blueprint(
@@ -110,7 +110,7 @@ std::shared_ptr<Entity> Application::addPlayer(glm::ivec2 position) {
             window->getTextureLoader()->getTexture("../assets/bullet.png"),
             [&](auto grid, auto entity, auto turnNumber) {
                 areaOfEffectPool->add(std::make_shared<AreaOfEffect>(
-                    window->getGridRenderer(), 
+                    window->getGridRenderer()->getGrid(), 
                     window->getTextureLoader()->getTexture("../assets/explosion.png"), 
                     turnNumber,
                     entity->getPosition(),

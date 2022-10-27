@@ -15,7 +15,7 @@ public:
     EntityPool();
 
     void updateEntities(Uint32 timeSinceLastFrame, bool& quit);
-    void drawEntities(std::shared_ptr<SDL_Renderer> renderer);
+    void drawEntities(std::shared_ptr<SDL_Renderer> renderer, std::shared_ptr<GridRenderer> gridRenderer);
 
     std::shared_ptr<Entity> addEntity(std::shared_ptr<Entity> entity);
     std::set<std::shared_ptr<Entity>> getEntities(void);

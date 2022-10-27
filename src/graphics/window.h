@@ -18,6 +18,8 @@ private:
         void operator()(SDL_Renderer *p) const { }
     };
 
+    bool headless;
+
     int width;
     int height;
 
@@ -28,18 +30,18 @@ private:
     std::shared_ptr<GridRenderer> gridRenderer;
 
     std::vector<std::function<void(const Uint32&, bool&)>> logicWorkers;
-    std::vector<std::function<void(std::shared_ptr<SDL_Renderer>, bool&)>> drawWorkers;
+    std::vector<std::function<void(std::shared_ptr<SDL_Renderer>, std::shared_ptr<GridRenderer>, bool&)>> drawWorkers;
     std::vector<std::function<void(SDL_Event, bool&)>> eventWorkers;
     
 public:
     Window(int width, int height, std::shared_ptr<Grid> grid);
     ~Window();
  
-    bool initialiseWindow(void);
+    bool initialiseWindow(bool headless);
     void loop(void);
 
     void addLoopLogicWorker(std::function<void(const Uint32&, bool&)> worker);
-    void addLoopDrawWorker(std::function<void(std::shared_ptr<SDL_Renderer>, bool&)> worker);
+    void addLoopDrawWorker(std::function<void(std::shared_ptr<SDL_Renderer>, std::shared_ptr<GridRenderer>, bool&)> worker);
     void addLoopEventWorker(std::function<void(SDL_Event, bool&)> worker);
     
     void setGridTileTexture(const int& tileId, const std::string& texture);
