@@ -1,6 +1,6 @@
 #include "window.h"
 
-Window::Window(int width, int height, std::shared_ptr<Grid> grid) :
+Window::Window(int width, int height, std::shared_ptr<Grid> grid, Headless headless) :
     width(width),
     height(height),
     headless(headless)
@@ -12,8 +12,8 @@ Window::~Window() {
     IMG_Quit();
 }
 
-bool Window::initialiseWindow(bool headless) {
-    if(headless) {
+bool Window::initialiseWindow(void) {
+    if(headless == Headless::YES) {
         return true;
     }
 
@@ -82,15 +82,17 @@ void Window::loop(void) {
             worker(timeSinceLastFrame, quit);
         }
 
-        SDL_RenderClear(renderer.get());
+        if(headless == Headless::NO) {
+            SDL_RenderClear(renderer.get());
 
-        gridRenderer->draw(renderer);
+            gridRenderer->draw(graphicsContext);
 
-        for(auto worker : drawWorkers) {
-            worker(graphicsContext, quit);
+            for(auto worker : drawWorkers) {
+                worker(graphicsContext, quit);
+            }
+
+            SDL_RenderPresent(renderer.get());
         }
-
-        SDL_RenderPresent(renderer.get());
     }
 }
 
@@ -106,9 +108,8 @@ void Window::addLoopEventWorker(std::function<void(SDL_Event, bool&)> worker) {
     eventWorkers.push_back(worker);
 }
 
-void Window::setGridTileTexture(const int& tileId, const std::string& texture) {
-    // gridRenderer->setTile(x, y, textureLoader->getTexture(texture));
-    gridRenderer->setTileTexture(tileId, textureLoader->loadTexture(texture));
+void Window::setGridTileTexture(const int& tileId, const uint8_t& textureId) {
+    gridRenderer->setTileTexture(tileId, textureId);
 }
 
 std::shared_ptr<GridRenderer> Window::getGridRenderer(void) {

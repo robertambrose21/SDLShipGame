@@ -2,7 +2,7 @@
 
 Application::Application() {
     grid = std::make_shared<Grid>(20, 20);
-    window = std::make_shared<Window>(1024, 768, grid);
+    window = std::make_shared<Window>(1024, 768, grid, Window::Headless::NO);
     turnController = std::make_shared<TurnController>();
     entityPool = std::make_shared<EntityPool>();
     projectilePool = std::make_shared<ProjectilePool>();
@@ -12,7 +12,7 @@ Application::Application() {
     context = std::make_shared<ApplicationContext>(window, entityPool, projectilePool, areaOfEffectPool, turnController);
 }
 
-Application::~Application() 
+Application::~Application()
 { }
 
 void Application::initialise(bool headless) {
@@ -27,7 +27,7 @@ void Application::initialise(bool headless) {
         }
     }
 
-    window->initialiseWindow(false);
+    window->initialiseWindow();
     
     auto player = addPlayer(glm::ivec2(0, 0));
     auto player2 = addPlayer(glm::ivec2(2, 1));
@@ -90,8 +90,8 @@ void Application::initialise(bool headless) {
         playerController->handleMouseEvent(e);
     });
 
-    window->setGridTileTexture(1, "../assets/floor1.png");
-    window->setGridTileTexture(2, "../assets/wall.png");
+    window->setGridTileTexture(1, 4);
+    window->setGridTileTexture(2, 5);
 }
 
 std::shared_ptr<Entity> Application::addPlayer(glm::ivec2 position) {

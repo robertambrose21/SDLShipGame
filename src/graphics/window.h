@@ -36,17 +36,22 @@ private:
     std::vector<std::function<void(SDL_Event, bool&)>> eventWorkers;
     
 public:
-    Window(int width, int height, std::shared_ptr<Grid> grid);
+    enum Headless {
+        YES,
+        NO
+    };
+
+    Window(int width, int height, std::shared_ptr<Grid> grid, Headless headless);
     ~Window();
  
-    bool initialiseWindow(bool headless);
+    bool initialiseWindow(void);
     void loop(void);
 
     void addLoopLogicWorker(std::function<void(const Uint32&, bool&)> worker);
     void addLoopDrawWorker(std::function<void(std::shared_ptr<GraphicsContext>, bool&)> worker);
     void addLoopEventWorker(std::function<void(SDL_Event, bool&)> worker);
     
-    void setGridTileTexture(const int& tileId, const std::string& texture);
+    void setGridTileTexture(const int& tileId, const uint8_t& textureId);
 
     std::shared_ptr<GridRenderer> getGridRenderer(void);
     std::shared_ptr<TextureLoader> getTextureLoader(void);

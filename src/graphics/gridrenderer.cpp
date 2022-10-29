@@ -6,21 +6,18 @@ GridRenderer::GridRenderer(std::shared_ptr<Grid> grid, int windowHeight) :
     tileSize(windowHeight / grid->getHeight())
 { }
 
-void GridRenderer::setTileTexture(const int& tileId, std::shared_ptr<Texture> texture) {
-    tileTextures[tileId] = texture;
+void GridRenderer::setTileTexture(const int& tileId, const uint8_t& textureId) {
+    tileTextures[tileId] = textureId;
 }
 
-void GridRenderer::draw(std::shared_ptr<SDL_Renderer> renderer) {
+void GridRenderer::draw(std::shared_ptr<GraphicsContext> graphicsContext) {
     auto data = grid->getData();
     auto width = grid->getWidth();
     auto height = grid->getHeight();
 
     for(auto y = 0; y < height; y++) {
         for(auto x = 0; x < width; x++) {
-            auto position = getTilePosition(x, y);
-            SDL_Rect dst = { position.x, position.y, tileSize, tileSize };
-
-            tileTextures[data[y][x].id]->draw(renderer, NULL, &dst);
+            draw(graphicsContext, tileTextures[data[y][x].id], { x, y });
         }
     }
 }

@@ -14,14 +14,14 @@ private:
     int windowHeight;
     int tileSize;
 
-    std::map<int, std::shared_ptr<Texture>> tileTextures;
+    std::map<int, uint8_t> tileTextures;
     std::shared_ptr<Grid> grid;
 
 public:
     GridRenderer(std::shared_ptr<Grid> grid, int windowHeight);
 
-    void setTileTexture(const int& tileId, std::shared_ptr<Texture> texture);
-    void draw(std::shared_ptr<SDL_Renderer> renderer);
+    void setTileTexture(const int& tileId, const uint8_t& textureId);
+    void draw(std::shared_ptr<GraphicsContext> graphicsContext);
     void draw(std::shared_ptr<GraphicsContext> graphicsContext, const uint8_t& textureId, const glm::ivec2& position);
 
     glm::ivec2 getTilePosition(int x, int y) const;
