@@ -13,7 +13,7 @@ private:
     yojimbo::Address address;
     GameConnectionConfig connectionConfig;
 
-    std::queue<int> messageQueue;
+    std::queue<yojimbo::Message*> messageQueue;
 
     void processMessages(void);
     void processMessage(yojimbo::Message* message);
@@ -22,5 +22,6 @@ public:
     GameClient(const yojimbo::Address& serverAddress);
 
     void update(long timeSinceLastFrame);
-    void sendMessage(void);
+    yojimbo::Message* createMessage(GameMessageType messageType);
+    void sendMessage(yojimbo::Message* message);
 };

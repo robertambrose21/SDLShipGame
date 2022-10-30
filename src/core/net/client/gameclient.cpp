@@ -17,18 +17,20 @@ void GameClient::update(long timeSinceLastFrame) {
         processMessages();
 
         while(!messageQueue.empty()) {
-            TestMessage2* message = (TestMessage2*) client.CreateMessage((int) GameMessageType::TEST);
-            message->m_data = messageQueue.front();
+            client.SendMessage((int) GameChannel::RELIABLE, messageQueue.front());
             messageQueue.pop();
-            client.SendMessage((int) GameChannel::RELIABLE, message);
         }
     }
 
     client.SendPackets();
 }
 
-void GameClient::sendMessage(void) {
-    messageQueue.push(42);
+yojimbo::Message* GameClient::createMessage(GameMessageType messageType) {
+    return client.CreateMessage((int) messageType);
+}
+
+void GameClient::sendMessage(yojimbo::Message* message) {
+    messageQueue.push(message);
 }
 
 void GameClient::processMessages(void) {
@@ -44,9 +46,9 @@ void GameClient::processMessages(void) {
 
 void GameClient::processMessage(yojimbo::Message* message) {
     switch(message->GetType()) {
-        case (int) GameMessageType::TEST:
-            std::cout << "Client receieved a test message from server with data " << ((TestMessage2*) message)->m_data << std::endl;
-            break;
+        // case (int) GameMessageType::TEST
+        //     std::cout << "Client receieved a test message from server with data " << ((TestMessage2*) message)->m_data << std::endl;
+        //     break;
 
         default:
             break;

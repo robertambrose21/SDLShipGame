@@ -10,7 +10,9 @@ add_library(
     grid/grid.cpp
     net/server/gameserver.cpp
     net/client/gameclient.cpp
+    net/client/clientmessagescontroller.cpp
     net/gameadapter.cpp
+    net/message/messages.h
 )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX CXX_STANDARD 20)

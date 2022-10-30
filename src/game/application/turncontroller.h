@@ -30,6 +30,7 @@ public:
         std::set<std::shared_ptr<Entity>> entities, 
         bool isPlayer
     );
+    std::shared_ptr<Participant> getParticipant(int id);
     void reset(void);
     
     // TODO: Figure out a way to stop other participants from passing other turns

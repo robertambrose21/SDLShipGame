@@ -1,9 +1,8 @@
 #include "window.h"
 
-Window::Window(int width, int height, std::shared_ptr<Grid> grid, Headless headless) :
+Window::Window(int width, int height, std::shared_ptr<Grid> grid) :
     width(width),
-    height(height),
-    headless(headless)
+    height(height)
 {
     gridRenderer = std::make_shared<GridRenderer>(grid, height);
 }
@@ -12,7 +11,9 @@ Window::~Window() {
     IMG_Quit();
 }
 
-bool Window::initialiseWindow(void) {
+bool Window::initialiseWindow(Headless headless) {
+    this->headless = headless;
+
     if(headless == Headless::YES) {
         return true;
     }

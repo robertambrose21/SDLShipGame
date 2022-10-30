@@ -41,10 +41,10 @@ public:
         NO
     };
 
-    Window(int width, int height, std::shared_ptr<Grid> grid, Headless headless);
+    Window(int width, int height, std::shared_ptr<Grid> grid);
     ~Window();
  
-    bool initialiseWindow(void);
+    bool initialiseWindow(Headless headless);
     void loop(void);
 
     void addLoopLogicWorker(std::function<void(const Uint32&, bool&)> worker);

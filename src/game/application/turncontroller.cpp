@@ -41,6 +41,10 @@ std::shared_ptr<TurnController::Participant> TurnController::addParticipant(
     return participantPtr;
 }
 
+std::shared_ptr<TurnController::Participant> TurnController::getParticipant(int id) {
+    return participants[id];
+}
+
 void TurnController::reset(void) {
     for(auto participant : participants) {
         for(auto entity : participant->entities) {

@@ -1,6 +1,11 @@
 #include "playercontroller.h"
 
-PlayerController::PlayerController(std::shared_ptr<GridRenderer> grid, std::shared_ptr<EntityPool> entityPool) :
+PlayerController::PlayerController(
+    std::shared_ptr<ClientMessagesController> clientMessagesController,
+    std::shared_ptr<GridRenderer> grid, 
+    std::shared_ptr<EntityPool> entityPool
+) :
+    clientMessagesController(clientMessagesController),
     grid(grid),
     entityPool(entityPool)
 { }
@@ -69,6 +74,8 @@ void PlayerController::toggleSelection(std::shared_ptr<Entity> entity) {
 
 void PlayerController::move(const glm::ivec2& mouseCoords) {
     auto [dX, dY] = grid->getTileIndices(mouseCoords);
+    
+    clientMessagesController->sendFindPathMessage({dX, dY});
 
     for(auto entity : selectedEntities) {
         entity->findPath(glm::ivec2(dX, dY));

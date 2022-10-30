@@ -14,26 +14,26 @@ void ClientApplication::initialise(void) {
     }
 
     client = std::make_shared<GameClient>(yojimbo::Address("127.0.0.1", 8081));
+    clientMessagesController = std::make_shared<ClientMessagesController>(client);
 
-    Application::instance().initialise();
+    Application::instance().initialise(Window::Headless::NO);
 
-    auto window = Application::instance().getContext()->getWindow();
+    auto context = Application::instance().getContext();
 
-    window->addLoopLogicWorker([&](auto timeSinceLastFrame, auto& quit) {
+    playerController = std::make_shared<PlayerController>(
+        clientMessagesController,
+        context->getWindow()->getGridRenderer(), 
+        context->getEntityPool()
+    );
+    playerController->setParticipant(context->getTurnController()->getParticipant(0));
+
+    context->getWindow()->addLoopLogicWorker([&](auto timeSinceLastFrame, auto& quit) {
         client->update(timeSinceLastFrame);
     });
 
-    window->addLoopEventWorker([&](auto e, auto& quit) {
-        if(e.type == SDL_KEYDOWN) {
-            switch(e.key.keysym.sym) {
-                case SDLK_k:
-                    client->sendMessage();
-                    break;
-
-                default:
-                    break;
-            }
-        }
+    context->getWindow()->addLoopEventWorker([&](auto e, auto& quit) {
+        playerController->handleKeyPress(e);
+        playerController->handleMouseEvent(e);
     });
 }
 

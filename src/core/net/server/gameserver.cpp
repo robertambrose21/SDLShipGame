@@ -41,9 +41,11 @@ void GameServer::processMessages(void) {
 
 void GameServer::processMessage(int clientIndex, yojimbo::Message* message) {
     switch(message->GetType()) {
-        case (int) GameMessageType::TEST:
-            std::cout << "Server receieved a test message" << std::endl;
+        case (int) GameMessageType::FIND_PATH: {
+            FindPathMessage* findPathMessage = (FindPathMessage*) message;
+            std::cout << "Server receieved a find path message (" << findPathMessage->x << ", " << findPathMessage->y << ")" << std::endl;
             break;
+        }
 
         default:
             break;

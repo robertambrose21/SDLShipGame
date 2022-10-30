@@ -4,6 +4,7 @@
 #include <glm/glm.hpp>
 #include <iostream>
 
+#include "core/net/client/clientmessagescontroller.h"
 #include "game/application/application.h"
 #include "graphics/gridrenderer.h"
 #include "graphics/textureloader.h"
@@ -15,6 +16,8 @@
 
 class PlayerController {
 private:
+    std::shared_ptr<ClientMessagesController> clientMessagesController;
+
     std::shared_ptr<TurnController::Participant> participant;
 
     std::vector<std::shared_ptr<Entity>> selectedEntities;
@@ -24,7 +27,11 @@ private:
     void move(const glm::ivec2& mouseCoords);
 
 public:
-    PlayerController(std::shared_ptr<GridRenderer> grid, std::shared_ptr<EntityPool> entityPool);
+    PlayerController(
+        std::shared_ptr<ClientMessagesController> clientMessagesController,
+        std::shared_ptr<GridRenderer> grid, 
+        std::shared_ptr<EntityPool> entityPool
+    );
 
     void handleKeyPress(SDL_Event event);
     void handleMouseEvent(SDL_Event event);

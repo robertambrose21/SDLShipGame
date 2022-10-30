@@ -20,7 +20,6 @@ private:
     std::shared_ptr<EntityPool> entityPool;
     std::shared_ptr<ProjectilePool> projectilePool;
     std::shared_ptr<AreaOfEffectPool> areaOfEffectPool;
-    std::shared_ptr<PlayerController> playerController;
     std::shared_ptr<TurnController> turnController;
 
     std::shared_ptr<ApplicationContext> context;
@@ -41,7 +40,7 @@ public:
         return instance().context;
     }
     
-    void initialise(bool headless = false);
+    void initialise(Window::Headless headless);
     void run(void);
 
     // Temp

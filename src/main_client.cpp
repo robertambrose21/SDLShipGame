@@ -1,9 +1,9 @@
-#include "game/application/serverapplication.h"
+#include "game/application/clientapplication.h"
 
 int main() {
     yojimbo_log_level( YOJIMBO_LOG_LEVEL_INFO );
 
-    ServerApplication application;
+    ClientApplication application;
     application.initialise();
     application.run();
 
