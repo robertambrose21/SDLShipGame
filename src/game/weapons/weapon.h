@@ -19,6 +19,7 @@ public:
     } Stats;
 
 protected:
+    uint32_t id;
     std::string name;
     std::shared_ptr<Entity> owner;
     Stats stats;
@@ -49,6 +50,7 @@ public:
     Stats getStats(void) const;
     int getUsesLeft(void) const;
 
+    uint32_t getId(void) const;
     std::string getName(void) const;
     std::shared_ptr<Entity> getOwner(void);
 };

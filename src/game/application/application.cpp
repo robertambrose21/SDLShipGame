@@ -90,7 +90,7 @@ void Application::initialise(Window::Headless headless) {
 }
 
 std::shared_ptr<Entity> Application::addPlayer(glm::ivec2 position) {
-    auto player = std::make_shared<Player>();
+    auto player = entityPool->addEntity(std::make_shared<Player>());
     player->setTextureId(1);
     player->setSelectedTextureId(6);
     player->setPosition(position);
@@ -117,7 +117,7 @@ std::shared_ptr<Entity> Application::addPlayer(glm::ivec2 position) {
     );
     auto pistol = player->addWeapon(pistolTemp);
     player->setCurrentWeapon(pistol);
-    return entityPool->addEntity(player);
+    return player;
 }
 
 void Application::run(void) {

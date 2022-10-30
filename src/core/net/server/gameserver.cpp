@@ -43,7 +43,32 @@ void GameServer::processMessage(int clientIndex, yojimbo::Message* message) {
     switch(message->GetType()) {
         case (int) GameMessageType::FIND_PATH: {
             FindPathMessage* findPathMessage = (FindPathMessage*) message;
-            std::cout << "Server receieved a find path message (" << findPathMessage->x << ", " << findPathMessage->y << ")" << std::endl;
+            std::cout 
+                << "Server receieved a find path message (" 
+                << findPathMessage->x 
+                << ", " 
+                << findPathMessage->y 
+                << ")" 
+                << std::endl;
+            break;
+        }
+
+        case (int) GameMessageType::SELECT_ENTITY: {
+            SelectEntityMessage* selectEntityMessage = (SelectEntityMessage*) message;
+            std::cout << "Server receieved a select entity message [" << selectEntityMessage->id << "]" << std::endl;
+            break;
+        }
+
+        case (int) GameMessageType::ATTACK_ENTITY: {
+            AttackEntityMessage* attackEntityMessage = (AttackEntityMessage*) message;
+            std::cout 
+                << "Server receieved a attack entity message [" 
+                << attackEntityMessage->entityId 
+                << ", " 
+                << attackEntityMessage->targetId
+                << ", " 
+                << attackEntityMessage->weaponId 
+                << "]" << std::endl;
             break;
         }
 

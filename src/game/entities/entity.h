@@ -3,6 +3,7 @@
 #include <string>
 
 #include "core/glmimport.h"
+#include "core/util/idgenerator.h"
 #include "graphics/gridrenderer.h"
 #include "game/weapons/weapon.h"
 
@@ -16,6 +17,8 @@ public:
     } Stats;
 
 private:
+    uint32_t id;
+
     uint8_t textureId;
     uint8_t selectedTextureId;
 
@@ -84,6 +87,7 @@ public:
     void setCurrentWeapon(std::shared_ptr<Weapon> weapon);
     std::shared_ptr<Weapon> getCurrentWeapon(void);
 
+    uint32_t getId(void) const;
     std::string getName(void) const;
 
     glm::ivec2 getPosition(void) const;

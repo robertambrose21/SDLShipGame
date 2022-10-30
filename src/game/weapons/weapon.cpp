@@ -6,6 +6,7 @@ Weapon::Weapon(
     const std::string& name, 
     Stats stats
 ) :
+    id(getNewId()),
     owner(owner),
     grid(grid),
     name(name),
@@ -58,6 +59,10 @@ Weapon::Stats Weapon::getStats(void) const {
 
 int Weapon::getUsesLeft(void) const {
     return usesLeft;
+}
+
+uint32_t Weapon::getId(void) const {
+    return id;
 }
 
 std::string Weapon::getName(void) const {

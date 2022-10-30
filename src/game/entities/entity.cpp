@@ -5,6 +5,7 @@ Entity::Entity(
     const std::string& name,
     Stats stats
 ) :
+    id(getNewId()),
     name(name),
     stats(stats),
     position({ 0, 0 }),
@@ -114,6 +115,10 @@ void Entity::setCurrentWeapon(std::shared_ptr<Weapon> weapon) {
 
 std::shared_ptr<Weapon> Entity::getCurrentWeapon(void) {
     return currentWeapon;
+}
+
+uint32_t Entity::getId(void) const {
+    return id;
 }
 
 std::string Entity::getName(void) const {

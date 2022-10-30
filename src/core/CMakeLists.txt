@@ -13,6 +13,7 @@ add_library(
     net/client/clientmessagescontroller.cpp
     net/gameadapter.cpp
     net/message/messages.h
+    util/idgenerator.h
 )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX CXX_STANDARD 20)

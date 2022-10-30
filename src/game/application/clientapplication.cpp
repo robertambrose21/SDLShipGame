@@ -25,6 +25,7 @@ void ClientApplication::initialise(void) {
         context->getWindow()->getGridRenderer(), 
         context->getEntityPool()
     );
+    // Receive participant id from server when we connect - then can ensure when we pass etc it's from a valid participant
     playerController->setParticipant(context->getTurnController()->getParticipant(0));
 
     context->getWindow()->addLoopLogicWorker([&](auto timeSinceLastFrame, auto& quit) {

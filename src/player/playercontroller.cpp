@@ -44,7 +44,15 @@ void PlayerController::handleMouseEvent(SDL_Event event) {
 
                 if(target != nullptr) {
                     for(auto entity : selectedEntities) {
-                        entity->attack(target, entity->getCurrentWeapon());
+                        auto weapon = entity->getCurrentWeapon();
+
+                        clientMessagesController->sendAttackEntityMessage(
+                            entity->getId(), 
+                            target->getId(), 
+                            weapon->getId()
+                        );
+                        
+                        entity->attack(target, weapon);
                     }
                 }
                 else {
@@ -61,6 +69,8 @@ void PlayerController::toggleSelection(std::shared_ptr<Entity> entity) {
     if(entity == nullptr) {
         return;
     }
+
+    clientMessagesController->sendSelectEntityMessage(entity->getId());
 
     if(entity->isSelected()) {
         selectedEntities.erase(std::find(selectedEntities.begin(), selectedEntities.end(), entity));

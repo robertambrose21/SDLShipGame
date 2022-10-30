@@ -32,7 +32,7 @@ void EntityPool::drawEntities(std::shared_ptr<GraphicsContext> graphicsContext) 
 }
 
 std::shared_ptr<Entity> EntityPool::addEntity(std::shared_ptr<Entity> entity) {
-    entities.insert(entity);
+    entities.insert(entity);    
     return entity;
 }
 
