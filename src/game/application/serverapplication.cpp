@@ -15,11 +15,18 @@ void ServerApplication::initialise(void) {
 
     Application::instance().initialise(Window::Headless::YES);
 
-    receiver = std::make_shared<GameServerMessagesReceiver>();
-    server = std::make_shared<GameServer>(receiver, yojimbo::Address("127.0.0.1", 8081));
+    auto context = Application::instance().getContext();
 
-    Application::instance().getContext()->getWindow()->addLoopLogicWorker([&](auto timeSinceLastFrame, auto& quit) {
+    receiver = std::make_shared<GameServerMessagesReceiver>(context);
+    server = std::make_shared<GameServer>(receiver, yojimbo::Address("127.0.0.1", 8081));
+    transmitter = std::make_shared<GameServerMessagesTransmitter>(server);
+
+    context->getWindow()->addLoopLogicWorker([&](auto timeSinceLastFrame, auto& quit) {
         server->update(timeSinceLastFrame);
+    });
+
+    context->getTurnController()->addOnNextTurnFunction([&](int currentParticipant, int turnNumber) {
+        transmitter->sendGameStateUpdate(context->getCurrentGameState());
     });
 }
 

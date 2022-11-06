@@ -42,19 +42,6 @@ void GameServer::processMessages(void) {
 
 void GameServer::processMessage(int clientIndex, yojimbo::Message* message) {
     receiver->receiveMessage(0, message);
-
-    GameStateUpdateMessage* reply = (GameStateUpdateMessage*) server.CreateMessage(clientIndex, (int)GameMessageType::GAME_STATE_UPDATE);
-
-    GameStateUpdate update;
-    update.numEntities = 2;
-    update.entities[0] = { 2, 12, 3, 4 };
-    update.entities[1] = { 5, 11, 1, 7 };
-    reply->gameStateUpdate = update;
-
-    // GameTestMessage* reply = (GameTestMessage*) server.CreateMessage(clientIndex, (int)GameMessageType::TEST_MESSAGE);
-    // reply->data = 42;
-
-    server.SendMessage(clientIndex, (int) GameChannel::RELIABLE, reply);
 }
 
 void GameServer::clientConnected(int clientIndex) {
@@ -63,6 +50,14 @@ void GameServer::clientConnected(int clientIndex) {
 
 void GameServer::clientDisconnected(int clientIndex) {
     std::cout << "client " << clientIndex << " disconnected" << std::endl;
+}
+
+yojimbo::Message* GameServer::createMessage(int clientIndex, GameMessageType messageType) {
+    return server.CreateMessage(clientIndex, (int) messageType);
+}
+
+void GameServer::sendMessage(int clientIndex, yojimbo::Message* message) {
+    server.SendMessage(clientIndex, (int) GameChannel::RELIABLE, message);
 }
 
 yojimbo::Address GameServer::getAddress(void) const {

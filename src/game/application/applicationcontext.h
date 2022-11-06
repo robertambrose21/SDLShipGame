@@ -1,5 +1,6 @@
 #pragma once
 
+#include "game/net/gamestateupdate.h"
 #include "graphics/window.h"
 #include "game/entities/entitypool.h"
 #include "game/weapons/projectilepool.h"
@@ -30,4 +31,6 @@ public:
     std::shared_ptr<ProjectilePool> getProjectilePool(void);
     std::shared_ptr<AreaOfEffectPool> getAreaOfEffectPool(void);
     std::shared_ptr<TurnController> getTurnController(void);
+
+    GameStateUpdate getCurrentGameState(void);
 };

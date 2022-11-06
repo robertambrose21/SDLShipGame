@@ -27,6 +27,9 @@ public:
     void clientConnected(int clientIndex);
     void clientDisconnected(int clientIndex);
 
+    yojimbo::Message* createMessage(int clientIndex, GameMessageType messageType);
+    void sendMessage(int clientIndex, yojimbo::Message* message);
+
     yojimbo::Address getAddress(void) const;
     GameAdapter& getAdapter(void);
 };

@@ -1,12 +1,14 @@
 #pragma once
 
 #include <set>
+#include <functional>
 
 #include "game/entities/entitypool.h"
 
 class TurnController {
 public:
-     typedef struct _participant {
+    // TODO: Consider making entities a map rather than a set
+    typedef struct _participant {
         int id;
         bool isPlayer;
         std::set<std::shared_ptr<Entity>> entities;
@@ -17,6 +19,7 @@ private:
     int currentParticipant;
 
     std::vector<std::shared_ptr<Participant>> participants;
+    std::vector<std::function<void(int, int)>> onNextTurnWorkers;
 
     bool canProgressToNextTurn(std::shared_ptr<Entity> entity);
     void nextParticipantTurn(void);
@@ -35,6 +38,8 @@ public:
     
     // TODO: Figure out a way to stop other participants from passing other turns
     void passCurrentParticipant(void);
+
+    void addOnNextTurnFunction(std::function<void(int, int)> onNextTurnFunc);
 
     int getTurnNumber(void) const;
 };

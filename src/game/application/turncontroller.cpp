@@ -88,10 +88,18 @@ void TurnController::nextParticipantTurn(void) {
     }
     
     entitiesForDeletion.clear();
+
+    for(auto onNextTurnFunc : onNextTurnWorkers) {
+        onNextTurnFunc(currentParticipant, turnNumber);
+    }
 }
 
 void TurnController::passCurrentParticipant(void) {
     nextParticipantTurn();
+}
+
+void TurnController::addOnNextTurnFunction(std::function<void(int, int)> onNextTurnFunc) {
+    onNextTurnWorkers.push_back(onNextTurnFunc);
 }
 
 int TurnController::getTurnNumber(void) const {

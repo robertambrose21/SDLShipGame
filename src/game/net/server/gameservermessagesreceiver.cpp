@@ -1,6 +1,7 @@
 #include "gameservermessagesreceiver.h"
 
-GameServerMessagesReceiver::GameServerMessagesReceiver()
+GameServerMessagesReceiver::GameServerMessagesReceiver(std::shared_ptr<ApplicationContext> context) :
+    context(context)
 { }
 
 void GameServerMessagesReceiver::receiveMessage(const int& participantId, yojimbo::Message* message) {
@@ -42,6 +43,14 @@ void GameServerMessagesReceiver::receiveFindPathMessage(const int& participantId
         << ") from participant "
         << participantId
         << std::endl;
+    
+    auto entities = context->getTurnController()->getParticipant(participantId)->entities;
+
+    for(auto entity : entities) {
+        if(entity->isSelected()) {
+            entity->findPath(position);
+        }
+    }
 }
 
 void GameServerMessagesReceiver::receiveSelectEntityMessage(const int& participantId, const uint32_t& entityId) {
@@ -51,6 +60,9 @@ void GameServerMessagesReceiver::receiveSelectEntityMessage(const int& participa
         << "] from participant "
         << participantId
         << std::endl;
+
+    auto entity = context->getEntityPool()->getEntity(entityId);
+    entity->setSelected(!entity->isSelected());
 }
 
 void GameServerMessagesReceiver::receieveAttackEntityMessage(
@@ -69,4 +81,13 @@ void GameServerMessagesReceiver::receieveAttackEntityMessage(
         << "] from participant "
         << participantId
         << std::endl;
+
+    auto entity = context->getEntityPool()->getEntity(entityId);
+    auto target = context->getEntityPool()->getEntity(targetId);
+
+    for(auto weapon : entity->getWeapons()) {
+        if(weapon->getId() == weaponId) {
+            entity->attack(target, weapon);
+        }
+    }
 }

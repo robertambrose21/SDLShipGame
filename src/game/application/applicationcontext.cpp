@@ -41,3 +41,24 @@ std::shared_ptr<Grid> ApplicationContext::getGrid(void) {
 std::shared_ptr<GraphicsContext> ApplicationContext::getGraphicsContext(void) {
     return getWindow()->getGraphicsContext();
 }
+
+// TODO: Batch updates if we have over max limit of GSU entities/other objects
+GameStateUpdate ApplicationContext::getCurrentGameState(void) {
+    auto entities = getEntityPool()->getEntities();
+
+    GameStateUpdate update;
+    update.numEntities = entities.size();
+
+    int index = 0;
+    for(auto [entityId, entity] : entities) {
+        EntityStateUpdate entityStateUpdate;
+        entityStateUpdate.id = entityId;
+        entityStateUpdate.currentHP = entity->getCurrentHP();
+        entityStateUpdate.x = entity->getPosition().x;
+        entityStateUpdate.y = entity->getPosition().y;
+
+        update.entities[index++] = entityStateUpdate;
+    }
+
+    return update;
+}

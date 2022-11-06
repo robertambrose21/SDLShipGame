@@ -4,7 +4,13 @@ GameClientMessagesReceiver::GameClientMessagesReceiver()
 { }
 
 void GameClientMessagesReceiver::receiveGameStateUpdate(GameStateUpdate update) {
-    std::cout << "Got game state update with entities" << std::endl;
+    std::cout << "Got game state update: " << std::endl;
+
+    for(int i = 0; i < update.numEntities; i++) {
+        std::cout << "Entity " << update.entities[i].id << ":" << std::endl;
+        std::cout << "\tHP: " << update.entities[i].currentHP << std::endl;
+        std::cout << "\tPosition: (" << update.entities[i].x << ", " <<  update.entities[i].y << ")" << std::endl;
+    }
 }
 
 void GameClientMessagesReceiver::receiveTestMessage(int data) {
