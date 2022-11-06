@@ -38,7 +38,7 @@ std::shared_ptr<Entity> Enemy::findClosestTarget(void) {
     std::shared_ptr<Entity> closestEntity = nullptr;
     auto shortestDistance = std::numeric_limits<float>::max();
     
-    for(auto entity : entityPool->getEntities()) {
+    for(auto [entityId, entity] : entityPool->getEntities()) {
         if(entity->getParticipantId() == getParticipantId()) {
             continue;
         }

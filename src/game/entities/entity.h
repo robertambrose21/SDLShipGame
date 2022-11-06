@@ -66,6 +66,20 @@ public:
         return nullptr;
     }
 
+    static std::shared_ptr<Entity> filterByTile(
+        const int& x, 
+        const int& y, 
+        std::map<uint32_t, std::shared_ptr<Entity>> entities
+    ) {
+        for(auto [entityId, entity] : entities) {
+            if(entity->isOnTile(x, y)) {
+                return entity;
+            }
+        }
+
+        return nullptr;
+    }
+
     void update(const Uint32& timeSinceLastFrame, bool& quit);
 
     void setTextureId(const uint8_t& textureId);

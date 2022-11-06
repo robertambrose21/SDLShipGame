@@ -17,9 +17,14 @@ add_library(
     application/clientapplication.cpp
     application/application.cpp
     application/applicationcontext.cpp
+    net/gamestateupdate.h
     weapons/projectilepool.cpp
     weapons/areaofeffectpool.cpp
     application/turncontroller.cpp
+    net/client/gameclientmessagesreceiver.cpp
+    net/client/gameclientmessagestransmitter.cpp
+    net/server/gameservermessagesreceiver.cpp
+    net/server/gameservermessagestransmitter.cpp
 )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX CXX_STANDARD 20)

@@ -1,6 +1,7 @@
 #include "gameclient.h"
 
-GameClient::GameClient(const yojimbo::Address& serverAddress) :
+GameClient::GameClient(std::shared_ptr<ClientMessagesReceiver> receiver, const yojimbo::Address& serverAddress) :
+    receiver(receiver),
     adapter(GameAdapter()),
     client(yojimbo::GetDefaultAllocator(), yojimbo::Address("0.0.0.0"), connectionConfig = GameConnectionConfig(), adapter, 0.0)
 {
@@ -45,12 +46,5 @@ void GameClient::processMessages(void) {
 }
 
 void GameClient::processMessage(yojimbo::Message* message) {
-    switch(message->GetType()) {
-        // case (int) GameMessageType::TEST
-        //     std::cout << "Client receieved a test message from server with data " << ((TestMessage2*) message)->m_data << std::endl;
-        //     break;
-
-        default:
-            break;
-    }
+    receiver->receiveMessage(message);
 }

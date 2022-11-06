@@ -2,11 +2,14 @@
 
 #include "yojimbo/yojimbo.h"
 #include "yojimbo/shared.h"
+#include "game/net/gamestateupdate.h"
 
 enum class GameMessageType {
     FIND_PATH,
     SELECT_ENTITY,
     ATTACK_ENTITY,
+    GAME_STATE_UPDATE,
+    TEST_MESSAGE,
     COUNT
 };
 
@@ -69,8 +72,49 @@ public:
     YOJIMBO_VIRTUAL_SERIALIZE_FUNCTIONS();
 };
 
+class GameStateUpdateMessage : public yojimbo::Message {
+public:
+    GameStateUpdate gameStateUpdate;
+
+    GameStateUpdateMessage()
+    { }
+
+    template <typename Stream>
+    bool Serialize(Stream& stream) {
+        serialize_int(stream, gameStateUpdate.numEntities, 0, MaxEntities - 1);
+        for(int i = 0; i < gameStateUpdate.numEntities; i++) {
+            serialize_varint32(stream, gameStateUpdate.entities[i].id);
+            serialize_int(stream, gameStateUpdate.entities[i].currentHP, 0, 1024);
+            serialize_int(stream, gameStateUpdate.entities[i].x, 0, 1024);
+            serialize_int(stream, gameStateUpdate.entities[i].y, 0, 1024);
+        }
+
+        return true;
+    }
+
+    YOJIMBO_VIRTUAL_SERIALIZE_FUNCTIONS();
+};
+
+class GameTestMessage : public yojimbo::Message {
+public:
+    uint32_t data;
+
+    GameTestMessage()
+    { }
+
+    template <typename Stream>
+    bool Serialize(Stream& stream) {
+        serialize_varint32(stream, data);
+        return true;
+    }
+
+    YOJIMBO_VIRTUAL_SERIALIZE_FUNCTIONS();
+};
+
 YOJIMBO_MESSAGE_FACTORY_START(GameMessageFactory, (int)GameMessageType::COUNT);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::FIND_PATH, FindPathMessage);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::SELECT_ENTITY, SelectEntityMessage);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::ATTACK_ENTITY, AttackEntityMessage);
+YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::GAME_STATE_UPDATE, GameStateUpdateMessage);
+YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::TEST_MESSAGE, GameTestMessage);
 YOJIMBO_MESSAGE_FACTORY_FINISH();

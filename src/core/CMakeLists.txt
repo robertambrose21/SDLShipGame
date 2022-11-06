@@ -9,8 +9,9 @@ add_library(
     glmimport.cpp 
     grid/grid.cpp
     net/server/gameserver.cpp
+    net/server/servermessagesreceiver.h
     net/client/gameclient.cpp
-    net/client/clientmessagescontroller.cpp
+    net/client/clientmessagesreceiver.h
     net/gameadapter.cpp
     net/message/messages.h
     util/idgenerator.h

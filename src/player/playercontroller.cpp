@@ -1,11 +1,11 @@
 #include "playercontroller.h"
 
 PlayerController::PlayerController(
-    std::shared_ptr<ClientMessagesController> clientMessagesController,
+    std::shared_ptr<GameClientMessagesTransmitter> clientMessagesTransmitter,
     std::shared_ptr<GridRenderer> grid, 
     std::shared_ptr<EntityPool> entityPool
 ) :
-    clientMessagesController(clientMessagesController),
+    clientMessagesTransmitter(clientMessagesTransmitter),
     grid(grid),
     entityPool(entityPool)
 { }
@@ -46,7 +46,7 @@ void PlayerController::handleMouseEvent(SDL_Event event) {
                     for(auto entity : selectedEntities) {
                         auto weapon = entity->getCurrentWeapon();
 
-                        clientMessagesController->sendAttackEntityMessage(
+                        clientMessagesTransmitter->sendAttackEntityMessage(
                             entity->getId(), 
                             target->getId(), 
                             weapon->getId()
@@ -70,7 +70,7 @@ void PlayerController::toggleSelection(std::shared_ptr<Entity> entity) {
         return;
     }
 
-    clientMessagesController->sendSelectEntityMessage(entity->getId());
+    clientMessagesTransmitter->sendSelectEntityMessage(entity->getId());
 
     if(entity->isSelected()) {
         selectedEntities.erase(std::find(selectedEntities.begin(), selectedEntities.end(), entity));
@@ -85,7 +85,7 @@ void PlayerController::toggleSelection(std::shared_ptr<Entity> entity) {
 void PlayerController::move(const glm::ivec2& mouseCoords) {
     auto [dX, dY] = grid->getTileIndices(mouseCoords);
     
-    clientMessagesController->sendFindPathMessage({dX, dY});
+    clientMessagesTransmitter->sendFindPathMessage({dX, dY});
 
     for(auto entity : selectedEntities) {
         entity->findPath(glm::ivec2(dX, dY));

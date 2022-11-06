@@ -1,10 +1,10 @@
-#include "clientmessagescontroller.h"
+#include "gameclientmessagestransmitter.h"
 
-ClientMessagesController::ClientMessagesController(std::shared_ptr<GameClient> client) :
+GameClientMessagesTransmitter::GameClientMessagesTransmitter(std::shared_ptr<GameClient> client) :
     client(client)
 { }
 
-void ClientMessagesController::sendFindPathMessage(const glm::ivec2& position) {
+void GameClientMessagesTransmitter::sendFindPathMessage(const glm::ivec2& position) {
     FindPathMessage* message = (FindPathMessage*) client->createMessage(GameMessageType::FIND_PATH);
 
     message->x = position.x;
@@ -13,7 +13,7 @@ void ClientMessagesController::sendFindPathMessage(const glm::ivec2& position) {
     client->sendMessage(message);
 }
 
-void ClientMessagesController::sendSelectEntityMessage(const uint32_t& entityId) {
+void GameClientMessagesTransmitter::sendSelectEntityMessage(const uint32_t& entityId) {
     SelectEntityMessage* message = (SelectEntityMessage*) client->createMessage(GameMessageType::SELECT_ENTITY);
 
     message->id = entityId;
@@ -21,7 +21,7 @@ void ClientMessagesController::sendSelectEntityMessage(const uint32_t& entityId)
     client->sendMessage(message);
 }
 
-void ClientMessagesController::sendAttackEntityMessage(
+void GameClientMessagesTransmitter::sendAttackEntityMessage(
     const uint32_t& entityId, 
     const uint32_t& targetId, 
     const uint32_t& weaponId

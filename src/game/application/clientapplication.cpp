@@ -13,15 +13,17 @@ void ClientApplication::initialise(void) {
         return;
     }
 
-    client = std::make_shared<GameClient>(yojimbo::Address("127.0.0.1", 8081));
-    clientMessagesController = std::make_shared<ClientMessagesController>(client);
+    clientMessagesReceiver = std::make_shared<GameClientMessagesReceiver>();
+
+    client = std::make_shared<GameClient>(clientMessagesReceiver, yojimbo::Address("127.0.0.1", 8081));
+    clientMessagesTransmitter = std::make_shared<GameClientMessagesTransmitter>(client);
 
     Application::instance().initialise(Window::Headless::NO);
 
     auto context = Application::instance().getContext();
 
     playerController = std::make_shared<PlayerController>(
-        clientMessagesController,
+        clientMessagesTransmitter,
         context->getWindow()->getGridRenderer(), 
         context->getEntityPool()
     );

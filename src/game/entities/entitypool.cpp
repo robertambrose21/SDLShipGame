@@ -4,12 +4,12 @@ EntityPool::EntityPool()
 { }
 
 void EntityPool::updateEntities(Uint32 timeSinceLastFrame, bool& quit) {
-    for(auto entity : entities) {
+    for(auto [entityId, entity] : entities) {
         updateEntity(entity, timeSinceLastFrame, quit);
     }
 
     for(auto entity : entitiesForDeletion) {
-        entities.erase(std::find(entities.begin(), entities.end(), entity));
+        entities.erase(entity->getId());
         std::cout << "[" << entity->getName() << "] died" << std::endl;
     }
     
@@ -26,13 +26,18 @@ void EntityPool::updateEntity(std::shared_ptr<Entity> entity, Uint32 timeSinceLa
 }
 
 void EntityPool::drawEntities(std::shared_ptr<GraphicsContext> graphicsContext) {
-    for(auto entity : entities) {
+    for(auto [entityId, entity] : entities) {
         entity->draw(graphicsContext);
     }
 }
 
 std::shared_ptr<Entity> EntityPool::addEntity(std::shared_ptr<Entity> entity) {
-    entities.insert(entity);    
+    if(entities.contains(entity->getId())) {
+        // TODO: Throw exception
+        return nullptr;
+    }
+
+    entities[entity->getId()] = entity;
     return entity;
 }
 
@@ -46,6 +51,15 @@ std::shared_ptr<Entity> EntityPool::addEntity(std::shared_ptr<Entity> entity) {
 //     );
 // }
 
-std::set<std::shared_ptr<Entity>> EntityPool::getEntities(void) {
+std::map<uint32_t, std::shared_ptr<Entity>> EntityPool::getEntities(void) {
     return entities;
+}
+
+std::shared_ptr<Entity> EntityPool::getEntity(const uint32_t& id) {
+    if(!entities.contains(id)) {
+        // TODO: Throw exception
+        return nullptr;
+    }
+
+    return entities[id];
 }

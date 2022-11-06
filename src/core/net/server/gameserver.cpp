@@ -1,6 +1,7 @@
 #include "gameserver.h"
 
-GameServer::GameServer(const yojimbo::Address& address) :
+GameServer::GameServer(std::shared_ptr<ServerMessagesReceiver> receiver, const yojimbo::Address& address) :
+    receiver(receiver),
     adapter(this),
     address(address),
     server(yojimbo::GetDefaultAllocator(), DEFAULT_PRIVATE_KEY, address, connectionConfig = GameConnectionConfig(), adapter, 0.0)
@@ -40,41 +41,20 @@ void GameServer::processMessages(void) {
 }
 
 void GameServer::processMessage(int clientIndex, yojimbo::Message* message) {
-    switch(message->GetType()) {
-        case (int) GameMessageType::FIND_PATH: {
-            FindPathMessage* findPathMessage = (FindPathMessage*) message;
-            std::cout 
-                << "Server receieved a find path message (" 
-                << findPathMessage->x 
-                << ", " 
-                << findPathMessage->y 
-                << ")" 
-                << std::endl;
-            break;
-        }
+    receiver->receiveMessage(0, message);
 
-        case (int) GameMessageType::SELECT_ENTITY: {
-            SelectEntityMessage* selectEntityMessage = (SelectEntityMessage*) message;
-            std::cout << "Server receieved a select entity message [" << selectEntityMessage->id << "]" << std::endl;
-            break;
-        }
+    GameStateUpdateMessage* reply = (GameStateUpdateMessage*) server.CreateMessage(clientIndex, (int)GameMessageType::GAME_STATE_UPDATE);
 
-        case (int) GameMessageType::ATTACK_ENTITY: {
-            AttackEntityMessage* attackEntityMessage = (AttackEntityMessage*) message;
-            std::cout 
-                << "Server receieved a attack entity message [" 
-                << attackEntityMessage->entityId 
-                << ", " 
-                << attackEntityMessage->targetId
-                << ", " 
-                << attackEntityMessage->weaponId 
-                << "]" << std::endl;
-            break;
-        }
+    GameStateUpdate update;
+    update.numEntities = 2;
+    update.entities[0] = { 2, 12, 3, 4 };
+    update.entities[1] = { 5, 11, 1, 7 };
+    reply->gameStateUpdate = update;
 
-        default:
-            break;
-    }
+    // GameTestMessage* reply = (GameTestMessage*) server.CreateMessage(clientIndex, (int)GameMessageType::TEST_MESSAGE);
+    // reply->data = 42;
+
+    server.SendMessage(clientIndex, (int) GameChannel::RELIABLE, reply);
 }
 
 void GameServer::clientConnected(int clientIndex) {
