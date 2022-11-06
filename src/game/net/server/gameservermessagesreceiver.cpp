@@ -62,6 +62,11 @@ void GameServerMessagesReceiver::receiveSelectEntityMessage(const int& participa
         << std::endl;
 
     auto entity = context->getEntityPool()->getEntity(entityId);
+
+    if(entity->getParticipantId() != participantId) {
+        return;
+    }
+
     entity->setSelected(!entity->isSelected());
 }
 
@@ -83,6 +88,11 @@ void GameServerMessagesReceiver::receieveAttackEntityMessage(
         << std::endl;
 
     auto entity = context->getEntityPool()->getEntity(entityId);
+
+    if(entity->getParticipantId() != participantId) {
+        return;
+    }
+
     auto target = context->getEntityPool()->getEntity(targetId);
 
     for(auto weapon : entity->getWeapons()) {

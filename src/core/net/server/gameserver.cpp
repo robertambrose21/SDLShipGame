@@ -41,7 +41,7 @@ void GameServer::processMessages(void) {
 }
 
 void GameServer::processMessage(int clientIndex, yojimbo::Message* message) {
-    receiver->receiveMessage(0, message);
+    receiver->receiveMessage(clientIndex, message);
 }
 
 void GameServer::clientConnected(int clientIndex) {
