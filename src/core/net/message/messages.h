@@ -2,10 +2,9 @@
 
 #include "yojimbo/yojimbo.h"
 #include "yojimbo/shared.h"
-#include "game/net/gamestateupdate.h"
+#include "game/net/messages.h"
 
 // TODO: Move this file to game project
-
 enum class GameMessageType {
     FIND_PATH,
     SELECT_ENTITY,
@@ -13,6 +12,7 @@ enum class GameMessageType {
     GAME_STATE_UPDATE,
     TEST_MESSAGE,
     SET_PARTICIPANT,
+    LOAD_MAP,
     COUNT
 };
 
@@ -86,7 +86,7 @@ public:
     bool Serialize(Stream& stream) {
         serialize_int(stream, gameStateUpdate.numEntities, 0, MaxEntities);
         for(int i = 0; i < gameStateUpdate.numEntities; i++) {
-            serialize_varint32(stream, gameStateUpdate.entities[i].id);
+            serialize_bits(stream, gameStateUpdate.entities[i].id, 32);
             serialize_bits(stream, gameStateUpdate.entities[i].currentHP, 8);
             serialize_bits(stream, gameStateUpdate.entities[i].x, 8);
             serialize_bits(stream, gameStateUpdate.entities[i].y, 8);
@@ -131,6 +131,30 @@ public:
     YOJIMBO_VIRTUAL_SERIALIZE_FUNCTIONS();
 };
 
+class LoadMapMessage : public yojimbo::Message {
+public:
+    MapBlock mapBlock;
+
+    LoadMapMessage()
+    { }
+
+    template <typename Stream>
+    bool Serialize(Stream& stream) {
+        serialize_int(stream, mapBlock.width, 0, 256);
+        serialize_int(stream, mapBlock.height, 0, 256);
+        serialize_int(stream, mapBlock.sequence, 0, 256);
+        serialize_int(stream, mapBlock.totalSize, 0, UINT16_MAX);
+        serialize_int(stream, mapBlock.blockSize, 0, MaxMapBlockSize);
+
+        for(int i = 0; i < mapBlock.blockSize; i++) {
+            serialize_bits(stream, mapBlock.data[i], 8);
+        }
+        return true;
+    }
+
+    YOJIMBO_VIRTUAL_SERIALIZE_FUNCTIONS();
+};
+
 YOJIMBO_MESSAGE_FACTORY_START(GameMessageFactory, (int)GameMessageType::COUNT);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::FIND_PATH, FindPathMessage);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::SELECT_ENTITY, SelectEntityMessage);
@@ -138,4 +162,5 @@ YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::ATTACK_ENTITY, AttackEntityMe
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::GAME_STATE_UPDATE, GameStateUpdateMessage);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::TEST_MESSAGE, GameTestMessage);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::SET_PARTICIPANT, SetParticipantMessage);
+YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::LOAD_MAP, LoadMapMessage);
 YOJIMBO_MESSAGE_FACTORY_FINISH();

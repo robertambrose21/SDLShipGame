@@ -11,10 +11,19 @@ private:
     std::shared_ptr<GameServerMessagesTransmitter> transmitter;
     std::shared_ptr<GameServerMessagesReceiver> receiver;
 
+    void sendLoadMapToClient(int clientIndex);
+
 public:
     ServerApplication();
     ~ServerApplication();
 
     void initialise(void);
     void run(void);
+
+    // Temp
+    void loadMap(void);
+    // Temp
+    void loadGame(void);
+    // Temp
+    std::shared_ptr<Entity> addPlayer(glm::ivec2 position);
 };

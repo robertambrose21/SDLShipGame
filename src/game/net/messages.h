@@ -23,3 +23,19 @@ struct GameStateUpdate {
         memset(this, 0, sizeof(GameStateUpdate));
     }
 };
+
+const int MaxMapBlockSize = 512;
+
+struct MapBlock {
+    int width;
+    int height;
+    int totalSize;
+    int sequence;
+    int blockSize;
+
+    int data[MaxMapBlockSize];
+
+    MapBlock() {
+        memset(this, 0, sizeof(MapBlock));
+    }
+};

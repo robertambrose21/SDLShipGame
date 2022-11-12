@@ -23,7 +23,7 @@ private:
     std::shared_ptr<TurnController> turnController;
 
     std::shared_ptr<ApplicationContext> context;
-
+    
     Application();
     ~Application();
 

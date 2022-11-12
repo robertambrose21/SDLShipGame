@@ -15,16 +15,16 @@ Application::~Application()
 { }
 
 void Application::initialise(Window::Headless headless) {
-    for(auto i = 0; i < grid->getWidth(); i++) {
-        for(auto j = 0; j < grid->getHeight(); j++) {
-            if(i == 10 && j != 12) {
-                grid->setTile(i, j, { 2, false });
-            }
-            else {
-                grid->setTile(i, j, { 1, true });
-            }
-        }
-    }
+    // for(auto i = 0; i < grid->getWidth(); i++) {
+    //     for(auto j = 0; j < grid->getHeight(); j++) {
+    //         if(i == 10 && j != 12) {
+    //             grid->setTile(i, j, { 2, false });
+    //         }
+    //         else {
+    //             grid->setTile(i, j, { 1, true });
+    //         }
+    //     }
+    // }
 
     window->initialiseWindow(headless);
     

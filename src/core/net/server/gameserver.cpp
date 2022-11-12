@@ -29,7 +29,11 @@ void GameServer::update(long timeSinceLastFrame) {
 
     processMessages();
 
-    server.SendPackets();
+    // TODO: Send a ping every second or so: https://github.com/networkprotocol/yojimbo/issues/138 and https://github.com/networkprotocol/yojimbo/issues/146
+    // Packets are intended to be sent pretty regulary - we can remove this when we're sending packets more regularly
+    if(server.HasMessagesToSend(0, (int) GameChannel::RELIABLE)) {
+        server.SendPackets();
+    }
 }
 
 void GameServer::processMessages(void) {

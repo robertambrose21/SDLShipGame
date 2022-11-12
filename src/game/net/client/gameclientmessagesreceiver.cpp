@@ -28,6 +28,12 @@ void GameClientMessagesReceiver::receiveMessage(yojimbo::Message* message) {
             break;
         }
 
+        case (int) GameMessageType::LOAD_MAP: {
+            LoadMapMessage* loadMapMessage = (LoadMapMessage*) message;
+            receiveLoadMap(loadMapMessage->mapBlock);
+            break;
+        }
+
         default:
             break;
     }
@@ -52,5 +58,18 @@ void GameClientMessagesReceiver::receiveSetParticipant(int participantId) {
     // TODO: Proper check
     if(playerController) {
         playerController->setParticipant(context->getTurnController()->getParticipant(participantId));
+    }
+}
+
+void GameClientMessagesReceiver::receiveLoadMap(MapBlock block) {
+    // TODO: Sequencing
+    auto grid = context->getGrid();
+
+    for(int i = 0; i < block.blockSize; i++) {
+        auto x = i / block.width;
+        auto y = i % block.width;
+        auto id = block.data[i];
+
+        grid->setTile(x, y, { id, id == 1 });
     }
 }

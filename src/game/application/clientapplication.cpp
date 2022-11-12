@@ -13,7 +13,8 @@ void ClientApplication::initialise(void) {
         return;
     }
 
-    auto context = Application::instance().getContext();
+    auto context = Application::getContext();
+    auto grid = context->getGrid();
 
     clientMessagesReceiver = std::make_shared<GameClientMessagesReceiver>(context);
 
@@ -22,15 +23,18 @@ void ClientApplication::initialise(void) {
 
     Application::instance().initialise(Window::Headless::NO);
 
+    for(auto i = 0; i < grid->getWidth(); i++) {
+        for(auto j = 0; j < grid->getHeight(); j++) {
+            grid->setTile(i, j, { 1, true });
+        }
+    }
+
     playerController = std::make_shared<PlayerController>(
         clientMessagesTransmitter,
         context->getWindow()->getGridRenderer(), 
         context->getEntityPool()
     );
     clientMessagesReceiver->setPlayerController(playerController);
-
-    // Receive participant id from server when we connect - then can ensure when we pass etc it's from a valid participant
-    // playerController->setParticipant(context->getTurnController()->getParticipant(0));
 
     context->getWindow()->addLoopLogicWorker([&](auto timeSinceLastFrame, auto& quit) {
         client->update(timeSinceLastFrame);

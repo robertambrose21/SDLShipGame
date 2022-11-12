@@ -1,7 +1,8 @@
 #pragma once
 
 #include <iostream>
-#include "game/net/gamestateupdate.h"
+#include <sstream>
+#include "game/net/messages.h"
 #include "game/application/applicationcontext.h"
 #include "core/net/client/clientmessagesreceiver.h"
 #include "core/net/gameadapter.h"
@@ -15,6 +16,7 @@ private:
     void receiveTestMessage(int data);
     void receiveGameStateUpdate(GameStateUpdate update);
     void receiveSetParticipant(int participantId);
+    void receiveLoadMap(MapBlock block);
 
 public:
     GameClientMessagesReceiver(std::shared_ptr<ApplicationContext> context);
