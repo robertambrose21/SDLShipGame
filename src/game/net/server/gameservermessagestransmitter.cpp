@@ -11,3 +11,11 @@ void GameServerMessagesTransmitter::sendGameStateUpdate(GameStateUpdate update) 
 
     server->sendMessage(0, message);
 }
+
+void GameServerMessagesTransmitter::onClientConnected(int clientIndex) {
+    SetParticipantMessage* message = (SetParticipantMessage*) server->createMessage(clientIndex, GameMessageType::SET_PARTICIPANT);
+
+    message->participantId = 0;
+
+    server->sendMessage(clientIndex, message);
+}

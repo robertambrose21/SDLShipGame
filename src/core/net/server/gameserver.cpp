@@ -1,6 +1,9 @@
 #include "gameserver.h"
 
-GameServer::GameServer(std::shared_ptr<ServerMessagesReceiver> receiver, const yojimbo::Address& address) :
+GameServer::GameServer(
+    std::shared_ptr<ServerMessagesReceiver> receiver,
+    const yojimbo::Address& address
+) :
     receiver(receiver),
     adapter(this),
     address(address),
@@ -16,6 +19,10 @@ GameServer::GameServer(std::shared_ptr<ServerMessagesReceiver> receiver, const y
     std::cout << "Server address is " << buffer << std::endl;
 }
 
+void GameServer::setTransmitter(std::shared_ptr<ServerMessagesTransmitter> transmitter) {
+    this->transmitter = transmitter;
+}
+
 void GameServer::update(long timeSinceLastFrame) {
     server.AdvanceTime(server.GetTime() + ((double) timeSinceLastFrame) / 1000.0f);
     server.ReceivePackets();
@@ -26,7 +33,7 @@ void GameServer::update(long timeSinceLastFrame) {
 }
 
 void GameServer::processMessages(void) {
-    for(int i = 0; i < 64; i++) {
+    for(int i = 0; i < MaxClientConnections; i++) {
         if(server.IsClientConnected(i)) {
             for(int j = 0; j < connectionConfig.numChannels; j++) {
                 yojimbo::Message* message = server.ReceiveMessage(i, j);
@@ -46,6 +53,10 @@ void GameServer::processMessage(int clientIndex, yojimbo::Message* message) {
 
 void GameServer::clientConnected(int clientIndex) {
     std::cout << "client " << clientIndex << " connected" << std::endl;
+    
+    if(transmitter) {
+        transmitter->onClientConnected(clientIndex);
+    }
 }
 
 void GameServer::clientDisconnected(int clientIndex) {

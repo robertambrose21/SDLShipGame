@@ -6,6 +6,7 @@
 #include "yojimbo/yojimbo.h"
 #include "core/net/gameadapter.h"
 #include "servermessagesreceiver.h"
+#include "servermessagestransmitter.h"
 
 class GameServer {
 private:
@@ -15,12 +16,20 @@ private:
     GameConnectionConfig connectionConfig;
 
     std::shared_ptr<ServerMessagesReceiver> receiver;
+    std::shared_ptr<ServerMessagesTransmitter> transmitter;
 
     void processMessages(void);
     void processMessage(int clientIndex, yojimbo::Message* message);
 
 public:
-    GameServer(std::shared_ptr<ServerMessagesReceiver> receiver, const yojimbo::Address& address);
+    const int MaxClientConnections = 64;
+
+    GameServer(
+        std::shared_ptr<ServerMessagesReceiver> receiver,
+        const yojimbo::Address& address
+    );
+
+    void setTransmitter(std::shared_ptr<ServerMessagesTransmitter> transmitter);
 
     void update(long timeSinceLastFrame);
 

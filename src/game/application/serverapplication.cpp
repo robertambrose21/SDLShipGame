@@ -21,6 +21,8 @@ void ServerApplication::initialise(void) {
     server = std::make_shared<GameServer>(receiver, yojimbo::Address("127.0.0.1", 8081));
     transmitter = std::make_shared<GameServerMessagesTransmitter>(server);
 
+    server->setTransmitter(transmitter);
+
     context->getWindow()->addLoopLogicWorker([&](auto timeSinceLastFrame, auto& quit) {
         server->update(timeSinceLastFrame);
     });

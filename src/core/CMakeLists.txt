@@ -10,6 +10,7 @@ add_library(
     grid/grid.cpp
     net/server/gameserver.cpp
     net/server/servermessagesreceiver.h
+    net/server/servermessagestransmitter.h
     net/client/gameclient.cpp
     net/client/clientmessagesreceiver.h
     net/gameadapter.cpp
