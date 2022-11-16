@@ -9,22 +9,23 @@ GameServerMessagesTransmitter::GameServerMessagesTransmitter(
 { }
 
 void GameServerMessagesTransmitter::onClientConnected(int clientIndex) {
-    // TODO: Move to ServerApplication and assign participant id properly
-    SetParticipantMessage* message = (SetParticipantMessage*) server->createMessage(clientIndex, GameMessageType::SET_PARTICIPANT);
-
-    message->participantId = 0;
-
-    server->sendMessage(clientIndex, message);
-
     onClientConnectFunc(clientIndex);
 }
 
-void GameServerMessagesTransmitter::sendGameStateUpdate(GameStateUpdate update) {
-    GameStateUpdateMessage* message = (GameStateUpdateMessage*) server->createMessage(0, GameMessageType::GAME_STATE_UPDATE);
+void GameServerMessagesTransmitter::sendSetParticipant(int clientIndex, int participantId) {
+    SetParticipantMessage* message = (SetParticipantMessage*) server->createMessage(clientIndex, GameMessageType::SET_PARTICIPANT);
+
+    message->participantId = participantId;
+
+    server->sendMessage(clientIndex, message);
+}
+
+void GameServerMessagesTransmitter::sendGameStateUpdate(int clientIndex, GameStateUpdate update) {
+    GameStateUpdateMessage* message = (GameStateUpdateMessage*) server->createMessage(clientIndex, GameMessageType::GAME_STATE_UPDATE);
 
     message->gameStateUpdate = update;
 
-    server->sendMessage(0, message);
+    server->sendMessage(clientIndex, message);
 }
 
 void GameServerMessagesTransmitter::sendLoadMap(int clientIndex, const MapBlock& block) {

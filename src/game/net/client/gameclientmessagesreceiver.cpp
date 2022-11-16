@@ -43,10 +43,16 @@ void GameClientMessagesReceiver::receiveGameStateUpdate(GameStateUpdate update) 
     std::cout << "Got game state update: " << std::endl;
 
     for(int i = 0; i < update.numEntities; i++) {
-        std::cout << "Entity " << update.entities[i].id << ":" << std::endl;
-        std::cout << "\tHP: " << update.entities[i].currentHP << std::endl;
+        std::cout << "Entity " << update.entities[i].name << "#" 
+            << update.entities[i].id << "(" << update.entities[i].currentHP << "/" 
+            << update.entities[i].totalHP << "):" << std::endl;
+        std::cout << "\tTexture ID: " << (unsigned int) update.entities[i].textureId << std::endl;
         std::cout << "\tPosition: (" << update.entities[i].x << ", " <<  update.entities[i].y << ")" << std::endl;
+        std::cout << "\tMoves per turn: " << update.entities[i].movesPerTurn << std::endl;
+        std::cout << "\tMoves left: " << update.entities[i].movesLeft << std::endl;
     }
+
+    context->getEntityPool()->synchronize({ update });
 }
 
 void GameClientMessagesReceiver::receiveTestMessage(int data) {

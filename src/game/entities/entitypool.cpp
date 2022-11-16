@@ -31,6 +31,32 @@ void EntityPool::drawEntities(std::shared_ptr<GraphicsContext> graphicsContext) 
     }
 }
 
+void EntityPool::synchronize(std::vector<GameStateUpdate> updates) {
+    std::map<int, std::shared_ptr<Entity>> updatedEntities;
+
+    for(auto update : updates) {
+        for(int i = 0; i < update.numEntities; i++) {
+            auto entityUpdate = update.entities[i];
+            auto existing = entities.contains(entityUpdate.id) ? entities[entityUpdate.id] : nullptr;
+
+            entities[entityUpdate.id] = EntityStateUpdate::deserialize(entityUpdate, existing);
+
+            if(entityUpdate.currentHP <= 0) {
+                entitiesForDeletion.insert(entities[entityUpdate.id]);
+            } else {
+                updatedEntities[entityUpdate.id] = entities[entityUpdate.id];
+            }
+        }
+    }
+
+    // Remove any entities which weren't present in the updates
+    for(auto [entityId, entity] : entities) {
+        if(!updatedEntities.contains(entityId)) {
+            entitiesForDeletion.insert(entity);
+        }
+    }
+}
+
 std::shared_ptr<Entity> EntityPool::addEntity(std::shared_ptr<Entity> entity) {
     if(entities.contains(entity->getId())) {
         // TODO: Throw exception

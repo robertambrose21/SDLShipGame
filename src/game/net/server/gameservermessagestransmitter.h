@@ -20,6 +20,7 @@ public:
         std::function<void(int)> onClientConnectFunc = [](int) { }
     );
 
-    void sendGameStateUpdate(GameStateUpdate update);
+    void sendSetParticipant(int clientIndex, int participantId);
+    void sendGameStateUpdate(int clientIndex, GameStateUpdate update);
     void sendLoadMap(int clientIndex, const MapBlock& block);
 };

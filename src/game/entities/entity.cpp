@@ -21,6 +21,10 @@ void Entity::setTextureId(const uint8_t& textureId) {
     this->textureId = textureId;
 }
 
+uint8_t Entity::getTextureId(void) const {
+    return textureId;
+}
+
 void Entity::setSelectedTextureId(const uint8_t& selectedTextureId) {
     this->selectedTextureId = selectedTextureId;
 }
@@ -82,6 +86,10 @@ int Entity::getCurrentHP(void) const {
     return currentHP;
 }
 
+void Entity::setCurrentHP(const int& hp) {
+    this->currentHP = hp;
+}
+
 void Entity::takeDamage(const int& amount) {
     currentHP -= amount;
 }
@@ -121,8 +129,16 @@ uint32_t Entity::getId(void) const {
     return id;
 }
 
+void Entity::setId(const uint32_t& id) {
+    this->id = id;
+}
+
 std::string Entity::getName(void) const {
     return name;
+}
+
+void Entity::setName(const std::string& name) {
+    this->name = name;
 }
 
 glm::ivec2 Entity::getPosition(void) const {
@@ -163,6 +179,10 @@ bool Entity::isNeighbour(std::shared_ptr<Entity> entity) const {
 
 int Entity::getMovesLeft(void) const {
     return movesLeft;
+}
+
+void Entity::setMovesLeft(const int& movesLeft) {
+    this->movesLeft = movesLeft;
 }
 
 bool Entity::isTurnInProgress(void) const {

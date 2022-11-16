@@ -6,8 +6,13 @@
 
 #include "core/json.hpp"
 #include "entity.h"
+#include "enemy.h"
+#include "game/net/messages.h"
+#include "player/player.h"
 
 using json = nlohmann::json;
+
+struct GameStateUpdate;
 
 class EntityPool {
 private:
@@ -21,6 +26,8 @@ public:
 
     void updateEntities(Uint32 timeSinceLastFrame, bool& quit);
     void drawEntities(std::shared_ptr<GraphicsContext> graphicsContext);
+
+    void synchronize(std::vector<GameStateUpdate> updates);
 
     std::shared_ptr<Entity> addEntity(std::shared_ptr<Entity> entity);
     // std::shared_ptr<Entity> addEntity(const std::string& path);

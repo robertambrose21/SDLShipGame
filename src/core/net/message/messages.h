@@ -86,10 +86,15 @@ public:
     bool Serialize(Stream& stream) {
         serialize_int(stream, gameStateUpdate.numEntities, 0, MaxEntities);
         for(int i = 0; i < gameStateUpdate.numEntities; i++) {
-            serialize_bits(stream, gameStateUpdate.entities[i].id, 32);
+            serialize_varint32(stream, gameStateUpdate.entities[i].id);
+            serialize_bits(stream, gameStateUpdate.entities[i].textureId, 8);
+            serialize_string(stream, gameStateUpdate.entities[i].name, sizeof(gameStateUpdate.entities[i].name));
+            serialize_bits(stream, gameStateUpdate.entities[i].totalHP, 8);
             serialize_bits(stream, gameStateUpdate.entities[i].currentHP, 8);
             serialize_bits(stream, gameStateUpdate.entities[i].x, 8);
             serialize_bits(stream, gameStateUpdate.entities[i].y, 8);
+            serialize_bits(stream, gameStateUpdate.entities[i].movesPerTurn, 8);
+            serialize_bits(stream, gameStateUpdate.entities[i].movesLeft, 8);
         }
 
         return true;

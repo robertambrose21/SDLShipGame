@@ -84,6 +84,8 @@ public:
 
     void setTextureId(const uint8_t& textureId);
     void setSelectedTextureId(const uint8_t& selectedTexture);
+    uint8_t getTextureId(void) const;
+
     void draw(std::shared_ptr<GraphicsContext> graphicsContext);
 
     void setSelected(bool selected);
@@ -92,6 +94,7 @@ public:
     Stats getStats(void) const;
     const float getSpeed(void);
     int getCurrentHP(void) const;
+    void setCurrentHP(const int& hp);
     void takeDamage(const int& amount);
     void attack(std::shared_ptr<Entity> target, std::shared_ptr<Weapon> weapon);
 
@@ -102,7 +105,9 @@ public:
     std::shared_ptr<Weapon> getCurrentWeapon(void);
 
     uint32_t getId(void) const;
+    void setId(const uint32_t& id);
     std::string getName(void) const;
+    void setName(const std::string& name);
 
     glm::ivec2 getPosition(void) const;
     bool isOnTile(const int& x, const int& y);
@@ -112,6 +117,7 @@ public:
     bool isNeighbour(std::shared_ptr<Entity> entity) const;
 
     int getMovesLeft(void) const;
+    void setMovesLeft(const int& movesLeft);
     bool isTurnInProgress(void) const;
     void useMoves(const int& numMoves);
 

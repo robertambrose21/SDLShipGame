@@ -21,6 +21,8 @@ void ServerApplication::initialise(void) {
     server = std::make_shared<GameServer>(receiver, yojimbo::Address("127.0.0.1", 8081));
     transmitter = std::make_shared<GameServerMessagesTransmitter>(server, 
         [&](int clientIndex) {
+            participantToClientIndex[0] = clientIndex;
+            transmitter->sendSetParticipant(clientIndex, 0);
             sendLoadMapToClient(clientIndex);
         }
     );
@@ -32,7 +34,12 @@ void ServerApplication::initialise(void) {
     });
 
     context->getTurnController()->addOnNextTurnFunction([&](int currentParticipant, int turnNumber) {
-        transmitter->sendGameStateUpdate(context->getCurrentGameState());
+        if(currentParticipant == 0) {
+            transmitter->sendGameStateUpdate(
+                participantToClientIndex[currentParticipant], 
+                context->getCurrentGameState()
+            );
+        }
     });
 
     loadMap();

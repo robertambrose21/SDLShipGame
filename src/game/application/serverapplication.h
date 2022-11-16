@@ -10,6 +10,8 @@ private:
     std::shared_ptr<GameServer> server;
     std::shared_ptr<GameServerMessagesTransmitter> transmitter;
     std::shared_ptr<GameServerMessagesReceiver> receiver;
+    
+    std::map<int, int> participantToClientIndex;
 
     void sendLoadMapToClient(int clientIndex);
 

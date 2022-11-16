@@ -7,6 +7,8 @@
 #include "game/weapons/meleeweapon.h"
 #include "entitypool.h"
 
+class EntityPool;
+
 class Enemy : public Entity {
 private:
     std::shared_ptr<EntityPool> entityPool;
