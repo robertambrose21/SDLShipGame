@@ -41,12 +41,14 @@ void Entity::draw(std::shared_ptr<GraphicsContext> graphicsContext) {
     }
 }
 
-void Entity::update(const Uint32& timeSinceLastFrame, bool& quit) {
+void Entity::update(const uint32_t& timeSinceLastFrame, bool& quit) {
     for(auto weapon : weapons) {
         weapon->update(timeSinceLastFrame);
     }
 
-    additionalUpdate(timeSinceLastFrame, quit);
+    if(behaviourStrategy != nullptr) {
+        behaviourStrategy->onUpdate(timeSinceLastFrame, quit);
+    }
     
     if(getMovesLeft() == 0) {
         return;
@@ -72,6 +74,14 @@ void Entity::setSelected(bool selected) {
 
 bool Entity::isSelected(void) const {
     return selected;
+}
+
+std::shared_ptr<BehaviourStrategy> Entity::getBehaviourStrategy(void) {
+    return behaviourStrategy;
+}
+
+void Entity::setBehaviourStrategy(std::shared_ptr<BehaviourStrategy> behaviourStrategy) {
+    this->behaviourStrategy = behaviourStrategy;
 }
 
 Entity::Stats Entity::getStats(void) const {
@@ -204,6 +214,14 @@ void Entity::nextTurn(void) {
     for(auto weapon : weapons) {
         weapon->reset();
     }
+
+    if(behaviourStrategy != nullptr) {
+        behaviourStrategy->onNextTurn();
+    }
+}
+
+bool Entity::endTurnCondition(void) {
+    return behaviourStrategy == nullptr ? false : behaviourStrategy->endTurnCondition();
 }
 
 void Entity::reset(void) {

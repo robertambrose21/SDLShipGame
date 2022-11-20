@@ -6,8 +6,7 @@
 #include "game/weapons/projectilepool.h"
 #include "game/weapons/areaofeffectpool.h"
 #include "turncontroller.h"
-
-#include "game/entities/enemy.h"
+#include "game/entities/behaviour/chaseandattackstrategy.h"
 #include "game/weapons/projectileweapon.h"
 #include "game/weapons/meleeweapon.h"
 

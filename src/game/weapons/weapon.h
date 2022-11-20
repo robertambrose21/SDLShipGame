@@ -44,7 +44,7 @@ public:
     bool isInRange(glm::ivec2 position);
 
     virtual void draw(std::shared_ptr<GraphicsContext> graphicsContext) = 0;
-    virtual void update(const Uint32& timeSinceLastFrame) = 0;
+    virtual void update(const uint32_t& timeSinceLastFrame) = 0;
     virtual bool hasFinished(void);
 
     Stats getStats(void) const;

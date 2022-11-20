@@ -18,5 +18,5 @@ public:
     void add(std::shared_ptr<AreaOfEffect> areaOfEffect);
 
     void draw(std::shared_ptr<GraphicsContext> graphicsContext);
-    void update(const Uint32& timeSinceLastFrame);
+    void update(const uint32_t& timeSinceLastFrame);
 };

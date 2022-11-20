@@ -3,16 +3,21 @@
 #include <cstdint>
 #include <cstring>
 #include "game/entities/entity.h"
-#include "game/entities/enemy.h"
-#include "player/player.h"
 
 const int MaxEntities = 64;
 const int MaxEntityNameLength = 64;
+const int MaxWeapons = 64;
+const int MaxWeaponNameLength = 64;
 
 class Entity;
 class Enemy;
 class Player;
 
+struct WeaponUpdate {
+    uint32_t id;
+};
+
+// TODO: Partial updates which don't require full states
 struct EntityStateUpdate {
     uint32_t id;
     uint8_t textureId;
@@ -47,18 +52,10 @@ struct EntityStateUpdate {
     // TODO: Entity constructor which sets the id
     static std::shared_ptr<Entity> deserialize(EntityStateUpdate update, std::shared_ptr<Entity> existing) {
         if(existing == nullptr) {
-            // TODO: Remove enemy/player classes and just have entity have "tags" which
-            // define strategies e.g. following the closest target
-            if(update.name == "Space Worm") {
-                // What the fuck - I guess we're removing derived entity classes anyway. So long as it compiles
-                existing = std::dynamic_pointer_cast<Entity, Enemy>(std::make_shared<Enemy>(
-                    update.name, 
-                    Entity::Stats { update.movesPerTurn, update.totalHP }
-                ));
-            }
-            else {
-                existing = std::make_shared<Player>();
-            }
+            existing = std::make_shared<Entity>(
+                update.name,
+                Entity::Stats { update.movesPerTurn, update.totalHP }
+            );
 
             existing->setName(update.name);
             existing->setId(update.id);

@@ -3,7 +3,7 @@
 EntityPool::EntityPool()
 { }
 
-void EntityPool::updateEntities(Uint32 timeSinceLastFrame, bool& quit) {
+void EntityPool::updateEntities(uint32_t timeSinceLastFrame, bool& quit) {
     for(auto [entityId, entity] : entities) {
         updateEntity(entity, timeSinceLastFrame, quit);
     }
@@ -16,7 +16,7 @@ void EntityPool::updateEntities(Uint32 timeSinceLastFrame, bool& quit) {
     entitiesForDeletion.clear();
 }
 
-void EntityPool::updateEntity(std::shared_ptr<Entity> entity, Uint32 timeSinceLastFrame, bool& quit) {
+void EntityPool::updateEntity(std::shared_ptr<Entity> entity, const uint32_t& timeSinceLastFrame, bool& quit) {
     if(entity->getCurrentHP() <= 0) {
         entitiesForDeletion.insert(entity);
         return;

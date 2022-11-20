@@ -31,7 +31,7 @@ private:
     std::shared_ptr<TextureLoader> textureLoader;
     std::shared_ptr<GridRenderer> gridRenderer;
 
-    std::vector<std::function<void(const Uint32&, bool&)>> logicWorkers;
+    std::vector<std::function<void(const uint32_t&, bool&)>> logicWorkers;
     std::vector<std::function<void(std::shared_ptr<GraphicsContext>, bool&)>> drawWorkers;
     std::vector<std::function<void(SDL_Event, bool&)>> eventWorkers;
     
@@ -47,7 +47,7 @@ public:
     bool initialiseWindow(Headless headless);
     void loop(void);
 
-    void addLoopLogicWorker(std::function<void(const Uint32&, bool&)> worker);
+    void addLoopLogicWorker(std::function<void(const uint32_t&, bool&)> worker);
     void addLoopDrawWorker(std::function<void(std::shared_ptr<GraphicsContext>, bool&)> worker);
     void addLoopEventWorker(std::function<void(SDL_Event, bool&)> worker);
     

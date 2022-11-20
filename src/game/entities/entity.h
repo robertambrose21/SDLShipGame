@@ -6,8 +6,10 @@
 #include "core/util/idgenerator.h"
 #include "graphics/gridrenderer.h"
 #include "game/weapons/weapon.h"
+#include "behaviour/behaviourstrategy.h"
 
 class Weapon;
+class BehaviourStrategy;
 
 class Entity {
 public:
@@ -24,13 +26,17 @@ private:
 
     bool selected;
 
+    std::shared_ptr<Grid> grid;
+
+    std::shared_ptr<BehaviourStrategy> behaviourStrategy;
+
     glm::ivec2 position;
     std::deque<glm::ivec2> path;
-    Uint32 timeSinceLastMoved;
+    uint32_t timeSinceLastMoved;
 
     Stats stats;
-    std::vector<std::shared_ptr<Weapon>> weapons;
 
+    std::vector<std::shared_ptr<Weapon>> weapons;
     std::shared_ptr<Weapon> currentWeapon;
 
     std::string name;
@@ -39,13 +45,8 @@ private:
 
     int participantId;
 
-protected:
-    std::shared_ptr<Grid> grid;
-
-    virtual void additionalUpdate(const Uint32& timeSinceLastFrame, bool& quit) = 0;
-
 public:
-    const Uint32 MOVES_PER_SECOND = 5;
+    const uint32_t MOVES_PER_SECOND = 5;
 
     Entity(
         const std::string& name,
@@ -80,7 +81,7 @@ public:
         return nullptr;
     }
 
-    void update(const Uint32& timeSinceLastFrame, bool& quit);
+    void update(const uint32_t& timeSinceLastFrame, bool& quit);
 
     void setTextureId(const uint8_t& textureId);
     void setSelectedTextureId(const uint8_t& selectedTexture);
@@ -90,6 +91,9 @@ public:
 
     void setSelected(bool selected);
     bool isSelected(void) const;
+
+    std::shared_ptr<BehaviourStrategy> getBehaviourStrategy(void);
+    void setBehaviourStrategy(std::shared_ptr<BehaviourStrategy> behaviourStrategy);
 
     Stats getStats(void) const;
     const float getSpeed(void);
@@ -125,6 +129,6 @@ public:
     int getParticipantId(void) const;
 
     void reset(void);
-    virtual void nextTurn(void);
-    virtual bool endTurnCondition(void) = 0;
+    void nextTurn(void);
+    bool endTurnCondition(void);
 };

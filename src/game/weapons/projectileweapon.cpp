@@ -22,7 +22,7 @@ void ProjectileWeapon::draw(std::shared_ptr<GraphicsContext> graphicsContext) {
     // no-op
 }
 
-void ProjectileWeapon::update(const Uint32& timeSinceLastFrame) {
+void ProjectileWeapon::update(const uint32_t& timeSinceLastFrame) {
     // no-op
 }
 

@@ -25,7 +25,7 @@ void Projectile::draw(std::shared_ptr<GraphicsContext> graphicsContext) {
     graphicsContext->getGridRenderer()->draw(graphicsContext, textureId, position);
 }
 
-void Projectile::update(const Uint32& timeSinceLastFrame) {
+void Projectile::update(const uint32_t& timeSinceLastFrame) {
     timeSinceLive += timeSinceLastFrame;
 
     position = glm::lerp(startPosition, target->getPosition(), getStep());

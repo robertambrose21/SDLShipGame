@@ -15,7 +15,7 @@ void ProjectilePool::draw(std::shared_ptr<GraphicsContext> graphicsContext) {
     }
 }
 
-void ProjectilePool::update(const Uint32& timeSinceLastFrame) {
+void ProjectilePool::update(const uint32_t& timeSinceLastFrame) {
     for(auto [owner, projectilesForOwner] : projectiles) {
         for(auto projectile : projectilesForOwner) {
             projectile->update(timeSinceLastFrame);

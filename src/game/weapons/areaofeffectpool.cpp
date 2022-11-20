@@ -14,7 +14,7 @@ void AreaOfEffectPool::draw(std::shared_ptr<GraphicsContext> graphicsContext) {
     }
 }
 
-void AreaOfEffectPool::update(const Uint32& timeSinceLastFrame) {
+void AreaOfEffectPool::update(const uint32_t& timeSinceLastFrame) {
     for(auto aoeObject : aoeObjects) {
         auto [startTurn, areaOfEffect] = aoeObject;
 

@@ -97,7 +97,7 @@ void Window::loop(void) {
     }
 }
 
-void Window::addLoopLogicWorker(std::function<void(const Uint32&, bool&)> worker) {
+void Window::addLoopLogicWorker(std::function<void(const uint32_t&, bool&)> worker) {
     logicWorkers.push_back(worker);
 }
 

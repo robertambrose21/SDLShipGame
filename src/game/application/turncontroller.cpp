@@ -5,7 +5,7 @@ TurnController::TurnController() :
     currentParticipant(0)
 { }
 
-void TurnController::update(Uint32 timeSinceLastFrame) {
+void TurnController::update(const uint32_t& timeSinceLastFrame) {
     if(participants.size() <= 0) {
         return;
     }

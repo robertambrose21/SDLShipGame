@@ -5,9 +5,10 @@ include_directories(../)
 
 add_library(
     ${PROJECT_NAME}
-    entities/enemy.cpp 
     entities/entity.cpp 
     entities/entitypool.cpp 
+    entities/behaviour/behaviourstrategy.h
+    entities/behaviour/chaseandattackstrategy.cpp
     weapons/weapon.cpp 
     weapons/projectile.cpp 
     weapons/projectileweapon.cpp 

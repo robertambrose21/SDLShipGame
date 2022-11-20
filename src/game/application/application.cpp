@@ -33,7 +33,7 @@ void Application::initialise(Window::Headless headless) {
 
     // TODO: Weapon blueprints
     auto enemy = entityPool->addEntity(
-        std::make_shared<Enemy>(
+        std::make_shared<Entity>(
             "Space Worm", 
             Entity::Stats { 5, 2 }
     ));
@@ -43,9 +43,10 @@ void Application::initialise(Window::Headless headless) {
     auto teeth = std::make_shared<MeleeWeapon>(enemy, window->getGridRenderer()->getGrid(), "Teeth", (Weapon::Stats) { 1, 2, 1 });
     enemy->addWeapon(teeth);
     enemy->setCurrentWeapon(teeth);
+    enemy->setBehaviourStrategy(std::make_shared<ChaseAndAttackStrategy>(enemy));
 
     auto enemy2 = entityPool->addEntity(
-        std::make_shared<Enemy>(
+        std::make_shared<Entity>(
             "Space Worm", 
             Entity::Stats { 5, 2 }
     ));
@@ -53,11 +54,12 @@ void Application::initialise(Window::Headless headless) {
     enemy2->setTextureId(7);
     enemy2->setSelectedTextureId(6);
     auto teeth2 = std::make_shared<MeleeWeapon>(enemy2, window->getGridRenderer()->getGrid(), "Teeth", (Weapon::Stats) { 1, 2, 1 });
-    enemy->addWeapon(teeth2);
+    enemy2->addWeapon(teeth2);
     enemy2->setCurrentWeapon(teeth2);
+    enemy2->setBehaviourStrategy(std::make_shared<ChaseAndAttackStrategy>(enemy2));
 
     auto enemy3 = entityPool->addEntity(
-        std::make_shared<Enemy>(
+        std::make_shared<Entity>(
             "Space Worm", 
             Entity::Stats { 5, 2 }
     ));
@@ -67,6 +69,7 @@ void Application::initialise(Window::Headless headless) {
     auto teeth3 = std::make_shared<MeleeWeapon>(enemy3, window->getGridRenderer()->getGrid(), "Teeth", (Weapon::Stats) { 1, 2, 1 });
     enemy3->addWeapon(teeth3);
     enemy3->setCurrentWeapon(teeth3);
+    enemy3->setBehaviourStrategy(std::make_shared<ChaseAndAttackStrategy>(enemy3));
 
     turnController->addParticipant({ player, player2 }, true);
     turnController->addParticipant({ enemy, enemy2 }, false);
@@ -90,7 +93,7 @@ void Application::initialise(Window::Headless headless) {
 }
 
 std::shared_ptr<Entity> Application::addPlayer(glm::ivec2 position) {
-    auto player = entityPool->addEntity(std::make_shared<Player>());
+    auto player = entityPool->addEntity(std::make_shared<Entity>("Player", Entity::Stats { 3, 10 }));
     player->setTextureId(1);
     player->setSelectedTextureId(6);
     player->setPosition(position);

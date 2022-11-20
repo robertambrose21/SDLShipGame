@@ -27,7 +27,7 @@ private:
 public:
     TurnController();
 
-    void update(Uint32 timeSinceLastFrame);
+    void update(const uint32_t& timeSinceLastFrame);
 
     std::shared_ptr<Participant> addParticipant(
         std::set<std::shared_ptr<Entity>> entities, 

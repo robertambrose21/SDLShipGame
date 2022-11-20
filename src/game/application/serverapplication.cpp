@@ -110,7 +110,7 @@ void ServerApplication::loadGame(void) {
 
     // TODO: Weapon blueprints
     auto enemy = context->getEntityPool()->addEntity(
-        std::make_shared<Enemy>(
+        std::make_shared<Entity>(
             "Space Worm", 
             Entity::Stats { 5, 2 }
     ));
@@ -120,9 +120,10 @@ void ServerApplication::loadGame(void) {
     auto teeth = std::make_shared<MeleeWeapon>(enemy, context->getGrid(), "Teeth", (Weapon::Stats) { 1, 2, 1 });
     enemy->addWeapon(teeth);
     enemy->setCurrentWeapon(teeth);
+    enemy->setBehaviourStrategy(std::make_shared<ChaseAndAttackStrategy>(enemy));
 
     auto enemy2 = context->getEntityPool()->addEntity(
-        std::make_shared<Enemy>(
+        std::make_shared<Entity>(
             "Space Worm", 
             Entity::Stats { 5, 2 }
     ));
@@ -132,9 +133,10 @@ void ServerApplication::loadGame(void) {
     auto teeth2 = std::make_shared<MeleeWeapon>(enemy2, context->getGrid(), "Teeth", (Weapon::Stats) { 1, 2, 1 });
     enemy->addWeapon(teeth2);
     enemy2->setCurrentWeapon(teeth2);
+    enemy2->setBehaviourStrategy(std::make_shared<ChaseAndAttackStrategy>(enemy2));
 
     auto enemy3 = context->getEntityPool()->addEntity(
-        std::make_shared<Enemy>(
+        std::make_shared<Entity>(
             "Space Worm", 
             Entity::Stats { 5, 2 }
     ));
@@ -144,6 +146,7 @@ void ServerApplication::loadGame(void) {
     auto teeth3 = std::make_shared<MeleeWeapon>(enemy3, context->getGrid(), "Teeth", (Weapon::Stats) { 1, 2, 1 });
     enemy3->addWeapon(teeth3);
     enemy3->setCurrentWeapon(teeth3);
+    enemy3->setBehaviourStrategy(std::make_shared<ChaseAndAttackStrategy>(enemy3));
 
     context->getTurnController()->addParticipant({ player, player2 }, true);
     context->getTurnController()->addParticipant({ enemy, enemy2 }, false);
@@ -169,7 +172,7 @@ void ServerApplication::loadGame(void) {
 std::shared_ptr<Entity> ServerApplication::addPlayer(glm::ivec2 position) {
     auto context = Application::getContext();
 
-    auto player = context->getEntityPool()->addEntity(std::make_shared<Player>());
+    auto player = context->getEntityPool()->addEntity(std::make_shared<Entity>("Player", Entity::Stats { 3, 10 }));
     player->setTextureId(1);
     player->setSelectedTextureId(6);
     player->setPosition(position);

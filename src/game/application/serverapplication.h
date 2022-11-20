@@ -3,6 +3,7 @@
 #include "core/net/server/gameserver.h"
 #include "game/net/server/gameservermessagesreceiver.h"
 #include "game/net/server/gameservermessagestransmitter.h"
+#include "game/entities/behaviour/chaseandattackstrategy.h"
 #include "application.h"
 
 class ServerApplication {

@@ -22,7 +22,7 @@ public:
     );
     
     void draw(std::shared_ptr<GraphicsContext> graphicsContext);
-    void update(const Uint32& timeSinceLastFrame);
+    void update(const uint32_t& timeSinceLastFrame);
     bool hasFinished(void);
 
     void setProjectileBlueprint(Projectile::Blueprint projectileBlueprint);

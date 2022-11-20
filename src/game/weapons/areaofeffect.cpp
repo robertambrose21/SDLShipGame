@@ -22,7 +22,7 @@ void AreaOfEffect::draw(std::shared_ptr<GraphicsContext> graphicsContext) {
     }
 }
 
-void AreaOfEffect::update(const Uint32& timeSinceLastFrame) {
+void AreaOfEffect::update(const uint32_t& timeSinceLastFrame) {
     //
 }
 

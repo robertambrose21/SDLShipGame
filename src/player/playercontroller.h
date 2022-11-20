@@ -12,7 +12,6 @@
 #include "game/entities/entitypool.h"
 #include "game/weapons/weapon.h"
 #include "game/application/turncontroller.h"
-#include "player.h"
 
 class PlayerController {
 private:

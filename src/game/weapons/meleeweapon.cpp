@@ -17,6 +17,6 @@ void MeleeWeapon::draw(std::shared_ptr<GraphicsContext> graphicsContext) {
     // no-op
 }
 
-void MeleeWeapon::update(const Uint32& timeSinceLastFrame) {
+void MeleeWeapon::update(const uint32_t& timeSinceLastFrame) {
     // no-op
 }
