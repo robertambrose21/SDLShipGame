@@ -3,7 +3,7 @@
 EntityPool::EntityPool()
 { }
 
-void EntityPool::updateEntities(uint32_t timeSinceLastFrame, bool& quit) {
+void EntityPool::updateEntities(const uint32_t& timeSinceLastFrame, bool& quit) {
     for(auto [entityId, entity] : entities) {
         updateEntity(entity, timeSinceLastFrame, quit);
     }
