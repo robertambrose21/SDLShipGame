@@ -9,14 +9,17 @@
 #include "game/entities/behaviour/chaseandattackstrategy.h"
 #include "game/weapons/projectileweapon.h"
 #include "game/weapons/meleeweapon.h"
+#include "game/weapons/weaponcontroller.h"
 
 class PlayerController;
+class WeaponController;
 
 class Application {
 private:
     std::shared_ptr<Window> window;
     std::shared_ptr<Grid> grid;
     std::shared_ptr<EntityPool> entityPool;
+    std::shared_ptr<WeaponController> weaponController;
     std::shared_ptr<ProjectilePool> projectilePool;
     std::shared_ptr<AreaOfEffectPool> areaOfEffectPool;
     std::shared_ptr<TurnController> turnController;

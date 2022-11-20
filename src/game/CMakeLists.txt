@@ -21,6 +21,7 @@ add_library(
     net/messages.h
     weapons/projectilepool.cpp
     weapons/areaofeffectpool.cpp
+    weapons/weaponcontroller.cpp
     application/turncontroller.cpp
     net/client/gameclientmessagesreceiver.cpp
     net/client/gameclientmessagestransmitter.cpp
