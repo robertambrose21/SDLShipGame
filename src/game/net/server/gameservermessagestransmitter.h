@@ -20,7 +20,19 @@ public:
         std::function<void(int)> onClientConnectFunc = [](int) { }
     );
 
-    void sendSetParticipant(int clientIndex, int participantId);
+    void sendSetParticipant(int clientIndex, std::shared_ptr<TurnController::Participant> participant);
     void sendGameStateUpdate(int clientIndex, GameStateUpdate update);
     void sendLoadMap(int clientIndex, const MapBlock& block);
+    void sendFindPath(
+        int clientIndex, 
+        const uint32_t& entityId, 
+        const glm::ivec2& position,
+        const int& shortStopSteps
+    );
+    void sendAttackEntity(
+        int clientIndex,
+        const uint32_t& entityId, 
+        const uint32_t& targetId, 
+        const uint32_t& weaponId
+    );
 };

@@ -6,6 +6,7 @@ ChaseAndAttackStrategy::ChaseAndAttackStrategy(std::shared_ptr<Entity> owner) :
     canPassTurn(false)
 {
     entityPool = Application::getContext()->getEntityPool();
+    transmitter = std::dynamic_pointer_cast<GameServerMessagesTransmitter>(Application::getContext()->getServerMessagesTransmitter());
 }
 
 void ChaseAndAttackStrategy::onUpdate(const uint32_t& timeSinceLastFrame, bool& quit) {
@@ -19,6 +20,7 @@ void ChaseAndAttackStrategy::onUpdate(const uint32_t& timeSinceLastFrame, bool& 
         }
         else {
             owner->attack(target, owner->getCurrentWeapon());
+            transmitter->sendAttackEntity(0, owner->getId(), target->getId(), owner->getCurrentWeapon()->getId());
         }
     }
     else if(owner->getMovesLeft() <= 0) {
@@ -26,14 +28,11 @@ void ChaseAndAttackStrategy::onUpdate(const uint32_t& timeSinceLastFrame, bool& 
     }
     else {
         owner->findPath(target->getPosition(), 1);
+        transmitter->sendFindPath(0, owner->getId(), target->getPosition(), 1);
     }
 }
 
 void ChaseAndAttackStrategy::onNextTurn(void) {
-    // if(owner == nullptr) {
-    //     return;
-    // }
-    
     target = findClosestTarget();
     canPassTurn = false;
 }

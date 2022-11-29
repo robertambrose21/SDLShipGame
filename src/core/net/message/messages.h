@@ -18,17 +18,24 @@ enum class GameMessageType {
 
 class FindPathMessage : public yojimbo::Message {
 public:
+    uint32_t entityId;
+    
     int x, y;
+    int shortStopSteps;
 
     FindPathMessage() :
+        entityId(0),
         x(0),
-        y(0)
+        y(0),
+        shortStopSteps(0)
     { }
 
     template <typename Stream>
     bool Serialize(Stream& stream) {
+        serialize_varint32(stream, entityId);
         serialize_int(stream, x, 0, 512);
         serialize_int(stream, y, 0, 512);
+        serialize_int(stream, shortStopSteps, 0, 512);
         return true;
     }
 
@@ -75,6 +82,7 @@ public:
     YOJIMBO_VIRTUAL_SERIALIZE_FUNCTIONS();
 };
 
+// TODO: Serialize functions for entities/weapons
 class GameStateUpdateMessage : public yojimbo::Message {
 public:
     GameStateUpdate gameStateUpdate;
@@ -86,15 +94,33 @@ public:
     bool Serialize(Stream& stream) {
         serialize_int(stream, gameStateUpdate.numEntities, 0, MaxEntities);
         for(int i = 0; i < gameStateUpdate.numEntities; i++) {
-            serialize_varint32(stream, gameStateUpdate.entities[i].id);
-            serialize_bits(stream, gameStateUpdate.entities[i].textureId, 8);
-            serialize_string(stream, gameStateUpdate.entities[i].name, sizeof(gameStateUpdate.entities[i].name));
-            serialize_bits(stream, gameStateUpdate.entities[i].totalHP, 8);
-            serialize_bits(stream, gameStateUpdate.entities[i].currentHP, 8);
-            serialize_bits(stream, gameStateUpdate.entities[i].x, 8);
-            serialize_bits(stream, gameStateUpdate.entities[i].y, 8);
-            serialize_bits(stream, gameStateUpdate.entities[i].movesPerTurn, 8);
-            serialize_bits(stream, gameStateUpdate.entities[i].movesLeft, 8);
+            auto& entity = gameStateUpdate.entities[i];
+
+            serialize_varint32(stream, entity.id);
+            serialize_string(stream, entity.name, sizeof(entity.name));
+            serialize_bits(stream, entity.participantId, 8);
+            serialize_bits(stream, entity.totalHP, 8);
+            serialize_bits(stream, entity.currentHP, 8);
+            serialize_bits(stream, entity.x, 8);
+            serialize_bits(stream, entity.y, 8);
+            serialize_bits(stream, entity.movesPerTurn, 8);
+            serialize_bits(stream, entity.movesLeft, 8);
+
+            // Weapons
+            serialize_varint32(stream, entity.currentWeaponId);
+            serialize_int(stream, entity.numWeapons, 0, MaxWeapons);
+            for(int j = 0; j < entity.numWeapons; j++) {
+                auto& weapon = entity.weaponUpdates[j];
+
+                serialize_varint32(stream, weapon.id);
+                serialize_string(stream, weapon.name, sizeof(weapon.name));
+                serialize_string(stream, weapon.weaponClass, sizeof(weapon.weaponClass));
+                serialize_string(stream, weapon.projectile, sizeof(weapon.projectile));
+                serialize_bits(stream, weapon.damage, 16);
+                serialize_bits(stream, weapon.range, 16);
+                serialize_bits(stream, weapon.uses, 16);
+                serialize_bits(stream, weapon.usesLeft, 16);
+            }
         }
 
         return true;
@@ -122,14 +148,17 @@ public:
 class SetParticipantMessage : public yojimbo::Message {
 public:
     int participantId;
+    bool isPlayer;
 
-    SetParticipantMessage() :
-        participantId(0)
-    { }
+    SetParticipantMessage() {
+        
+    }
 
     template <typename Stream>
     bool Serialize(Stream& stream) {
         serialize_int(stream, participantId, 0, 64);
+        serialize_bool(stream, isPlayer);
+
         return true;
     }
 

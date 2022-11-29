@@ -4,11 +4,17 @@ GameClientMessagesTransmitter::GameClientMessagesTransmitter(std::shared_ptr<Gam
     client(client)
 { }
 
-void GameClientMessagesTransmitter::sendFindPathMessage(const glm::ivec2& position) {
+void GameClientMessagesTransmitter::sendFindPathMessage(
+    const uint32_t& entityId,
+    const glm::ivec2& position,
+    const int& shortStopSteps
+) {
     FindPathMessage* message = (FindPathMessage*) client->createMessage(GameMessageType::FIND_PATH);
 
+    message->entityId = entityId;
     message->x = position.x;
     message->y = position.y;
+    message->shortStopSteps = shortStopSteps;
 
     client->sendMessage(message);
 }

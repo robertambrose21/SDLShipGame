@@ -1,7 +1,6 @@
 #pragma once
 
 #include "graphics/window.h"
-#include "player/playercontroller.h"
 #include "applicationcontext.h"
 #include "game/weapons/projectilepool.h"
 #include "game/weapons/areaofeffectpool.h"
@@ -11,7 +10,6 @@
 #include "game/weapons/meleeweapon.h"
 #include "game/weapons/weaponcontroller.h"
 
-class PlayerController;
 class WeaponController;
 
 class Application {
@@ -44,7 +42,4 @@ public:
     
     void initialise(Window::Headless headless);
     void run(void);
-
-    // Temp
-    std::shared_ptr<Entity> addPlayer(glm::ivec2 position);
 };

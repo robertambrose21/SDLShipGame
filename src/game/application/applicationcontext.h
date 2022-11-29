@@ -7,6 +7,7 @@
 #include "game/weapons/areaofeffectpool.h"
 #include "game/weapons/weaponcontroller.h"
 #include "turncontroller.h"
+#include "core/net/server/servermessagestransmitter.h"
 
 class ApplicationContext {
 private:
@@ -16,6 +17,7 @@ private:
     std::shared_ptr<ProjectilePool> projectilePool;
     std::shared_ptr<AreaOfEffectPool> areaOfEffectPool;
     std::shared_ptr<TurnController> turnController;
+    std::shared_ptr<ServerMessagesTransmitter> transmitter;
 
 public:
     ApplicationContext(
@@ -35,6 +37,9 @@ public:
     std::shared_ptr<ProjectilePool> getProjectilePool(void);
     std::shared_ptr<AreaOfEffectPool> getAreaOfEffectPool(void);
     std::shared_ptr<TurnController> getTurnController(void);
+
+    void setServerMessagesTransmitter(std::shared_ptr<ServerMessagesTransmitter> transmitter);
+    std::shared_ptr<ServerMessagesTransmitter> getServerMessagesTransmitter(void);
 
     GameStateUpdate getCurrentGameState(void);
 };

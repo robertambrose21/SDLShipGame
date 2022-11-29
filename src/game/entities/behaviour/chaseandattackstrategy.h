@@ -4,9 +4,14 @@
 #include "game/entities/entity.h"
 #include "game/entities/entitypool.h"
 #include "game/application/application.h"
+#include "game/net/server/gameservermessagestransmitter.h"
+
+class GameServerMessagesTransmitter;
 
 class ChaseAndAttackStrategy : public BehaviourStrategy {
 private:
+    std::shared_ptr<GameServerMessagesTransmitter> transmitter;
+
     std::shared_ptr<EntityPool> entityPool;
     std::shared_ptr<Entity> target;
 

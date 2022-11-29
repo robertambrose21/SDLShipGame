@@ -30,4 +30,5 @@ public:
     WeaponController(std::shared_ptr<Grid> grid, std::shared_ptr<ProjectilePool> projectilePool);
 
     std::shared_ptr<Weapon> createWeapon(const std::string& name, std::shared_ptr<Entity> owner);
+    std::shared_ptr<Weapon> createWeapon(const uint32_t& id, const std::string& name, std::shared_ptr<Entity> owner);
 };

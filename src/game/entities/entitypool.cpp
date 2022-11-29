@@ -1,6 +1,12 @@
 #include "entitypool.h"
 
-EntityPool::EntityPool() {
+EntityPool::EntityPool(
+    std::shared_ptr<TurnController> turnController,
+    std::shared_ptr<WeaponController> weaponController
+) :
+    turnController(turnController),
+    weaponController(weaponController)
+{
     loadEntityDefinitions();
 }
 
@@ -56,9 +62,29 @@ void EntityPool::synchronize(std::vector<GameStateUpdate> updates) {
     std::map<int, std::shared_ptr<Entity>> updatedEntities;
 
     for(auto update : updates) {
+        std::cout << "Got game state update: " << std::endl;
+
         for(int i = 0; i < update.numEntities; i++) {
             auto entityUpdate = update.entities[i];
-            auto existing = entities.contains(entityUpdate.id) ? entities[entityUpdate.id] : nullptr;
+            std::shared_ptr<Entity> existing = nullptr;
+
+            if(entities.contains(entityUpdate.id)) {
+                existing = entities[entityUpdate.id];
+            }
+            else {
+                existing = addEntity(entityUpdate.name, entityUpdate.id);
+                turnController->addEntityToParticipant(entityUpdate.participantId, existing);
+            }
+
+            // Weapons
+            for(int j = 0; j < entityUpdate.numWeapons; j++) {
+                auto& weaponUpdate = entityUpdate.weaponUpdates[j];
+                auto weapon = existing->getWeapon(weaponUpdate.id);
+
+                if(weapon == nullptr) {
+                    existing->addWeapon(weaponController->createWeapon(weaponUpdate.id, weaponUpdate.name, existing));
+                }
+            }
 
             entities[entityUpdate.id] = EntityStateUpdate::deserialize(entityUpdate, existing);
 
@@ -67,6 +93,13 @@ void EntityPool::synchronize(std::vector<GameStateUpdate> updates) {
             } else {
                 updatedEntities[entityUpdate.id] = entities[entityUpdate.id];
             }
+
+            std::cout << "Entity [" << update.entities[i].participantId << "] " << update.entities[i].name << "#" 
+                << update.entities[i].id << "(" << update.entities[i].currentHP << "/" 
+                << update.entities[i].totalHP << "):" << std::endl;
+            std::cout << "\tPosition: (" << update.entities[i].x << ", " <<  update.entities[i].y << ")" << std::endl;
+            std::cout << "\tMoves per turn: " << update.entities[i].movesPerTurn << std::endl;
+            std::cout << "\tMoves left: " << update.entities[i].movesLeft << std::endl;
         }
     }
 
@@ -93,21 +126,28 @@ std::shared_ptr<Entity> EntityPool::addEntity(std::shared_ptr<Entity> entity) {
     return entity;
 }
 
-std::shared_ptr<Entity> EntityPool::addEntity(const std::string& name) {
+std::shared_ptr<Entity> EntityPool::addEntity(const std::string& name, const uint32_t& id) {
     if(!entityDefinitions.contains(name)) {
-        throw std::runtime_error("Could not find entity definition with name " + name);
+        throw std::runtime_error("Could not find entity definition with name \'" + name + "\'");
     }
 
     auto definition = entityDefinitions[name];
-    auto entity = std::make_shared<Entity>(definition.name,
+    auto entity = std::make_shared<Entity>(
+        id,
+        definition.name,
         Entity::Stats {
             definition.movesPerTurn,
             definition.hp
-        });
+        }
+    );
     entity->setTextureId(definition.textureId);
     entity->setSelectedTextureId(6);
 
     return addEntity(entity);
+}
+
+std::shared_ptr<Entity> EntityPool::addEntity(const std::string& name) {
+    return addEntity(name, getNewId());
 }
 
 std::map<uint32_t, std::shared_ptr<Entity>> EntityPool::getEntities(void) {

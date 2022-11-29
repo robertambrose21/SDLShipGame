@@ -22,11 +22,12 @@ void TurnController::update(const uint32_t& timeSinceLastFrame) {
 }
 
 std::shared_ptr<TurnController::Participant> TurnController::addParticipant(
+    const int& id,
     std::set<std::shared_ptr<Entity>> entities, 
     bool isPlayer
 ) {
     Participant participant;
-    participant.id = participants.size();
+    participant.id = id;
     participant.entities = entities;
     participant.isPlayer = isPlayer;
 
@@ -36,19 +37,31 @@ std::shared_ptr<TurnController::Participant> TurnController::addParticipant(
 
     auto participantPtr = std::make_shared<Participant>(participant);
 
-    participants.push_back(participantPtr);
+    participants[id] = participantPtr;
 
     return participantPtr;
 }
 
-std::shared_ptr<TurnController::Participant> TurnController::getParticipant(int id) {
-    return participants[id];
+void TurnController::addEntityToParticipant(const int& participantId, std::shared_ptr<Entity> entity) {
+    participants[participantId]->entities.insert(entity);
+}
+
+std::shared_ptr<TurnController::Participant> TurnController::getParticipant(const int& id) {
+    if(participants.contains(id)) {
+        return participants[id];
+    }
+
+    return nullptr;
+}
+
+std::map<int, std::shared_ptr<TurnController::Participant>> TurnController::getParticipants(void) {
+    return participants;
 }
 
 void TurnController::reset(void) {
-    for(auto participant : participants) {
+    for(auto [participantId, participant] : participants) {
         for(auto entity : participant->entities) {
-            if(participant->id > 0) {
+            if(participantId > 0) {
                 entity->reset();
             }
             else {

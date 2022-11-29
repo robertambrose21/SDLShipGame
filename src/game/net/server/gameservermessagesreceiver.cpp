@@ -8,7 +8,12 @@ void GameServerMessagesReceiver::receiveMessage(const int& participantId, yojimb
     switch(message->GetType()) {
         case (int) GameMessageType::FIND_PATH: {
             FindPathMessage* findPathMessage = (FindPathMessage*) message;
-            receiveFindPathMessage(participantId , { findPathMessage->x, findPathMessage->y });
+            receiveFindPathMessage(
+                participantId, 
+                findPathMessage->entityId, 
+                { findPathMessage->x, findPathMessage->y },
+                findPathMessage->shortStopSteps
+            );
             break;
         }
 
@@ -34,7 +39,12 @@ void GameServerMessagesReceiver::receiveMessage(const int& participantId, yojimb
     }
 }
 
-void GameServerMessagesReceiver::receiveFindPathMessage(const int& participantId, const glm::ivec2& position) {
+void GameServerMessagesReceiver::receiveFindPathMessage(
+    const int& participantId,
+    const uint32_t& entityId,
+    const glm::ivec2& position,
+    const int& shortStopSteps
+) {
     std::cout 
         << "Server receieved a find path message ("
         << position.x 
@@ -47,8 +57,8 @@ void GameServerMessagesReceiver::receiveFindPathMessage(const int& participantId
     auto entities = context->getTurnController()->getParticipant(participantId)->entities;
 
     for(auto entity : entities) {
-        if(entity->isSelected()) {
-            entity->findPath(position);
+        if(entity->getId() == entityId) {
+            entity->findPath(position, shortStopSteps);
         }
     }
 }
@@ -95,7 +105,7 @@ void GameServerMessagesReceiver::receieveAttackEntityMessage(
 
     auto target = context->getEntityPool()->getEntity(targetId);
 
-    for(auto weapon : entity->getWeapons()) {
+    for(auto [_, weapon] : entity->getWeapons()) {
         if(weapon->getId() == weaponId) {
             entity->attack(target, weapon);
         }

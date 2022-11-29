@@ -2,10 +2,11 @@
 #include "game/application/application.h"
 
 Entity::Entity(
+    const uint32_t& id,
     const std::string& name,
     Stats stats
 ) :
-    id(getNewId()),
+    id(id),
     name(name),
     stats(stats),
     position({ 0, 0 }),
@@ -16,6 +17,12 @@ Entity::Entity(
 {
     grid = Application::getContext()->getGrid();
 }
+
+Entity::Entity(
+    const std::string& name,
+    Stats stats
+) : Entity(getNewId(), name, stats)
+{ }
 
 void Entity::setTextureId(const uint8_t& textureId) {
     this->textureId = textureId;
@@ -36,13 +43,13 @@ void Entity::draw(std::shared_ptr<GraphicsContext> graphicsContext) {
         graphicsContext->getGridRenderer()->draw(graphicsContext, selectedTextureId, position);
     }
 
-    for(auto weapon : weapons) {
+    for(auto [_, weapon] : weapons) {
         weapon->draw(graphicsContext);
     }
 }
 
 void Entity::update(const uint32_t& timeSinceLastFrame, bool& quit) {
-    for(auto weapon : weapons) {
+    for(auto [_, weapon] : weapons) {
         weapon->update(timeSinceLastFrame);
     }
 
@@ -110,19 +117,27 @@ void Entity::attack(std::shared_ptr<Entity> target, std::shared_ptr<Weapon> weap
     weapon->use(position, target);
 }
 
-std::vector<std::shared_ptr<Weapon>> Entity::getWeapons(void) const {
+std::map<uint32_t, std::shared_ptr<Weapon>> Entity::getWeapons(void) const {
     return weapons;
 }
 
+std::shared_ptr<Weapon> Entity::getWeapon(const uint32_t& weaponId) {
+    if(weapons.contains(weaponId)) {
+        return weapons[weaponId];
+    }
+
+    return nullptr;
+}
+
 std::shared_ptr<Weapon> Entity::addWeapon(std::shared_ptr<Weapon> weapon) {
-    weapons.push_back(weapon);
+    weapons[weapon->getId()] = weapon;
     return weapon;
 }
 
 void Entity::removeWeapon(const std::string& name) {
-    for(auto i = 0; i < weapons.size(); i++) {
-        if(weapons[i]->getName() == name) {
-            weapons.erase(weapons.begin() + i);
+    for(auto [weaponId, weapon] : weapons) {
+        if(weapon->getName() == name) {
+            weapons.erase(weaponId);
         }
     }
 }
@@ -211,7 +226,7 @@ void Entity::nextTurn(void) {
     movesLeft = stats.movesPerTurn;
     path.clear();
     
-    for(auto weapon : weapons) {
+    for(auto [_, weapon] : weapons) {
         weapon->reset();
     }
 
@@ -229,7 +244,7 @@ void Entity::reset(void) {
     currentHP = stats.hp;
     path.clear();
 
-    for(auto weapon : weapons) {
+    for(auto [_, weapon] : weapons) {
         weapon->reset();
     }
 }

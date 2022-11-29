@@ -12,6 +12,11 @@ class Projectile;
 
 class Weapon {
 public:
+    enum Type {
+        MELEE,
+        PROJECTILE
+    };
+
     typedef struct _stats {
         int damage;
         int range;
@@ -33,6 +38,14 @@ protected:
 public:
     Weapon(
         std::shared_ptr<Entity> owner,
+        std::shared_ptr<Grid> grid,
+        const uint32_t& id,
+        const std::string& name, 
+        Stats stats
+    );
+
+    Weapon(
+        std::shared_ptr<Entity> owner,
         std::shared_ptr<Grid> grid, 
         const std::string& name, 
         Stats stats
@@ -46,9 +59,11 @@ public:
     virtual void draw(std::shared_ptr<GraphicsContext> graphicsContext) = 0;
     virtual void update(const uint32_t& timeSinceLastFrame) = 0;
     virtual bool hasFinished(void);
+    virtual Type getType(void) const = 0;
 
     Stats getStats(void) const;
     int getUsesLeft(void) const;
+    void setUsesLeft(const int& usesLeft);
 
     uint32_t getId(void) const;
     std::string getName(void) const;

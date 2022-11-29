@@ -35,7 +35,11 @@ void WeaponController::loadWeaponDefinitions(void) {
     }
 }
 
-std::shared_ptr<Weapon> WeaponController::createWeapon(const std::string& name, std::shared_ptr<Entity> owner) {
+std::shared_ptr<Weapon> WeaponController::createWeapon(
+    const uint32_t& id, 
+    const std::string& name, 
+    std::shared_ptr<Entity> owner
+) {
     if(!weaponDefinitions.contains(name)) {
         throw std::runtime_error("Could not find weapon definition with name " + name);
     }
@@ -46,6 +50,7 @@ std::shared_ptr<Weapon> WeaponController::createWeapon(const std::string& name, 
         return std::make_shared<ProjectileWeapon>(
             owner,
             grid,
+            id,
             definition.name,
             Weapon::Stats { definition.damage, definition.range, definition.uses },
             projectilePool->create(definition.projectile)
@@ -55,10 +60,15 @@ std::shared_ptr<Weapon> WeaponController::createWeapon(const std::string& name, 
         return std::make_shared<MeleeWeapon>(
             owner,
             grid,
+            id,
             definition.name,
             Weapon::Stats { definition.damage, definition.range, definition.uses }
         );
     }
 
     return nullptr;
+}
+
+std::shared_ptr<Weapon> WeaponController::createWeapon(const std::string& name, std::shared_ptr<Entity> owner) {
+    return createWeapon(getNewId(), name, owner);
 }

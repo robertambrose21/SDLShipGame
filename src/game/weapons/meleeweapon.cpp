@@ -2,6 +2,16 @@
 
 MeleeWeapon::MeleeWeapon(
     std::shared_ptr<Entity> owner, 
+    std::shared_ptr<Grid> grid,
+    const uint32_t& id,
+    const std::string& name, 
+    Stats stats
+) :
+    Weapon(owner, grid, id, name, stats)
+{ }
+
+MeleeWeapon::MeleeWeapon(
+    std::shared_ptr<Entity> owner, 
     std::shared_ptr<Grid> grid, 
     const std::string& name, 
     Stats stats
@@ -19,4 +29,8 @@ void MeleeWeapon::draw(std::shared_ptr<GraphicsContext> graphicsContext) {
 
 void MeleeWeapon::update(const uint32_t& timeSinceLastFrame) {
     // no-op
+}
+
+Weapon::Type MeleeWeapon::getType(void) const {
+    return Weapon::Type::MELEE;
 }

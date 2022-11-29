@@ -22,7 +22,7 @@ void ClientApplication::initialise(void) {
     clientMessagesTransmitter = std::make_shared<GameClientMessagesTransmitter>(client);
 
     Application::instance().initialise(Window::Headless::NO);
-
+    
     for(auto i = 0; i < grid->getWidth(); i++) {
         for(auto j = 0; j < grid->getHeight(); j++) {
             grid->setTile(i, j, { 1, true });

@@ -15,8 +15,18 @@ private:
 
     void receiveTestMessage(int data);
     void receiveGameStateUpdate(GameStateUpdate update);
-    void receiveSetParticipant(int participantId);
+    void receiveSetParticipant(int participantId, bool isPlayer);
     void receiveLoadMap(MapBlock block);
+    void receiveFindPath(
+        const uint32_t& entityId,
+        const glm::ivec2& position,
+        const int& shortStopSteps
+    );
+    void receiveAttackEntity(
+        const uint32_t& entityId, 
+        const uint32_t& targetId, 
+        const uint32_t& weaponId
+    );
 
 public:
     GameClientMessagesReceiver(std::shared_ptr<ApplicationContext> context);

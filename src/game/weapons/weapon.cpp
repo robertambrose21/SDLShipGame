@@ -2,16 +2,26 @@
 
 Weapon::Weapon(
     std::shared_ptr<Entity> owner,
-    std::shared_ptr<Grid> grid, 
+    std::shared_ptr<Grid> grid,
+    const uint32_t& id,
     const std::string& name, 
     Stats stats
 ) :
-    id(getNewId()),
+    id(id),
     owner(owner),
     grid(grid),
     name(name),
     stats(stats),
     usesLeft(stats.uses)
+{ }
+
+Weapon::Weapon(
+    std::shared_ptr<Entity> owner,
+    std::shared_ptr<Grid> grid, 
+    const std::string& name, 
+    Stats stats
+) :
+    Weapon(owner, grid, getNewId(), name, stats)
 { }
 
 void Weapon::use(glm::ivec2 position, std::shared_ptr<Entity> target) {
@@ -59,6 +69,10 @@ Weapon::Stats Weapon::getStats(void) const {
 
 int Weapon::getUsesLeft(void) const {
     return usesLeft;
+}
+
+void Weapon::setUsesLeft(const int& usesLeft) {
+    this->usesLeft = usesLeft;
 }
 
 uint32_t Weapon::getId(void) const {

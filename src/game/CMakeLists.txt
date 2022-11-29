@@ -18,7 +18,7 @@ add_library(
     application/clientapplication.cpp
     application/application.cpp
     application/applicationcontext.cpp
-    net/messages.h
+    net/messages.cpp
     weapons/projectilepool.cpp
     weapons/areaofeffectpool.cpp
     weapons/weaponcontroller.cpp

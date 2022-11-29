@@ -12,7 +12,12 @@ class GameServerMessagesReceiver : public ServerMessagesReceiver {
 private:
     std::shared_ptr<ApplicationContext> context;
 
-    void receiveFindPathMessage(const int& participantId, const glm::ivec2& position);
+    void receiveFindPathMessage(
+        const int& participantId, 
+        const uint32_t& entityId, 
+        const glm::ivec2& position,
+        const int& shortStopSteps
+    );
     void receiveSelectEntityMessage(const int& participantId, const uint32_t& entityId);
     void receieveAttackEntityMessage(
         const int& participantId, 

@@ -36,7 +36,7 @@ private:
 
     Stats stats;
 
-    std::vector<std::shared_ptr<Weapon>> weapons;
+    std::map<uint32_t, std::shared_ptr<Weapon>> weapons;
     std::shared_ptr<Weapon> currentWeapon;
 
     std::string name;
@@ -47,6 +47,12 @@ private:
 
 public:
     const uint32_t MOVES_PER_SECOND = 5;
+
+    Entity(
+        const uint32_t& id,
+        const std::string& name,
+        Stats stats
+    );
 
     Entity(
         const std::string& name,
@@ -102,7 +108,8 @@ public:
     void takeDamage(const int& amount);
     void attack(std::shared_ptr<Entity> target, std::shared_ptr<Weapon> weapon);
 
-    std::vector<std::shared_ptr<Weapon>> getWeapons(void) const;
+    std::map<uint32_t, std::shared_ptr<Weapon>> getWeapons(void) const;
+    std::shared_ptr<Weapon> getWeapon(const uint32_t& weaponId);
     std::shared_ptr<Weapon> addWeapon(std::shared_ptr<Weapon> weapon);
     void removeWeapon(const std::string& name);
     void setCurrentWeapon(std::shared_ptr<Weapon> weapon);

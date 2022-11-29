@@ -7,6 +7,8 @@
 
 #include "core/json.hpp"
 #include "entity.h"
+#include "game/application/turncontroller.h"
+#include "game/weapons/weaponcontroller.h"
 #include "game/net/messages.h"
 
 using json = nlohmann::json;
@@ -28,11 +30,17 @@ private:
     std::set<std::shared_ptr<Entity>> entitiesForDeletion;
     std::map<uint32_t, std::shared_ptr<Entity>> entities;
 
+    std::shared_ptr<TurnController> turnController;
+    std::shared_ptr<WeaponController> weaponController;
+
     void updateEntity(std::shared_ptr<Entity> entity, const uint32_t& timeSinceLastFrame, bool& quit);
     void loadEntityDefinitions(void);
 
 public:
-    EntityPool();
+    EntityPool(
+        std::shared_ptr<TurnController> turnController,
+        std::shared_ptr<WeaponController> weaponController
+    );
 
     void updateEntities(const uint32_t& timeSinceLastFrame, bool& quit);
     void drawEntities(std::shared_ptr<GraphicsContext> graphicsContext);
@@ -41,6 +49,7 @@ public:
 
     std::shared_ptr<Entity> addEntity(std::shared_ptr<Entity> entity);
     std::shared_ptr<Entity> addEntity(const std::string& name);
+    std::shared_ptr<Entity> addEntity(const std::string& name, const uint32_t& id);
     std::map<uint32_t, std::shared_ptr<Entity>> getEntities(void);
     std::shared_ptr<Entity> getEntity(const uint32_t& id);
 };

@@ -84,10 +84,9 @@ void PlayerController::toggleSelection(std::shared_ptr<Entity> entity) {
 
 void PlayerController::move(const glm::ivec2& mouseCoords) {
     auto [dX, dY] = grid->getTileIndices(mouseCoords);
-    
-    clientMessagesTransmitter->sendFindPathMessage({dX, dY});
 
     for(auto entity : selectedEntities) {
+        clientMessagesTransmitter->sendFindPathMessage(entity->getId(), {dX, dY}, 0);
         entity->findPath(glm::ivec2(dX, dY));
     }
 }

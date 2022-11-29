@@ -11,7 +11,11 @@ private:
 public:
     GameClientMessagesTransmitter(std::shared_ptr<GameClient> client);
 
-    void sendFindPathMessage(const glm::ivec2& position);
+    void sendFindPathMessage(
+        const uint32_t& entityId, 
+        const glm::ivec2& position,
+        const int& shortStopSteps
+    );
     void sendSelectEntityMessage(const uint32_t& entityId);
     void sendAttackEntityMessage(
         const uint32_t& entityId, 

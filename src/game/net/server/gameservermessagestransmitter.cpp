@@ -12,10 +12,11 @@ void GameServerMessagesTransmitter::onClientConnected(int clientIndex) {
     onClientConnectFunc(clientIndex);
 }
 
-void GameServerMessagesTransmitter::sendSetParticipant(int clientIndex, int participantId) {
+void GameServerMessagesTransmitter::sendSetParticipant(int clientIndex, std::shared_ptr<TurnController::Participant> participant) {
     SetParticipantMessage* message = (SetParticipantMessage*) server->createMessage(clientIndex, GameMessageType::SET_PARTICIPANT);
 
-    message->participantId = participantId;
+    message->participantId = participant->id;
+    message->isPlayer = participant->isPlayer;
 
     server->sendMessage(clientIndex, message);
 }
@@ -32,6 +33,37 @@ void GameServerMessagesTransmitter::sendLoadMap(int clientIndex, const MapBlock&
     LoadMapMessage* message = (LoadMapMessage*) server->createMessage(clientIndex, GameMessageType::LOAD_MAP);
 
     message->mapBlock = block;
+
+    server->sendMessage(clientIndex, message);
+}
+
+void GameServerMessagesTransmitter::sendFindPath(
+    int clientIndex, 
+    const uint32_t& entityId, 
+    const glm::ivec2& position,
+    const int& shortStopSteps
+) {
+    FindPathMessage* message = (FindPathMessage*) server->createMessage(clientIndex, GameMessageType::FIND_PATH);
+
+    message->entityId = entityId;
+    message->x = position.x;
+    message->y = position.y;
+    message->shortStopSteps = shortStopSteps;
+
+    server->sendMessage(clientIndex, message);
+}
+
+void GameServerMessagesTransmitter::sendAttackEntity(
+    int clientIndex,
+    const uint32_t& entityId, 
+    const uint32_t& targetId, 
+    const uint32_t& weaponId
+) {
+    AttackEntityMessage* message = (AttackEntityMessage*) server->createMessage(clientIndex, GameMessageType::ATTACK_ENTITY);
+
+    message->entityId = entityId;
+    message->targetId = targetId;
+    message->weaponId = weaponId;
 
     server->sendMessage(clientIndex, message);
 }

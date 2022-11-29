@@ -17,16 +17,19 @@ public:
 
     typedef struct _blueprint {
         Stats stats;
+        std::string name;
         uint8_t textureId;
         std::function<void(std::shared_ptr<Grid>, std::shared_ptr<Entity>, int)> onHitCallback;
 
         _blueprint(
-            Stats stats, 
+            Stats stats,
+            std::string name,
             uint8_t textureId,
             std::function<void(std::shared_ptr<Grid>, std::shared_ptr<Entity>, int)> onHitCallback =
                 [](std::shared_ptr<Grid>, std::shared_ptr<Entity>, int){ }
         ) :
             stats(stats),
+            name(name),
             textureId(textureId),
             onHitCallback(onHitCallback)
         { }

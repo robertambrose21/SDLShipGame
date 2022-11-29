@@ -9,6 +9,14 @@ private:
 public:
     MeleeWeapon(
         std::shared_ptr<Entity> owner, 
+        std::shared_ptr<Grid> grid,
+        const uint32_t& id,
+        const std::string& name, 
+        Stats stats
+    );
+
+    MeleeWeapon(
+        std::shared_ptr<Entity> owner, 
         std::shared_ptr<Grid> grid, 
         const std::string& name, 
         Stats stats
@@ -16,4 +24,5 @@ public:
 
     void draw(std::shared_ptr<GraphicsContext> graphicsContext);
     void update(const uint32_t& timeSinceLastFrame);
+    Type getType(void) const;
 };

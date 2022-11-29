@@ -3,12 +3,23 @@
 ProjectileWeapon::ProjectileWeapon(
     std::shared_ptr<Entity> owner,
     std::shared_ptr<Grid> grid, 
+    const uint32_t& id,
     const std::string& name, 
     Stats stats,
     Projectile::Blueprint projectileBlueprint
 ) :
-    Weapon(owner, grid, name, stats),
+    Weapon(owner, grid, id, name, stats),
     projectileBlueprint(projectileBlueprint)
+{ }
+
+ProjectileWeapon::ProjectileWeapon(
+    std::shared_ptr<Entity> owner,
+    std::shared_ptr<Grid> grid, 
+    const std::string& name, 
+    Stats stats,
+    Projectile::Blueprint projectileBlueprint
+) :
+    ProjectileWeapon(owner, grid, getNewId(), name, stats, projectileBlueprint)
 { }
 
 void ProjectileWeapon::onUse(glm::ivec2 position, std::shared_ptr<Entity> target) {
@@ -30,8 +41,16 @@ void ProjectileWeapon::setProjectileBlueprint(Projectile::Blueprint projectileBl
     this->projectileBlueprint = projectileBlueprint;
 }
 
+Projectile::Blueprint ProjectileWeapon::getProjectileBluePrint(void) const {
+    return projectileBlueprint;
+}
+
 bool ProjectileWeapon::hasFinished(void) {
     auto activeProjectiles = Application::getContext()->getProjectilePool()->getProjectilesForOwner(owner);
 
     return Weapon::hasFinished() && activeProjectiles.size() == 0;
+}
+
+Weapon::Type ProjectileWeapon::getType(void) const {
+    return Weapon::Type::PROJECTILE;
 }

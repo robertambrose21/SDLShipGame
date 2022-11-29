@@ -24,7 +24,10 @@ void GameClientMessagesReceiver::receiveMessage(yojimbo::Message* message) {
 
         case (int) GameMessageType::SET_PARTICIPANT: {
             SetParticipantMessage* setParticipantMessage = (SetParticipantMessage*) message;
-            receiveSetParticipant(setParticipantMessage->participantId);
+            receiveSetParticipant(
+                setParticipantMessage->participantId,
+                setParticipantMessage->isPlayer
+            );
             break;
         }
 
@@ -34,24 +37,33 @@ void GameClientMessagesReceiver::receiveMessage(yojimbo::Message* message) {
             break;
         }
 
+        case (int) GameMessageType::FIND_PATH: {
+            FindPathMessage* findPathMessage = (FindPathMessage*) message;
+            receiveFindPath(
+                findPathMessage->entityId,
+                { findPathMessage->x, findPathMessage->y },
+                findPathMessage->shortStopSteps
+            );
+            break;
+        }
+
+        case (int) GameMessageType::ATTACK_ENTITY: {
+            AttackEntityMessage* attackEntityMessage = (AttackEntityMessage*) attackEntityMessage;
+            receiveAttackEntity(
+                attackEntityMessage->entityId,
+                attackEntityMessage->targetId,
+                attackEntityMessage->weaponId
+            );
+            break;
+        }
+
         default:
             break;
     }
 }
 
+// TODO: Sequencing
 void GameClientMessagesReceiver::receiveGameStateUpdate(GameStateUpdate update) {
-    std::cout << "Got game state update: " << std::endl;
-
-    for(int i = 0; i < update.numEntities; i++) {
-        std::cout << "Entity " << update.entities[i].name << "#" 
-            << update.entities[i].id << "(" << update.entities[i].currentHP << "/" 
-            << update.entities[i].totalHP << "):" << std::endl;
-        std::cout << "\tTexture ID: " << (unsigned int) update.entities[i].textureId << std::endl;
-        std::cout << "\tPosition: (" << update.entities[i].x << ", " <<  update.entities[i].y << ")" << std::endl;
-        std::cout << "\tMoves per turn: " << update.entities[i].movesPerTurn << std::endl;
-        std::cout << "\tMoves left: " << update.entities[i].movesLeft << std::endl;
-    }
-
     context->getEntityPool()->synchronize({ update });
 }
 
@@ -59,11 +71,13 @@ void GameClientMessagesReceiver::receiveTestMessage(int data) {
     std::cout << "Received test data " << data << std::endl;
 }
 
-void GameClientMessagesReceiver::receiveSetParticipant(int participantId) {
-    // std::cout << "Received set participant message " << participantId << std::endl;
-    // TODO: Proper check
-    if(playerController) {
-        playerController->setParticipant(context->getTurnController()->getParticipant(participantId));
+void GameClientMessagesReceiver::receiveSetParticipant(int participantId, bool isPlayer) {
+    std::cout << "Received set participant message " << participantId << std::endl;
+
+    auto participant = context->getTurnController()->addParticipant(participantId, { }, isPlayer);
+
+    if(isPlayer) {
+        playerController->setParticipant(participant);
     }
 }
 
@@ -77,5 +91,31 @@ void GameClientMessagesReceiver::receiveLoadMap(MapBlock block) {
         auto id = block.data[i];
 
         grid->setTile(x, y, { id, id == 1 });
+    }
+}
+
+void GameClientMessagesReceiver::receiveFindPath(
+    const uint32_t& entityId, 
+    const glm::ivec2& position,
+    const int& shortStopSteps
+) {
+    std::cout << "Received find path" << std::endl;
+
+    auto entity = context->getEntityPool()->getEntity(entityId);
+    entity->findPath(position, shortStopSteps);
+}
+
+void GameClientMessagesReceiver::receiveAttackEntity(
+    const uint32_t& entityId, 
+    const uint32_t& targetId, 
+    const uint32_t& weaponId
+) {
+    auto entity = context->getEntityPool()->getEntity(entityId);
+    auto target = context->getEntityPool()->getEntity(targetId);
+
+    for(auto [_, weapon] : entity->getWeapons()) {
+        if(weapon->getId() == weaponId) {
+            entity->attack(target, weapon);
+        }
     }
 }
