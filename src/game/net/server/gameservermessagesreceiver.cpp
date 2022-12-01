@@ -63,6 +63,10 @@ void GameServerMessagesReceiver::receiveFindPathMessage(
 void GameServerMessagesReceiver::receiveSelectEntityMessage(const int& participantId, const uint32_t& entityId) {
     auto entity = context->getEntityPool()->getEntity(entityId);
 
+    if(entity == nullptr) {
+        return;
+    }
+
     if(entity->getParticipantId() != participantId) {
         return;
     }
@@ -77,6 +81,10 @@ void GameServerMessagesReceiver::receieveAttackEntityMessage(
     const uint32_t& weaponId
 ) {
     auto entity = context->getEntityPool()->getEntity(entityId);
+
+    if(entity == nullptr) {
+        return;
+    }
 
     if(entity->getParticipantId() != participantId) {
         return;

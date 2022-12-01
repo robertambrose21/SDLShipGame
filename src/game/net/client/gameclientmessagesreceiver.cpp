@@ -99,6 +99,11 @@ void GameClientMessagesReceiver::receiveFindPath(
     const int& shortStopSteps
 ) {
     auto entity = context->getEntityPool()->getEntity(entityId);
+
+    if(entity == nullptr) {
+        return;
+    }
+
     entity->findPath(position, shortStopSteps);
 }
 
