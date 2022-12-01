@@ -37,7 +37,7 @@ void EntityPool::updateEntities(const uint32_t& timeSinceLastFrame, bool& quit) 
 
     for(auto entity : entitiesForDeletion) {
         entities.erase(entity->getId());
-        std::cout << "[" << entity->getName() << "] died" << std::endl;
+        std::cout << "[" << entity->getName() << "#" << entity->getId() << "] died" << std::endl;
     }
     
     entitiesForDeletion.clear();

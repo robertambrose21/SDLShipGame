@@ -126,6 +126,7 @@ public:
     void setPosition(const glm::ivec2& position);
     bool findPath(const glm::ivec2& target, const int& stopShortSteps = 0);
     bool isNeighbour(std::shared_ptr<Entity> entity) const;
+    bool hasPath(void);
 
     int getMovesLeft(void) const;
     void setMovesLeft(const int& movesLeft);

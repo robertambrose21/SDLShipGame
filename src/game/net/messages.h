@@ -4,9 +4,9 @@
 #include <cstring>
 #include "game/entities/entity.h"
 
-const int MaxEntities = 64;
+const int MaxEntities = 32;
 const int MaxEntityNameLength = 64;
-const int MaxWeapons = 64;
+const int MaxWeapons = 32;
 const int MaxWeaponNameLength = 64;
 
 class Entity;
@@ -57,12 +57,16 @@ struct EntityStateUpdate {
 struct GameStateUpdate {
     int numEntities;
     EntityStateUpdate entities[MaxEntities];
+    int currentParticipant;
 
     GameStateUpdate() {
         memset(this, 0, sizeof(GameStateUpdate));
     }
 
-    static GameStateUpdate serialize(std::map<uint32_t, std::shared_ptr<Entity>> entities) {
+    static GameStateUpdate serialize(
+        const int& currentParticipant, 
+        std::map<uint32_t, std::shared_ptr<Entity>> entities
+    ) {
         GameStateUpdate update;
         update.numEntities = entities.size();
 
@@ -70,6 +74,8 @@ struct GameStateUpdate {
         for(auto [entityId, entity] : entities) {
             update.entities[index++] = EntityStateUpdate::serialize(entity);
         }
+
+        update.currentParticipant = currentParticipant;
 
         return update;
     }

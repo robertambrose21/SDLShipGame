@@ -198,6 +198,10 @@ bool Entity::findPath(const glm::ivec2& target, const int& stopShortSteps) {
     return !path.empty();
 }
 
+bool Entity::hasPath(void) {
+    return !path.empty();
+}
+
 bool Entity::isNeighbour(std::shared_ptr<Entity> entity) const {
     return glm::distance(glm::vec2(getPosition()), glm::vec2(entity->getPosition())) < 2;
 }

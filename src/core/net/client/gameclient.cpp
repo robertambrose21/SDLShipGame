@@ -23,7 +23,10 @@ void GameClient::update(long timeSinceLastFrame) {
         }
     }
 
-    client.SendPackets();
+    // TODO: See message in gameserver.cpp
+    if(client.HasMessagesToSend((int) GameChannel::RELIABLE)) {
+        client.SendPackets();
+    }
 }
 
 yojimbo::Message* GameClient::createMessage(GameMessageType messageType) {

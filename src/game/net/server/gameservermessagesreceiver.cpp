@@ -34,6 +34,12 @@ void GameServerMessagesReceiver::receiveMessage(const int& participantId, yojimb
             break;
         }
 
+        case (int) GameMessageType::PASS_PARTICIPANT_TURN: {
+            PassParticipantTurnMessage* passParticipantTurnMessage = (PassParticipantTurnMessage*) message;
+            receivePassParticipantTurnMessage(participantId, passParticipantTurnMessage->participantId);
+            break;
+        }
+
         default:
             break;
     }
@@ -45,15 +51,6 @@ void GameServerMessagesReceiver::receiveFindPathMessage(
     const glm::ivec2& position,
     const int& shortStopSteps
 ) {
-    std::cout 
-        << "Server receieved a find path message ("
-        << position.x 
-        << ", " 
-        << position.y
-        << ") from participant "
-        << participantId
-        << std::endl;
-    
     auto entities = context->getTurnController()->getParticipant(participantId)->entities;
 
     for(auto entity : entities) {
@@ -64,13 +61,6 @@ void GameServerMessagesReceiver::receiveFindPathMessage(
 }
 
 void GameServerMessagesReceiver::receiveSelectEntityMessage(const int& participantId, const uint32_t& entityId) {
-    std::cout
-        << "Server receieved a select entity message [" 
-        << entityId
-        << "] from participant "
-        << participantId
-        << std::endl;
-
     auto entity = context->getEntityPool()->getEntity(entityId);
 
     if(entity->getParticipantId() != participantId) {
@@ -86,17 +76,6 @@ void GameServerMessagesReceiver::receieveAttackEntityMessage(
     const uint32_t& targetId, 
     const uint32_t& weaponId
 ) {
-    std::cout 
-        << "Server receieved a attack entity message [" 
-        << entityId 
-        << ", " 
-        << targetId
-        << ", " 
-        << weaponId 
-        << "] from participant "
-        << participantId
-        << std::endl;
-
     auto entity = context->getEntityPool()->getEntity(entityId);
 
     if(entity->getParticipantId() != participantId) {
@@ -110,4 +89,16 @@ void GameServerMessagesReceiver::receieveAttackEntityMessage(
             entity->attack(target, weapon);
         }
     }
+}
+
+void GameServerMessagesReceiver::receivePassParticipantTurnMessage(
+    const int& participantId,
+    const int& receivedParticipantId
+) {
+    if(participantId != receivedParticipantId) {
+        std::cout << "Could not pass participant turn, ids do not match" << std::endl;
+        return;
+    }
+
+    context->getTurnController()->passParticipant(participantId);
 }

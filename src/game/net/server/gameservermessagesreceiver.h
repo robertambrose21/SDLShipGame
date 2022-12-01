@@ -25,6 +25,7 @@ private:
         const uint32_t& targetId, 
         const uint32_t& weaponId
     );
+    void receivePassParticipantTurnMessage(const int& participantId, const int& receivedParticipantId);
 
 public:
     GameServerMessagesReceiver(std::shared_ptr<ApplicationContext> context);

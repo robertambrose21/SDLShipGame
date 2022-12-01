@@ -14,6 +14,7 @@ public:
         int id;
         bool isPlayer;
         std::set<std::shared_ptr<Entity>> entities;
+        bool passNextTurn;
     } Participant;
 
 private:
@@ -24,7 +25,7 @@ private:
     std::vector<std::function<void(int, int)>> onNextTurnWorkers;
 
     bool canProgressToNextTurn(std::shared_ptr<Entity> entity);
-    void nextParticipantTurn(void);
+    void nextParticipantTurn(const int& id);
 
 public:
     TurnController();
@@ -42,8 +43,9 @@ public:
 
     void reset(void);
     
-    // TODO: Figure out a way to stop other participants from passing other turns
-    void passCurrentParticipant(void);
+    void passParticipant(const int& id);
+    void setCurrentParticipant(const int& id);
+    int getCurrentParticipant(void) const;
 
     void addOnNextTurnFunction(std::function<void(int, int)> onNextTurnFunc);
 

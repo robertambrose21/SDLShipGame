@@ -40,3 +40,11 @@ void GameClientMessagesTransmitter::sendAttackEntityMessage(
 
     client->sendMessage(message);
 }
+
+void GameClientMessagesTransmitter::sendPassParticipantTurnMessage(const int& participantId) {
+    PassParticipantTurnMessage* message = (PassParticipantTurnMessage*) client->createMessage(GameMessageType::PASS_PARTICIPANT_TURN);
+
+    message->participantId = participantId;
+
+    client->sendMessage(message);
+}

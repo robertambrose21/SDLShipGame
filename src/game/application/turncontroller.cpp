@@ -17,7 +17,7 @@ void TurnController::update(const uint32_t& timeSinceLastFrame) {
     }
 
     if(nextTurn) {
-        nextParticipantTurn();
+        nextParticipantTurn((currentParticipant + 1) % participants.size());
     }
 }
 
@@ -30,6 +30,7 @@ std::shared_ptr<TurnController::Participant> TurnController::addParticipant(
     participant.id = id;
     participant.entities = entities;
     participant.isPlayer = isPlayer;
+    participant.passNextTurn = false;
 
     for(auto entity : entities) {
         entity->setParticipantId(participant.id);
@@ -43,6 +44,14 @@ std::shared_ptr<TurnController::Participant> TurnController::addParticipant(
 }
 
 void TurnController::addEntityToParticipant(const int& participantId, std::shared_ptr<Entity> entity) {
+    if(!participants.contains(participantId)) {
+        throw std::runtime_error(
+            "Could not add entity to participant with id " + 
+            std::to_string(participantId) + 
+            " participant does not exist"
+        );
+    }
+
     participants[participantId]->entities.insert(entity);
 }
 
@@ -61,6 +70,7 @@ std::map<int, std::shared_ptr<TurnController::Participant>> TurnController::getP
 void TurnController::reset(void) {
     for(auto [participantId, participant] : participants) {
         for(auto entity : participant->entities) {
+            // Why is this different for participant 0???
             if(participantId > 0) {
                 entity->reset();
             }
@@ -71,8 +81,10 @@ void TurnController::reset(void) {
     }
 }
 
-void TurnController::nextParticipantTurn(void) {
-    currentParticipant = (currentParticipant + 1) % participants.size();
+void TurnController::nextParticipantTurn(const int& id) {
+    participants[currentParticipant]->passNextTurn = false;
+
+    currentParticipant = id;
 
     if(currentParticipant == 0) {
         turnNumber++;
@@ -80,11 +92,6 @@ void TurnController::nextParticipantTurn(void) {
     }
 
     auto& entities = participants[currentParticipant]->entities;
-
-    if(entities.size() == 0) {
-        nextParticipantTurn();
-        return;
-    }
 
     std::set<std::shared_ptr<Entity>> entitiesForDeletion;
 
@@ -107,8 +114,24 @@ void TurnController::nextParticipantTurn(void) {
     }
 }
 
-void TurnController::passCurrentParticipant(void) {
-    nextParticipantTurn();
+void TurnController::passParticipant(const int& id) {
+    if(!participants.contains(id)) {
+        throw std::runtime_error("Cannot pass participant with id " + std::to_string(id) + ". Does not exist");
+    }
+
+    participants[id]->passNextTurn = true;
+}
+
+void TurnController::setCurrentParticipant(const int& id) {
+    if(!participants.contains(id)) {
+        throw std::runtime_error("Cannot set current participant with id " + std::to_string(id) + ". Does not exist");
+    }
+
+    nextParticipantTurn(id);
+}
+
+int TurnController::getCurrentParticipant(void) const {
+    return currentParticipant;
 }
 
 void TurnController::addOnNextTurnFunction(std::function<void(int, int)> onNextTurnFunc) {
@@ -120,5 +143,8 @@ int TurnController::getTurnNumber(void) const {
 }
 
 bool TurnController::canProgressToNextTurn(std::shared_ptr<Entity> entity) {
-    return !entity->isTurnInProgress() || entity->endTurnCondition();
+    return 
+        !entity->isTurnInProgress() || 
+        entity->endTurnCondition() || 
+        participants[currentParticipant]->passNextTurn;
 }

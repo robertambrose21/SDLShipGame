@@ -41,12 +41,7 @@ void ServerApplication::initialise(void) {
     });
 
     context->getTurnController()->addOnNextTurnFunction([&](int currentParticipant, int turnNumber) {
-        if(currentParticipant == 0) {
-            transmitter->sendGameStateUpdate(
-                participantToClientIndex[currentParticipant], 
-                context->getCurrentGameState()
-            );
-        }
+        transmitter->sendGameStateUpdate(0, context->getCurrentGameState());
     });
 
     loadMap();

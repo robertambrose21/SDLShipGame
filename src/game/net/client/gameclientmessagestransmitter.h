@@ -22,4 +22,5 @@ public:
         const uint32_t& targetId, 
         const uint32_t& weaponId
     );
+    void sendPassParticipantTurnMessage(const int& participantId);
 };

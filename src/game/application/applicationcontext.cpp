@@ -59,5 +59,5 @@ std::shared_ptr<ServerMessagesTransmitter> ApplicationContext::getServerMessages
 // TODO: Batch updates if we have over max limit of GSU entities/other objects
 // TODO: Consider moving this elsewhere
 GameStateUpdate ApplicationContext::getCurrentGameState(void) {
-    return GameStateUpdate::serialize(getEntityPool()->getEntities());
+    return GameStateUpdate::serialize(getTurnController()->getCurrentParticipant(), getEntityPool()->getEntities());
 }

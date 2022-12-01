@@ -26,7 +26,7 @@ void ChaseAndAttackStrategy::onUpdate(const uint32_t& timeSinceLastFrame, bool& 
     else if(owner->getMovesLeft() <= 0) {
         owner->getCurrentWeapon()->setFinished();
     }
-    else {
+    else if(!owner->hasPath()) {
         owner->findPath(target->getPosition(), 1);
         transmitter->sendFindPath(0, owner->getId(), target->getPosition(), 1);
     }

@@ -5,6 +5,8 @@
 #include "game/net/messages.h"
 
 // TODO: Move this file to game project
+// Note: Yojimbo seems to have a limit on the size of the messages which can be sent
+// be careful about how big some of these messages are
 enum class GameMessageType {
     FIND_PATH,
     SELECT_ENTITY,
@@ -12,6 +14,7 @@ enum class GameMessageType {
     GAME_STATE_UPDATE,
     TEST_MESSAGE,
     SET_PARTICIPANT,
+    PASS_PARTICIPANT_TURN,
     LOAD_MAP,
     COUNT
 };
@@ -98,13 +101,13 @@ public:
 
             serialize_varint32(stream, entity.id);
             serialize_string(stream, entity.name, sizeof(entity.name));
-            serialize_bits(stream, entity.participantId, 8);
-            serialize_bits(stream, entity.totalHP, 8);
-            serialize_bits(stream, entity.currentHP, 8);
-            serialize_bits(stream, entity.x, 8);
-            serialize_bits(stream, entity.y, 8);
-            serialize_bits(stream, entity.movesPerTurn, 8);
-            serialize_bits(stream, entity.movesLeft, 8);
+            serialize_bits(stream, entity.participantId, 16);
+            serialize_bits(stream, entity.totalHP, 16);
+            serialize_bits(stream, entity.currentHP, 16);
+            serialize_bits(stream, entity.x, 16);
+            serialize_bits(stream, entity.y, 16);
+            serialize_bits(stream, entity.movesPerTurn, 16);
+            serialize_bits(stream, entity.movesLeft, 16);
 
             // Weapons
             serialize_varint32(stream, entity.currentWeaponId);
@@ -122,6 +125,8 @@ public:
                 serialize_bits(stream, weapon.usesLeft, 16);
             }
         }
+        
+        serialize_int(stream, gameStateUpdate.currentParticipant, 0, 64);
 
         return true;
     }
@@ -150,14 +155,33 @@ public:
     int participantId;
     bool isPlayer;
 
-    SetParticipantMessage() {
-        
-    }
+    SetParticipantMessage() :
+        participantId(0),
+        isPlayer(false)
+    { }
 
     template <typename Stream>
     bool Serialize(Stream& stream) {
         serialize_int(stream, participantId, 0, 64);
         serialize_bool(stream, isPlayer);
+
+        return true;
+    }
+
+    YOJIMBO_VIRTUAL_SERIALIZE_FUNCTIONS();
+};
+
+class PassParticipantTurnMessage : public yojimbo::Message {
+public:
+    int participantId;
+
+    PassParticipantTurnMessage() :
+        participantId(0)
+    { }
+
+    template <typename Stream>
+    bool Serialize(Stream& stream) {
+        serialize_int(stream, participantId, 0, 64);
 
         return true;
     }
@@ -196,5 +220,6 @@ YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::ATTACK_ENTITY, AttackEntityMe
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::GAME_STATE_UPDATE, GameStateUpdateMessage);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::TEST_MESSAGE, GameTestMessage);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::SET_PARTICIPANT, SetParticipantMessage);
+YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::PASS_PARTICIPANT_TURN, PassParticipantTurnMessage);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::LOAD_MAP, LoadMapMessage);
 YOJIMBO_MESSAGE_FACTORY_FINISH();

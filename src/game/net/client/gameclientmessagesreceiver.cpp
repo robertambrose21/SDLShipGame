@@ -64,6 +64,7 @@ void GameClientMessagesReceiver::receiveMessage(yojimbo::Message* message) {
 
 // TODO: Sequencing
 void GameClientMessagesReceiver::receiveGameStateUpdate(GameStateUpdate update) {
+    context->getTurnController()->setCurrentParticipant(update.currentParticipant);
     context->getEntityPool()->synchronize({ update });
 }
 
@@ -72,8 +73,6 @@ void GameClientMessagesReceiver::receiveTestMessage(int data) {
 }
 
 void GameClientMessagesReceiver::receiveSetParticipant(int participantId, bool isPlayer) {
-    std::cout << "Received set participant message " << participantId << std::endl;
-
     auto participant = context->getTurnController()->addParticipant(participantId, { }, isPlayer);
 
     if(isPlayer) {
@@ -99,8 +98,6 @@ void GameClientMessagesReceiver::receiveFindPath(
     const glm::ivec2& position,
     const int& shortStopSteps
 ) {
-    std::cout << "Received find path" << std::endl;
-
     auto entity = context->getEntityPool()->getEntity(entityId);
     entity->findPath(position, shortStopSteps);
 }
@@ -112,6 +109,10 @@ void GameClientMessagesReceiver::receiveAttackEntity(
 ) {
     auto entity = context->getEntityPool()->getEntity(entityId);
     auto target = context->getEntityPool()->getEntity(targetId);
+
+    if(entity == nullptr || target == nullptr) {
+        return;
+    }
 
     for(auto [_, weapon] : entity->getWeapons()) {
         if(weapon->getId() == weaponId) {

@@ -14,7 +14,8 @@ void PlayerController::handleKeyPress(SDL_Event event) {
     if(event.type == SDL_KEYDOWN) {
         switch(event.key.keysym.sym) {
             case SDLK_p:
-                Application::getContext()->getTurnController()->passCurrentParticipant();
+                clientMessagesTransmitter->sendPassParticipantTurnMessage(participant->id);
+                Application::getContext()->getTurnController()->passParticipant(participant->id);
                 break;
 
             default:
