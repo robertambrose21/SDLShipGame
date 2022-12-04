@@ -4,6 +4,10 @@ GameClientMessagesReceiver::GameClientMessagesReceiver(std::shared_ptr<Applicati
     context(context)
 { }
 
+void GameClientMessagesReceiver::setTransmitter(std::shared_ptr<GameClientMessagesTransmitter> transmitter) {
+    this->transmitter = transmitter;
+}
+
 void GameClientMessagesReceiver::setPlayerController(std::shared_ptr<PlayerController> playerController) {
     this->playerController = playerController;
 }
@@ -62,10 +66,11 @@ void GameClientMessagesReceiver::receiveMessage(yojimbo::Message* message) {
     }
 }
 
-// TODO: Sequencing
 void GameClientMessagesReceiver::receiveGameStateUpdate(GameStateUpdate update) {
+    std::cout << "Got game state update " << update.currentParticipant << std::endl;
+
     context->getTurnController()->setCurrentParticipant(update.currentParticipant);
-    context->getEntityPool()->synchronize({ update });
+    context->getEntityPool()->addGameStateUpdate(update);
 }
 
 void GameClientMessagesReceiver::receiveTestMessage(int data) {
@@ -73,11 +78,15 @@ void GameClientMessagesReceiver::receiveTestMessage(int data) {
 }
 
 void GameClientMessagesReceiver::receiveSetParticipant(int participantId, bool isPlayer) {
+    std::cout << "Received set participant " << participantId << std::endl;
+
     auto participant = context->getTurnController()->addParticipant(participantId, { }, isPlayer);
 
     if(isPlayer) {
         playerController->setParticipant(participant);
     }
+
+    transmitter->sendSetParticipantAckMessage(participantId);
 }
 
 void GameClientMessagesReceiver::receiveLoadMap(MapBlock block) {

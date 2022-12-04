@@ -15,11 +15,17 @@ void ClientApplication::initialise(void) {
 
     auto context = Application::getContext();
     auto grid = context->getGrid();
+    entityPool = context->getEntityPool();
+    projectilePool = context->getProjectilePool();
+    areaOfEffectPool = context->getAreaOfEffectPool();
+    turnController = context->getTurnController();
 
     clientMessagesReceiver = std::make_shared<GameClientMessagesReceiver>(context);
 
     client = std::make_shared<GameClient>(clientMessagesReceiver, yojimbo::Address("127.0.0.1", 8081));
     clientMessagesTransmitter = std::make_shared<GameClientMessagesTransmitter>(client);
+
+    clientMessagesReceiver->setTransmitter(clientMessagesTransmitter);
 
     Application::instance().initialise(Window::Headless::NO);
     
@@ -38,8 +44,16 @@ void ClientApplication::initialise(void) {
 
     context->getWindow()->addLoopLogicWorker([&](auto timeSinceLastFrame, auto& quit) {
         client->update(timeSinceLastFrame);
+        turnController->update(timeSinceLastFrame);
+        entityPool->updateEntities(timeSinceLastFrame, quit);
+        projectilePool->update(timeSinceLastFrame);
+        areaOfEffectPool->update(timeSinceLastFrame);
     });
-
+    context->getWindow()->addLoopDrawWorker([&](auto graphicsContext, auto& quit) {
+        entityPool->drawEntities(graphicsContext);
+        projectilePool->draw(graphicsContext);
+        areaOfEffectPool->draw(graphicsContext);
+    });
     context->getWindow()->addLoopEventWorker([&](auto e, auto& quit) {
         playerController->handleKeyPress(e);
         playerController->handleMouseEvent(e);

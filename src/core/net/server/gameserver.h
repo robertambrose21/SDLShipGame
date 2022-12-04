@@ -24,11 +24,9 @@ private:
 public:
     const int MaxClientConnections = 64;
 
-    GameServer(
-        std::shared_ptr<ServerMessagesReceiver> receiver,
-        const yojimbo::Address& address
-    );
+    GameServer(const yojimbo::Address& address);
 
+    void setReceiver(std::shared_ptr<ServerMessagesReceiver> receiver);
     void setTransmitter(std::shared_ptr<ServerMessagesTransmitter> transmitter);
 
     void update(long timeSinceLastFrame);

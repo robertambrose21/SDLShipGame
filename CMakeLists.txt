@@ -1,8 +1,10 @@
-cmake_minimum_required(VERSION 3.0.0)
+cmake_minimum_required(VERSION 3.1.0)
 project(ShipGame VERSION 0.1.0)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
+set(THREADS_PREFER_PTHREAD_FLAG ON)
 
+find_package(Threads REQUIRED)
 find_package(SDL2 REQUIRED)
 find_package(SDL2_image REQUIRED)
 find_package(glm REQUIRED)
@@ -16,8 +18,8 @@ add_subdirectory(yojimbo)
 
 add_executable(ShipGameServer src/main.cpp)
 set_target_properties(ShipGameServer PROPERTIES LINKER_LANGUAGE CXX CXX_STANDARD 20)
-target_link_libraries(ShipGameServer yojimbo GameLib CoreLib GraphicsLib PlayerLib)
+target_link_libraries(ShipGameServer yojimbo GameLib CoreLib GraphicsLib PlayerLib Threads::Threads)
 
 add_executable(ShipGameClient src/main_client.cpp)
 set_target_properties(ShipGameClient PROPERTIES LINKER_LANGUAGE CXX CXX_STANDARD 20)
-target_link_libraries(ShipGameClient yojimbo GameLib CoreLib GraphicsLib PlayerLib)
+target_link_libraries(ShipGameClient yojimbo GameLib CoreLib GraphicsLib PlayerLib Threads::Threads)

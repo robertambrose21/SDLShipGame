@@ -14,6 +14,7 @@ enum class GameMessageType {
     GAME_STATE_UPDATE,
     TEST_MESSAGE,
     SET_PARTICIPANT,
+    SET_PARTICIPANT_ACK,
     PASS_PARTICIPANT_TURN,
     LOAD_MAP,
     COUNT
@@ -171,6 +172,24 @@ public:
     YOJIMBO_VIRTUAL_SERIALIZE_FUNCTIONS();
 };
 
+class SetParticipantAckMessage : public yojimbo::Message {
+public:
+    int participantId;
+
+    SetParticipantAckMessage() :
+        participantId(0)
+    { }
+
+    template <typename Stream>
+    bool Serialize(Stream& stream) {
+        serialize_int(stream, participantId, 0, 64);
+
+        return true;
+    }
+
+    YOJIMBO_VIRTUAL_SERIALIZE_FUNCTIONS();
+};
+
 class PassParticipantTurnMessage : public yojimbo::Message {
 public:
     int participantId;
@@ -220,6 +239,7 @@ YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::ATTACK_ENTITY, AttackEntityMe
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::GAME_STATE_UPDATE, GameStateUpdateMessage);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::TEST_MESSAGE, GameTestMessage);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::SET_PARTICIPANT, SetParticipantMessage);
+YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::SET_PARTICIPANT_ACK, SetParticipantAckMessage);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::PASS_PARTICIPANT_TURN, PassParticipantTurnMessage);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::LOAD_MAP, LoadMapMessage);
 YOJIMBO_MESSAGE_FACTORY_FINISH();

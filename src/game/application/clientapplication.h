@@ -12,6 +12,11 @@ private:
     std::shared_ptr<GameClientMessagesReceiver> clientMessagesReceiver;
     std::shared_ptr<GameClient> client;
 
+    std::shared_ptr<EntityPool> entityPool;
+    std::shared_ptr<ProjectilePool> projectilePool;
+    std::shared_ptr<AreaOfEffectPool> areaOfEffectPool;
+    std::shared_ptr<TurnController> turnController;
+
 public:
     ClientApplication();
     ~ClientApplication();

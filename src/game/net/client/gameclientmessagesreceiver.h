@@ -11,6 +11,7 @@
 class GameClientMessagesReceiver : public ClientMessagesReceiver {
 private:
     std::shared_ptr<ApplicationContext> context;
+    std::shared_ptr<GameClientMessagesTransmitter> transmitter;
     std::shared_ptr<PlayerController> playerController;
 
     void receiveTestMessage(int data);
@@ -32,6 +33,7 @@ public:
     GameClientMessagesReceiver(std::shared_ptr<ApplicationContext> context);
 
     void setPlayerController(std::shared_ptr<PlayerController> playerController);
+    void setTransmitter(std::shared_ptr<GameClientMessagesTransmitter> transmitter);
 
     void receiveMessage(yojimbo::Message* message) override;
 };

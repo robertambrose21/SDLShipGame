@@ -11,10 +11,18 @@ private:
     std::shared_ptr<GameServer> server;
     std::shared_ptr<GameServerMessagesTransmitter> transmitter;
     std::shared_ptr<GameServerMessagesReceiver> receiver;
+
+    std::shared_ptr<EntityPool> entityPool;
+    std::shared_ptr<ProjectilePool> projectilePool;
+    std::shared_ptr<AreaOfEffectPool> areaOfEffectPool;
+    std::shared_ptr<TurnController> turnController;
     
     std::map<int, int> participantToClientIndex;
 
     void sendLoadMapToClient(int clientIndex);
+    void sendGameStateUpdatesToClients(void);
+
+    void onClientConnect(int clientIndex);
 
 public:
     ServerApplication();

@@ -48,3 +48,11 @@ void GameClientMessagesTransmitter::sendPassParticipantTurnMessage(const int& pa
 
     client->sendMessage(message);
 }
+
+void GameClientMessagesTransmitter::sendSetParticipantAckMessage(const int& participantId) {
+    SetParticipantAckMessage* message = (SetParticipantAckMessage*) client->createMessage(GameMessageType::SET_PARTICIPANT_ACK);
+
+    message->participantId = participantId;
+
+    client->sendMessage(message);
+}

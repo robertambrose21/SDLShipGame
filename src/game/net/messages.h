@@ -4,9 +4,9 @@
 #include <cstring>
 #include "game/entities/entity.h"
 
-const int MaxEntities = 32;
+const int MaxEntities = 8;
 const int MaxEntityNameLength = 64;
-const int MaxWeapons = 32;
+const int MaxWeapons = 8;
 const int MaxWeaponNameLength = 64;
 
 class Entity;
@@ -32,7 +32,7 @@ struct WeaponStateUpdate {
     static std::shared_ptr<Weapon> deserialize(WeaponStateUpdate update, std::shared_ptr<Weapon> existing);
 };
 
-// TODO: Partial updates which don't require full states
+// TODO: Send weapon state updates separately if entity has more than the max number of weapons
 struct EntityStateUpdate {
     uint32_t id;
     char name[MaxEntityNameLength];
@@ -71,7 +71,7 @@ struct GameStateUpdate {
         update.numEntities = entities.size();
 
         int index = 0;
-        for(auto [entityId, entity] : entities) {
+        for(auto [_, entity] : entities) {
             update.entities[index++] = EntityStateUpdate::serialize(entity);
         }
 

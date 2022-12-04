@@ -4,12 +4,12 @@ GameServerMessagesReceiver::GameServerMessagesReceiver(std::shared_ptr<Applicati
     context(context)
 { }
 
-void GameServerMessagesReceiver::receiveMessage(const int& participantId, yojimbo::Message* message) {
+void GameServerMessagesReceiver::receiveMessage(const int& clientIndex, yojimbo::Message* message) {
     switch(message->GetType()) {
         case (int) GameMessageType::FIND_PATH: {
             FindPathMessage* findPathMessage = (FindPathMessage*) message;
             receiveFindPathMessage(
-                participantId, 
+                clientIndex, 
                 findPathMessage->entityId, 
                 { findPathMessage->x, findPathMessage->y },
                 findPathMessage->shortStopSteps
@@ -19,14 +19,14 @@ void GameServerMessagesReceiver::receiveMessage(const int& participantId, yojimb
 
         case (int) GameMessageType::SELECT_ENTITY: {
             SelectEntityMessage* selectEntityMessage = (SelectEntityMessage*) message;
-            receiveSelectEntityMessage(participantId, selectEntityMessage->id);
+            receiveSelectEntityMessage(clientIndex, selectEntityMessage->id);
             break;
         }
 
         case (int) GameMessageType::ATTACK_ENTITY: {
             AttackEntityMessage* attackEntityMessage = (AttackEntityMessage*) message;
             receieveAttackEntityMessage(
-                participantId, 
+                clientIndex, 
                 attackEntityMessage->entityId, 
                 attackEntityMessage->targetId, 
                 attackEntityMessage->weaponId
@@ -36,7 +36,13 @@ void GameServerMessagesReceiver::receiveMessage(const int& participantId, yojimb
 
         case (int) GameMessageType::PASS_PARTICIPANT_TURN: {
             PassParticipantTurnMessage* passParticipantTurnMessage = (PassParticipantTurnMessage*) message;
-            receivePassParticipantTurnMessage(participantId, passParticipantTurnMessage->participantId);
+            receivePassParticipantTurnMessage(clientIndex, passParticipantTurnMessage->participantId);
+            break;
+        }
+
+        case (int) GameMessageType::SET_PARTICIPANT_ACK: {
+            SetParticipantAckMessage* setParticipantAckMessage = (SetParticipantAckMessage*) message;
+            receiveSetParticipantAckMessage(clientIndex, setParticipantAckMessage->participantId);
             break;
         }
 
@@ -46,12 +52,13 @@ void GameServerMessagesReceiver::receiveMessage(const int& participantId, yojimb
 }
 
 void GameServerMessagesReceiver::receiveFindPathMessage(
-    const int& participantId,
+    const int& clientIndex,
     const uint32_t& entityId,
     const glm::ivec2& position,
     const int& shortStopSteps
 ) {
-    auto entities = context->getTurnController()->getParticipant(participantId)->entities;
+    // TODO: Get real participant
+    auto entities = context->getTurnController()->getParticipant(0)->entities;
 
     for(auto entity : entities) {
         if(entity->getId() == entityId) {
@@ -60,14 +67,14 @@ void GameServerMessagesReceiver::receiveFindPathMessage(
     }
 }
 
-void GameServerMessagesReceiver::receiveSelectEntityMessage(const int& participantId, const uint32_t& entityId) {
+void GameServerMessagesReceiver::receiveSelectEntityMessage(const int& clientIndex, const uint32_t& entityId) {
     auto entity = context->getEntityPool()->getEntity(entityId);
 
     if(entity == nullptr) {
         return;
     }
 
-    if(entity->getParticipantId() != participantId) {
+    if(entity->getParticipantId() != 0) {
         return;
     }
 
@@ -75,7 +82,7 @@ void GameServerMessagesReceiver::receiveSelectEntityMessage(const int& participa
 }
 
 void GameServerMessagesReceiver::receieveAttackEntityMessage(
-    const int& participantId, 
+    const int& clientIndex, 
     const uint32_t& entityId, 
     const uint32_t& targetId, 
     const uint32_t& weaponId
@@ -86,7 +93,7 @@ void GameServerMessagesReceiver::receieveAttackEntityMessage(
         return;
     }
 
-    if(entity->getParticipantId() != participantId) {
+    if(entity->getParticipantId() != 0) {
         return;
     }
 
@@ -100,13 +107,40 @@ void GameServerMessagesReceiver::receieveAttackEntityMessage(
 }
 
 void GameServerMessagesReceiver::receivePassParticipantTurnMessage(
-    const int& participantId,
+    const int& clientIndex,
     const int& receivedParticipantId
 ) {
-    if(participantId != receivedParticipantId) {
+    if(receivedParticipantId != 0) {
         std::cout << "Could not pass participant turn, ids do not match" << std::endl;
         return;
     }
 
-    context->getTurnController()->passParticipant(participantId);
+    context->getTurnController()->passParticipant(clientIndex);
+}
+
+void GameServerMessagesReceiver::receiveSetParticipantAckMessage(const int& clientIndex, const int& participantId) {
+    clientParticipantsLoaded[clientIndex].insert(participantId);
+
+    std::cout << "Got participant ACK " << participantId << std::endl;
+}
+
+bool GameServerMessagesReceiver::areParticipantsLoadedForClient(int clientIndex) {
+    if(!clientParticipantsLoaded.contains(clientIndex)) {
+        return false;
+    }
+
+    auto participants = context->getTurnController()->getParticipants();
+    auto loaded = clientParticipantsLoaded[clientIndex];
+
+    if(participants.size() != loaded.size()) {
+        return false;
+    }
+
+    for(auto [participantId, _] : participants) {
+        if(!loaded.contains(participantId)) {
+            return false;
+        }
+    }
+
+    return true;
 }

@@ -1,13 +1,16 @@
 #include "gameserver.h"
 
-GameServer::GameServer(
-    std::shared_ptr<ServerMessagesReceiver> receiver,
-    const yojimbo::Address& address
-) :
-    receiver(receiver),
+GameServer::GameServer(const yojimbo::Address& address) :
     adapter(this),
     address(address),
-    server(yojimbo::GetDefaultAllocator(), DEFAULT_PRIVATE_KEY, address, connectionConfig = GameConnectionConfig(), adapter, 0.0)
+    server(
+        yojimbo::GetDefaultAllocator(), 
+        DEFAULT_PRIVATE_KEY, 
+        address, 
+        connectionConfig = GameConnectionConfig(), 
+        adapter, 
+        0.0
+    )
 {
     server.Start(64);
     if(!server.IsRunning()) {
@@ -17,6 +20,10 @@ GameServer::GameServer(
     char buffer[256];
     server.GetAddress().ToString(buffer, sizeof(buffer));
     std::cout << "Server address is " << buffer << std::endl;
+}
+
+void GameServer::setReceiver(std::shared_ptr<ServerMessagesReceiver> receiver) {
+    this->receiver = receiver;
 }
 
 void GameServer::setTransmitter(std::shared_ptr<ServerMessagesTransmitter> transmitter) {

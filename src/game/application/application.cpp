@@ -25,18 +25,6 @@ Application::~Application()
 void Application::initialise(Window::Headless headless) {
     window->initialiseWindow(headless);
 
-    window->addLoopDrawWorker([&](auto graphicsContext, auto& quit) {
-        entityPool->drawEntities(graphicsContext);
-        projectilePool->draw(graphicsContext);
-        areaOfEffectPool->draw(graphicsContext);
-    });
-    window->addLoopLogicWorker([&](auto timeSinceLastFrame, auto& quit) {
-        turnController->update(timeSinceLastFrame);
-        entityPool->updateEntities(timeSinceLastFrame, quit);
-        projectilePool->update(timeSinceLastFrame);
-        areaOfEffectPool->update(timeSinceLastFrame);
-    });
-
     window->setGridTileTexture(1, 4);
     window->setGridTileTexture(2, 5);
 }

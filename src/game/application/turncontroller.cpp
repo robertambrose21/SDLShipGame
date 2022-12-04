@@ -82,6 +82,10 @@ void TurnController::reset(void) {
 }
 
 void TurnController::nextParticipantTurn(const int& id) {
+    if(id == currentParticipant) {
+        return;
+    }
+
     participants[currentParticipant]->passNextTurn = false;
 
     currentParticipant = id;

@@ -23,4 +23,5 @@ public:
         const uint32_t& weaponId
     );
     void sendPassParticipantTurnMessage(const int& participantId);
+    void sendSetParticipantAckMessage(const int& participantId);
 };

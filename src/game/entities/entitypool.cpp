@@ -31,6 +31,8 @@ void EntityPool::loadEntityDefinitions(void) {
 }
 
 void EntityPool::updateEntities(const uint32_t& timeSinceLastFrame, bool& quit) {
+    synchronize();
+
     for(auto [entityId, entity] : entities) {
         updateEntity(entity, timeSinceLastFrame, quit);
     }
@@ -58,11 +60,15 @@ void EntityPool::drawEntities(std::shared_ptr<GraphicsContext> graphicsContext) 
     }
 }
 
-void EntityPool::synchronize(std::vector<GameStateUpdate> updates) {
+void EntityPool::synchronize() {
+    if(pendingUpdates.empty()) {
+        return;
+    }
+
     std::map<int, std::shared_ptr<Entity>> updatedEntities;
 
-    for(auto update : updates) {
-        std::cout << "Got game state update: " << std::endl;
+    for(auto update : pendingUpdates) {
+        // std::cout << "Got game state update: " << std::endl;
 
         for(int i = 0; i < update.numEntities; i++) {
             auto entityUpdate = update.entities[i];
@@ -94,12 +100,12 @@ void EntityPool::synchronize(std::vector<GameStateUpdate> updates) {
                 updatedEntities[entityUpdate.id] = entities[entityUpdate.id];
             }
 
-            std::cout << "Entity [" << update.entities[i].participantId << "] " << update.entities[i].name << "#" 
-                << update.entities[i].id << "(" << update.entities[i].currentHP << "/" 
-                << update.entities[i].totalHP << "):" << std::endl;
-            std::cout << "\tPosition: (" << update.entities[i].x << ", " <<  update.entities[i].y << ")" << std::endl;
-            std::cout << "\tMoves per turn: " << update.entities[i].movesPerTurn << std::endl;
-            std::cout << "\tMoves left: " << update.entities[i].movesLeft << std::endl;
+            // std::cout << "Entity [" << update.entities[i].participantId << "] " << update.entities[i].name << "#" 
+            //     << update.entities[i].id << "(" << update.entities[i].currentHP << "/" 
+            //     << update.entities[i].totalHP << "):" << std::endl;
+            // std::cout << "\tPosition: (" << update.entities[i].x << ", " <<  update.entities[i].y << ")" << std::endl;
+            // std::cout << "\tMoves per turn: " << update.entities[i].movesPerTurn << std::endl;
+            // std::cout << "\tMoves left: " << update.entities[i].movesLeft << std::endl;
         }
     }
 
@@ -109,6 +115,12 @@ void EntityPool::synchronize(std::vector<GameStateUpdate> updates) {
             entitiesForDeletion.insert(entity);
         }
     }
+
+    pendingUpdates.clear();
+}
+
+void EntityPool::addGameStateUpdate(const GameStateUpdate& update) {
+    pendingUpdates.push_back(update);
 }
 
 std::shared_ptr<Entity> EntityPool::addEntity(std::shared_ptr<Entity> entity) {

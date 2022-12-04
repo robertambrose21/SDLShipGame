@@ -16,32 +16,36 @@ void ServerApplication::initialise(void) {
     Application::instance().initialise(Window::Headless::YES);
 
     auto context = Application::getContext();
+    entityPool = context->getEntityPool();
+    projectilePool = context->getProjectilePool();
+    areaOfEffectPool = context->getAreaOfEffectPool();
+    turnController = context->getTurnController();
+
+    server = std::make_shared<GameServer>(yojimbo::Address("127.0.0.1", 8081));
 
     receiver = std::make_shared<GameServerMessagesReceiver>(context);
-    server = std::make_shared<GameServer>(receiver, yojimbo::Address("127.0.0.1", 8081));
     transmitter = std::make_shared<GameServerMessagesTransmitter>(server, 
         [&](int clientIndex) {
-            // TODO: Set this up so players are assigned properly.
-            // Currently participant "0" is the player
-            participantToClientIndex[0] = clientIndex;
-
-            for(auto [participantId, participant] : context->getTurnController()->getParticipants()) {
-                transmitter->sendSetParticipant(clientIndex, participant);
-            }
-
-            sendLoadMapToClient(clientIndex);
+            onClientConnect(clientIndex);
         }
     );
-    
+
+    server->setReceiver(receiver);
     server->setTransmitter(transmitter);
     context->setServerMessagesTransmitter(transmitter);
 
     context->getWindow()->addLoopLogicWorker([&](auto timeSinceLastFrame, auto& quit) {
         server->update(timeSinceLastFrame);
+        turnController->update(timeSinceLastFrame);
+        entityPool->updateEntities(timeSinceLastFrame, quit);
+        projectilePool->update(timeSinceLastFrame);
+        areaOfEffectPool->update(timeSinceLastFrame);
     });
 
+    // TODO: This somehow makes the game state messages get received first rather than the set participant ones.
+    // On the client side we need to wait until participants are all set before we load the rest of the map
     context->getTurnController()->addOnNextTurnFunction([&](int currentParticipant, int turnNumber) {
-        transmitter->sendGameStateUpdate(0, context->getCurrentGameState());
+        sendGameStateUpdatesToClients();
     });
 
     loadMap();
@@ -50,6 +54,20 @@ void ServerApplication::initialise(void) {
 
 void ServerApplication::run(void) {
     Application::instance().run();
+}
+
+void ServerApplication::onClientConnect(int clientIndex) {
+    auto context = Application::getContext();
+
+    // TODO: Set this up so players are assigned properly.
+    // Currently participant "0" is the player
+    participantToClientIndex[0] = clientIndex;
+
+    for(auto [_, participant] : context->getTurnController()->getParticipants()) {
+        transmitter->sendSetParticipant(clientIndex, participant);
+    }
+    
+    sendLoadMapToClient(clientIndex);
 }
 
 void ServerApplication::sendLoadMapToClient(int clientIndex) {
@@ -87,7 +105,33 @@ void ServerApplication::sendLoadMapToClient(int clientIndex) {
         transmitter->sendLoadMap(clientIndex, block);
     }
 
-    transmitter->sendGameStateUpdate(clientIndex,context->getCurrentGameState());
+    sendGameStateUpdatesToClients();
+}
+
+void ServerApplication::sendGameStateUpdatesToClients(void) {
+    auto context = Application::getContext();
+    auto currentParticipantId = context->getTurnController()->getCurrentParticipant();
+    auto allEntities = context->getEntityPool()->getEntities();
+    std::map<uint32_t, std::shared_ptr<Entity>> entitiesBlock;
+
+    for(auto [entityId, entity] : allEntities) {
+        entitiesBlock[entityId] = entity;
+
+        if(entitiesBlock.size() == MaxEntities) {
+            transmitter->sendGameStateUpdate(
+                0, 
+                GameStateUpdate::serialize(currentParticipantId, entitiesBlock)
+            );
+            entitiesBlock.clear();
+        }
+    }
+
+    if(!entitiesBlock.empty()) {
+        transmitter->sendGameStateUpdate(
+            0, 
+            GameStateUpdate::serialize(currentParticipantId, entitiesBlock)
+        );
+    }
 }
 
 void ServerApplication::loadMap(void) {

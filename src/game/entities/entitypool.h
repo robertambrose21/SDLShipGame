@@ -30,11 +30,14 @@ private:
     std::set<std::shared_ptr<Entity>> entitiesForDeletion;
     std::map<uint32_t, std::shared_ptr<Entity>> entities;
 
+    std::vector<GameStateUpdate> pendingUpdates;
+
     std::shared_ptr<TurnController> turnController;
     std::shared_ptr<WeaponController> weaponController;
 
     void updateEntity(std::shared_ptr<Entity> entity, const uint32_t& timeSinceLastFrame, bool& quit);
     void loadEntityDefinitions(void);
+    void synchronize(void);
 
 public:
     EntityPool(
@@ -45,7 +48,7 @@ public:
     void updateEntities(const uint32_t& timeSinceLastFrame, bool& quit);
     void drawEntities(std::shared_ptr<GraphicsContext> graphicsContext);
 
-    void synchronize(std::vector<GameStateUpdate> updates);
+    void addGameStateUpdate(const GameStateUpdate& update);
 
     std::shared_ptr<Entity> addEntity(std::shared_ptr<Entity> entity);
     std::shared_ptr<Entity> addEntity(const std::string& name);
