@@ -8,6 +8,8 @@
 #include <deque>
 #include <limits.h>
 
+#include "core/util/gameassert.h"
+
 typedef struct _tile {
     int id;
     bool isWalkable;

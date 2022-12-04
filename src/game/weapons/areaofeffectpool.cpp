@@ -28,6 +28,8 @@ void AreaOfEffectPool::loadAoeDefinitions(void) {
 
         aoeDefinitions[definition.name] = definition;
     }
+
+    game_assert(!aoeDefinitions.empty());
 }
 
 void AreaOfEffectPool::add(std::shared_ptr<AreaOfEffect> areaOfEffect) {
@@ -35,10 +37,7 @@ void AreaOfEffectPool::add(std::shared_ptr<AreaOfEffect> areaOfEffect) {
 }
 
 void AreaOfEffectPool::add(const std::string& name, int turnNumber, const glm::ivec2& position) {
-    if(!aoeDefinitions.contains(name)) {
-        throw std::runtime_error("Could not find area of effect definition with name " + name);
-    }
-    
+    game_assert(aoeDefinitions.contains(name));
     auto definition = aoeDefinitions[name];
     auto aoe = std::make_shared<AreaOfEffect>(
         grid,

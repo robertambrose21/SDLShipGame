@@ -6,6 +6,7 @@
 #include <functional>
 
 #include "game/entities/entity.h"
+#include "core/util/gameassert.h"
 
 class TurnController {
 public:

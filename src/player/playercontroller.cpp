@@ -97,5 +97,6 @@ std::vector<std::shared_ptr<Entity>> PlayerController::getSelectedEntities(void)
 }
 
 void PlayerController::setParticipant(std::shared_ptr<TurnController::Participant> participant) {
+    game_assert(participant != nullptr);
     this->participant = participant;
 }

@@ -24,6 +24,7 @@ TextureLoader::TextureLoader(std::shared_ptr<SDL_Renderer> renderer) :
     json data = json::parse(f);
 
     auto texturesData = data["textures"].get<std::vector<json>>();
+    game_assert(!texturesData.empty());
 
     for(auto textureData : texturesData) {
         auto id = textureData["id"].get<uint8_t>();
@@ -31,7 +32,9 @@ TextureLoader::TextureLoader(std::shared_ptr<SDL_Renderer> renderer) :
         auto path = "../assets/data/" + textureData["path"].get<std::string>();
 
         availableTextures[id] = { id, name, path };
-    }   
+    }
+
+    game_assert(availableTextures.size() == texturesData.size());
 }
 
 std::shared_ptr<Texture> TextureLoader::loadTexture(const uint8_t& id) {

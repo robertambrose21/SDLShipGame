@@ -20,6 +20,7 @@ MeleeWeapon::MeleeWeapon(
 { }
 
 void MeleeWeapon::onUse(glm::ivec2 position, std::shared_ptr<Entity> target) {
+    game_assert(target != nullptr);
     target->takeDamage(stats.damage);
 }
 

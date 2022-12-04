@@ -8,7 +8,11 @@ GraphicsContext::GraphicsContext(
     renderer(renderer),
     textureLoader(textureLoader),
     gridRenderer(gridRenderer)
-{ }
+{
+    game_assert(renderer != nullptr);
+    game_assert(textureLoader != nullptr);
+    game_assert(gridRenderer != nullptr);
+}
 
 std::shared_ptr<SDL_Renderer> GraphicsContext::getRenderer(void) {
     return renderer;

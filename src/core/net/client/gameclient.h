@@ -6,6 +6,7 @@
 #include "yojimbo/yojimbo.h"
 #include "core/net/gameadapter.h"
 #include "clientmessagesreceiver.h"
+#include "core/util/gameassert.h"
 
 class GameClient {
 private:

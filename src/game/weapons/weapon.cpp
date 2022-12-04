@@ -13,7 +13,9 @@ Weapon::Weapon(
     name(name),
     stats(stats),
     usesLeft(stats.uses)
-{ }
+{
+    game_assert(owner != nullptr);
+}
 
 Weapon::Weapon(
     std::shared_ptr<Entity> owner,

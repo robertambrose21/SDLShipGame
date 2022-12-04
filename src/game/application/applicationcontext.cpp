@@ -14,7 +14,14 @@ ApplicationContext::ApplicationContext(
     projectilePool(projectilePool),
     areaOfEffectPool(areaOfEffectPool),
     turnController(turnController)
-{ }
+{
+    game_assert(window != nullptr);
+    game_assert(entityPool != nullptr);
+    game_assert(weaponController != nullptr);
+    game_assert(projectilePool != nullptr);
+    game_assert(areaOfEffectPool != nullptr);
+    game_assert(turnController != nullptr);
+}
 
 std::shared_ptr<Window> ApplicationContext::getWindow(void) {
     return window;
@@ -49,10 +56,12 @@ std::shared_ptr<GraphicsContext> ApplicationContext::getGraphicsContext(void) {
 }
 
 void ApplicationContext::setServerMessagesTransmitter(std::shared_ptr<ServerMessagesTransmitter> transmitter) {
+    game_assert(transmitter != nullptr);
     this->transmitter = transmitter;
 }
 
 std::shared_ptr<ServerMessagesTransmitter> ApplicationContext::getServerMessagesTransmitter(void) {
+    game_assert(transmitter != nullptr);
     return transmitter;
 }
 

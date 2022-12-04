@@ -7,6 +7,7 @@
 #include "graphics/gridrenderer.h"
 #include "game/weapons/weapon.h"
 #include "behaviour/behaviourstrategy.h"
+#include "core/util/gameassert.h"
 
 class Weapon;
 class BehaviourStrategy;
@@ -110,6 +111,7 @@ public:
 
     std::map<uint32_t, std::shared_ptr<Weapon>> getWeapons(void) const;
     std::shared_ptr<Weapon> getWeapon(const uint32_t& weaponId);
+    bool hasWeapon(const uint32_t& weaponId);
     std::shared_ptr<Weapon> addWeapon(std::shared_ptr<Weapon> weapon);
     void removeWeapon(const std::string& name);
     void setCurrentWeapon(std::shared_ptr<Weapon> weapon);

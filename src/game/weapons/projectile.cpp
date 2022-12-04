@@ -22,6 +22,7 @@ Projectile::Projectile(
 }
 
 void Projectile::draw(std::shared_ptr<GraphicsContext> graphicsContext) {
+    game_assert(graphicsContext != nullptr);
     graphicsContext->getGridRenderer()->draw(graphicsContext, textureId, position);
 }
 

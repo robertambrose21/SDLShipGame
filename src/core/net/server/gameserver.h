@@ -7,6 +7,7 @@
 #include "core/net/gameadapter.h"
 #include "servermessagesreceiver.h"
 #include "servermessagestransmitter.h"
+#include "core/util/gameassert.h"
 
 class GameServer {
 private:

@@ -5,6 +5,7 @@ GameClient::GameClient(std::shared_ptr<ClientMessagesReceiver> receiver, const y
     adapter(GameAdapter()),
     client(yojimbo::GetDefaultAllocator(), yojimbo::Address("0.0.0.0"), connectionConfig = GameConnectionConfig(), adapter, 0.0)
 {
+    game_assert(connectionConfig.numChannels == 2);
     uint64_t clientId;
     yojimbo::random_bytes((uint8_t*)&clientId, 8);
     client.InsecureConnect(DEFAULT_PRIVATE_KEY, clientId, serverAddress);
@@ -30,6 +31,7 @@ void GameClient::update(long timeSinceLastFrame) {
 }
 
 yojimbo::Message* GameClient::createMessage(GameMessageType messageType) {
+    game_assert((int) messageType < (int) GameMessageType::COUNT);
     return client.CreateMessage((int) messageType);
 }
 

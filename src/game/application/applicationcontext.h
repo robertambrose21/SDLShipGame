@@ -8,6 +8,7 @@
 #include "game/weapons/weaponcontroller.h"
 #include "turncontroller.h"
 #include "core/net/server/servermessagestransmitter.h"
+#include "core/util/gameassert.h"
 
 class ApplicationContext {
 private:

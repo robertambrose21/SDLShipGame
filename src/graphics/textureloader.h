@@ -9,6 +9,7 @@
 #include <iostream>
 
 #include "core/json.hpp"
+#include "core/util/gameassert.h"
 
 using json = nlohmann::json;
 

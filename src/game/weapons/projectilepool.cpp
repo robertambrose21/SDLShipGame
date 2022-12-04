@@ -30,6 +30,8 @@ void ProjectilePool::loadProjectileDefinitions(void) {
 
         projectileDefinitions[definition.name] = definition;
     }
+
+    game_assert(!projectileDefinitions.empty());
 }
 
 void ProjectilePool::add(std::shared_ptr<Projectile> projectile, std::shared_ptr<Entity> owner) {
@@ -37,10 +39,7 @@ void ProjectilePool::add(std::shared_ptr<Projectile> projectile, std::shared_ptr
 }
 
 Projectile::Blueprint ProjectilePool::create(const std::string& name) {
-    if(!projectileDefinitions.contains(name)) {
-        throw std::runtime_error("Could not find projectile definition with name " + name);
-    }
-
+    game_assert(projectileDefinitions.contains(name));
     auto definition = projectileDefinitions[name];
     auto aoe = definition.aoe;
     Projectile::Blueprint blueprint(

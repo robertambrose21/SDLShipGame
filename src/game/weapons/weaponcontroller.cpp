@@ -40,10 +40,7 @@ std::shared_ptr<Weapon> WeaponController::createWeapon(
     const std::string& name, 
     std::shared_ptr<Entity> owner
 ) {
-    if(!weaponDefinitions.contains(name)) {
-        throw std::runtime_error("Could not find weapon definition with name " + name);
-    }
-
+    game_assert(weaponDefinitions.contains(name));
     auto definition = weaponDefinitions[name];
     
     if(definition.weaponClass == "Projectile") {
@@ -66,7 +63,7 @@ std::shared_ptr<Weapon> WeaponController::createWeapon(
         );
     }
 
-    return nullptr;
+    throw std::runtime_error("Could not create weapon of class \"" + definition.weaponClass + "\"");
 }
 
 std::shared_ptr<Weapon> WeaponController::createWeapon(const std::string& name, std::shared_ptr<Entity> owner) {

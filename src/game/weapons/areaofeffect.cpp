@@ -17,6 +17,7 @@ AreaOfEffect::AreaOfEffect(
 }
 
 void AreaOfEffect::draw(std::shared_ptr<GraphicsContext> graphicsContext) {
+    game_assert(graphicsContext != nullptr);
     for(auto position : effectedTilePositions) {
         graphicsContext->getGridRenderer()->draw(graphicsContext, textureId, position);
     }

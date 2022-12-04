@@ -33,10 +33,13 @@ uint8_t Entity::getTextureId(void) const {
 }
 
 void Entity::setSelectedTextureId(const uint8_t& selectedTextureId) {
+    game_assert(textureId != selectedTextureId);
     this->selectedTextureId = selectedTextureId;
 }
 
 void Entity::draw(std::shared_ptr<GraphicsContext> graphicsContext) {
+    game_assert(graphicsContext != nullptr);
+
     graphicsContext->getGridRenderer()->draw(graphicsContext, textureId, position);
 
     if(selected) {
@@ -122,11 +125,12 @@ std::map<uint32_t, std::shared_ptr<Weapon>> Entity::getWeapons(void) const {
 }
 
 std::shared_ptr<Weapon> Entity::getWeapon(const uint32_t& weaponId) {
-    if(weapons.contains(weaponId)) {
-        return weapons[weaponId];
-    }
+    game_assert(weapons.contains(weaponId));
+    return weapons[weaponId];
+}
 
-    return nullptr;
+bool Entity::hasWeapon(const uint32_t& weaponId) {
+    return weapons.contains(weaponId);
 }
 
 std::shared_ptr<Weapon> Entity::addWeapon(std::shared_ptr<Weapon> weapon) {

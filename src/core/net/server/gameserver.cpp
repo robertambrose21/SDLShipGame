@@ -12,6 +12,8 @@ GameServer::GameServer(const yojimbo::Address& address) :
         0.0
     )
 {
+    game_assert(connectionConfig.numChannels == 2);
+
     server.Start(64);
     if(!server.IsRunning()) {
         throw std::runtime_error("Could not start server at port " + std::to_string(address.GetPort()));
@@ -23,10 +25,12 @@ GameServer::GameServer(const yojimbo::Address& address) :
 }
 
 void GameServer::setReceiver(std::shared_ptr<ServerMessagesReceiver> receiver) {
+    game_assert(receiver != nullptr);
     this->receiver = receiver;
 }
 
 void GameServer::setTransmitter(std::shared_ptr<ServerMessagesTransmitter> transmitter) {
+    game_assert(transmitter != nullptr);
     this->transmitter = transmitter;
 }
 
@@ -63,11 +67,9 @@ void GameServer::processMessage(int clientIndex, yojimbo::Message* message) {
 }
 
 void GameServer::clientConnected(int clientIndex) {
+    game_assert(transmitter != nullptr);
     std::cout << "client " << clientIndex << " connected" << std::endl;
-    
-    if(transmitter) {
-        transmitter->onClientConnected(clientIndex);
-    }
+    transmitter->onClientConnected(clientIndex);
 }
 
 void GameServer::clientDisconnected(int clientIndex) {
@@ -75,9 +77,11 @@ void GameServer::clientDisconnected(int clientIndex) {
 }
 
 yojimbo::Message* GameServer::createMessage(int clientIndex, GameMessageType messageType) {
+    game_assert((int) messageType < (int) GameMessageType::COUNT);
     return server.CreateMessage(clientIndex, (int) messageType);
 }
 
+// TODO: Choose the channel
 void GameServer::sendMessage(int clientIndex, yojimbo::Message* message) {
     server.SendMessage(clientIndex, (int) GameChannel::RELIABLE, message);
 }

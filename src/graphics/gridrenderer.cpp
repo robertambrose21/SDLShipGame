@@ -23,6 +23,7 @@ void GridRenderer::draw(std::shared_ptr<GraphicsContext> graphicsContext) {
 }
 
 void GridRenderer::draw(std::shared_ptr<GraphicsContext> graphicsContext, const uint8_t& textureId, const glm::ivec2& position) {
+    game_assert(graphicsContext != nullptr);
     auto realPosition = getTilePosition(position.x, position.y);
     SDL_Rect dst = { realPosition.x, realPosition.y, getTileSize(), getTileSize() };
     graphicsContext->getTextureLoader()->loadTexture(textureId)->draw(graphicsContext->getRenderer(), NULL, &dst);

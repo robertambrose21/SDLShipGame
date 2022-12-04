@@ -44,6 +44,8 @@ std::shared_ptr<TurnController::Participant> TurnController::addParticipant(
 }
 
 void TurnController::addEntityToParticipant(const int& participantId, std::shared_ptr<Entity> entity) {
+    game_assert(entity != nullptr);
+
     if(!participants.contains(participantId)) {
         throw std::runtime_error(
             "Could not add entity to participant with id " + 
@@ -56,11 +58,8 @@ void TurnController::addEntityToParticipant(const int& participantId, std::share
 }
 
 std::shared_ptr<TurnController::Participant> TurnController::getParticipant(const int& id) {
-    if(participants.contains(id)) {
-        return participants[id];
-    }
-
-    return nullptr;
+    game_assert(participants.contains(id));
+    return participants[id];
 }
 
 std::map<int, std::shared_ptr<TurnController::Participant>> TurnController::getParticipants(void) {
@@ -119,18 +118,12 @@ void TurnController::nextParticipantTurn(const int& id) {
 }
 
 void TurnController::passParticipant(const int& id) {
-    if(!participants.contains(id)) {
-        throw std::runtime_error("Cannot pass participant with id " + std::to_string(id) + ". Does not exist");
-    }
-
+    game_assert(participants.contains(id));
     participants[id]->passNextTurn = true;
 }
 
 void TurnController::setCurrentParticipant(const int& id) {
-    if(!participants.contains(id)) {
-        throw std::runtime_error("Cannot set current participant with id " + std::to_string(id) + ". Does not exist");
-    }
-
+    game_assert(participants.contains(id));
     nextParticipantTurn(id);
 }
 

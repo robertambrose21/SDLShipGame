@@ -5,6 +5,9 @@ Grid::Grid(int width, int height, std::vector<std::vector<Tile>> data) :
     height(height),
     data(data)
 {
+    game_assert(width > 0);
+    game_assert(height > 0);
+
     if(data.empty()) {
         this->data.resize(height, std::vector<Tile>(width));
     }
@@ -19,6 +22,7 @@ int Grid::getHeight(void) const {
 }
 
 void Grid::setTile(const int& x, const int& y, Tile tile) {
+    game_assert(x < getWidth() && y < getHeight());
     data[y][x] = tile;
 }
 
@@ -27,10 +31,13 @@ std::vector<std::vector<Tile>> Grid::getData(void) const {
 }
 
 Tile Grid::getTileAt(const int& x, const int& y) const {
+    game_assert(x < getWidth() && y < getHeight());
     return data[y][x];
 }
 
 std::vector<glm::ivec2> Grid::getTilesInCircle(const int& x, const int& y, float radius) {
+    game_assert(x < getWidth() && y < getHeight());
+
     int squareHalfSize = std::floor(radius);
     int upperX = std::max(x + squareHalfSize + 1, x);
     int lowerX = std::min(x - squareHalfSize, x);
@@ -58,6 +65,8 @@ std::vector<glm::ivec2> Grid::getTilesInCircle(const int& x, const int& y, float
 }
 
 bool Grid::isTileInRange(const int& x, const int& y, glm::vec2 position, float distance) {
+    game_assert(x < getWidth() && y < getHeight());
+
     glm::vec2 corners[] = {
         glm::vec2(x - .5f, y - .5f),
         glm::vec2(x - .5f, y + .5f),

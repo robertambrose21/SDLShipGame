@@ -28,6 +28,8 @@ void EntityPool::loadEntityDefinitions(void) {
 
         entityDefinitions[definition.name] = definition;
     }
+
+    game_assert(!entityDefinitions.empty());
 }
 
 void EntityPool::updateEntities(const uint32_t& timeSinceLastFrame, bool& quit) {
@@ -85,9 +87,8 @@ void EntityPool::synchronize() {
             // Weapons
             for(int j = 0; j < entityUpdate.numWeapons; j++) {
                 auto& weaponUpdate = entityUpdate.weaponUpdates[j];
-                auto weapon = existing->getWeapon(weaponUpdate.id);
-
-                if(weapon == nullptr) {
+                
+                if(!existing->hasWeapon(weaponUpdate.id)) {
                     existing->addWeapon(weaponController->createWeapon(weaponUpdate.id, weaponUpdate.name, existing));
                 }
             }
@@ -124,24 +125,13 @@ void EntityPool::addGameStateUpdate(const GameStateUpdate& update) {
 }
 
 std::shared_ptr<Entity> EntityPool::addEntity(std::shared_ptr<Entity> entity) {
-    if(entities.contains(entity->getId())) {
-        throw std::runtime_error(
-            "Entity " + 
-            entity->getName() + 
-            "#" + 
-            std::to_string(entity->getId()) + 
-            " already exists, cannot add"
-        );
-    }
-
+    game_assert(!entities.contains(entity->getId()));
     entities[entity->getId()] = entity;
     return entity;
 }
 
 std::shared_ptr<Entity> EntityPool::addEntity(const std::string& name, const uint32_t& id) {
-    if(!entityDefinitions.contains(name)) {
-        throw std::runtime_error("Could not find entity definition with name \'" + name + "\'");
-    }
+    game_assert(entityDefinitions.contains(name));
 
     auto definition = entityDefinitions[name];
     auto entity = std::make_shared<Entity>(
@@ -167,10 +157,6 @@ std::map<uint32_t, std::shared_ptr<Entity>> EntityPool::getEntities(void) {
 }
 
 std::shared_ptr<Entity> EntityPool::getEntity(const uint32_t& id) {
-    if(!entities.contains(id)) {
-        // TODO: Throw exception
-        return nullptr;
-    }
-
+    game_assert(entities.contains(id));
     return entities[id];
 }

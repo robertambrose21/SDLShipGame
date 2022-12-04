@@ -122,6 +122,6 @@ std::shared_ptr<TextureLoader> Window::getTextureLoader(void) {
 }
 
 std::shared_ptr<GraphicsContext> Window::getGraphicsContext(void) {
-    // TODO: Throw exception if not loaded
+    game_assert(graphicsContext != nullptr);
     return graphicsContext;
 }
