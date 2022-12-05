@@ -3,7 +3,7 @@
 #include <memory>
 #include <iostream>
 
-#include "yojimbo/yojimbo.h"
+#include "core/net/yojimboimport.h"
 #include "core/net/gameadapter.h"
 #include "servermessagesreceiver.h"
 #include "servermessagestransmitter.h"

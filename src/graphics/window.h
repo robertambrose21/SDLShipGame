@@ -1,8 +1,6 @@
 #pragma once
 
-// TODO: Might need to fix up these imports for non-linux dev
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_image.h>
+#include "sdlimport.h"
 #include <memory>
 #include <iostream>
 #include <functional>

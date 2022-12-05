@@ -2,8 +2,7 @@
 
 #include <memory>
 
-#include "yojimbo/yojimbo.h"
-#include "yojimbo/shared.h"
+#include "yojimboimport.h"
 
 #include "message/messages.h"
 

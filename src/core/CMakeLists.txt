@@ -15,6 +15,7 @@ add_library(
     net/client/clientmessagesreceiver.h
     net/gameadapter.cpp
     net/message/messages.h
+    net/yojimboimport.h
     util/idgenerator.h
     util/gameassert.h
 )

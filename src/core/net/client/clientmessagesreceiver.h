@@ -1,6 +1,6 @@
 #pragma once
 
-#include "yojimbo/yojimbo.h"
+#include "core/net/yojimboimport.h"
 
 class ClientMessagesReceiver {
 public:

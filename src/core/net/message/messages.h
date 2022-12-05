@@ -1,7 +1,6 @@
 #pragma once
 
-#include "yojimbo/yojimbo.h"
-#include "yojimbo/shared.h"
+#include "core/net/yojimboimport.h"
 #include "game/net/messages.h"
 
 // TODO: Move this file to game project

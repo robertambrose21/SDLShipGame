@@ -1,7 +1,6 @@
 #pragma once
 
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_image.h>
+#include "sdlimport.h"
 #include <memory>
 #include <map>
 #include <exception>
@@ -66,11 +65,11 @@ public:
 
     public:
         virtual const char* what() const throw() {
-            return std::string("TextureLoaderException occurred: " + message).c_str();
+            return message.c_str();
         }
 
         TextureLoaderException(const std::string& message) :
-            message(message)
+            message(std::string("TextureLoaderException occurred: " + message))
         { }
     };
 };

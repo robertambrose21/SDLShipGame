@@ -3,7 +3,7 @@
 #include <iostream>
 #include <queue>
 
-#include "yojimbo/yojimbo.h"
+#include "core/net/yojimboimport.h"
 #include "core/net/gameadapter.h"
 #include "clientmessagesreceiver.h"
 #include "core/util/gameassert.h"
