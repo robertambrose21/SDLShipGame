@@ -14,8 +14,10 @@ add_library(
     weapons/projectileweapon.cpp 
     weapons/meleeweapon.cpp
     weapons/areaofeffect.cpp
-    application/serverapplication.cpp
-    application/clientapplication.cpp
+    application/server/serverapplication.cpp
+    application/client/clientapplication.cpp
+    application/client/clientstatemachine.cpp
+    application/client/clientstates.cpp
     application/application.cpp
     application/applicationcontext.cpp
     net/messages.cpp

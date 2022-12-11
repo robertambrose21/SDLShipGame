@@ -9,6 +9,7 @@
 class GameServerMessagesTransmitter : public ServerMessagesTransmitter {
 private:
     std::shared_ptr<GameServer> server;
+    std::shared_ptr<TurnController> turnController;
 
     std::function<void(int)> onClientConnectFunc;
 

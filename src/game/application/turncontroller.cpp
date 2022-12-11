@@ -135,6 +135,14 @@ void TurnController::addOnNextTurnFunction(std::function<void(int, int)> onNextT
     onNextTurnWorkers.push_back(onNextTurnFunc);
 }
 
+void TurnController::setOnAllParticipantsSetFunction(std::function<void()> onAllParticipantsSet) {
+    this->onAllParticipantsSet = onAllParticipantsSet;
+}
+
+void TurnController::allParticipantsSet(void) {
+    onAllParticipantsSet();
+}
+
 int TurnController::getTurnNumber(void) const {
     return turnNumber;
 }

@@ -24,6 +24,7 @@ private:
 
     std::map<int, std::shared_ptr<Participant>> participants;
     std::vector<std::function<void(int, int)>> onNextTurnWorkers;
+    std::function<void()> onAllParticipantsSet;
 
     bool canProgressToNextTurn(std::shared_ptr<Entity> entity);
     void nextParticipantTurn(const int& id);
@@ -49,6 +50,9 @@ public:
     int getCurrentParticipant(void) const;
 
     void addOnNextTurnFunction(std::function<void(int, int)> onNextTurnFunc);
+    void setOnAllParticipantsSetFunction(std::function<void()> onAllParticipantsSet);
+
+    void allParticipantsSet(void);
 
     int getTurnNumber(void) const;
 };

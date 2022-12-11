@@ -85,5 +85,6 @@
     "stack": "cpp",
     "variant": "cpp"
   },
-  "editor.formatOnSave": false
+  "editor.formatOnSave": false,
+  "C_Cpp.clang_format_fallbackStyle": "{ BasedOnStyle: Google, IndentWidth: 4, ColumnLimit: 0 }"
 }

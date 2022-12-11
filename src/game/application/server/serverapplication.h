@@ -4,7 +4,7 @@
 #include "game/net/server/gameservermessagesreceiver.h"
 #include "game/net/server/gameservermessagestransmitter.h"
 #include "game/entities/behaviour/chaseandattackstrategy.h"
-#include "application.h"
+#include "game/application/application.h"
 
 class ServerApplication {
 private:

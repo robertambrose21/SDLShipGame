@@ -153,16 +153,19 @@ public:
 class SetParticipantMessage : public yojimbo::Message {
 public:
     int participantId;
+    int numParticipantsToSet;
     bool isPlayer;
 
     SetParticipantMessage() :
         participantId(0),
+        numParticipantsToSet(0),
         isPlayer(false)
     { }
 
     template <typename Stream>
     bool Serialize(Stream& stream) {
         serialize_int(stream, participantId, 0, 64);
+        serialize_int(stream, numParticipantsToSet, 0, 64);
         serialize_bool(stream, isPlayer);
 
         return true;

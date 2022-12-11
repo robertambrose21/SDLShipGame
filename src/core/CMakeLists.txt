@@ -18,6 +18,8 @@ add_library(
     net/yojimboimport.h
     util/idgenerator.h
     util/gameassert.h
+    state/state.h
+    state/statemachine.cpp
 )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX CXX_STANDARD 20)

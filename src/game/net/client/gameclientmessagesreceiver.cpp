@@ -30,6 +30,7 @@ void GameClientMessagesReceiver::receiveMessage(yojimbo::Message* message) {
             SetParticipantMessage* setParticipantMessage = (SetParticipantMessage*) message;
             receiveSetParticipant(
                 setParticipantMessage->participantId,
+                setParticipantMessage->numParticipantsToSet,
                 setParticipantMessage->isPlayer
             );
             break;
@@ -77,13 +78,19 @@ void GameClientMessagesReceiver::receiveTestMessage(int data) {
     std::cout << "Received test data " << data << std::endl;
 }
 
-void GameClientMessagesReceiver::receiveSetParticipant(int participantId, bool isPlayer) {
+void GameClientMessagesReceiver::receiveSetParticipant(int participantId, int numParticipantsToSet, bool isPlayer) {
     std::cout << "Received set participant " << participantId << std::endl;
 
-    auto participant = context->getTurnController()->addParticipant(participantId, { }, isPlayer);
+    auto turnController = context->getTurnController();
+
+    auto participant = turnController->addParticipant(participantId, { }, isPlayer);
 
     if(isPlayer) {
         playerController->setParticipant(participant);
+    }
+
+    if(numParticipantsToSet == turnController->getParticipants().size()) {
+        turnController->allParticipantsSet();
     }
 
     transmitter->sendSetParticipantAckMessage(participantId);

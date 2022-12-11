@@ -16,7 +16,7 @@ private:
 
     void receiveTestMessage(int data);
     void receiveGameStateUpdate(GameStateUpdate update);
-    void receiveSetParticipant(int participantId, bool isPlayer);
+    void receiveSetParticipant(int participantId, int numParticipantsToSet, bool isPlayer);
     void receiveLoadMap(MapBlock block);
     void receiveFindPath(
         const uint32_t& entityId,

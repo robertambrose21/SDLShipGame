@@ -6,7 +6,9 @@ GameServerMessagesTransmitter::GameServerMessagesTransmitter(
 ) :
     server(server),
     onClientConnectFunc(onClientConnectFunc)
-{ }
+{
+    turnController = Application::getContext()->getTurnController();
+}
 
 void GameServerMessagesTransmitter::onClientConnected(int clientIndex) {
     onClientConnectFunc(clientIndex);
@@ -16,6 +18,7 @@ void GameServerMessagesTransmitter::sendSetParticipant(int clientIndex, std::sha
     SetParticipantMessage* message = (SetParticipantMessage*) server->createMessage(clientIndex, GameMessageType::SET_PARTICIPANT);
 
     message->participantId = participant->id;
+    message->numParticipantsToSet = turnController->getParticipants().size();
     message->isPlayer = participant->isPlayer;
 
     server->sendMessage(clientIndex, message);
