@@ -57,6 +57,10 @@ void GameServerMessagesReceiver::receiveFindPathMessage(
     const glm::ivec2& position,
     const int& shortStopSteps
 ) {
+    if(!context->getEntityPool()->hasEntity(entityId)) {
+        return;
+    }
+
     // TODO: Get real participant
     auto entities = context->getTurnController()->getParticipant(0)->entities;
 
@@ -68,11 +72,11 @@ void GameServerMessagesReceiver::receiveFindPathMessage(
 }
 
 void GameServerMessagesReceiver::receiveSelectEntityMessage(const int& clientIndex, const uint32_t& entityId) {
-    auto entity = context->getEntityPool()->getEntity(entityId);
-
-    if(entity == nullptr) {
+    if(!context->getEntityPool()->hasEntity(entityId)) {
         return;
     }
+    
+    auto entity = context->getEntityPool()->getEntity(entityId);
 
     if(entity->getParticipantId() != 0) {
         return;
@@ -87,11 +91,11 @@ void GameServerMessagesReceiver::receieveAttackEntityMessage(
     const uint32_t& targetId, 
     const uint32_t& weaponId
 ) {
-    auto entity = context->getEntityPool()->getEntity(entityId);
-
-    if(entity == nullptr) {
+    if(!context->getEntityPool()->hasEntity(entityId) || !context->getEntityPool()->hasEntity(targetId)) {
         return;
     }
+
+    auto entity = context->getEntityPool()->getEntity(entityId);
 
     if(entity->getParticipantId() != 0) {
         return;

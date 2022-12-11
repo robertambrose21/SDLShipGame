@@ -55,4 +55,5 @@ public:
     std::shared_ptr<Entity> addEntity(const std::string& name, const uint32_t& id);
     std::map<uint32_t, std::shared_ptr<Entity>> getEntities(void);
     std::shared_ptr<Entity> getEntity(const uint32_t& id);
+    bool hasEntity(const uint32_t& id);
 };

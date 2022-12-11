@@ -160,3 +160,7 @@ std::shared_ptr<Entity> EntityPool::getEntity(const uint32_t& id) {
     game_assert(entities.contains(id));
     return entities[id];
 }
+
+bool EntityPool::hasEntity(const uint32_t& id) {
+    return entities.contains(id);
+}

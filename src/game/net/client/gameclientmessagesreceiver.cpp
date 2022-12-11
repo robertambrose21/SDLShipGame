@@ -52,7 +52,7 @@ void GameClientMessagesReceiver::receiveMessage(yojimbo::Message* message) {
         }
 
         case (int) GameMessageType::ATTACK_ENTITY: {
-            AttackEntityMessage* attackEntityMessage = (AttackEntityMessage*) attackEntityMessage;
+            AttackEntityMessage* attackEntityMessage = (AttackEntityMessage*) message;
             receiveAttackEntity(
                 attackEntityMessage->entityId,
                 attackEntityMessage->targetId,
@@ -107,11 +107,11 @@ void GameClientMessagesReceiver::receiveFindPath(
     const glm::ivec2& position,
     const int& shortStopSteps
 ) {
-    auto entity = context->getEntityPool()->getEntity(entityId);
-
-    if(entity == nullptr) {
+    if(!context->getEntityPool()->hasEntity(entityId)) {
         return;
     }
+
+    auto entity = context->getEntityPool()->getEntity(entityId);
 
     entity->findPath(position, shortStopSteps);
 }
@@ -121,12 +121,14 @@ void GameClientMessagesReceiver::receiveAttackEntity(
     const uint32_t& targetId, 
     const uint32_t& weaponId
 ) {
-    auto entity = context->getEntityPool()->getEntity(entityId);
-    auto target = context->getEntityPool()->getEntity(targetId);
+    auto entityPool = context->getEntityPool();
 
-    if(entity == nullptr || target == nullptr) {
+    if(!entityPool->hasEntity(entityId) || !entityPool->hasEntity(targetId)) {
         return;
     }
+
+    auto entity = entityPool->getEntity(entityId);
+    auto target = entityPool->getEntity(targetId);
 
     for(auto [_, weapon] : entity->getWeapons()) {
         if(weapon->getId() == weaponId) {
