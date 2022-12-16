@@ -1,30 +1,30 @@
 #include "meleeweapon.h"
 
 MeleeWeapon::MeleeWeapon(
-    std::shared_ptr<Entity> owner, 
-    std::shared_ptr<Grid> grid,
+    const std::shared_ptr<Entity>& owner, 
+    const std::shared_ptr<Grid>& grid,
     const uint32_t& id,
     const std::string& name, 
-    Stats stats
+    const Stats& stats
 ) :
     Weapon(owner, grid, id, name, stats)
 { }
 
 MeleeWeapon::MeleeWeapon(
-    std::shared_ptr<Entity> owner, 
-    std::shared_ptr<Grid> grid, 
+    const std::shared_ptr<Entity>& owner, 
+    const std::shared_ptr<Grid>& grid, 
     const std::string& name, 
-    Stats stats
+    const Stats& stats
 ) :
     Weapon(owner, grid, name, stats)
 { }
 
-void MeleeWeapon::onUse(glm::ivec2 position, std::shared_ptr<Entity> target) {
+void MeleeWeapon::onUse(const glm::ivec2& position, const std::shared_ptr<Entity>& target) {
     game_assert(target != nullptr);
     target->takeDamage(stats.damage);
 }
 
-void MeleeWeapon::draw(std::shared_ptr<GraphicsContext> graphicsContext) {
+void MeleeWeapon::draw(const std::shared_ptr<GraphicsContext>& graphicsContext) {
     // no-op
 }
 

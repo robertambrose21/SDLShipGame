@@ -9,7 +9,7 @@ private:
     std::shared_ptr<GameClient> client;
 
 public:
-    GameClientMessagesTransmitter(std::shared_ptr<GameClient> client);
+    GameClientMessagesTransmitter(const std::shared_ptr<GameClient>& client);
 
     void sendFindPathMessage(
         const uint32_t& entityId, 

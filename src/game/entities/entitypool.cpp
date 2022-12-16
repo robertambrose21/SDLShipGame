@@ -1,8 +1,8 @@
 #include "entitypool.h"
 
 EntityPool::EntityPool(
-    std::shared_ptr<TurnController> turnController,
-    std::shared_ptr<WeaponController> weaponController
+    const std::shared_ptr<TurnController>& turnController,
+    const std::shared_ptr<WeaponController>& weaponController
 ) :
     turnController(turnController),
     weaponController(weaponController)
@@ -39,7 +39,7 @@ void EntityPool::updateEntities(const uint32_t& timeSinceLastFrame, bool& quit) 
         updateEntity(entity, timeSinceLastFrame, quit);
     }
 
-    for(auto entity : entitiesForDeletion) {
+    for(auto const& entity : entitiesForDeletion) {
         entities.erase(entity->getId());
         std::cout << "[" << entity->getName() << "#" << entity->getId() << "] died" << std::endl;
     }
@@ -47,7 +47,7 @@ void EntityPool::updateEntities(const uint32_t& timeSinceLastFrame, bool& quit) 
     entitiesForDeletion.clear();
 }
 
-void EntityPool::updateEntity(std::shared_ptr<Entity> entity, const uint32_t& timeSinceLastFrame, bool& quit) {
+void EntityPool::updateEntity(const std::shared_ptr<Entity>& entity, const uint32_t& timeSinceLastFrame, bool& quit) {
     if(entity->getCurrentHP() <= 0) {
         entitiesForDeletion.insert(entity);
         return;
@@ -56,7 +56,7 @@ void EntityPool::updateEntity(std::shared_ptr<Entity> entity, const uint32_t& ti
     entity->update(timeSinceLastFrame, quit);
 }
 
-void EntityPool::drawEntities(std::shared_ptr<GraphicsContext> graphicsContext) {
+void EntityPool::drawEntities(const std::shared_ptr<GraphicsContext>& graphicsContext) {
     for(auto [entityId, entity] : entities) {
         entity->draw(graphicsContext);
     }
@@ -69,24 +69,22 @@ void EntityPool::synchronize() {
 
     std::map<int, std::shared_ptr<Entity>> updatedEntities;
 
-    for(auto update : pendingUpdates) {
+    for(auto const& update : pendingUpdates) {
         // std::cout << "Got game state update: " << std::endl;
 
         for(int i = 0; i < update.numEntities; i++) {
-            auto entityUpdate = update.entities[i];
-            std::shared_ptr<Entity> existing = nullptr;
+            auto const& entityUpdate = update.entities[i];
 
-            if(entities.contains(entityUpdate.id)) {
-                existing = entities[entityUpdate.id];
+            if(!entities.contains(entityUpdate.id)) {
+                auto const& entity = addEntity(entityUpdate.name, entityUpdate.id);
+                turnController->addEntityToParticipant(entityUpdate.participantId, entity);   
             }
-            else {
-                existing = addEntity(entityUpdate.name, entityUpdate.id);
-                turnController->addEntityToParticipant(entityUpdate.participantId, existing);
-            }
+
+            auto const& existing = entities[entityUpdate.id];
 
             // Weapons
             for(int j = 0; j < entityUpdate.numWeapons; j++) {
-                auto& weaponUpdate = entityUpdate.weaponUpdates[j];
+                auto const& weaponUpdate = entityUpdate.weaponUpdates[j];
                 
                 if(!existing->hasWeapon(weaponUpdate.id)) {
                     existing->addWeapon(weaponController->createWeapon(weaponUpdate.id, weaponUpdate.name, existing));
@@ -124,7 +122,7 @@ void EntityPool::addGameStateUpdate(const GameStateUpdate& update) {
     pendingUpdates.push_back(update);
 }
 
-std::shared_ptr<Entity> EntityPool::addEntity(std::shared_ptr<Entity> entity) {
+std::shared_ptr<Entity> EntityPool::addEntity(const std::shared_ptr<Entity>& entity) {
     game_assert(!entities.contains(entity->getId()));
     entities[entity->getId()] = entity;
     return entity;
@@ -152,7 +150,7 @@ std::shared_ptr<Entity> EntityPool::addEntity(const std::string& name) {
     return addEntity(name, getNewId());
 }
 
-std::map<uint32_t, std::shared_ptr<Entity>> EntityPool::getEntities(void) {
+const std::map<uint32_t, std::shared_ptr<Entity>>& EntityPool::getEntities(void) const {
     return entities;
 }
 

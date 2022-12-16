@@ -1,8 +1,8 @@
 #include "areaofeffectpool.h"
 
 AreaOfEffectPool::AreaOfEffectPool(
-    std::shared_ptr<TurnController> turnController, 
-    std::shared_ptr<Grid> grid
+    const std::shared_ptr<TurnController>& turnController, 
+    const std::shared_ptr<Grid>& grid
 ) :
     turnController(turnController),
     grid(grid)
@@ -32,13 +32,13 @@ void AreaOfEffectPool::loadAoeDefinitions(void) {
     game_assert(!aoeDefinitions.empty());
 }
 
-void AreaOfEffectPool::add(std::shared_ptr<AreaOfEffect> areaOfEffect) {
+void AreaOfEffectPool::add(const std::shared_ptr<AreaOfEffect>& areaOfEffect) {
     aoeObjects.push_back(std::make_pair(turnController->getTurnNumber(), areaOfEffect));
 }
 
-void AreaOfEffectPool::add(const std::string& name, int turnNumber, const glm::ivec2& position) {
+void AreaOfEffectPool::add(const std::string& name, const int& turnNumber, const glm::ivec2& position) {
     game_assert(aoeDefinitions.contains(name));
-    auto definition = aoeDefinitions[name];
+    auto const& definition = aoeDefinitions[name];
     auto aoe = std::make_shared<AreaOfEffect>(
         grid,
         definition.textureId,
@@ -50,14 +50,14 @@ void AreaOfEffectPool::add(const std::string& name, int turnNumber, const glm::i
     add(aoe);
 }
 
-void AreaOfEffectPool::draw(std::shared_ptr<GraphicsContext> graphicsContext) {
-    for(auto areaOfEffect : aoeObjects) {
+void AreaOfEffectPool::draw(const std::shared_ptr<GraphicsContext>& graphicsContext) {
+    for(auto const& areaOfEffect : aoeObjects) {
         areaOfEffect.second->draw(graphicsContext);
     }
 }
 
 void AreaOfEffectPool::update(const uint32_t& timeSinceLastFrame) {
-    for(auto aoeObject : aoeObjects) {
+    for(auto const& aoeObject : aoeObjects) {
         auto [startTurn, areaOfEffect] = aoeObject;
 
         areaOfEffect->update(timeSinceLastFrame);
@@ -67,7 +67,7 @@ void AreaOfEffectPool::update(const uint32_t& timeSinceLastFrame) {
         }
     }
 
-     for(auto areaOfEffect : aoeObjectsForDeletion) {
+     for(auto const& areaOfEffect : aoeObjectsForDeletion) {
         aoeObjects.erase(std::find(aoeObjects.begin(), aoeObjects.end(), areaOfEffect));
     }
     

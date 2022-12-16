@@ -34,7 +34,7 @@ void ServerApplication::initialise(void) {
     server->setTransmitter(transmitter);
     context->setServerMessagesTransmitter(transmitter);
 
-    context->getWindow()->addLoopLogicWorker([&](auto timeSinceLastFrame, auto& quit) {
+    context->getWindow()->addLoopLogicWorker([&](auto const& timeSinceLastFrame, auto& quit) {
         server->update(timeSinceLastFrame);
         turnController->update(timeSinceLastFrame);
         entityPool->updateEntities(timeSinceLastFrame, quit);
@@ -44,7 +44,7 @@ void ServerApplication::initialise(void) {
 
     // TODO: This somehow makes the game state messages get received first rather than the set participant ones.
     // On the client side we need to wait until participants are all set before we load the rest of the map
-    context->getTurnController()->addOnNextTurnFunction([&](int currentParticipant, int turnNumber) {
+    context->getTurnController()->addOnNextTurnFunction([&](auto const& currentParticipant, auto const& turnNumber) {
         sendGameStateUpdatesToClients();
     });
 
@@ -56,7 +56,7 @@ void ServerApplication::run(void) {
     Application::instance().run();
 }
 
-void ServerApplication::onClientConnect(int clientIndex) {
+void ServerApplication::onClientConnect(const int& clientIndex) {
     auto context = Application::getContext();
 
     // TODO: Set this up so players are assigned properly.
@@ -70,7 +70,7 @@ void ServerApplication::onClientConnect(int clientIndex) {
     sendLoadMapToClient(clientIndex);
 }
 
-void ServerApplication::sendLoadMapToClient(int clientIndex) {
+void ServerApplication::sendLoadMapToClient(const int& clientIndex) {
     auto context = Application::getContext();
     auto grid = context->getGrid();
 

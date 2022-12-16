@@ -30,8 +30,8 @@ private:
     std::shared_ptr<GridRenderer> gridRenderer;
 
     std::vector<std::function<void(const uint32_t&, bool&)>> logicWorkers;
-    std::vector<std::function<void(std::shared_ptr<GraphicsContext>, bool&)>> drawWorkers;
-    std::vector<std::function<void(SDL_Event, bool&)>> eventWorkers;
+    std::vector<std::function<void(const std::shared_ptr<GraphicsContext>&, bool&)>> drawWorkers;
+    std::vector<std::function<void(const SDL_Event&, bool&)>> eventWorkers;
     
 public:
     enum Headless {
@@ -39,15 +39,15 @@ public:
         NO
     };
 
-    Window(int width, int height, std::shared_ptr<Grid> grid);
+    Window(const int& width, const int& height, const std::shared_ptr<Grid>& grid);
     ~Window();
  
-    bool initialiseWindow(Headless headless);
+    bool initialiseWindow(const Headless& headless);
     void loop(void);
 
     void addLoopLogicWorker(std::function<void(const uint32_t&, bool&)> worker);
-    void addLoopDrawWorker(std::function<void(std::shared_ptr<GraphicsContext>, bool&)> worker);
-    void addLoopEventWorker(std::function<void(SDL_Event, bool&)> worker);
+    void addLoopDrawWorker(std::function<void(const std::shared_ptr<GraphicsContext>&, bool&)> worker);
+    void addLoopEventWorker(std::function<void(const SDL_Event&, bool&)> worker);
     
     void setGridTileTexture(const int& tileId, const uint8_t& textureId);
 

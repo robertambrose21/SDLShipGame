@@ -1,11 +1,11 @@
 #include "weapon.h"
 
 Weapon::Weapon(
-    std::shared_ptr<Entity> owner,
-    std::shared_ptr<Grid> grid,
+    const std::shared_ptr<Entity>& owner,
+    const std::shared_ptr<Grid>& grid,
     const uint32_t& id,
     const std::string& name, 
-    Stats stats
+    const Stats& stats
 ) :
     id(id),
     owner(owner),
@@ -15,18 +15,19 @@ Weapon::Weapon(
     usesLeft(stats.uses)
 {
     game_assert(owner != nullptr);
+    game_assert(grid != nullptr);
 }
 
 Weapon::Weapon(
-    std::shared_ptr<Entity> owner,
-    std::shared_ptr<Grid> grid, 
+    const std::shared_ptr<Entity>& owner,
+    const std::shared_ptr<Grid>& grid, 
     const std::string& name, 
-    Stats stats
+    const Stats& stats
 ) :
     Weapon(owner, grid, getNewId(), name, stats)
 { }
 
-void Weapon::use(glm::ivec2 position, std::shared_ptr<Entity> target) {
+void Weapon::use(const glm::ivec2& position, const std::shared_ptr<Entity>& target) {
     if(usesLeft > 0) {
         onUse(position, target);
         usesLeft--;
@@ -61,7 +62,7 @@ void Weapon::reset(void) {
     usesLeft = stats.uses;
 }
 
-bool Weapon::isInRange(glm::ivec2 position) {
+bool Weapon::isInRange(const glm::ivec2& position) {
     return glm::distance(glm::vec2(owner->getPosition()), glm::vec2(position)) <= stats.range;
 }
 

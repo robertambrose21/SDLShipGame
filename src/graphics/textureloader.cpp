@@ -1,6 +1,6 @@
 #include "textureloader.h"
 
-Texture::Texture(std::shared_ptr<SDL_Texture> texture, std::string id) :
+Texture::Texture(const std::shared_ptr<SDL_Texture>& texture, const std::string& id) :
     texture(texture),
     id(id)
 { }
@@ -10,26 +10,26 @@ std::string Texture::getId(void) const {
 }
 
 void Texture::draw(
-    std::shared_ptr<SDL_Renderer> renderer,
+    const std::shared_ptr<SDL_Renderer>& renderer,
     const SDL_Rect* srcRect,
     const SDL_Rect* dstRect
 ) {
     SDL_RenderCopy(renderer.get(), texture.get(), srcRect, dstRect);
 }
 
-TextureLoader::TextureLoader(std::shared_ptr<SDL_Renderer> renderer) :
+TextureLoader::TextureLoader(const std::shared_ptr<SDL_Renderer>& renderer) :
     renderer(renderer)
 {
     std::ifstream f("../assets/data/textures/textures.json");
     json data = json::parse(f);
 
-    auto texturesData = data["textures"].get<std::vector<json>>();
+    auto const& texturesData = data["textures"].get<std::vector<json>>();
     game_assert(!texturesData.empty());
 
-    for(auto textureData : texturesData) {
-        auto id = textureData["id"].get<uint8_t>();
-        auto name = textureData["name"].get<std::string>();
-        auto path = "../assets/data/" + textureData["path"].get<std::string>();
+    for(auto const& textureData : texturesData) {
+        auto const& id = textureData["id"].get<uint8_t>();
+        auto const& name = textureData["name"].get<std::string>();
+        auto const& path = "../assets/data/" + textureData["path"].get<std::string>();
 
         availableTextures[id] = { id, name, path };
     }

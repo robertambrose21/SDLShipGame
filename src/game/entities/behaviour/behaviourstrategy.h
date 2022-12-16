@@ -10,7 +10,7 @@ protected:
     std::shared_ptr<Entity> owner;
 
 public:
-    BehaviourStrategy(std::shared_ptr<Entity> owner) :
+    BehaviourStrategy(const std::shared_ptr<Entity>& owner) :
         owner(owner) { }
 
     virtual void onUpdate(const uint32_t& timeSinceLastFrame, bool& quit) = 0;

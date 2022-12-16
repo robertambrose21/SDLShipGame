@@ -1,6 +1,6 @@
 #include "gameservermessagesreceiver.h"
 
-GameServerMessagesReceiver::GameServerMessagesReceiver(std::shared_ptr<ApplicationContext> context) :
+GameServerMessagesReceiver::GameServerMessagesReceiver(const std::shared_ptr<ApplicationContext>& context) :
     context(context)
 { }
 
@@ -62,9 +62,9 @@ void GameServerMessagesReceiver::receiveFindPathMessage(
     }
 
     // TODO: Get real participant
-    auto entities = context->getTurnController()->getParticipant(0)->entities;
+    auto const& entities = context->getTurnController()->getParticipant(0)->entities;
 
-    for(auto entity : entities) {
+    for(auto const& entity : entities) {
         if(entity->getId() == entityId) {
             entity->findPath(position, shortStopSteps);
         }
@@ -76,7 +76,7 @@ void GameServerMessagesReceiver::receiveSelectEntityMessage(const int& clientInd
         return;
     }
     
-    auto entity = context->getEntityPool()->getEntity(entityId);
+    auto const& entity = context->getEntityPool()->getEntity(entityId);
 
     if(entity->getParticipantId() != 0) {
         return;
@@ -95,13 +95,13 @@ void GameServerMessagesReceiver::receieveAttackEntityMessage(
         return;
     }
 
-    auto entity = context->getEntityPool()->getEntity(entityId);
+    auto const& entity = context->getEntityPool()->getEntity(entityId);
 
     if(entity->getParticipantId() != 0) {
         return;
     }
 
-    auto target = context->getEntityPool()->getEntity(targetId);
+    auto const& target = context->getEntityPool()->getEntity(targetId);
 
     for(auto [_, weapon] : entity->getWeapons()) {
         if(weapon->getId() == weaponId) {
@@ -128,13 +128,13 @@ void GameServerMessagesReceiver::receiveSetParticipantAckMessage(const int& clie
     std::cout << "Got participant ACK " << participantId << std::endl;
 }
 
-bool GameServerMessagesReceiver::areParticipantsLoadedForClient(int clientIndex) {
+bool GameServerMessagesReceiver::areParticipantsLoadedForClient(const int& clientIndex) {
     if(!clientParticipantsLoaded.contains(clientIndex)) {
         return false;
     }
 
-    auto participants = context->getTurnController()->getParticipants();
-    auto loaded = clientParticipantsLoaded[clientIndex];
+    auto const& participants = context->getTurnController()->getParticipants();
+    auto const& loaded = clientParticipantsLoaded[clientIndex];
 
     if(participants.size() != loaded.size()) {
         return false;

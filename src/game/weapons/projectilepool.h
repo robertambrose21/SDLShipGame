@@ -31,13 +31,13 @@ private:
     void loadProjectileDefinitions(void);
 
 public:
-    ProjectilePool(std::shared_ptr<AreaOfEffectPool> areaOfEffectPool);
+    ProjectilePool(const std::shared_ptr<AreaOfEffectPool>& areaOfEffectPool);
 
-    void add(std::shared_ptr<Projectile> projectile, std::shared_ptr<Entity> owner);
+    void add(const std::shared_ptr<Projectile>& projectile, const std::shared_ptr<Entity>& owner);
     Projectile::Blueprint create(const std::string& name);
 
-    void draw(std::shared_ptr<GraphicsContext> graphicsContext);
+    void draw(const std::shared_ptr<GraphicsContext>& graphicsContext);
     void update(const uint32_t& timeSinceLastFrame);
 
-    std::vector<std::shared_ptr<Projectile>> getProjectilesForOwner(std::shared_ptr<Entity> owner);
+    const std::vector<std::shared_ptr<Projectile>>& getProjectilesForOwner(const std::shared_ptr<Entity>& owner) const;
 };

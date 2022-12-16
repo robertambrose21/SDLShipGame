@@ -35,25 +35,25 @@ private:
     std::shared_ptr<TurnController> turnController;
     std::shared_ptr<WeaponController> weaponController;
 
-    void updateEntity(std::shared_ptr<Entity> entity, const uint32_t& timeSinceLastFrame, bool& quit);
+    void updateEntity(const std::shared_ptr<Entity>& entity, const uint32_t& timeSinceLastFrame, bool& quit);
     void loadEntityDefinitions(void);
     void synchronize(void);
 
 public:
     EntityPool(
-        std::shared_ptr<TurnController> turnController,
-        std::shared_ptr<WeaponController> weaponController
+        const std::shared_ptr<TurnController>& turnController,
+        const std::shared_ptr<WeaponController>& weaponController
     );
 
     void updateEntities(const uint32_t& timeSinceLastFrame, bool& quit);
-    void drawEntities(std::shared_ptr<GraphicsContext> graphicsContext);
+    void drawEntities(const std::shared_ptr<GraphicsContext>& graphicsContext);
 
     void addGameStateUpdate(const GameStateUpdate& update);
 
-    std::shared_ptr<Entity> addEntity(std::shared_ptr<Entity> entity);
+    std::shared_ptr<Entity> addEntity(const std::shared_ptr<Entity>& entity);
     std::shared_ptr<Entity> addEntity(const std::string& name);
     std::shared_ptr<Entity> addEntity(const std::string& name, const uint32_t& id);
-    std::map<uint32_t, std::shared_ptr<Entity>> getEntities(void);
+    const std::map<uint32_t, std::shared_ptr<Entity>>& getEntities(void) const;
     std::shared_ptr<Entity> getEntity(const uint32_t& id);
     bool hasEntity(const uint32_t& id);
 };

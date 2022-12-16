@@ -20,23 +20,23 @@ private:
     std::shared_ptr<ServerMessagesTransmitter> transmitter;
 
     void processMessages(void);
-    void processMessage(int clientIndex, yojimbo::Message* message);
+    void processMessage(const int& clientIndex, yojimbo::Message* message);
 
 public:
     const int MaxClientConnections = 64;
 
     GameServer(const yojimbo::Address& address);
 
-    void setReceiver(std::shared_ptr<ServerMessagesReceiver> receiver);
-    void setTransmitter(std::shared_ptr<ServerMessagesTransmitter> transmitter);
+    void setReceiver(const std::shared_ptr<ServerMessagesReceiver>& receiver);
+    void setTransmitter(const std::shared_ptr<ServerMessagesTransmitter>& transmitter);
 
-    void update(long timeSinceLastFrame);
+    void update(const uint32_t& timeSinceLastFrame);
 
-    void clientConnected(int clientIndex);
-    void clientDisconnected(int clientIndex);
+    void clientConnected(const int& clientIndex);
+    void clientDisconnected(const int& clientIndex);
 
-    yojimbo::Message* createMessage(int clientIndex, GameMessageType messageType);
-    void sendMessage(int clientIndex, yojimbo::Message* message);
+    yojimbo::Message* createMessage(const int& clientIndex, const GameMessageType& messageType);
+    void sendMessage(const int& clientIndex, yojimbo::Message* message);
 
     yojimbo::Address getAddress(void) const;
     GameAdapter& getAdapter(void);

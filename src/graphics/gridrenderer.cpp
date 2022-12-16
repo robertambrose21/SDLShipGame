@@ -1,19 +1,20 @@
 #include "gridrenderer.h"
 
-GridRenderer::GridRenderer(std::shared_ptr<Grid> grid, int windowHeight) :
+GridRenderer::GridRenderer(const std::shared_ptr<Grid>& grid, const int& windowHeight) :
     grid(grid),
     windowHeight(windowHeight),
     tileSize(windowHeight / grid->getHeight())
 { }
 
 void GridRenderer::setTileTexture(const int& tileId, const uint8_t& textureId) {
+    game_assert(tileId >= 0);
     tileTextures[tileId] = textureId;
 }
 
-void GridRenderer::draw(std::shared_ptr<GraphicsContext> graphicsContext) {
-    auto data = grid->getData();
-    auto width = grid->getWidth();
-    auto height = grid->getHeight();
+void GridRenderer::draw(const std::shared_ptr<GraphicsContext>& graphicsContext) {
+    auto const& data = grid->getData();
+    auto const& width = grid->getWidth();
+    auto const& height = grid->getHeight();
 
     for(auto y = 0; y < height; y++) {
         for(auto x = 0; x < width; x++) {
@@ -22,14 +23,18 @@ void GridRenderer::draw(std::shared_ptr<GraphicsContext> graphicsContext) {
     }
 }
 
-void GridRenderer::draw(std::shared_ptr<GraphicsContext> graphicsContext, const uint8_t& textureId, const glm::ivec2& position) {
+void GridRenderer::draw(
+    const std::shared_ptr<GraphicsContext>& graphicsContext, 
+    const uint8_t& textureId,
+    const glm::ivec2& position
+) {
     game_assert(graphicsContext != nullptr);
-    auto realPosition = getTilePosition(position.x, position.y);
+    auto const& realPosition = getTilePosition(position.x, position.y);
     SDL_Rect dst = { realPosition.x, realPosition.y, getTileSize(), getTileSize() };
     graphicsContext->getTextureLoader()->loadTexture(textureId)->draw(graphicsContext->getRenderer(), NULL, &dst);
 }
 
-glm::ivec2 GridRenderer::getTilePosition(int x, int y) const {
+glm::ivec2 GridRenderer::getTilePosition(const int& x, const int& y) const {
     return { x * tileSize, y * tileSize };
 }
 

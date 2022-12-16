@@ -1,14 +1,14 @@
 #include "gameclientmessagesreceiver.h"
 
-GameClientMessagesReceiver::GameClientMessagesReceiver(std::shared_ptr<ApplicationContext> context) :
+GameClientMessagesReceiver::GameClientMessagesReceiver(const std::shared_ptr<ApplicationContext>& context) :
     context(context)
 { }
 
-void GameClientMessagesReceiver::setTransmitter(std::shared_ptr<GameClientMessagesTransmitter> transmitter) {
+void GameClientMessagesReceiver::setTransmitter(const std::shared_ptr<GameClientMessagesTransmitter>& transmitter) {
     this->transmitter = transmitter;
 }
 
-void GameClientMessagesReceiver::setPlayerController(std::shared_ptr<PlayerController> playerController) {
+void GameClientMessagesReceiver::setPlayerController(const std::shared_ptr<PlayerController>& playerController) {
     this->playerController = playerController;
 }
 
@@ -67,23 +67,25 @@ void GameClientMessagesReceiver::receiveMessage(yojimbo::Message* message) {
     }
 }
 
-void GameClientMessagesReceiver::receiveGameStateUpdate(GameStateUpdate update) {
+void GameClientMessagesReceiver::receiveGameStateUpdate(const GameStateUpdate& update) {
     std::cout << "Got game state update " << update.currentParticipant << std::endl;
 
     context->getTurnController()->setCurrentParticipant(update.currentParticipant);
     context->getEntityPool()->addGameStateUpdate(update);
 }
 
-void GameClientMessagesReceiver::receiveTestMessage(int data) {
+void GameClientMessagesReceiver::receiveTestMessage(const int& data) {
     std::cout << "Received test data " << data << std::endl;
 }
 
-void GameClientMessagesReceiver::receiveSetParticipant(int participantId, int numParticipantsToSet, bool isPlayer) {
-    std::cout << "Received set participant " << participantId << std::endl;
+void GameClientMessagesReceiver::receiveSetParticipant(
+    const int& participantId,
+    const int& numParticipantsToSet,
+    const bool& isPlayer
+) {
+    auto const& turnController = context->getTurnController();
 
-    auto turnController = context->getTurnController();
-
-    auto participant = turnController->addParticipant(participantId, { }, isPlayer);
+    auto const& participant = turnController->addParticipant(participantId, { }, isPlayer);
 
     if(isPlayer) {
         playerController->setParticipant(participant);
@@ -96,9 +98,9 @@ void GameClientMessagesReceiver::receiveSetParticipant(int participantId, int nu
     transmitter->sendSetParticipantAckMessage(participantId);
 }
 
-void GameClientMessagesReceiver::receiveLoadMap(MapBlock block) {
+void GameClientMessagesReceiver::receiveLoadMap(const MapBlock& block) {
     // TODO: Sequencing
-    auto grid = context->getGrid();
+    auto const& grid = context->getGrid();
 
     for(int i = 0; i < block.blockSize; i++) {
         auto x = i / block.width;
@@ -118,7 +120,7 @@ void GameClientMessagesReceiver::receiveFindPath(
         return;
     }
 
-    auto entity = context->getEntityPool()->getEntity(entityId);
+    auto const& entity = context->getEntityPool()->getEntity(entityId);
 
     entity->findPath(position, shortStopSteps);
 }
@@ -128,14 +130,14 @@ void GameClientMessagesReceiver::receiveAttackEntity(
     const uint32_t& targetId, 
     const uint32_t& weaponId
 ) {
-    auto entityPool = context->getEntityPool();
+    auto const& entityPool = context->getEntityPool();
 
     if(!entityPool->hasEntity(entityId) || !entityPool->hasEntity(targetId)) {
         return;
     }
 
-    auto entity = entityPool->getEntity(entityId);
-    auto target = entityPool->getEntity(targetId);
+    auto const& entity = entityPool->getEntity(entityId);
+    auto const& target = entityPool->getEntity(targetId);
 
     for(auto [_, weapon] : entity->getWeapons()) {
         if(weapon->getId() == weaponId) {

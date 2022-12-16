@@ -4,25 +4,25 @@
 
 class MeleeWeapon : public Weapon {
 private:
-    void onUse(glm::ivec2 position, std::shared_ptr<Entity> target);
+    void onUse(const glm::ivec2& position, const std::shared_ptr<Entity>& target);
 
 public:
     MeleeWeapon(
-        std::shared_ptr<Entity> owner, 
-        std::shared_ptr<Grid> grid,
+        const std::shared_ptr<Entity>& owner, 
+        const std::shared_ptr<Grid>& grid,
         const uint32_t& id,
         const std::string& name, 
-        Stats stats
+        const Stats& stats
     );
 
     MeleeWeapon(
-        std::shared_ptr<Entity> owner, 
-        std::shared_ptr<Grid> grid, 
+        const std::shared_ptr<Entity>& owner, 
+        const std::shared_ptr<Grid>& grid, 
         const std::string& name, 
-        Stats stats
+        const Stats& stats
     );
 
-    void draw(std::shared_ptr<GraphicsContext> graphicsContext);
+    void draw(const std::shared_ptr<GraphicsContext>& graphicsContext);
     void update(const uint32_t& timeSinceLastFrame);
     Type getType(void) const;
 };

@@ -1,6 +1,6 @@
 #include "grid.h"
 
-Grid::Grid(int width, int height, std::vector<std::vector<Tile>> data) :
+Grid::Grid(const int& width, const int& height, const std::vector<std::vector<Tile>>& data) :
     width(width),
     height(height),
     data(data)
@@ -21,16 +21,16 @@ int Grid::getHeight(void) const {
     return height;
 }
 
-void Grid::setTile(const int& x, const int& y, Tile tile) {
+void Grid::setTile(const int& x, const int& y, const Tile& tile) {
     game_assert(x < getWidth() && y < getHeight());
     data[y][x] = tile;
 }
 
-std::vector<std::vector<Tile>> Grid::getData(void) const {
+const std::vector<std::vector<Tile>>& Grid::getData(void) const {
     return data;
 }
 
-Tile Grid::getTileAt(const int& x, const int& y) const {
+const Tile& Grid::getTileAt(const int& x, const int& y) const {
     game_assert(x < getWidth() && y < getHeight());
     return data[y][x];
 }
@@ -55,7 +55,7 @@ std::vector<glm::ivec2> Grid::getTilesInCircle(const int& x, const int& y, float
 
     std::vector<glm::ivec2> tilePositions;
     
-    for(auto position : square) {
+    for(auto const& position : square) {
         if(isTileInRange(x, y, position, radius)) {
             tilePositions.push_back(position);
         }
@@ -64,7 +64,7 @@ std::vector<glm::ivec2> Grid::getTilesInCircle(const int& x, const int& y, float
     return tilePositions;
 }
 
-bool Grid::isTileInRange(const int& x, const int& y, glm::vec2 position, float distance) {
+bool Grid::isTileInRange(const int& x, const int& y, const glm::vec2& position, const float& distance) {
     game_assert(x < getWidth() && y < getHeight());
 
     glm::vec2 corners[] = {
@@ -74,7 +74,7 @@ bool Grid::isTileInRange(const int& x, const int& y, glm::vec2 position, float d
         glm::vec2(x + .5f, y + .5f)
     };
 
-    for(auto corner : corners) {
+    for(auto const& corner : corners) {
         if(glm::distance(corner, position) <= distance) {
             return true;
         }
@@ -113,15 +113,15 @@ std::deque<glm::ivec2> Grid::findPath(const glm::ivec2& source, const glm::ivec2
     fScore[source] = getManhattanDistance(source, destination);
 
     while(!open.empty()) {
-        auto currentNode = getLowestFScoreNode(open, fScore);
+        auto const& currentNode = getLowestFScoreNode(open, fScore);
 
         if(currentNode == destination) {
             return buildPath(cameFrom, currentNode);
         }
 
         open.erase(currentNode);
-        for(auto neighbour : getNeighbours(currentNode)) {
-            auto tentativeGScore = gScore[currentNode] + getDistanceWeight(currentNode, neighbour);
+        for(auto const& neighbour : getNeighbours(currentNode)) {
+            auto const& tentativeGScore = gScore[currentNode] + getDistanceWeight(currentNode, neighbour);
 
             if(!gScore.contains(neighbour) || tentativeGScore < gScore[neighbour]) {
                 cameFrom[neighbour] = currentNode;
@@ -157,15 +157,17 @@ int Grid::getDistanceWeight(const glm::ivec2& currentNode, const glm::ivec2& nei
 }
 
 glm::ivec2 Grid::getLowestFScoreNode(
-    std::set<glm::ivec2> open,
-    std::map<glm::ivec2, int> fScore
+    const std::set<glm::ivec2>& open,
+    const std::map<glm::ivec2, int>& fScore
 ) const {
     glm::ivec2 lowestScoreNode;
     auto lowestScore = INT_MAX;
 
-    for(auto node : open) {
-        if(fScore.contains(node) && fScore[node] < lowestScore) {
-            lowestScore = fScore[node];
+    for(auto const& node : open) {
+        auto const& potentialNode = fScore.find(node);
+
+        if(potentialNode != fScore.end() && potentialNode->second < lowestScore) {
+            lowestScore = potentialNode->second;
             lowestScoreNode = node;
         }
     }
@@ -178,7 +180,7 @@ std::set<glm::ivec2> Grid::getNeighbours(const glm::ivec2& node) {
 
     for(int x = -1; x < 2; x++) {
         for(int y = -1; y < 2; y++) {
-            auto neighbour = node + glm::ivec2(x, y);
+            auto const& neighbour = node + glm::ivec2(x, y);
 
             if(!(x == 0 && y == 0) && isNodeInBounds(neighbour) && isNodeWalkable(node)) {
                 neighbours.insert(neighbour);
@@ -198,13 +200,13 @@ bool Grid::isNodeWalkable(const glm::ivec2& node) const {
 }
 
 std::deque<glm::ivec2> Grid::buildPath(
-    std::map<glm::ivec2, glm::ivec2> cameFrom,
+    const std::map<glm::ivec2, glm::ivec2>& cameFrom,
     glm::ivec2 currentNode
 ) {
     std::deque<glm::ivec2> path(1, currentNode);
 
     while(cameFrom.contains(currentNode)) {
-        currentNode = cameFrom[currentNode];
+        currentNode = cameFrom.at(currentNode);
         path.push_front(currentNode);
     }
 

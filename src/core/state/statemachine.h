@@ -10,6 +10,6 @@ protected:
 public:
     StateMachine();
 
-    void setState(std::shared_ptr<State> state);
+    void setState(const std::shared_ptr<State>& state);
     std::shared_ptr<State> getCurrentState(void);
 };

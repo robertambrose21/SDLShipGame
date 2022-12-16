@@ -23,9 +23,12 @@ private:
     void processMessage(yojimbo::Message* message);
 
 public:
-    GameClient(std::shared_ptr<ClientMessagesReceiver> receiver, const yojimbo::Address& serverAddress);
+    GameClient(
+        const std::shared_ptr<ClientMessagesReceiver>& receiver,
+        const yojimbo::Address& serverAddress
+    );
 
-    void update(long timeSinceLastFrame);
-    yojimbo::Message* createMessage(GameMessageType messageType);
+    void update(const uint32_t& timeSinceLastFrame);
+    yojimbo::Message* createMessage(const GameMessageType& messageType);
     void sendMessage(yojimbo::Message* message);
 };

@@ -27,16 +27,16 @@ private:
 
 public:
     PlayerController(
-        std::shared_ptr<GameClientMessagesTransmitter> clientMessagesTransmitter,
-        std::shared_ptr<GridRenderer> grid, 
-        std::shared_ptr<EntityPool> entityPool
+        const std::shared_ptr<GameClientMessagesTransmitter>& clientMessagesTransmitter,
+        const std::shared_ptr<GridRenderer>& grid, 
+        const std::shared_ptr<EntityPool>& entityPool
     );
 
-    void handleKeyPress(SDL_Event event);
-    void handleMouseEvent(SDL_Event event);
+    void handleKeyPress(const SDL_Event& event);
+    void handleMouseEvent(const SDL_Event& event);
 
-    std::vector<std::shared_ptr<Entity>> getSelectedEntities(void);
-    void setParticipant(std::shared_ptr<TurnController::Participant> participant);
+    const std::vector<std::shared_ptr<Entity>>& getSelectedEntities(void) const;
+    void setParticipant(const std::shared_ptr<TurnController::Participant>& participant);
 
-    void toggleSelection(std::shared_ptr<Entity> entity);
+    void toggleSelection(const std::shared_ptr<Entity>& entity);
 };

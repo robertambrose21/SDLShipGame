@@ -1,35 +1,35 @@
 #include "projectileweapon.h"
 
 ProjectileWeapon::ProjectileWeapon(
-    std::shared_ptr<Entity> owner,
-    std::shared_ptr<Grid> grid, 
+    const std::shared_ptr<Entity>& owner,
+    const std::shared_ptr<Grid>& grid, 
     const uint32_t& id,
     const std::string& name, 
-    Stats stats,
-    Projectile::Blueprint projectileBlueprint
+    const Stats& stats,
+    const Projectile::Blueprint& projectileBlueprint
 ) :
     Weapon(owner, grid, id, name, stats),
     projectileBlueprint(projectileBlueprint)
 { }
 
 ProjectileWeapon::ProjectileWeapon(
-    std::shared_ptr<Entity> owner,
-    std::shared_ptr<Grid> grid, 
+    const std::shared_ptr<Entity>& owner,
+    const std::shared_ptr<Grid>& grid, 
     const std::string& name, 
-    Stats stats,
-    Projectile::Blueprint projectileBlueprint
+    const Stats& stats,
+    const Projectile::Blueprint& projectileBlueprint
 ) :
     ProjectileWeapon(owner, grid, getNewId(), name, stats, projectileBlueprint)
 { }
 
-void ProjectileWeapon::onUse(glm::ivec2 position, std::shared_ptr<Entity> target) {
+void ProjectileWeapon::onUse(const glm::ivec2& position, const std::shared_ptr<Entity>& target) {
     Application::getContext()->getProjectilePool()->add(
         Projectile::create(grid, projectileBlueprint, position, target, stats.damage),
         owner
     );
 }
 
-void ProjectileWeapon::draw(std::shared_ptr<GraphicsContext> graphicsContext) {
+void ProjectileWeapon::draw(const std::shared_ptr<GraphicsContext>& graphicsContext) {
     // no-op
 }
 
@@ -37,7 +37,7 @@ void ProjectileWeapon::update(const uint32_t& timeSinceLastFrame) {
     // no-op
 }
 
-void ProjectileWeapon::setProjectileBlueprint(Projectile::Blueprint projectileBlueprint) {
+void ProjectileWeapon::setProjectileBlueprint(const Projectile::Blueprint& projectileBlueprint) {
     this->projectileBlueprint = projectileBlueprint;
 }
 

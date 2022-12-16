@@ -37,7 +37,7 @@ void Entity::setSelectedTextureId(const uint8_t& selectedTextureId) {
     this->selectedTextureId = selectedTextureId;
 }
 
-void Entity::draw(std::shared_ptr<GraphicsContext> graphicsContext) {
+void Entity::draw(const std::shared_ptr<GraphicsContext>& graphicsContext) {
     game_assert(graphicsContext != nullptr);
 
     graphicsContext->getGridRenderer()->draw(graphicsContext, textureId, position);
@@ -90,7 +90,7 @@ std::shared_ptr<BehaviourStrategy> Entity::getBehaviourStrategy(void) {
     return behaviourStrategy;
 }
 
-void Entity::setBehaviourStrategy(std::shared_ptr<BehaviourStrategy> behaviourStrategy) {
+void Entity::setBehaviourStrategy(const std::shared_ptr<BehaviourStrategy>& behaviourStrategy) {
     this->behaviourStrategy = behaviourStrategy;
 }
 
@@ -114,7 +114,7 @@ void Entity::takeDamage(const int& amount) {
     currentHP -= amount;
 }
 
-void Entity::attack(std::shared_ptr<Entity> target, std::shared_ptr<Weapon> weapon) {
+void Entity::attack(const std::shared_ptr<Entity>& target, const std::shared_ptr<Weapon>& weapon) {
     auto targetName = target->getName();
 
     weapon->use(position, target);
@@ -133,7 +133,7 @@ bool Entity::hasWeapon(const uint32_t& weaponId) {
     return weapons.contains(weaponId);
 }
 
-std::shared_ptr<Weapon> Entity::addWeapon(std::shared_ptr<Weapon> weapon) {
+std::shared_ptr<Weapon> Entity::addWeapon(const std::shared_ptr<Weapon>& weapon) {
     weapons[weapon->getId()] = weapon;
     return weapon;
 }
@@ -146,7 +146,7 @@ void Entity::removeWeapon(const std::string& name) {
     }
 }
 
-void Entity::setCurrentWeapon(std::shared_ptr<Weapon> weapon) {
+void Entity::setCurrentWeapon(const std::shared_ptr<Weapon>& weapon) {
     currentWeapon = weapon;
 }
 
@@ -206,7 +206,7 @@ bool Entity::hasPath(void) {
     return !path.empty();
 }
 
-bool Entity::isNeighbour(std::shared_ptr<Entity> entity) const {
+bool Entity::isNeighbour(const std::shared_ptr<Entity>& entity) const {
     return glm::distance(glm::vec2(getPosition()), glm::vec2(entity->getPosition())) < 2;
 }
 
@@ -257,7 +257,7 @@ void Entity::reset(void) {
     }
 }
 
-void Entity::setParticipantId(int participantId) {
+void Entity::setParticipantId(const int& participantId) {
     this->participantId = participantId;
 }
 

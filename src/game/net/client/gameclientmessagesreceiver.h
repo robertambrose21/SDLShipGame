@@ -14,10 +14,10 @@ private:
     std::shared_ptr<GameClientMessagesTransmitter> transmitter;
     std::shared_ptr<PlayerController> playerController;
 
-    void receiveTestMessage(int data);
-    void receiveGameStateUpdate(GameStateUpdate update);
-    void receiveSetParticipant(int participantId, int numParticipantsToSet, bool isPlayer);
-    void receiveLoadMap(MapBlock block);
+    void receiveTestMessage(const int& data);
+    void receiveGameStateUpdate(const GameStateUpdate& update);
+    void receiveSetParticipant(const int& participantId, const int& numParticipantsToSet, const bool& isPlayer);
+    void receiveLoadMap(const MapBlock& block);
     void receiveFindPath(
         const uint32_t& entityId,
         const glm::ivec2& position,
@@ -30,10 +30,10 @@ private:
     );
 
 public:
-    GameClientMessagesReceiver(std::shared_ptr<ApplicationContext> context);
+    GameClientMessagesReceiver(const std::shared_ptr<ApplicationContext>& context);
 
-    void setPlayerController(std::shared_ptr<PlayerController> playerController);
-    void setTransmitter(std::shared_ptr<GameClientMessagesTransmitter> transmitter);
+    void setPlayerController(const std::shared_ptr<PlayerController>& playerController);
+    void setTransmitter(const std::shared_ptr<GameClientMessagesTransmitter>& transmitter);
 
     void receiveMessage(yojimbo::Message* message) override;
 };

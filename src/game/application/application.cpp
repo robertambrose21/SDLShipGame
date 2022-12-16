@@ -22,7 +22,7 @@ Application::Application() {
 Application::~Application()
 { }
 
-void Application::initialise(Window::Headless headless) {
+void Application::initialise(const Window::Headless& headless) {
     window->initialiseWindow(headless);
 
     window->setGridTileTexture(1, 4);

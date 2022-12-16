@@ -25,8 +25,8 @@ public:
     ClientApplication();
     ~ClientApplication();
 
-    void draw(std::shared_ptr<GraphicsContext> graphicsContext, bool& quit);
-    void update(uint32_t timeSinceLastFrame, bool& quit);
+    void draw(const std::shared_ptr<GraphicsContext>& graphicsContext, bool& quit);
+    void update(const uint32_t& timeSinceLastFrame, bool& quit);
     void initialise(void);
     void run(void);
 };

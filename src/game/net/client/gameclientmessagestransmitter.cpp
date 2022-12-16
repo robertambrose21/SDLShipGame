@@ -1,6 +1,6 @@
 #include "gameclientmessagestransmitter.h"
 
-GameClientMessagesTransmitter::GameClientMessagesTransmitter(std::shared_ptr<GameClient> client) :
+GameClientMessagesTransmitter::GameClientMessagesTransmitter(const std::shared_ptr<GameClient>& client) :
     client(client)
 { }
 

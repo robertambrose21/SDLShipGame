@@ -23,8 +23,8 @@ void TurnController::update(const uint32_t& timeSinceLastFrame) {
 
 std::shared_ptr<TurnController::Participant> TurnController::addParticipant(
     const int& id,
-    std::set<std::shared_ptr<Entity>> entities, 
-    bool isPlayer
+    const std::set<std::shared_ptr<Entity>>& entities, 
+    const bool& isPlayer
 ) {
     Participant participant;
     participant.id = id;
@@ -32,7 +32,7 @@ std::shared_ptr<TurnController::Participant> TurnController::addParticipant(
     participant.isPlayer = isPlayer;
     participant.passNextTurn = false;
 
-    for(auto entity : entities) {
+    for(auto const& entity : entities) {
         entity->setParticipantId(participant.id);
     }
 
@@ -43,7 +43,7 @@ std::shared_ptr<TurnController::Participant> TurnController::addParticipant(
     return participantPtr;
 }
 
-void TurnController::addEntityToParticipant(const int& participantId, std::shared_ptr<Entity> entity) {
+void TurnController::addEntityToParticipant(const int& participantId, const std::shared_ptr<Entity>& entity) {
     game_assert(entity != nullptr);
 
     if(!participants.contains(participantId)) {
@@ -62,7 +62,7 @@ std::shared_ptr<TurnController::Participant> TurnController::getParticipant(cons
     return participants[id];
 }
 
-std::map<int, std::shared_ptr<TurnController::Participant>> TurnController::getParticipants(void) {
+const std::map<int, std::shared_ptr<TurnController::Participant>>& TurnController::getParticipants(void) const {
     return participants;
 }
 
@@ -98,7 +98,7 @@ void TurnController::nextParticipantTurn(const int& id) {
 
     std::set<std::shared_ptr<Entity>> entitiesForDeletion;
 
-    for(auto entity : participants[currentParticipant]->entities) {
+    for(auto const& entity : participants[currentParticipant]->entities) {
         entity->nextTurn();
 
         if(entity->getCurrentHP() <= 0) {
@@ -106,13 +106,13 @@ void TurnController::nextParticipantTurn(const int& id) {
         }
     }
 
-    for(auto entity : entitiesForDeletion) {
+    for(auto const& entity : entitiesForDeletion) {
         entities.erase(std::find(entities.begin(), entities.end(), entity));
     }
     
     entitiesForDeletion.clear();
 
-    for(auto onNextTurnFunc : onNextTurnWorkers) {
+    for(auto const& onNextTurnFunc : onNextTurnWorkers) {
         onNextTurnFunc(currentParticipant, turnNumber);
     }
 }
@@ -131,7 +131,7 @@ int TurnController::getCurrentParticipant(void) const {
     return currentParticipant;
 }
 
-void TurnController::addOnNextTurnFunction(std::function<void(int, int)> onNextTurnFunc) {
+void TurnController::addOnNextTurnFunction(std::function<void(const int&, const int&)> onNextTurnFunc) {
     onNextTurnWorkers.push_back(onNextTurnFunc);
 }
 
@@ -147,7 +147,7 @@ int TurnController::getTurnNumber(void) const {
     return turnNumber;
 }
 
-bool TurnController::canProgressToNextTurn(std::shared_ptr<Entity> entity) {
+bool TurnController::canProgressToNextTurn(const std::shared_ptr<Entity>& entity) {
     return 
         !entity->isTurnInProgress() || 
         entity->endTurnCondition() || 

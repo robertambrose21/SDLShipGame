@@ -1,9 +1,9 @@
 #include "graphicscontext.h"
 
 GraphicsContext::GraphicsContext(
-    std::shared_ptr<SDL_Renderer> renderer,
-    std::shared_ptr<TextureLoader> textureLoader,
-    std::shared_ptr<GridRenderer> gridRenderer
+    const std::shared_ptr<SDL_Renderer>& renderer,
+    const std::shared_ptr<TextureLoader>& textureLoader,
+    const std::shared_ptr<GridRenderer>& gridRenderer
 ) :
     renderer(renderer),
     textureLoader(textureLoader),

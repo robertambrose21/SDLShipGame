@@ -1,11 +1,11 @@
 #include "areaofeffect.h"
 
 AreaOfEffect::AreaOfEffect(
-    std::shared_ptr<Grid> grid,
-    uint8_t textureId,
-    int liveTurn,
-    glm::ivec2 position, 
-    Stats stats
+    const std::shared_ptr<Grid>& grid,
+    const uint8_t& textureId,
+    const int& liveTurn,
+    const glm::ivec2& position, 
+    const Stats& stats
 ) :
     grid(grid),
     textureId(textureId),
@@ -16,9 +16,9 @@ AreaOfEffect::AreaOfEffect(
     effectedTilePositions = grid->getTilesInCircle(position.x, position.y, stats.radius);
 }
 
-void AreaOfEffect::draw(std::shared_ptr<GraphicsContext> graphicsContext) {
+void AreaOfEffect::draw(const std::shared_ptr<GraphicsContext>& graphicsContext) {
     game_assert(graphicsContext != nullptr);
-    for(auto position : effectedTilePositions) {
+    for(auto const& position : effectedTilePositions) {
         graphicsContext->getGridRenderer()->draw(graphicsContext, textureId, position);
     }
 }

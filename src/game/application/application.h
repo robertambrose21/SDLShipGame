@@ -40,6 +40,6 @@ public:
         return instance().context;
     }
     
-    void initialise(Window::Headless headless);
+    void initialise(const Window::Headless& headless);
     void run(void);
 };

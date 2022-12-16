@@ -2,7 +2,7 @@
 #include "game/weapons/weapon.h"
 #include "game/weapons/projectileweapon.h"
 
-WeaponStateUpdate WeaponStateUpdate::serialize(std::shared_ptr<Weapon> weapon) {
+WeaponStateUpdate WeaponStateUpdate::serialize(const std::shared_ptr<Weapon>& weapon) {
     WeaponStateUpdate weaponUpdate;
 
     switch(weapon->getType()) {
@@ -29,13 +29,13 @@ WeaponStateUpdate WeaponStateUpdate::serialize(std::shared_ptr<Weapon> weapon) {
     return weaponUpdate;
 }
 
-std::shared_ptr<Weapon> WeaponStateUpdate::deserialize(WeaponStateUpdate update, std::shared_ptr<Weapon> existing) {
+std::shared_ptr<Weapon> WeaponStateUpdate::deserialize(const WeaponStateUpdate& update, const std::shared_ptr<Weapon>& existing) {
     game_assert(existing != nullptr);
     existing->setUsesLeft(update.usesLeft);
     return existing;
 }
 
-EntityStateUpdate EntityStateUpdate::serialize(std::shared_ptr<Entity> entity) {
+EntityStateUpdate EntityStateUpdate::serialize(const std::shared_ptr<Entity>& entity) {
     game_assert(entity != nullptr);
 
     EntityStateUpdate entityStateUpdate;
@@ -60,7 +60,7 @@ EntityStateUpdate EntityStateUpdate::serialize(std::shared_ptr<Entity> entity) {
     return entityStateUpdate;
 }
 
-std::shared_ptr<Entity> EntityStateUpdate::deserialize(EntityStateUpdate update, std::shared_ptr<Entity> existing) {
+std::shared_ptr<Entity> EntityStateUpdate::deserialize(const EntityStateUpdate& update, const std::shared_ptr<Entity>& existing) {
     game_assert(existing != nullptr);
     existing->setPosition(glm::ivec2(update.x, update.y));
     existing->setCurrentHP(update.currentHP);

@@ -1,6 +1,6 @@
 #include "chaseandattackstrategy.h"
 
-ChaseAndAttackStrategy::ChaseAndAttackStrategy(std::shared_ptr<Entity> owner) :
+ChaseAndAttackStrategy::ChaseAndAttackStrategy(const std::shared_ptr<Entity>& owner) :
     BehaviourStrategy(owner),
     target(nullptr),
     canPassTurn(false)

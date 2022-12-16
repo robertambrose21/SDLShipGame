@@ -22,14 +22,14 @@ private:
 
 public:
     AreaOfEffect(
-        std::shared_ptr<Grid> grid, 
-        uint8_t textureId,
-        int liveTurn,
-        glm::ivec2 position, 
-        Stats stats
+        const std::shared_ptr<Grid>& grid, 
+        const uint8_t& textureId,
+        const int& liveTurn,
+        const glm::ivec2& position, 
+        const Stats& stats
     );
 
-    void draw(std::shared_ptr<GraphicsContext> graphicsContext);
+    void draw(const std::shared_ptr<GraphicsContext>& graphicsContext);
     void update(const uint32_t& timeSinceLastFrame);
 
     Stats getStats(void) const;

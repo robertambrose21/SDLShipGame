@@ -1,6 +1,6 @@
 #include "projectilepool.h"
 
-ProjectilePool::ProjectilePool(std::shared_ptr<AreaOfEffectPool> areaOfEffectPool) :
+ProjectilePool::ProjectilePool(const std::shared_ptr<AreaOfEffectPool>& areaOfEffectPool) :
     areaOfEffectPool(areaOfEffectPool)
 {
     loadProjectileDefinitions();
@@ -34,14 +34,16 @@ void ProjectilePool::loadProjectileDefinitions(void) {
     game_assert(!projectileDefinitions.empty());
 }
 
-void ProjectilePool::add(std::shared_ptr<Projectile> projectile, std::shared_ptr<Entity> owner) {
+void ProjectilePool::add(const std::shared_ptr<Projectile>& projectile, const std::shared_ptr<Entity>& owner) {
+    game_assert(projectile != nullptr);
+    game_assert(owner != nullptr);
     projectiles[owner].push_back(projectile);
 }
 
 Projectile::Blueprint ProjectilePool::create(const std::string& name) {
     game_assert(projectileDefinitions.contains(name));
-    auto definition = projectileDefinitions[name];
-    auto aoe = definition.aoe;
+    auto const& definition = projectileDefinitions[name];
+    auto const& aoe = definition.aoe;
     Projectile::Blueprint blueprint(
         Projectile::Stats { definition.multiplier, definition.speed },
         name,
@@ -54,9 +56,10 @@ Projectile::Blueprint ProjectilePool::create(const std::string& name) {
     return blueprint;
 }
 
-void ProjectilePool::draw(std::shared_ptr<GraphicsContext> graphicsContext) {
-    for(auto [owner, projectilesForOwner] : projectiles) {
-        for(auto projectile : projectilesForOwner) {
+void ProjectilePool::draw(const std::shared_ptr<GraphicsContext>& graphicsContext) {
+    game_assert(graphicsContext != nullptr);
+    for (auto [owner, projectilesForOwner] : projectiles) {
+        for(auto const& projectile : projectilesForOwner) {
             projectile->draw(graphicsContext);
         }
     }
@@ -64,7 +67,7 @@ void ProjectilePool::draw(std::shared_ptr<GraphicsContext> graphicsContext) {
 
 void ProjectilePool::update(const uint32_t& timeSinceLastFrame) {
     for(auto [owner, projectilesForOwner] : projectiles) {
-        for(auto projectile : projectilesForOwner) {
+        for(auto const& projectile : projectilesForOwner) {
             projectile->update(timeSinceLastFrame);
 
             if(projectile->hasReachedTarget()) {
@@ -74,7 +77,7 @@ void ProjectilePool::update(const uint32_t& timeSinceLastFrame) {
     }
 
     for(auto [owner, projectilesForOwner] : projectilesForDeletion) {
-        for(auto projectile : projectilesForOwner) {
+        for(auto const& projectile : projectilesForOwner) {
             projectiles[owner].erase(std::find(projectiles[owner].begin(), projectiles[owner].end(), projectile));
         }
     }
@@ -82,6 +85,15 @@ void ProjectilePool::update(const uint32_t& timeSinceLastFrame) {
     projectilesForDeletion.clear();
 }
 
-std::vector<std::shared_ptr<Projectile>> ProjectilePool::getProjectilesForOwner(std::shared_ptr<Entity> owner) {
-    return projectiles[owner];
+const std::vector<std::shared_ptr<Projectile>>& ProjectilePool::getProjectilesForOwner(const std::shared_ptr<Entity>& owner) const {
+    game_assert(owner != nullptr);
+    static const std::vector<std::shared_ptr<Projectile>> empty;
+
+    auto const& projectilesForOwner = projectiles.find(owner);
+    
+    if(projectilesForOwner != projectiles.end()) {
+        return projectilesForOwner->second;
+    }
+
+    return empty;
 }

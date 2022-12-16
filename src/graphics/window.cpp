@@ -1,6 +1,6 @@
 #include "window.h"
 
-Window::Window(int width, int height, std::shared_ptr<Grid> grid) :
+Window::Window(const int& width, const int& height, const std::shared_ptr<Grid>& grid) :
     width(width),
     height(height)
 {
@@ -11,7 +11,7 @@ Window::~Window() {
     IMG_Quit();
 }
 
-bool Window::initialiseWindow(Headless headless) {
+bool Window::initialiseWindow(const Headless& headless) {
     this->headless = headless;
 
     if(headless == Headless::YES) {
@@ -61,9 +61,8 @@ void Window::loop(void) {
     bool quit = false;
     SDL_Event e;
 
-    auto startTime = SDL_GetTicks();
-    auto currentTime = startTime;
-    auto timeSinceLastFrame = 0;
+    uint32_t currentTime = SDL_GetTicks();
+    uint32_t timeSinceLastFrame = 0;
 
     while(!quit) {
         timeSinceLastFrame = SDL_GetTicks() - currentTime;
@@ -74,12 +73,12 @@ void Window::loop(void) {
                 quit = true;
             }
 
-            for(auto worker : eventWorkers) {
+            for(auto const& worker : eventWorkers) {
                 worker(e, quit);
             }
         }
 
-        for(auto worker : logicWorkers) {
+        for(auto const& worker : logicWorkers) {
             worker(timeSinceLastFrame, quit);
         }
 
@@ -88,7 +87,7 @@ void Window::loop(void) {
 
             gridRenderer->draw(graphicsContext);
 
-            for(auto worker : drawWorkers) {
+            for(auto const& worker : drawWorkers) {
                 worker(graphicsContext, quit);
             }
 
@@ -101,11 +100,11 @@ void Window::addLoopLogicWorker(std::function<void(const uint32_t&, bool&)> work
     logicWorkers.push_back(worker);
 }
 
-void Window::addLoopDrawWorker(std::function<void(std::shared_ptr<GraphicsContext>, bool&)> worker) {
+void Window::addLoopDrawWorker(std::function<void(const std::shared_ptr<GraphicsContext>&, bool&)> worker) {
     drawWorkers.push_back(worker);
 }
 
-void Window::addLoopEventWorker(std::function<void(SDL_Event, bool&)> worker) {
+void Window::addLoopEventWorker(std::function<void(const SDL_Event&, bool&)> worker) {
     eventWorkers.push_back(worker);
 }
 

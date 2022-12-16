@@ -3,7 +3,7 @@
 StateMachine::StateMachine()
 { }
 
-void StateMachine::setState(std::shared_ptr<State> state) {
+void StateMachine::setState(const std::shared_ptr<State>& state) {
     currentState = state;
 }
 

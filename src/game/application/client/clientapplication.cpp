@@ -49,19 +49,19 @@ void ClientApplication::initialise(void) {
     );
     clientMessagesReceiver->setPlayerController(playerController);
 
-    context->getWindow()->addLoopLogicWorker([&](auto timeSinceLastFrame, auto& quit) {
+    context->getWindow()->addLoopLogicWorker([&](auto const& timeSinceLastFrame, auto& quit) {
         update(timeSinceLastFrame, quit);
     });
-    context->getWindow()->addLoopDrawWorker([&](auto graphicsContext, auto& quit) {
+    context->getWindow()->addLoopDrawWorker([&](auto const& graphicsContext, auto& quit) {
         draw(graphicsContext, quit);
     });
-    context->getWindow()->addLoopEventWorker([&](auto e, auto& quit) {
+    context->getWindow()->addLoopEventWorker([&](auto const& e, auto& quit) {
         playerController->handleKeyPress(e);
         playerController->handleMouseEvent(e);
     });
 }
 
-void ClientApplication::draw(std::shared_ptr<GraphicsContext> graphicsContext, bool& quit) {
+void ClientApplication::draw(const std::shared_ptr<GraphicsContext>& graphicsContext, bool& quit) {
     switch(clientStateMachine->getCurrentState()->GetType()) {
         case ClientStateMachine::Loading:
             break;
@@ -77,7 +77,7 @@ void ClientApplication::draw(std::shared_ptr<GraphicsContext> graphicsContext, b
     }
 }
 
-void ClientApplication::update(uint32_t timeSinceLastFrame, bool& quit) {
+void ClientApplication::update(const uint32_t& timeSinceLastFrame, bool& quit) {
     client->update(timeSinceLastFrame);
     
     switch(clientStateMachine->getCurrentState()->GetType()) {

@@ -9,5 +9,5 @@ namespace glm {
         return (a.x < b.x || (a.x == b.x && a.y < b.y));
     }
 
-    vec2 lerp(vec2 x, vec2 y, float t);
+    vec2 lerp(const vec2& x, const vec2& y, const float& t);
 }

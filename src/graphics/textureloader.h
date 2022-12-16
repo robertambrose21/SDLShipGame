@@ -23,11 +23,11 @@ private:
 
 public:
     Texture() { }
-    Texture(std::shared_ptr<SDL_Texture> texture, std::string id);
+    Texture(const std::shared_ptr<SDL_Texture>& texture, const std::string& id);
 
     std::string getId(void) const;
     void draw(
-        std::shared_ptr<SDL_Renderer> renderer,
+        const std::shared_ptr<SDL_Renderer>& renderer,
         const SDL_Rect* srcRect = NULL,
         const SDL_Rect* dstRect = NULL
     );
@@ -54,7 +54,7 @@ private:
     std::shared_ptr<SDL_Renderer> renderer;
 
 public:
-    TextureLoader(std::shared_ptr<SDL_Renderer> renderer);
+    TextureLoader(const std::shared_ptr<SDL_Renderer>& renderer);
 
     std::shared_ptr<Texture> loadTexture(const uint8_t& id);
     std::shared_ptr<Texture> loadTexture(const std::string& path);

@@ -1,13 +1,13 @@
 #include "projectile.h"
 
 Projectile::Projectile(
-    std::shared_ptr<Grid> grid,
-    uint8_t textureId,
-    glm::ivec2 startPosition,
-    std::shared_ptr<Entity> target,
-    Stats stats,
-    int weaponBaseDamage,
-    std::function<void(std::shared_ptr<Grid>, std::shared_ptr<Entity>, int)> onHitCallback
+    const std::shared_ptr<Grid>& grid,
+    const uint8_t& textureId,
+    const glm::ivec2& startPosition,
+    const std::shared_ptr<Entity>& target,
+    const Stats& stats,
+    const int& weaponBaseDamage,
+    std::function<void(const std::shared_ptr<Grid>&, const std::shared_ptr<Entity>&, const int&)> onHitCallback
 ) :
     grid(grid),
     textureId(textureId),
@@ -21,7 +21,7 @@ Projectile::Projectile(
     distanceToTarget = glm::distance(glm::vec2(target->getPosition()), glm::vec2(startPosition));
 }
 
-void Projectile::draw(std::shared_ptr<GraphicsContext> graphicsContext) {
+void Projectile::draw(const std::shared_ptr<GraphicsContext>& graphicsContext) {
     game_assert(graphicsContext != nullptr);
     graphicsContext->getGridRenderer()->draw(graphicsContext, textureId, position);
 }

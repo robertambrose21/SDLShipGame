@@ -32,8 +32,8 @@ private:
     void receiveSetParticipantAckMessage(const int& clientIndex, const int& participantId);
 
 public:
-    GameServerMessagesReceiver(std::shared_ptr<ApplicationContext> context);
+    GameServerMessagesReceiver(const std::shared_ptr<ApplicationContext>& context);
 
     void receiveMessage(const int& clientIndex, yojimbo::Message* message) override;
-    bool areParticipantsLoadedForClient(int clientIndex);
+    bool areParticipantsLoadedForClient(const int& clientIndex);
 };

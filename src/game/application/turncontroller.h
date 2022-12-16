@@ -26,7 +26,7 @@ private:
     std::vector<std::function<void(int, int)>> onNextTurnWorkers;
     std::function<void()> onAllParticipantsSet;
 
-    bool canProgressToNextTurn(std::shared_ptr<Entity> entity);
+    bool canProgressToNextTurn(const std::shared_ptr<Entity>& entity);
     void nextParticipantTurn(const int& id);
 
 public:
@@ -36,12 +36,12 @@ public:
 
     std::shared_ptr<Participant> addParticipant(
         const int& id,
-        std::set<std::shared_ptr<Entity>> entities, 
-        bool isPlayer
+        const std::set<std::shared_ptr<Entity>>& entities, 
+        const bool& isPlayer
     );
-    void addEntityToParticipant(const int& participantId, std::shared_ptr<Entity> entity);
+    void addEntityToParticipant(const int& participantId, const std::shared_ptr<Entity>& entity);
     std::shared_ptr<Participant> getParticipant(const int& id);
-    std::map<int, std::shared_ptr<Participant>> getParticipants(void);
+    const std::map<int, std::shared_ptr<Participant>>& getParticipants(void) const;
 
     void reset(void);
     
@@ -49,7 +49,7 @@ public:
     void setCurrentParticipant(const int& id);
     int getCurrentParticipant(void) const;
 
-    void addOnNextTurnFunction(std::function<void(int, int)> onNextTurnFunc);
+    void addOnNextTurnFunction(std::function<void(const int&, const int&)> onNextTurnFunc);
     void setOnAllParticipantsSetFunction(std::function<void()> onAllParticipantsSet);
 
     void allParticipantsSet(void);

@@ -63,9 +63,9 @@ public:
     static std::shared_ptr<Entity> filterByTile(
         const int& x, 
         const int& y, 
-        std::set<std::shared_ptr<Entity>> entities
+        const std::set<std::shared_ptr<Entity>>& entities
     ) {
-        for(auto entity : entities) {
+        for(auto const& entity : entities) {
             if(entity->isOnTile(x, y)) {
                 return entity;
             }
@@ -77,7 +77,7 @@ public:
     static std::shared_ptr<Entity> filterByTile(
         const int& x, 
         const int& y, 
-        std::map<uint32_t, std::shared_ptr<Entity>> entities
+        const std::map<uint32_t, std::shared_ptr<Entity>>& entities
     ) {
         for(auto [entityId, entity] : entities) {
             if(entity->isOnTile(x, y)) {
@@ -94,27 +94,27 @@ public:
     void setSelectedTextureId(const uint8_t& selectedTexture);
     uint8_t getTextureId(void) const;
 
-    void draw(std::shared_ptr<GraphicsContext> graphicsContext);
+    void draw(const std::shared_ptr<GraphicsContext>& graphicsContext);
 
     void setSelected(bool selected);
     bool isSelected(void) const;
 
     std::shared_ptr<BehaviourStrategy> getBehaviourStrategy(void);
-    void setBehaviourStrategy(std::shared_ptr<BehaviourStrategy> behaviourStrategy);
+    void setBehaviourStrategy(const std::shared_ptr<BehaviourStrategy>& behaviourStrategy);
 
     Stats getStats(void) const;
     const float getSpeed(void);
     int getCurrentHP(void) const;
     void setCurrentHP(const int& hp);
     void takeDamage(const int& amount);
-    void attack(std::shared_ptr<Entity> target, std::shared_ptr<Weapon> weapon);
+    void attack(const std::shared_ptr<Entity>& target, const std::shared_ptr<Weapon>& weapon);
 
     std::map<uint32_t, std::shared_ptr<Weapon>> getWeapons(void) const;
     std::shared_ptr<Weapon> getWeapon(const uint32_t& weaponId);
     bool hasWeapon(const uint32_t& weaponId);
-    std::shared_ptr<Weapon> addWeapon(std::shared_ptr<Weapon> weapon);
+    std::shared_ptr<Weapon> addWeapon(const std::shared_ptr<Weapon>& weapon);
     void removeWeapon(const std::string& name);
-    void setCurrentWeapon(std::shared_ptr<Weapon> weapon);
+    void setCurrentWeapon(const std::shared_ptr<Weapon>& weapon);
     std::shared_ptr<Weapon> getCurrentWeapon(void);
 
     uint32_t getId(void) const;
@@ -127,7 +127,7 @@ public:
 
     void setPosition(const glm::ivec2& position);
     bool findPath(const glm::ivec2& target, const int& stopShortSteps = 0);
-    bool isNeighbour(std::shared_ptr<Entity> entity) const;
+    bool isNeighbour(const std::shared_ptr<Entity>& entity) const;
     bool hasPath(void);
 
     int getMovesLeft(void) const;
@@ -135,7 +135,7 @@ public:
     bool isTurnInProgress(void) const;
     void useMoves(const int& numMoves);
 
-    void setParticipantId(int participantId);
+    void setParticipantId(const int& participantId);
     int getParticipantId(void) const;
 
     void reset(void);

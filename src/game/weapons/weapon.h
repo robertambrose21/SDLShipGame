@@ -33,30 +33,30 @@ protected:
 
     std::shared_ptr<Grid> grid;
 
-    virtual void onUse(glm::ivec2 position, std::shared_ptr<Entity> target) = 0;
+    virtual void onUse(const glm::ivec2& position, const std::shared_ptr<Entity>& target) = 0;
 
 public:
     Weapon(
-        std::shared_ptr<Entity> owner,
-        std::shared_ptr<Grid> grid,
+        const std::shared_ptr<Entity>& owner,
+        const std::shared_ptr<Grid>& grid,
         const uint32_t& id,
         const std::string& name, 
-        Stats stats
+        const Stats& stats
     );
 
     Weapon(
-        std::shared_ptr<Entity> owner,
-        std::shared_ptr<Grid> grid, 
+        const std::shared_ptr<Entity>& owner,
+        const std::shared_ptr<Grid>& grid, 
         const std::string& name, 
-        Stats stats
+        const Stats& stats
     );
 
-    void use(glm::ivec2 position, std::shared_ptr<Entity> target);
+    void use(const glm::ivec2& position, const std::shared_ptr<Entity>& target);
     void reset(void);
     void setFinished(void);
-    bool isInRange(glm::ivec2 position);
+    bool isInRange(const glm::ivec2& position);
 
-    virtual void draw(std::shared_ptr<GraphicsContext> graphicsContext) = 0;
+    virtual void draw(const std::shared_ptr<GraphicsContext>& graphicsContext) = 0;
     virtual void update(const uint32_t& timeSinceLastFrame) = 0;
     virtual bool hasFinished(void);
     virtual Type getType(void) const = 0;

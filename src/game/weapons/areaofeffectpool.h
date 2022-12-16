@@ -31,13 +31,13 @@ private:
 
 public:
     AreaOfEffectPool(
-        std::shared_ptr<TurnController> turnController, 
-        std::shared_ptr<Grid> grid
+        const std::shared_ptr<TurnController>& turnController, 
+        const std::shared_ptr<Grid>& grid
     );
 
-    void add(std::shared_ptr<AreaOfEffect> areaOfEffect);
-    void add(const std::string& name, int turnNumber, const glm::ivec2& position);
+    void add(const std::shared_ptr<AreaOfEffect>& areaOfEffect);
+    void add(const std::string& name, const int& turnNumber, const glm::ivec2& position);
 
-    void draw(std::shared_ptr<GraphicsContext> graphicsContext);
+    void draw(const std::shared_ptr<GraphicsContext>& graphicsContext);
     void update(const uint32_t& timeSinceLastFrame);
 };

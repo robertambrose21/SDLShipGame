@@ -1,12 +1,12 @@
 #include "applicationcontext.h"
 
 ApplicationContext::ApplicationContext(
-    std::shared_ptr<Window> window,
-    std::shared_ptr<EntityPool> entityPool,
-    std::shared_ptr<WeaponController> weaponController,
-    std::shared_ptr<ProjectilePool> projectilePool,
-    std::shared_ptr<AreaOfEffectPool> areaOfEffectPool,
-    std::shared_ptr<TurnController> turnController
+    const std::shared_ptr<Window>& window,
+    const std::shared_ptr<EntityPool>& entityPool,
+    const std::shared_ptr<WeaponController>& weaponController,
+    const std::shared_ptr<ProjectilePool>& projectilePool,
+    const std::shared_ptr<AreaOfEffectPool>& areaOfEffectPool,
+    const std::shared_ptr<TurnController>& turnController
 ) :
     window(window),
     entityPool(entityPool),
@@ -55,7 +55,7 @@ std::shared_ptr<GraphicsContext> ApplicationContext::getGraphicsContext(void) {
     return getWindow()->getGraphicsContext();
 }
 
-void ApplicationContext::setServerMessagesTransmitter(std::shared_ptr<ServerMessagesTransmitter> transmitter) {
+void ApplicationContext::setServerMessagesTransmitter(const std::shared_ptr<ServerMessagesTransmitter>& transmitter) {
     game_assert(transmitter != nullptr);
     this->transmitter = transmitter;
 }
