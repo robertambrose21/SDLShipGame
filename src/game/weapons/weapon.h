@@ -39,7 +39,7 @@ public:
     Weapon(
         const std::shared_ptr<Entity>& owner,
         const std::shared_ptr<Grid>& grid,
-        const uint32_t& id,
+        uint32_t id,
         const std::string& name, 
         const Stats& stats
     );
@@ -57,13 +57,13 @@ public:
     bool isInRange(const glm::ivec2& position);
 
     virtual void draw(const std::shared_ptr<GraphicsContext>& graphicsContext) = 0;
-    virtual void update(const uint32_t& timeSinceLastFrame) = 0;
+    virtual void update(uint32_t timeSinceLastFrame) = 0;
     virtual bool hasFinished(void);
     virtual Type getType(void) const = 0;
 
     Stats getStats(void) const;
     int getUsesLeft(void) const;
-    void setUsesLeft(const int& usesLeft);
+    void setUsesLeft(int usesLeft);
 
     uint32_t getId(void) const;
     std::string getName(void) const;

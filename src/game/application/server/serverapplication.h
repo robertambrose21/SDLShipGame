@@ -19,10 +19,10 @@ private:
     
     std::map<int, int> participantToClientIndex;
 
-    void sendLoadMapToClient(const int& clientIndex);
+    void sendLoadMapToClient(int clientIndex);
     void sendGameStateUpdatesToClients(void);
 
-    void onClientConnect(const int& clientIndex);
+    void onClientConnect(int clientIndex);
 
 public:
     ServerApplication();

@@ -64,7 +64,7 @@ struct GameStateUpdate {
     }
 
     static GameStateUpdate serialize(
-        const int& currentParticipant, 
+        int currentParticipant, 
         const std::map<uint32_t, std::shared_ptr<Entity>>& entities
     ) {
         GameStateUpdate update;

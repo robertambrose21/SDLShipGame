@@ -28,7 +28,7 @@ public:
         const yojimbo::Address& serverAddress
     );
 
-    void update(const uint32_t& timeSinceLastFrame);
+    void update(uint32_t timeSinceLastFrame);
     yojimbo::Message* createMessage(const GameMessageType& messageType);
     void sendMessage(yojimbo::Message* message);
 };

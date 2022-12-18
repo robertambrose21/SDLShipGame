@@ -22,7 +22,7 @@ private:
 public:
     ChaseAndAttackStrategy(const std::shared_ptr<Entity>& owner);
 
-    void onUpdate(const uint32_t& timeSinceLastFrame, bool& quit);
+    void onUpdate(uint32_t timeSinceLastFrame, bool& quit);
     void onNextTurn(void);
     bool endTurnCondition(void);
 };

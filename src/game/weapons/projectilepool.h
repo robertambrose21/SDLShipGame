@@ -16,7 +16,7 @@ private:
         std::string filename;
         std::string name;
         std::string aoe;
-        uint8_t textureId;
+        uint32_t textureId;
         float multiplier;
         float speed;
     } ProjectileDefinition;
@@ -37,7 +37,7 @@ public:
     Projectile::Blueprint create(const std::string& name);
 
     void draw(const std::shared_ptr<GraphicsContext>& graphicsContext);
-    void update(const uint32_t& timeSinceLastFrame);
+    void update(uint32_t timeSinceLastFrame);
 
     const std::vector<std::shared_ptr<Projectile>>& getProjectilesForOwner(const std::shared_ptr<Entity>& owner) const;
 };

@@ -18,15 +18,15 @@ public:
     typedef struct _blueprint {
         Stats stats;
         std::string name;
-        uint8_t textureId;
-        std::function<void(const std::shared_ptr<Grid>&, const std::shared_ptr<Entity>&, const int&)> onHitCallback;
+        uint32_t textureId;
+        std::function<void(const std::shared_ptr<Grid>&, const std::shared_ptr<Entity>&, int)> onHitCallback;
 
         _blueprint(
             const Stats& stats,
             const std::string& name,
-            const uint8_t& textureId,
-            std::function<void(const std::shared_ptr<Grid>&, const std::shared_ptr<Entity>&, const int&)> onHitCallback =
-                [](const std::shared_ptr<Grid>&, const std::shared_ptr<Entity>&, const int&){ }
+            uint32_t textureId,
+            std::function<void(const std::shared_ptr<Grid>&, const std::shared_ptr<Entity>&, int)> onHitCallback =
+                [](const std::shared_ptr<Grid>&, const std::shared_ptr<Entity>&, int){ }
         ) :
             stats(stats),
             name(name),
@@ -39,7 +39,7 @@ private:
     Stats stats;
 
     std::shared_ptr<Grid> grid;
-    uint8_t textureId;
+    uint32_t textureId;
 
     glm::ivec2 position;
     glm::ivec2 startPosition;
@@ -50,20 +50,20 @@ private:
 
     int weaponBaseDamage;
 
-    std::function<void(const std::shared_ptr<Grid>&, const std::shared_ptr<Entity>&, const int&)> onHitCallback;
+    std::function<void(const std::shared_ptr<Grid>&, const std::shared_ptr<Entity>&, int)> onHitCallback;
 
     float getStep(void) const;
 
 public:
     Projectile(
         const std::shared_ptr<Grid>& grid,
-        const uint8_t& textureId,
+        uint32_t textureId,
         const glm::ivec2& startPosition,
         const std::shared_ptr<Entity>& target,
         const Stats& stats,
-        const int& weaponBaseDamage,
-        std::function<void(const std::shared_ptr<Grid>&, const std::shared_ptr<Entity>&, const int&)> onHitCallback = 
-            [](const std::shared_ptr<Grid>&, const std::shared_ptr<Entity>&, const int&){ }
+        int weaponBaseDamage,
+        std::function<void(const std::shared_ptr<Grid>&, const std::shared_ptr<Entity>&, int)> onHitCallback = 
+            [](const std::shared_ptr<Grid>&, const std::shared_ptr<Entity>&, int){ }
     );
 
     static std::shared_ptr<Projectile> create(
@@ -71,7 +71,7 @@ public:
         const Blueprint& blueprint, 
         const glm::ivec2& startPosition,
         const std::shared_ptr<Entity>& target,
-        const int& weaponBaseDamage
+        int weaponBaseDamage
     ) {
         return std::make_shared<Projectile>(
             grid,
@@ -85,7 +85,7 @@ public:
     }
 
     void draw(const std::shared_ptr<GraphicsContext>& graphicsContext);
-    void update(const uint32_t& timeSinceLastFrame);
+    void update(uint32_t timeSinceLastFrame);
 
     bool hasReachedTarget(void) const;
 };

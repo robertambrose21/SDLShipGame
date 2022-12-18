@@ -1,12 +1,12 @@
 #include "gridrenderer.h"
 
-GridRenderer::GridRenderer(const std::shared_ptr<Grid>& grid, const int& windowHeight) :
+GridRenderer::GridRenderer(const std::shared_ptr<Grid>& grid, int windowHeight) :
     grid(grid),
     windowHeight(windowHeight),
     tileSize(windowHeight / grid->getHeight())
 { }
 
-void GridRenderer::setTileTexture(const int& tileId, const uint8_t& textureId) {
+void GridRenderer::setTileTexture(int tileId, uint32_t textureId) {
     game_assert(tileId >= 0);
     tileTextures[tileId] = textureId;
 }
@@ -25,7 +25,7 @@ void GridRenderer::draw(const std::shared_ptr<GraphicsContext>& graphicsContext)
 
 void GridRenderer::draw(
     const std::shared_ptr<GraphicsContext>& graphicsContext, 
-    const uint8_t& textureId,
+    uint32_t textureId,
     const glm::ivec2& position
 ) {
     game_assert(graphicsContext != nullptr);
@@ -34,7 +34,7 @@ void GridRenderer::draw(
     graphicsContext->getTextureLoader()->loadTexture(textureId)->draw(graphicsContext->getRenderer(), NULL, &dst);
 }
 
-glm::ivec2 GridRenderer::getTilePosition(const int& x, const int& y) const {
+glm::ivec2 GridRenderer::getTilePosition(int x, int y) const {
     return { x * tileSize, y * tileSize };
 }
 

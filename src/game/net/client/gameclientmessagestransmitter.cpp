@@ -5,9 +5,9 @@ GameClientMessagesTransmitter::GameClientMessagesTransmitter(const std::shared_p
 { }
 
 void GameClientMessagesTransmitter::sendFindPathMessage(
-    const uint32_t& entityId,
+    uint32_t entityId,
     const glm::ivec2& position,
-    const int& shortStopSteps
+    int shortStopSteps
 ) {
     FindPathMessage* message = (FindPathMessage*) client->createMessage(GameMessageType::FIND_PATH);
 
@@ -19,7 +19,7 @@ void GameClientMessagesTransmitter::sendFindPathMessage(
     client->sendMessage(message);
 }
 
-void GameClientMessagesTransmitter::sendSelectEntityMessage(const uint32_t& entityId) {
+void GameClientMessagesTransmitter::sendSelectEntityMessage(uint32_t entityId) {
     SelectEntityMessage* message = (SelectEntityMessage*) client->createMessage(GameMessageType::SELECT_ENTITY);
 
     message->id = entityId;
@@ -28,9 +28,9 @@ void GameClientMessagesTransmitter::sendSelectEntityMessage(const uint32_t& enti
 }
 
 void GameClientMessagesTransmitter::sendAttackEntityMessage(
-    const uint32_t& entityId, 
-    const uint32_t& targetId, 
-    const uint32_t& weaponId
+    uint32_t entityId, 
+    uint32_t targetId, 
+    uint32_t weaponId
 ) {
     AttackEntityMessage* message = (AttackEntityMessage*) client->createMessage(GameMessageType::ATTACK_ENTITY);
     
@@ -41,7 +41,7 @@ void GameClientMessagesTransmitter::sendAttackEntityMessage(
     client->sendMessage(message);
 }
 
-void GameClientMessagesTransmitter::sendPassParticipantTurnMessage(const int& participantId) {
+void GameClientMessagesTransmitter::sendPassParticipantTurnMessage(int participantId) {
     PassParticipantTurnMessage* message = (PassParticipantTurnMessage*) client->createMessage(GameMessageType::PASS_PARTICIPANT_TURN);
 
     message->participantId = participantId;
@@ -49,7 +49,7 @@ void GameClientMessagesTransmitter::sendPassParticipantTurnMessage(const int& pa
     client->sendMessage(message);
 }
 
-void GameClientMessagesTransmitter::sendSetParticipantAckMessage(const int& participantId) {
+void GameClientMessagesTransmitter::sendSetParticipantAckMessage(int participantId) {
     SetParticipantAckMessage* message = (SetParticipantAckMessage*) client->createMessage(GameMessageType::SET_PARTICIPANT_ACK);
 
     message->participantId = participantId;

@@ -9,7 +9,7 @@ ChaseAndAttackStrategy::ChaseAndAttackStrategy(const std::shared_ptr<Entity>& ow
     transmitter = std::dynamic_pointer_cast<GameServerMessagesTransmitter>(Application::getContext()->getServerMessagesTransmitter());
 }
 
-void ChaseAndAttackStrategy::onUpdate(const uint32_t& timeSinceLastFrame, bool& quit) {
+void ChaseAndAttackStrategy::onUpdate(uint32_t timeSinceLastFrame, bool& quit) {
     if(target == nullptr) {
         return;
     }

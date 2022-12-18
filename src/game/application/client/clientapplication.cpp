@@ -77,7 +77,7 @@ void ClientApplication::draw(const std::shared_ptr<GraphicsContext>& graphicsCon
     }
 }
 
-void ClientApplication::update(const uint32_t& timeSinceLastFrame, bool& quit) {
+void ClientApplication::update(uint32_t timeSinceLastFrame, bool& quit) {
     client->update(timeSinceLastFrame);
     
     switch(clientStateMachine->getCurrentState()->GetType()) {

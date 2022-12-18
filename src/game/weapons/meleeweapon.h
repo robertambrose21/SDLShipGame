@@ -10,7 +10,7 @@ public:
     MeleeWeapon(
         const std::shared_ptr<Entity>& owner, 
         const std::shared_ptr<Grid>& grid,
-        const uint32_t& id,
+        uint32_t id,
         const std::string& name, 
         const Stats& stats
     );
@@ -23,6 +23,6 @@ public:
     );
 
     void draw(const std::shared_ptr<GraphicsContext>& graphicsContext);
-    void update(const uint32_t& timeSinceLastFrame);
+    void update(uint32_t timeSinceLastFrame);
     Type getType(void) const;
 };

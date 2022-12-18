@@ -12,16 +12,16 @@ public:
     GameClientMessagesTransmitter(const std::shared_ptr<GameClient>& client);
 
     void sendFindPathMessage(
-        const uint32_t& entityId, 
+        uint32_t entityId, 
         const glm::ivec2& position,
-        const int& shortStopSteps
+        int shortStopSteps
     );
-    void sendSelectEntityMessage(const uint32_t& entityId);
+    void sendSelectEntityMessage(uint32_t entityId);
     void sendAttackEntityMessage(
-        const uint32_t& entityId, 
-        const uint32_t& targetId, 
-        const uint32_t& weaponId
+        uint32_t entityId, 
+        uint32_t targetId, 
+        uint32_t weaponId
     );
-    void sendPassParticipantTurnMessage(const int& participantId);
-    void sendSetParticipantAckMessage(const int& participantId);
+    void sendPassParticipantTurnMessage(int participantId);
+    void sendSetParticipantAckMessage(int participantId);
 };

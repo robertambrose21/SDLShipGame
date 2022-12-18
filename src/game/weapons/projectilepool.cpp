@@ -22,7 +22,7 @@ void ProjectilePool::loadProjectileDefinitions(void) {
         else {
             definition.aoe = "";
         }
-        definition.textureId = data["textureId"].get<uint8_t>();
+        definition.textureId = data["textureId"].get<uint32_t>();
         definition.multiplier = data["multiplier"].get<float>();
         definition.speed = data["speed"].get<float>();
 
@@ -65,7 +65,7 @@ void ProjectilePool::draw(const std::shared_ptr<GraphicsContext>& graphicsContex
     }
 }
 
-void ProjectilePool::update(const uint32_t& timeSinceLastFrame) {
+void ProjectilePool::update(uint32_t timeSinceLastFrame) {
     for(auto [owner, projectilesForOwner] : projectiles) {
         for(auto const& projectile : projectilesForOwner) {
             projectile->update(timeSinceLastFrame);

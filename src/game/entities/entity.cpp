@@ -2,9 +2,9 @@
 #include "game/application/application.h"
 
 Entity::Entity(
-    const uint32_t& id,
+    uint32_t id,
     const std::string& name,
-    Stats stats
+    const Stats& stats
 ) :
     id(id),
     name(name),
@@ -20,19 +20,19 @@ Entity::Entity(
 
 Entity::Entity(
     const std::string& name,
-    Stats stats
+    const Stats& stats
 ) : Entity(getNewId(), name, stats)
 { }
 
-void Entity::setTextureId(const uint8_t& textureId) {
+void Entity::setTextureId(uint32_t textureId) {
     this->textureId = textureId;
 }
 
-uint8_t Entity::getTextureId(void) const {
+uint32_t Entity::getTextureId(void) const {
     return textureId;
 }
 
-void Entity::setSelectedTextureId(const uint8_t& selectedTextureId) {
+void Entity::setSelectedTextureId(uint32_t selectedTextureId) {
     game_assert(textureId != selectedTextureId);
     this->selectedTextureId = selectedTextureId;
 }
@@ -51,7 +51,7 @@ void Entity::draw(const std::shared_ptr<GraphicsContext>& graphicsContext) {
     }
 }
 
-void Entity::update(const uint32_t& timeSinceLastFrame, bool& quit) {
+void Entity::update(uint32_t timeSinceLastFrame, bool& quit) {
     for(auto [_, weapon] : weapons) {
         weapon->update(timeSinceLastFrame);
     }
@@ -106,11 +106,11 @@ int Entity::getCurrentHP(void) const {
     return currentHP;
 }
 
-void Entity::setCurrentHP(const int& hp) {
+void Entity::setCurrentHP(int hp) {
     this->currentHP = hp;
 }
 
-void Entity::takeDamage(const int& amount) {
+void Entity::takeDamage(int amount) {
     currentHP -= amount;
 }
 
@@ -124,12 +124,12 @@ std::map<uint32_t, std::shared_ptr<Weapon>> Entity::getWeapons(void) const {
     return weapons;
 }
 
-std::shared_ptr<Weapon> Entity::getWeapon(const uint32_t& weaponId) {
+std::shared_ptr<Weapon> Entity::getWeapon(uint32_t weaponId) {
     game_assert(weapons.contains(weaponId));
     return weapons[weaponId];
 }
 
-bool Entity::hasWeapon(const uint32_t& weaponId) {
+bool Entity::hasWeapon(uint32_t weaponId) {
     return weapons.contains(weaponId);
 }
 
@@ -158,7 +158,7 @@ uint32_t Entity::getId(void) const {
     return id;
 }
 
-void Entity::setId(const uint32_t& id) {
+void Entity::setId(uint32_t id) {
     this->id = id;
 }
 
@@ -174,7 +174,7 @@ glm::ivec2 Entity::getPosition(void) const {
     return position;
 }
 
-bool Entity::isOnTile(const int& x, const int& y) {
+bool Entity::isOnTile(int x, int y) {
     return position == glm::ivec2(x, y);
 }
 
@@ -182,7 +182,7 @@ void Entity::setPosition(const glm::ivec2& position) {
     this->position = position;
 }
 
-bool Entity::findPath(const glm::ivec2& target, const int& stopShortSteps) {
+bool Entity::findPath(const glm::ivec2& target, int stopShortSteps) {
     auto path = grid->findPath(getPosition(), target);
 
     if(path.empty()) {
@@ -214,7 +214,7 @@ int Entity::getMovesLeft(void) const {
     return movesLeft;
 }
 
-void Entity::setMovesLeft(const int& movesLeft) {
+void Entity::setMovesLeft(int movesLeft) {
     this->movesLeft = movesLeft;
 }
 
@@ -222,7 +222,7 @@ bool Entity::isTurnInProgress(void) const {
     return getMovesLeft() > 0 || !currentWeapon->hasFinished();
 }
 
-void Entity::useMoves(const int& numMoves) {
+void Entity::useMoves(int numMoves) {
     movesLeft -= numMoves;
     
     if(movesLeft < 0) {
@@ -257,7 +257,7 @@ void Entity::reset(void) {
     }
 }
 
-void Entity::setParticipantId(const int& participantId) {
+void Entity::setParticipantId(int participantId) {
     this->participantId = participantId;
 }
 

@@ -3,7 +3,7 @@
 Weapon::Weapon(
     const std::shared_ptr<Entity>& owner,
     const std::shared_ptr<Grid>& grid,
-    const uint32_t& id,
+    uint32_t id,
     const std::string& name, 
     const Stats& stats
 ) :
@@ -74,7 +74,7 @@ int Weapon::getUsesLeft(void) const {
     return usesLeft;
 }
 
-void Weapon::setUsesLeft(const int& usesLeft) {
+void Weapon::setUsesLeft(int usesLeft) {
     this->usesLeft = usesLeft;
 }
 

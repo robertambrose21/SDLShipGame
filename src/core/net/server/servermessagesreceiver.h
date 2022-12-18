@@ -4,5 +4,5 @@
 
 class ServerMessagesReceiver {
 public:
-    virtual void receiveMessage(const int& participantId, yojimbo::Message* message) = 0;
+    virtual void receiveMessage(int participantId, yojimbo::Message* message) = 0;
 };

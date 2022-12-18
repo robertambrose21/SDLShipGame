@@ -56,7 +56,7 @@ void ServerApplication::run(void) {
     Application::instance().run();
 }
 
-void ServerApplication::onClientConnect(const int& clientIndex) {
+void ServerApplication::onClientConnect(int clientIndex) {
     auto context = Application::getContext();
 
     // TODO: Set this up so players are assigned properly.
@@ -70,7 +70,7 @@ void ServerApplication::onClientConnect(const int& clientIndex) {
     sendLoadMapToClient(clientIndex);
 }
 
-void ServerApplication::sendLoadMapToClient(const int& clientIndex) {
+void ServerApplication::sendLoadMapToClient(int clientIndex) {
     auto context = Application::getContext();
     auto grid = context->getGrid();
 

@@ -5,7 +5,7 @@ TurnController::TurnController() :
     currentParticipant(0)
 { }
 
-void TurnController::update(const uint32_t& timeSinceLastFrame) {
+void TurnController::update(uint32_t timeSinceLastFrame) {
     if(participants.size() <= 0) {
         return;
     }
@@ -22,9 +22,9 @@ void TurnController::update(const uint32_t& timeSinceLastFrame) {
 }
 
 std::shared_ptr<TurnController::Participant> TurnController::addParticipant(
-    const int& id,
+    int id,
     const std::set<std::shared_ptr<Entity>>& entities, 
-    const bool& isPlayer
+    bool isPlayer
 ) {
     Participant participant;
     participant.id = id;
@@ -43,7 +43,7 @@ std::shared_ptr<TurnController::Participant> TurnController::addParticipant(
     return participantPtr;
 }
 
-void TurnController::addEntityToParticipant(const int& participantId, const std::shared_ptr<Entity>& entity) {
+void TurnController::addEntityToParticipant(int participantId, const std::shared_ptr<Entity>& entity) {
     game_assert(entity != nullptr);
 
     if(!participants.contains(participantId)) {
@@ -57,7 +57,7 @@ void TurnController::addEntityToParticipant(const int& participantId, const std:
     participants[participantId]->entities.insert(entity);
 }
 
-std::shared_ptr<TurnController::Participant> TurnController::getParticipant(const int& id) {
+std::shared_ptr<TurnController::Participant> TurnController::getParticipant(int id) {
     game_assert(participants.contains(id));
     return participants[id];
 }
@@ -80,7 +80,7 @@ void TurnController::reset(void) {
     }
 }
 
-void TurnController::nextParticipantTurn(const int& id) {
+void TurnController::nextParticipantTurn(int id) {
     if(id == currentParticipant) {
         return;
     }
@@ -117,12 +117,12 @@ void TurnController::nextParticipantTurn(const int& id) {
     }
 }
 
-void TurnController::passParticipant(const int& id) {
+void TurnController::passParticipant(int id) {
     game_assert(participants.contains(id));
     participants[id]->passNextTurn = true;
 }
 
-void TurnController::setCurrentParticipant(const int& id) {
+void TurnController::setCurrentParticipant(int id) {
     game_assert(participants.contains(id));
     nextParticipantTurn(id);
 }
@@ -131,7 +131,7 @@ int TurnController::getCurrentParticipant(void) const {
     return currentParticipant;
 }
 
-void TurnController::addOnNextTurnFunction(std::function<void(const int&, const int&)> onNextTurnFunc) {
+void TurnController::addOnNextTurnFunction(std::function<void(int, int)> onNextTurnFunc) {
     onNextTurnWorkers.push_back(onNextTurnFunc);
 }
 

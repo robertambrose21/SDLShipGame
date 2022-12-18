@@ -34,7 +34,7 @@ void GameServer::setTransmitter(const std::shared_ptr<ServerMessagesTransmitter>
     this->transmitter = transmitter;
 }
 
-void GameServer::update(const uint32_t& timeSinceLastFrame) {
+void GameServer::update(uint32_t timeSinceLastFrame) {
     server.AdvanceTime(server.GetTime() + ((double) timeSinceLastFrame) / 1000.0f);
     server.ReceivePackets();
 
@@ -62,27 +62,27 @@ void GameServer::processMessages(void) {
     }
 }
 
-void GameServer::processMessage(const int& clientIndex, yojimbo::Message* message) {
+void GameServer::processMessage(int clientIndex, yojimbo::Message* message) {
     receiver->receiveMessage(clientIndex, message);
 }
 
-void GameServer::clientConnected(const int& clientIndex) {
+void GameServer::clientConnected(int clientIndex) {
     game_assert(transmitter != nullptr);
     std::cout << "client " << clientIndex << " connected" << std::endl;
     transmitter->onClientConnected(clientIndex);
 }
 
-void GameServer::clientDisconnected(const int& clientIndex) {
+void GameServer::clientDisconnected(int clientIndex) {
     std::cout << "client " << clientIndex << " disconnected" << std::endl;
 }
 
-yojimbo::Message* GameServer::createMessage(const int& clientIndex, const GameMessageType& messageType) {
+yojimbo::Message* GameServer::createMessage(int clientIndex, const GameMessageType& messageType) {
     game_assert((int) messageType < (int) GameMessageType::COUNT);
     return server.CreateMessage(clientIndex, (int) messageType);
 }
 
 // TODO: Choose the channel
-void GameServer::sendMessage(const int& clientIndex, yojimbo::Message* message) {
+void GameServer::sendMessage(int clientIndex, yojimbo::Message* message) {
     server.SendMessage(clientIndex, (int) GameChannel::RELIABLE, message);
 }
 

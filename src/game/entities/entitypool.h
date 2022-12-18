@@ -20,7 +20,7 @@ private:
     typedef struct _entityDefinition {
         std::string filename;
         std::string name;
-        uint8_t textureId;
+        uint32_t textureId;
         int movesPerTurn;
         int hp;
     } EntityDefinition;
@@ -35,7 +35,7 @@ private:
     std::shared_ptr<TurnController> turnController;
     std::shared_ptr<WeaponController> weaponController;
 
-    void updateEntity(const std::shared_ptr<Entity>& entity, const uint32_t& timeSinceLastFrame, bool& quit);
+    void updateEntity(const std::shared_ptr<Entity>& entity, uint32_t timeSinceLastFrame, bool& quit);
     void loadEntityDefinitions(void);
     void synchronize(void);
 
@@ -45,15 +45,15 @@ public:
         const std::shared_ptr<WeaponController>& weaponController
     );
 
-    void updateEntities(const uint32_t& timeSinceLastFrame, bool& quit);
+    void updateEntities(uint32_t timeSinceLastFrame, bool& quit);
     void drawEntities(const std::shared_ptr<GraphicsContext>& graphicsContext);
 
     void addGameStateUpdate(const GameStateUpdate& update);
 
     std::shared_ptr<Entity> addEntity(const std::shared_ptr<Entity>& entity);
     std::shared_ptr<Entity> addEntity(const std::string& name);
-    std::shared_ptr<Entity> addEntity(const std::string& name, const uint32_t& id);
+    std::shared_ptr<Entity> addEntity(const std::string& name, uint32_t id);
     const std::map<uint32_t, std::shared_ptr<Entity>>& getEntities(void) const;
-    std::shared_ptr<Entity> getEntity(const uint32_t& id);
-    bool hasEntity(const uint32_t& id);
+    std::shared_ptr<Entity> getEntity(uint32_t id);
+    bool hasEntity(uint32_t id);
 };

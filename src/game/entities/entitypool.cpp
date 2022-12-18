@@ -20,7 +20,7 @@ void EntityPool::loadEntityDefinitions(void) {
         EntityDefinition definition;
         definition.filename = entry.path();
         definition.name = data["name"].get<std::string>();
-        definition.textureId = data["textureId"].get<uint8_t>();
+        definition.textureId = data["textureId"].get<uint32_t>();
         definition.movesPerTurn = data["movesPerTurn"].get<int>();
         definition.hp = data["hp"].get<int>();
 
@@ -32,7 +32,7 @@ void EntityPool::loadEntityDefinitions(void) {
     game_assert(!entityDefinitions.empty());
 }
 
-void EntityPool::updateEntities(const uint32_t& timeSinceLastFrame, bool& quit) {
+void EntityPool::updateEntities(uint32_t timeSinceLastFrame, bool& quit) {
     synchronize();
 
     for(auto [entityId, entity] : entities) {
@@ -47,7 +47,7 @@ void EntityPool::updateEntities(const uint32_t& timeSinceLastFrame, bool& quit) 
     entitiesForDeletion.clear();
 }
 
-void EntityPool::updateEntity(const std::shared_ptr<Entity>& entity, const uint32_t& timeSinceLastFrame, bool& quit) {
+void EntityPool::updateEntity(const std::shared_ptr<Entity>& entity, uint32_t timeSinceLastFrame, bool& quit) {
     if(entity->getCurrentHP() <= 0) {
         entitiesForDeletion.insert(entity);
         return;
@@ -128,7 +128,7 @@ std::shared_ptr<Entity> EntityPool::addEntity(const std::shared_ptr<Entity>& ent
     return entity;
 }
 
-std::shared_ptr<Entity> EntityPool::addEntity(const std::string& name, const uint32_t& id) {
+std::shared_ptr<Entity> EntityPool::addEntity(const std::string& name, uint32_t id) {
     game_assert(entityDefinitions.contains(name));
 
     auto definition = entityDefinitions[name];
@@ -154,11 +154,11 @@ const std::map<uint32_t, std::shared_ptr<Entity>>& EntityPool::getEntities(void)
     return entities;
 }
 
-std::shared_ptr<Entity> EntityPool::getEntity(const uint32_t& id) {
+std::shared_ptr<Entity> EntityPool::getEntity(uint32_t id) {
     game_assert(entities.contains(id));
     return entities[id];
 }
 
-bool EntityPool::hasEntity(const uint32_t& id) {
+bool EntityPool::hasEntity(uint32_t id) {
     return entities.contains(id);
 }

@@ -2,7 +2,7 @@
 
 GameServerMessagesTransmitter::GameServerMessagesTransmitter(
     std::shared_ptr<GameServer> server,
-    std::function<void(const int&)> onClientConnectFunc
+    std::function<void(int)> onClientConnectFunc
 ) :
     server(server),
     onClientConnectFunc(onClientConnectFunc)
@@ -10,12 +10,12 @@ GameServerMessagesTransmitter::GameServerMessagesTransmitter(
     turnController = Application::getContext()->getTurnController();
 }
 
-void GameServerMessagesTransmitter::onClientConnected(const int& clientIndex) {
+void GameServerMessagesTransmitter::onClientConnected(int clientIndex) {
     onClientConnectFunc(clientIndex);
 }
 
 void GameServerMessagesTransmitter::sendSetParticipant(
-    const int& clientIndex, 
+    int clientIndex, 
     const std::shared_ptr<TurnController::Participant>& participant
 ) {
     SetParticipantMessage* message = (SetParticipantMessage*) server->createMessage(clientIndex, GameMessageType::SET_PARTICIPANT);
@@ -27,7 +27,7 @@ void GameServerMessagesTransmitter::sendSetParticipant(
     server->sendMessage(clientIndex, message);
 }
 
-void GameServerMessagesTransmitter::sendGameStateUpdate(const int& clientIndex, const GameStateUpdate& update) {
+void GameServerMessagesTransmitter::sendGameStateUpdate(int clientIndex, const GameStateUpdate& update) {
     GameStateUpdateMessage* message = (GameStateUpdateMessage*) server->createMessage(clientIndex, GameMessageType::GAME_STATE_UPDATE);
 
     message->gameStateUpdate = update;
@@ -35,7 +35,7 @@ void GameServerMessagesTransmitter::sendGameStateUpdate(const int& clientIndex, 
     server->sendMessage(clientIndex, message);
 }
 
-void GameServerMessagesTransmitter::sendLoadMap(const int& clientIndex, const MapBlock& block) {
+void GameServerMessagesTransmitter::sendLoadMap(int clientIndex, const MapBlock& block) {
     LoadMapMessage* message = (LoadMapMessage*) server->createMessage(clientIndex, GameMessageType::LOAD_MAP);
 
     message->mapBlock = block;
@@ -44,10 +44,10 @@ void GameServerMessagesTransmitter::sendLoadMap(const int& clientIndex, const Ma
 }
 
 void GameServerMessagesTransmitter::sendFindPath(
-    const int& clientIndex, 
-    const uint32_t& entityId, 
+    int clientIndex, 
+    uint32_t entityId, 
     const glm::ivec2& position,
-    const int& shortStopSteps
+    int shortStopSteps
 ) {
     FindPathMessage* message = (FindPathMessage*) server->createMessage(clientIndex, GameMessageType::FIND_PATH);
 
@@ -60,10 +60,10 @@ void GameServerMessagesTransmitter::sendFindPath(
 }
 
 void GameServerMessagesTransmitter::sendAttackEntity(
-    const int& clientIndex,
-    const uint32_t& entityId, 
-    const uint32_t& targetId, 
-    const uint32_t& weaponId
+    int clientIndex,
+    uint32_t entityId, 
+    uint32_t targetId, 
+    uint32_t weaponId
 ) {
     AttackEntityMessage* message = (AttackEntityMessage*) server->createMessage(clientIndex, GameMessageType::ATTACK_ENTITY);
 

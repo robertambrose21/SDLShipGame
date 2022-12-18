@@ -1,6 +1,6 @@
 #include "window.h"
 
-Window::Window(const int& width, const int& height, const std::shared_ptr<Grid>& grid) :
+Window::Window(int width, int height, const std::shared_ptr<Grid>& grid) :
     width(width),
     height(height)
 {
@@ -96,7 +96,7 @@ void Window::loop(void) {
     }
 }
 
-void Window::addLoopLogicWorker(std::function<void(const uint32_t&, bool&)> worker) {
+void Window::addLoopLogicWorker(std::function<void(uint32_t, bool&)> worker) {
     logicWorkers.push_back(worker);
 }
 
@@ -108,7 +108,7 @@ void Window::addLoopEventWorker(std::function<void(const SDL_Event&, bool&)> wor
     eventWorkers.push_back(worker);
 }
 
-void Window::setGridTileTexture(const int& tileId, const uint8_t& textureId) {
+void Window::setGridTileTexture(int tileId, uint32_t textureId) {
     gridRenderer->setTileTexture(tileId, textureId);
 }
 

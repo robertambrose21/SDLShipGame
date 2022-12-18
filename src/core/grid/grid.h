@@ -38,20 +38,20 @@ private:
         glm::ivec2 currentNode
     );
 
-    bool isTileInRange(const int& x, const int& y, const glm::vec2& position, const float& distance);
+    bool isTileInRange(int x, int y, const glm::vec2& position, float distance);
 
 public:
-    Grid(const int& width, const int& height, const std::vector<std::vector<Tile>>& data = { });
+    Grid(int width, int height, const std::vector<std::vector<Tile>>& data = { });
 
     int getWidth(void) const;
     int getHeight(void) const;
 
-    void setTile(const int& x, const int& y, const Tile& tile);
+    void setTile(int x, int y, const Tile& tile);
 
     const std::vector<std::vector<Tile>>& getData(void) const;
     // TODO: Throw exception if x/y are out of bounds
-    const Tile& getTileAt(const int& x, const int& y) const;
-    std::vector<glm::ivec2> getTilesInCircle(const int& x, const int& y, float radius);
+    const Tile& getTileAt(int x, int y) const;
+    std::vector<glm::ivec2> getTilesInCircle(int x, int y, float radius);
 
     std::deque<glm::ivec2> findPath(const glm::ivec2& source, const glm::ivec2& destination);
 };

@@ -14,7 +14,7 @@ private:
     typedef struct _aoeDefinition {
         std::string filename;
         std::string name;
-        uint8_t textureId;
+        uint32_t textureId;
         float radius;
         int turns;
     } AoeDefinition;
@@ -36,8 +36,8 @@ public:
     );
 
     void add(const std::shared_ptr<AreaOfEffect>& areaOfEffect);
-    void add(const std::string& name, const int& turnNumber, const glm::ivec2& position);
+    void add(const std::string& name, int turnNumber, const glm::ivec2& position);
 
     void draw(const std::shared_ptr<GraphicsContext>& graphicsContext);
-    void update(const uint32_t& timeSinceLastFrame);
+    void update(uint32_t timeSinceLastFrame);
 };

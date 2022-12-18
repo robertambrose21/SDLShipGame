@@ -27,29 +27,29 @@ private:
     std::function<void()> onAllParticipantsSet;
 
     bool canProgressToNextTurn(const std::shared_ptr<Entity>& entity);
-    void nextParticipantTurn(const int& id);
+    void nextParticipantTurn(int id);
 
 public:
     TurnController();
 
-    void update(const uint32_t& timeSinceLastFrame);
+    void update(uint32_t timeSinceLastFrame);
 
     std::shared_ptr<Participant> addParticipant(
-        const int& id,
+        int id,
         const std::set<std::shared_ptr<Entity>>& entities, 
-        const bool& isPlayer
+        bool isPlayer
     );
-    void addEntityToParticipant(const int& participantId, const std::shared_ptr<Entity>& entity);
-    std::shared_ptr<Participant> getParticipant(const int& id);
+    void addEntityToParticipant(int participantId, const std::shared_ptr<Entity>& entity);
+    std::shared_ptr<Participant> getParticipant(int id);
     const std::map<int, std::shared_ptr<Participant>>& getParticipants(void) const;
 
     void reset(void);
     
-    void passParticipant(const int& id);
-    void setCurrentParticipant(const int& id);
+    void passParticipant(int id);
+    void setCurrentParticipant(int id);
     int getCurrentParticipant(void) const;
 
-    void addOnNextTurnFunction(std::function<void(const int&, const int&)> onNextTurnFunc);
+    void addOnNextTurnFunction(std::function<void(int, int)> onNextTurnFunc);
     void setOnAllParticipantsSetFunction(std::function<void()> onAllParticipantsSet);
 
     void allParticipantsSet(void);

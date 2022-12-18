@@ -4,7 +4,7 @@ GameServerMessagesReceiver::GameServerMessagesReceiver(const std::shared_ptr<App
     context(context)
 { }
 
-void GameServerMessagesReceiver::receiveMessage(const int& clientIndex, yojimbo::Message* message) {
+void GameServerMessagesReceiver::receiveMessage(int clientIndex, yojimbo::Message* message) {
     switch(message->GetType()) {
         case (int) GameMessageType::FIND_PATH: {
             FindPathMessage* findPathMessage = (FindPathMessage*) message;
@@ -52,10 +52,10 @@ void GameServerMessagesReceiver::receiveMessage(const int& clientIndex, yojimbo:
 }
 
 void GameServerMessagesReceiver::receiveFindPathMessage(
-    const int& clientIndex,
-    const uint32_t& entityId,
+    int clientIndex,
+    uint32_t entityId,
     const glm::ivec2& position,
-    const int& shortStopSteps
+    int shortStopSteps
 ) {
     if(!context->getEntityPool()->hasEntity(entityId)) {
         return;
@@ -71,7 +71,7 @@ void GameServerMessagesReceiver::receiveFindPathMessage(
     }
 }
 
-void GameServerMessagesReceiver::receiveSelectEntityMessage(const int& clientIndex, const uint32_t& entityId) {
+void GameServerMessagesReceiver::receiveSelectEntityMessage(int clientIndex, uint32_t entityId) {
     if(!context->getEntityPool()->hasEntity(entityId)) {
         return;
     }
@@ -86,10 +86,10 @@ void GameServerMessagesReceiver::receiveSelectEntityMessage(const int& clientInd
 }
 
 void GameServerMessagesReceiver::receieveAttackEntityMessage(
-    const int& clientIndex, 
-    const uint32_t& entityId, 
-    const uint32_t& targetId, 
-    const uint32_t& weaponId
+    int clientIndex, 
+    uint32_t entityId, 
+    uint32_t targetId, 
+    uint32_t weaponId
 ) {
     if(!context->getEntityPool()->hasEntity(entityId) || !context->getEntityPool()->hasEntity(targetId)) {
         return;
@@ -111,8 +111,8 @@ void GameServerMessagesReceiver::receieveAttackEntityMessage(
 }
 
 void GameServerMessagesReceiver::receivePassParticipantTurnMessage(
-    const int& clientIndex,
-    const int& receivedParticipantId
+    int clientIndex,
+    int receivedParticipantId
 ) {
     if(receivedParticipantId != 0) {
         std::cout << "Could not pass participant turn, ids do not match" << std::endl;
@@ -122,13 +122,13 @@ void GameServerMessagesReceiver::receivePassParticipantTurnMessage(
     context->getTurnController()->passParticipant(clientIndex);
 }
 
-void GameServerMessagesReceiver::receiveSetParticipantAckMessage(const int& clientIndex, const int& participantId) {
+void GameServerMessagesReceiver::receiveSetParticipantAckMessage(int clientIndex, int participantId) {
     clientParticipantsLoaded[clientIndex].insert(participantId);
 
     std::cout << "Got participant ACK " << participantId << std::endl;
 }
 
-bool GameServerMessagesReceiver::areParticipantsLoadedForClient(const int& clientIndex) {
+bool GameServerMessagesReceiver::areParticipantsLoadedForClient(int clientIndex) {
     if(!clientParticipantsLoaded.contains(clientIndex)) {
         return false;
     }

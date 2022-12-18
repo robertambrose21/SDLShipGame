@@ -74,14 +74,14 @@ void GameClientMessagesReceiver::receiveGameStateUpdate(const GameStateUpdate& u
     context->getEntityPool()->addGameStateUpdate(update);
 }
 
-void GameClientMessagesReceiver::receiveTestMessage(const int& data) {
+void GameClientMessagesReceiver::receiveTestMessage(int data) {
     std::cout << "Received test data " << data << std::endl;
 }
 
 void GameClientMessagesReceiver::receiveSetParticipant(
-    const int& participantId,
-    const int& numParticipantsToSet,
-    const bool& isPlayer
+    int participantId,
+    int numParticipantsToSet,
+    bool isPlayer
 ) {
     auto const& turnController = context->getTurnController();
 
@@ -112,9 +112,9 @@ void GameClientMessagesReceiver::receiveLoadMap(const MapBlock& block) {
 }
 
 void GameClientMessagesReceiver::receiveFindPath(
-    const uint32_t& entityId, 
+    uint32_t entityId, 
     const glm::ivec2& position,
-    const int& shortStopSteps
+    int shortStopSteps
 ) {
     if(!context->getEntityPool()->hasEntity(entityId)) {
         return;
@@ -126,9 +126,9 @@ void GameClientMessagesReceiver::receiveFindPath(
 }
 
 void GameClientMessagesReceiver::receiveAttackEntity(
-    const uint32_t& entityId, 
-    const uint32_t& targetId, 
-    const uint32_t& weaponId
+    uint32_t entityId, 
+    uint32_t targetId, 
+    uint32_t weaponId
 ) {
     auto const& entityPool = context->getEntityPool();
 

@@ -14,19 +14,19 @@ private:
     std::shared_ptr<GameClientMessagesTransmitter> transmitter;
     std::shared_ptr<PlayerController> playerController;
 
-    void receiveTestMessage(const int& data);
+    void receiveTestMessage(int data);
     void receiveGameStateUpdate(const GameStateUpdate& update);
-    void receiveSetParticipant(const int& participantId, const int& numParticipantsToSet, const bool& isPlayer);
+    void receiveSetParticipant(int participantId, int numParticipantsToSet, bool isPlayer);
     void receiveLoadMap(const MapBlock& block);
     void receiveFindPath(
-        const uint32_t& entityId,
+        uint32_t entityId,
         const glm::ivec2& position,
-        const int& shortStopSteps
+        int shortStopSteps
     );
     void receiveAttackEntity(
-        const uint32_t& entityId, 
-        const uint32_t& targetId, 
-        const uint32_t& weaponId
+        uint32_t entityId, 
+        uint32_t targetId, 
+        uint32_t weaponId
     );
 
 public:

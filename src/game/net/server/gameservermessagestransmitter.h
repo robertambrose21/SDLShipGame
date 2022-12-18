@@ -11,29 +11,29 @@ private:
     std::shared_ptr<GameServer> server;
     std::shared_ptr<TurnController> turnController;
 
-    std::function<void(const int&)> onClientConnectFunc;
+    std::function<void(int)> onClientConnectFunc;
 
-    void onClientConnected(const int& clientIndex) override;
+    void onClientConnected(int clientIndex) override;
 
 public:
     GameServerMessagesTransmitter(
         std::shared_ptr<GameServer> server, 
-        std::function<void(const int&)> onClientConnectFunc = [](const int&) { }
+        std::function<void(int)> onClientConnectFunc = [](int) { }
     );
 
-    void sendSetParticipant(const int& clientIndex, const std::shared_ptr<TurnController::Participant>& participant);
-    void sendGameStateUpdate(const int& clientIndex, const GameStateUpdate& update);
-    void sendLoadMap(const int& clientIndex, const MapBlock& block);
+    void sendSetParticipant(int clientIndex, const std::shared_ptr<TurnController::Participant>& participant);
+    void sendGameStateUpdate(int clientIndex, const GameStateUpdate& update);
+    void sendLoadMap(int clientIndex, const MapBlock& block);
     void sendFindPath(
-        const int& clientIndex, 
-        const uint32_t& entityId, 
+        int clientIndex, 
+        uint32_t entityId, 
         const glm::ivec2& position,
-        const int& shortStopSteps
+        int shortStopSteps
     );
     void sendAttackEntity(
-        const int& clientIndex,
-        const uint32_t& entityId, 
-        const uint32_t& targetId, 
-        const uint32_t& weaponId
+        int clientIndex,
+        uint32_t entityId, 
+        uint32_t targetId, 
+        uint32_t weaponId
     );
 };

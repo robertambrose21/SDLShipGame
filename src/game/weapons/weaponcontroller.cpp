@@ -36,7 +36,7 @@ void WeaponController::loadWeaponDefinitions(void) {
 }
 
 std::shared_ptr<Weapon> WeaponController::createWeapon(
-    const uint32_t& id, 
+    uint32_t id, 
     const std::string& name, 
     const std::shared_ptr<Entity>& owner
 ) {

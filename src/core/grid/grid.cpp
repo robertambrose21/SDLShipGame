@@ -1,6 +1,6 @@
 #include "grid.h"
 
-Grid::Grid(const int& width, const int& height, const std::vector<std::vector<Tile>>& data) :
+Grid::Grid(int width, int height, const std::vector<std::vector<Tile>>& data) :
     width(width),
     height(height),
     data(data)
@@ -21,7 +21,7 @@ int Grid::getHeight(void) const {
     return height;
 }
 
-void Grid::setTile(const int& x, const int& y, const Tile& tile) {
+void Grid::setTile(int x, int y, const Tile& tile) {
     game_assert(x < getWidth() && y < getHeight());
     data[y][x] = tile;
 }
@@ -30,12 +30,12 @@ const std::vector<std::vector<Tile>>& Grid::getData(void) const {
     return data;
 }
 
-const Tile& Grid::getTileAt(const int& x, const int& y) const {
+const Tile& Grid::getTileAt(int x, int y) const {
     game_assert(x < getWidth() && y < getHeight());
     return data[y][x];
 }
 
-std::vector<glm::ivec2> Grid::getTilesInCircle(const int& x, const int& y, float radius) {
+std::vector<glm::ivec2> Grid::getTilesInCircle(int x, int y, float radius) {
     game_assert(x < getWidth() && y < getHeight());
 
     int squareHalfSize = std::floor(radius);
@@ -64,7 +64,7 @@ std::vector<glm::ivec2> Grid::getTilesInCircle(const int& x, const int& y, float
     return tilePositions;
 }
 
-bool Grid::isTileInRange(const int& x, const int& y, const glm::vec2& position, const float& distance) {
+bool Grid::isTileInRange(int x, int y, const glm::vec2& position, float distance) {
     game_assert(x < getWidth() && y < getHeight());
 
     glm::vec2 corners[] = {

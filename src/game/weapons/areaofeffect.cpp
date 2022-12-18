@@ -2,8 +2,8 @@
 
 AreaOfEffect::AreaOfEffect(
     const std::shared_ptr<Grid>& grid,
-    const uint8_t& textureId,
-    const int& liveTurn,
+    uint32_t textureId,
+    int liveTurn,
     const glm::ivec2& position, 
     const Stats& stats
 ) :
@@ -23,7 +23,7 @@ void AreaOfEffect::draw(const std::shared_ptr<GraphicsContext>& graphicsContext)
     }
 }
 
-void AreaOfEffect::update(const uint32_t& timeSinceLastFrame) {
+void AreaOfEffect::update(uint32_t timeSinceLastFrame) {
     //
 }
 

@@ -16,24 +16,24 @@ private:
     std::map<int, std::set<int>> clientParticipantsLoaded;
 
     void receiveFindPathMessage(
-        const int& clientIndex, 
-        const uint32_t& entityId, 
+        int clientIndex, 
+        uint32_t entityId, 
         const glm::ivec2& position,
-        const int& shortStopSteps
+        int shortStopSteps
     );
-    void receiveSelectEntityMessage(const int& clientIndex, const uint32_t& entityId);
+    void receiveSelectEntityMessage(int clientIndex, uint32_t entityId);
     void receieveAttackEntityMessage(
-        const int& clientIndex, 
-        const uint32_t& entityId, 
-        const uint32_t& targetId, 
-        const uint32_t& weaponId
+        int clientIndex, 
+        uint32_t entityId, 
+        uint32_t targetId, 
+        uint32_t weaponId
     );
-    void receivePassParticipantTurnMessage(const int& clientIndex, const int& participantId);
-    void receiveSetParticipantAckMessage(const int& clientIndex, const int& participantId);
+    void receivePassParticipantTurnMessage(int clientIndex, int participantId);
+    void receiveSetParticipantAckMessage(int clientIndex, int participantId);
 
 public:
     GameServerMessagesReceiver(const std::shared_ptr<ApplicationContext>& context);
 
-    void receiveMessage(const int& clientIndex, yojimbo::Message* message) override;
-    bool areParticipantsLoadedForClient(const int& clientIndex);
+    void receiveMessage(int clientIndex, yojimbo::Message* message) override;
+    bool areParticipantsLoadedForClient(int clientIndex);
 };

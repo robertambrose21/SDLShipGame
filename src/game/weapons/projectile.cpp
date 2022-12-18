@@ -2,12 +2,12 @@
 
 Projectile::Projectile(
     const std::shared_ptr<Grid>& grid,
-    const uint8_t& textureId,
+    uint32_t textureId,
     const glm::ivec2& startPosition,
     const std::shared_ptr<Entity>& target,
     const Stats& stats,
-    const int& weaponBaseDamage,
-    std::function<void(const std::shared_ptr<Grid>&, const std::shared_ptr<Entity>&, const int&)> onHitCallback
+    int weaponBaseDamage,
+    std::function<void(const std::shared_ptr<Grid>&, const std::shared_ptr<Entity>&, int)> onHitCallback
 ) :
     grid(grid),
     textureId(textureId),
@@ -26,7 +26,7 @@ void Projectile::draw(const std::shared_ptr<GraphicsContext>& graphicsContext) {
     graphicsContext->getGridRenderer()->draw(graphicsContext, textureId, position);
 }
 
-void Projectile::update(const uint32_t& timeSinceLastFrame) {
+void Projectile::update(uint32_t timeSinceLastFrame) {
     timeSinceLive += timeSinceLastFrame;
 
     position = glm::lerp(startPosition, target->getPosition(), getStep());
