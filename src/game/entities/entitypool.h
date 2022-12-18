@@ -21,6 +21,7 @@ private:
         std::string filename;
         std::string name;
         uint32_t textureId;
+        uint8_t r, g, b, a;
         int movesPerTurn;
         int hp;
     } EntityDefinition;

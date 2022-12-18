@@ -19,11 +19,29 @@ public:
         int hp;
     } Stats;
 
-private:
-    uint32_t id;
+    typedef struct _colour {
+        uint8_t r, g, b, a;
+
+        _colour() :
+            r(0xFF),
+            g(0xFF),
+            b(0xFF),
+            a(0xFF)
+        { }
+
+        _colour(uint8_t r, uint8_t g, uint8_t b, uint8_t a) :
+            r(r),
+            g(g),
+            b(b),
+            a(a)
+        { }
+    } Colour;
+
+    private : uint32_t id;
 
     uint32_t textureId;
     uint32_t selectedTextureId;
+    Colour colour;
 
     bool selected;
 
@@ -93,6 +111,9 @@ public:
     void setTextureId(uint32_t textureId);
     void setSelectedTextureId(uint32_t selectedTexture);
     uint32_t getTextureId(void) const;
+
+    void setColour(const Colour& colour);
+    Colour getColour(void) const;
 
     void draw(const std::shared_ptr<GraphicsContext>& graphicsContext);
 

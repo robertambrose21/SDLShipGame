@@ -2,7 +2,9 @@
 
 Texture::Texture(const std::shared_ptr<SDL_Texture>& texture, const std::string& id) :
     texture(texture),
-    id(id)
+    id(id),
+    colour({ 0xFF, 0xFF, 0xFF }),
+    alpha(0xFF)
 { }
 
 std::string Texture::getId(void) const {
@@ -14,7 +16,35 @@ void Texture::draw(
     const SDL_Rect* srcRect,
     const SDL_Rect* dstRect
 ) {
+    draw(renderer, this->colour, this->alpha, srcRect, dstRect);
+}
+
+void Texture::draw(
+    const std::shared_ptr<SDL_Renderer>& renderer,
+    const Colour& colour,
+    uint8_t alpha,
+    const SDL_Rect* srcRect,
+    const SDL_Rect* dstRect
+) {
+    SDL_SetTextureAlphaMod(texture.get(), alpha);
+    SDL_SetTextureColorMod(texture.get(), colour.r, colour.g, colour.b);
     SDL_RenderCopy(renderer.get(), texture.get(), srcRect, dstRect);
+}
+
+void Texture::setColour(const Colour& colour) {
+    this->colour = colour;
+}
+
+Texture::Colour Texture::getColour(void) const {
+    return colour;
+}
+
+void Texture::setAlpha(uint8_t alpha) {
+    this->alpha = alpha;
+}
+
+uint8_t Texture::getAlpha(void) const {
+    return alpha;
 }
 
 TextureLoader::TextureLoader(const std::shared_ptr<SDL_Renderer>& renderer) :
@@ -27,9 +57,9 @@ TextureLoader::TextureLoader(const std::shared_ptr<SDL_Renderer>& renderer) :
     game_assert(!texturesData.empty());
 
     for(auto const& textureData : texturesData) {
-        auto const& id = textureData["id"].get<uint8_t>();
-        auto const& name = textureData["name"].get<std::string>();
-        auto const& path = "../assets/data/" + textureData["path"].get<std::string>();
+        auto id = textureData["id"].get<uint32_t>();
+        auto name = textureData["name"].get<std::string>();
+        auto path = "../assets/data/" + textureData["path"].get<std::string>();
 
         availableTextures[id] = { id, name, path };
     }
@@ -37,7 +67,7 @@ TextureLoader::TextureLoader(const std::shared_ptr<SDL_Renderer>& renderer) :
     game_assert(availableTextures.size() == texturesData.size());
 }
 
-std::shared_ptr<Texture> TextureLoader::loadTexture(const uint8_t& id) {
+std::shared_ptr<Texture> TextureLoader::loadTexture(uint32_t id) {
     return loadTexture(availableTextures[id].path);
 }
 

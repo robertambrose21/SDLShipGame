@@ -20,9 +20,16 @@ void EntityPool::loadEntityDefinitions(void) {
         EntityDefinition definition;
         definition.filename = entry.path();
         definition.name = data["name"].get<std::string>();
-        definition.textureId = data["textureId"].get<uint32_t>();
         definition.movesPerTurn = data["movesPerTurn"].get<int>();
         definition.hp = data["hp"].get<int>();
+
+        auto const& textureData = data["texture"].get<json>();
+        definition.textureId = textureData["id"].get<uint32_t>();
+        auto const& colourData = textureData["colour"].get<json>();
+        definition.r = colourData["r"].get<uint8_t>();
+        definition.g = colourData["g"].get<uint8_t>();
+        definition.b = colourData["b"].get<uint8_t>();
+        definition.a = colourData["a"].get<uint8_t>();
 
         std::cout << "Loaded entity definition \"" << definition.name << "\"" << std::endl;
 
@@ -141,6 +148,12 @@ std::shared_ptr<Entity> EntityPool::addEntity(const std::string& name, uint32_t 
         }
     );
     entity->setTextureId(definition.textureId);
+    entity->setColour({
+        definition.r,
+        definition.g,
+        definition.b,
+        definition.a
+    });
     entity->setSelectedTextureId(6);
 
     return addEntity(entity);

@@ -37,10 +37,24 @@ void Entity::setSelectedTextureId(uint32_t selectedTextureId) {
     this->selectedTextureId = selectedTextureId;
 }
 
+void Entity::setColour(const Colour& colour) {
+    this->colour = colour;
+}
+
+Entity::Colour Entity::getColour(void) const {
+    return colour;
+}
+
 void Entity::draw(const std::shared_ptr<GraphicsContext>& graphicsContext) {
     game_assert(graphicsContext != nullptr);
 
-    graphicsContext->getGridRenderer()->draw(graphicsContext, textureId, position);
+    graphicsContext->getGridRenderer()->draw(
+        graphicsContext,
+        textureId,
+        { colour.r, colour.g, colour.b },
+        colour.a,
+        position
+    );
 
     if(selected) {
         graphicsContext->getGridRenderer()->draw(graphicsContext, selectedTextureId, position);
