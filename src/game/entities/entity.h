@@ -5,6 +5,7 @@
 #include "core/glmimport.h"
 #include "core/util/idgenerator.h"
 #include "graphics/gridrenderer.h"
+#include "graphics/healthbar.h"
 #include "game/weapons/weapon.h"
 #include "behaviour/behaviourstrategy.h"
 #include "core/util/gameassert.h"
@@ -46,6 +47,7 @@ public:
     bool selected;
 
     std::shared_ptr<Grid> grid;
+    std::shared_ptr<HealthBar> healthBar;
 
     std::shared_ptr<BehaviourStrategy> behaviourStrategy;
 

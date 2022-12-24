@@ -10,6 +10,7 @@ add_library(
     gridrenderer.cpp
     graphicscontext.cpp
     sdlimport.h
+    healthbar.cpp
 )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX CXX_STANDARD 20)

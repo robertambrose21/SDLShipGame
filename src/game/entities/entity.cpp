@@ -16,6 +16,7 @@ Entity::Entity(
     selected(false)
 {
     grid = Application::getContext()->getGrid();
+    healthBar = std::make_shared<HealthBar>(stats.hp);
 }
 
 Entity::Entity(
@@ -63,6 +64,8 @@ void Entity::draw(const std::shared_ptr<GraphicsContext>& graphicsContext) {
     for(auto [_, weapon] : weapons) {
         weapon->draw(graphicsContext);
     }
+
+    healthBar->draw(graphicsContext, position, currentHP);
 }
 
 void Entity::update(uint32_t timeSinceLastFrame, bool& quit) {

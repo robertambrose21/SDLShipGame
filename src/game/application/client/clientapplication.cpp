@@ -67,9 +67,9 @@ void ClientApplication::draw(const std::shared_ptr<GraphicsContext>& graphicsCon
             break;
 
         case ClientStateMachine::GameLoop:
-            entityPool->drawEntities(graphicsContext);
             projectilePool->draw(graphicsContext);
             areaOfEffectPool->draw(graphicsContext);
+            entityPool->drawEntities(graphicsContext);
             break;
 
         default:

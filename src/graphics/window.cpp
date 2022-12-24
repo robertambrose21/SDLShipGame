@@ -91,6 +91,7 @@ void Window::loop(void) {
                 worker(graphicsContext, quit);
             }
 
+            SDL_SetRenderDrawColor(renderer.get(), 0x00, 0x00, 0x00, 0xFF);
             SDL_RenderPresent(renderer.get());
         }
     }
