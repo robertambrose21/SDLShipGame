@@ -144,6 +144,7 @@ std::shared_ptr<Entity> EntityPool::addEntity(const std::string& name, uint32_t 
         definition.name,
         Entity::Stats {
             definition.movesPerTurn,
+            0,
             definition.hp
         }
     );

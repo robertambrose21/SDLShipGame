@@ -42,11 +42,11 @@ EntityStateUpdate EntityStateUpdate::serialize(const std::shared_ptr<Entity>& en
 
     entityStateUpdate.id = entity->getId();
     strcpy(entityStateUpdate.name, entity->getName().c_str());
-    entityStateUpdate.totalHP = entity->getStats().hp;
+    entityStateUpdate.totalHP = entity->getBaseStats().hp;
     entityStateUpdate.currentHP = entity->getCurrentHP();
     entityStateUpdate.x = entity->getPosition().x;
     entityStateUpdate.y = entity->getPosition().y;
-    entityStateUpdate.movesPerTurn = entity->getStats().movesPerTurn;
+    entityStateUpdate.movesPerTurn = entity->getBaseStats().movesPerTurn;
     entityStateUpdate.movesLeft = entity->getMovesLeft();
     entityStateUpdate.participantId = entity->getParticipantId();
     entityStateUpdate.currentWeaponId = entity->getCurrentWeapon()->getId();

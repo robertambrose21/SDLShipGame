@@ -9,9 +9,8 @@ Entity::Entity(
     id(id),
     name(name),
     stats(stats),
+    currentStats(stats),
     position({ 0, 0 }),
-    movesLeft(0),
-    currentHP(stats.hp),
     timeSinceLastMoved(0),
     selected(false)
 {
@@ -65,7 +64,7 @@ void Entity::draw(const std::shared_ptr<GraphicsContext>& graphicsContext) {
         weapon->draw(graphicsContext);
     }
 
-    healthBar->draw(graphicsContext, position, currentHP);
+    healthBar->draw(graphicsContext, position, currentStats.hp);
 }
 
 void Entity::update(uint32_t timeSinceLastFrame, bool& quit) {
@@ -111,24 +110,24 @@ void Entity::setBehaviourStrategy(const std::shared_ptr<BehaviourStrategy>& beha
     this->behaviourStrategy = behaviourStrategy;
 }
 
-Entity::Stats Entity::getStats(void) const {
+Entity::Stats Entity::getBaseStats(void) const {
     return stats;
 }
 
 const float Entity::getSpeed(void) {
-    return 1000.0f / (MOVES_PER_SECOND * getStats().movesPerTurn);
+    return 1000.0f / (MOVES_PER_SECOND * getBaseStats().movesPerTurn);
 }
 
 int Entity::getCurrentHP(void) const {
-    return currentHP;
+    return currentStats.hp;
 }
 
 void Entity::setCurrentHP(int hp) {
-    this->currentHP = hp;
+    currentStats.hp = hp;
 }
 
 void Entity::takeDamage(int amount) {
-    currentHP -= amount;
+    currentStats.hp -= amount;
 }
 
 void Entity::attack(const std::shared_ptr<Entity>& target, const std::shared_ptr<Weapon>& weapon) {
@@ -228,11 +227,11 @@ bool Entity::isNeighbour(const std::shared_ptr<Entity>& entity) const {
 }
 
 int Entity::getMovesLeft(void) const {
-    return movesLeft;
+    return currentStats.movesLeft;
 }
 
 void Entity::setMovesLeft(int movesLeft) {
-    this->movesLeft = movesLeft;
+    currentStats.movesLeft = movesLeft;
 }
 
 bool Entity::isTurnInProgress(void) const {
@@ -240,15 +239,15 @@ bool Entity::isTurnInProgress(void) const {
 }
 
 void Entity::useMoves(int numMoves) {
-    movesLeft -= numMoves;
+    currentStats.movesLeft -= numMoves;
     
-    if(movesLeft < 0) {
-        movesLeft = 0;
+    if(currentStats.movesLeft < 0) {
+        currentStats.movesLeft = 0;
     }
 }
 
 void Entity::nextTurn(void) {
-    movesLeft = stats.movesPerTurn;
+    currentStats.movesLeft = stats.movesPerTurn;
     path.clear();
     
     for(auto [_, weapon] : weapons) {
@@ -265,8 +264,8 @@ bool Entity::endTurnCondition(void) {
 }
 
 void Entity::reset(void) {
-    movesLeft = 0;
-    currentHP = stats.hp;
+    currentStats.movesLeft = 0;
+    currentStats.hp = stats.hp;
     path.clear();
 
     for(auto [_, weapon] : weapons) {

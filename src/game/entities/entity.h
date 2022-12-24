@@ -17,6 +17,7 @@ class Entity {
 public:
     typedef struct _stats {
         int movesPerTurn;
+        int movesLeft;
         int hp;
     } Stats;
 
@@ -56,13 +57,12 @@ public:
     uint32_t timeSinceLastMoved;
 
     Stats stats;
+    Stats currentStats;
 
     std::map<uint32_t, std::shared_ptr<Weapon>> weapons;
     std::shared_ptr<Weapon> currentWeapon;
 
     std::string name;
-    int movesLeft;
-    int currentHP;
 
     int participantId;
 
@@ -125,7 +125,8 @@ public:
     std::shared_ptr<BehaviourStrategy> getBehaviourStrategy(void);
     void setBehaviourStrategy(const std::shared_ptr<BehaviourStrategy>& behaviourStrategy);
 
-    Stats getStats(void) const;
+    Stats getBaseStats(void) const;
+    Stats getCurrentStats(void) const;
     const float getSpeed(void);
     int getCurrentHP(void) const;
     void setCurrentHP(int hp);
