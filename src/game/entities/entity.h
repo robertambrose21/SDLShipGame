@@ -9,18 +9,15 @@
 #include "game/weapons/weapon.h"
 #include "behaviour/behaviourstrategy.h"
 #include "core/util/gameassert.h"
+#include "entitystats.h"
+#include "game/effects/statuseffect.h"
 
+// TODO: Fix with modules?
 class Weapon;
 class BehaviourStrategy;
 
 class Entity {
 public:
-    typedef struct _stats {
-        int movesPerTurn;
-        int movesLeft;
-        int hp;
-    } Stats;
-
     typedef struct _colour {
         uint8_t r, g, b, a;
 
@@ -39,8 +36,8 @@ public:
         { }
     } Colour;
 
-    private : uint32_t id;
-
+private: 
+    uint32_t id;
     uint32_t textureId;
     uint32_t selectedTextureId;
     Colour colour;
@@ -56,8 +53,9 @@ public:
     std::deque<glm::ivec2> path;
     uint32_t timeSinceLastMoved;
 
-    Stats stats;
-    Stats currentStats;
+    EntityBaseStats stats;
+    EntityCurrentStats currentStats;
+    std::set<StatusEffect> statusEffects;
 
     std::map<uint32_t, std::shared_ptr<Weapon>> weapons;
     std::shared_ptr<Weapon> currentWeapon;
@@ -72,12 +70,12 @@ public:
     Entity(
         uint32_t id,
         const std::string& name,
-        const Stats& stats
+        const EntityBaseStats& stats
     );
 
     Entity(
         const std::string& name,
-        const Stats& stats
+        const EntityBaseStats& stats
     );
 
     static std::shared_ptr<Entity> filterByTile(
@@ -125,8 +123,8 @@ public:
     std::shared_ptr<BehaviourStrategy> getBehaviourStrategy(void);
     void setBehaviourStrategy(const std::shared_ptr<BehaviourStrategy>& behaviourStrategy);
 
-    Stats getBaseStats(void) const;
-    Stats getCurrentStats(void) const;
+    EntityBaseStats getBaseStats(void) const;
+    EntityCurrentStats getCurrentStats(void) const;
     const float getSpeed(void);
     int getCurrentHP(void) const;
     void setCurrentHP(int hp);
