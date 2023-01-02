@@ -5,7 +5,7 @@ StatusEffect::StatusEffect(int turnsActive) :
     turnsLeft(turnsActive)
 { }
 
-void StatusEffect::apply(EntityBaseStats& baseStats) {
+void StatusEffect::apply(const EntityBaseStats& baseStats) {
     if(turnsLeft <= 0) {
         return;
     }
