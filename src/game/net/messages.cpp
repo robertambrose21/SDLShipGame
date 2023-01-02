@@ -42,7 +42,7 @@ EntityStateUpdate EntityStateUpdate::serialize(const std::shared_ptr<Entity>& en
 
     entityStateUpdate.id = entity->getId();
     strcpy(entityStateUpdate.name, entity->getName().c_str());
-    entityStateUpdate.totalHP = entity->getBaseStats().hp;
+    entityStateUpdate.totalHP = entity->getBaseStats().totalHP;
     entityStateUpdate.currentHP = entity->getCurrentHP();
     entityStateUpdate.x = entity->getPosition().x;
     entityStateUpdate.y = entity->getPosition().y;

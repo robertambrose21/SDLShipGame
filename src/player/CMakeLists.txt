@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.1.0)
+cmake_minimum_required(VERSION 3.12.0)
 project(PlayerLib VERSION 0.1.0)
 
 include_directories(../)

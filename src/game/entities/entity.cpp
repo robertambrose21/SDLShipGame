@@ -4,7 +4,7 @@
 Entity::Entity(
     uint32_t id,
     const std::string& name,
-    const Stats& stats
+    const EntityBaseStats& stats
 ) :
     id(id),
     name(name),
@@ -15,12 +15,12 @@ Entity::Entity(
     selected(false)
 {
     grid = Application::getContext()->getGrid();
-    healthBar = std::make_shared<HealthBar>(stats.hp);
+    healthBar = std::make_shared<HealthBar>(stats.totalHP);
 }
 
 Entity::Entity(
     const std::string& name,
-    const Stats& stats
+    const EntityBaseStats& stats
 ) : Entity(getNewId(), name, stats)
 { }
 
@@ -64,7 +64,7 @@ void Entity::draw(const std::shared_ptr<GraphicsContext>& graphicsContext) {
         weapon->draw(graphicsContext);
     }
 
-    healthBar->draw(graphicsContext, position, currentStats.hp);
+    healthBar->draw(graphicsContext, position, currentStats.totalHP);
 }
 
 void Entity::update(uint32_t timeSinceLastFrame, bool& quit) {
@@ -110,24 +110,28 @@ void Entity::setBehaviourStrategy(const std::shared_ptr<BehaviourStrategy>& beha
     this->behaviourStrategy = behaviourStrategy;
 }
 
-Entity::Stats Entity::getBaseStats(void) const {
+EntityBaseStats Entity::getBaseStats(void) const {
     return stats;
 }
 
+EntityCurrentStats Entity::getCurrentStats(void) const {
+    return currentStats;
+}
+
 const float Entity::getSpeed(void) {
-    return 1000.0f / (MOVES_PER_SECOND * getBaseStats().movesPerTurn);
+    return 1000.0f / (MOVES_PER_SECOND * getCurrentStats().movesPerTurn);
 }
 
 int Entity::getCurrentHP(void) const {
-    return currentStats.hp;
+    return currentStats.totalHP;
 }
 
 void Entity::setCurrentHP(int hp) {
-    currentStats.hp = hp;
+    currentStats.totalHP = hp;
 }
 
 void Entity::takeDamage(int amount) {
-    currentStats.hp -= amount;
+    currentStats.totalHP -= amount;
 }
 
 void Entity::attack(const std::shared_ptr<Entity>& target, const std::shared_ptr<Weapon>& weapon) {
@@ -265,7 +269,8 @@ bool Entity::endTurnCondition(void) {
 
 void Entity::reset(void) {
     currentStats.movesLeft = 0;
-    currentStats.hp = stats.hp;
+    currentStats.movesPerTurn = stats.movesPerTurn;
+    currentStats.totalHP = stats.totalHP;
     path.clear();
 
     for(auto [_, weapon] : weapons) {

@@ -1,11 +1,13 @@
-cmake_minimum_required(VERSION 3.1.0)
+cmake_minimum_required(VERSION 3.12.0)
 project(GameLib VERSION 0.1.0)
 
 include_directories(../)
 
 add_library(
     ${PROJECT_NAME}
+    effects/statuseffect.cpp
     entities/entity.cpp 
+    entities/entitystats.h
     entities/entitypool.cpp 
     entities/behaviour/behaviourstrategy.h
     entities/behaviour/chaseandattackstrategy.cpp
