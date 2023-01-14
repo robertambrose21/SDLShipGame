@@ -36,4 +36,5 @@ public:
         uint32_t targetId, 
         uint32_t weaponId
     );
+    void sendActionsRollResponse(int clientIndex, int participantId, int rollNumber, int actions[6]);
 };

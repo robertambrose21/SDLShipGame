@@ -1,17 +1,18 @@
 #pragma once
 
 #include <cstdint>
-#include "game/entities/entity.h"
+// #include "game/entities/entity.h"
 
-class Entity;
+// class Entity;
 
 class BehaviourStrategy {
 protected:
-    std::shared_ptr<Entity> owner;
+    // std::shared_ptr<Entity> owner;
+    int participantId;
 
 public:
-    BehaviourStrategy(const std::shared_ptr<Entity>& owner) :
-        owner(owner) { }
+    BehaviourStrategy(int participantId) :
+        participantId(participantId) { }
 
     virtual void onUpdate(uint32_t timeSinceLastFrame, bool& quit) = 0;
     virtual void onNextTurn(void) = 0;

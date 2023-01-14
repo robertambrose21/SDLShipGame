@@ -5,32 +5,46 @@ TurnController::TurnController() :
     currentParticipant(0)
 { }
 
-void TurnController::update(uint32_t timeSinceLastFrame) {
+void TurnController::update(uint32_t timeSinceLastFrame, bool& quit) {
     if(participants.size() <= 0) {
         return;
     }
 
+    auto bs = participants[currentParticipant]->behaviourStrategy;
+
+    if(bs != nullptr) {
+        bs->onUpdate(timeSinceLastFrame, quit);
+    }
+
     bool nextTurn = true;
+    int numEntities = 0;
 
     for(auto entity : participants[currentParticipant]->entities) {
         nextTurn = nextTurn && canProgressToNextTurn(entity);
+        numEntities++;
     }
 
-    if(nextTurn) {
+    nextTurn = nextTurn || (bs == nullptr ? false : bs->endTurnCondition());
+
+    if(nextTurn) {//} && numEntities > 0) {
         nextParticipantTurn((currentParticipant + 1) % participants.size());
     }
 }
 
 std::shared_ptr<TurnController::Participant> TurnController::addParticipant(
     int id,
+    bool isPlayer,
     const std::set<std::shared_ptr<Entity>>& entities, 
-    bool isPlayer
+    const std::shared_ptr<BehaviourStrategy>& behaviourStrategy
 ) {
     Participant participant;
     participant.id = id;
     participant.entities = entities;
     participant.isPlayer = isPlayer;
     participant.passNextTurn = false;
+    participant.actions = { };
+    participant.hasRolledForActions = false;
+    participant.behaviourStrategy = behaviourStrategy;
 
     for(auto const& entity : entities) {
         entity->setParticipantId(participant.id);
@@ -112,6 +126,10 @@ void TurnController::nextParticipantTurn(int id) {
     
     entitiesForDeletion.clear();
 
+    if(participants[currentParticipant]->behaviourStrategy != nullptr) {
+        participants[currentParticipant]->behaviourStrategy->onNextTurn();
+    }
+
     for(auto const& onNextTurnFunc : onNextTurnWorkers) {
         onNextTurnFunc(currentParticipant, turnNumber);
     }
@@ -131,6 +149,74 @@ int TurnController::getCurrentParticipant(void) const {
     return currentParticipant;
 }
 
+void TurnController::setActions(int participantId, const std::map<Action, int>& actions) {
+    participants[participantId]->actions = actions;
+    participants[participantId]->hasRolledForActions = true;
+}
+
+std::map<TurnController::Action, int> TurnController::rollActions(int participantId) {
+    auto rollNumber = randomD6();
+    auto actions = std::map<Action, int>();
+
+    for(int i = 0; i < rollNumber; i++) {
+        auto action = randomRange(0, Action::Count - 1);
+
+        actions[(Action) action]++;
+    }
+
+    setActions(participantId, std::move(actions));
+
+    return participants[participantId]->actions;
+}
+
+bool TurnController::performMoveAction(
+    const std::shared_ptr<Entity>& entity, 
+    const glm::ivec2& position,
+    int shortStopSteps
+) {
+    if(participants[currentParticipant]->actions[Action::Move] <= 0) {
+        return false;
+    }
+
+    auto steps = entity->findPath(position, shortStopSteps);
+
+    std::cout << "Steps: " << steps << " moves left: " << entity->getMovesLeft() << " ";
+
+    // Bug - if entity doesn't finish all it's steps then another entity from the same participant
+    // can 'steal' the move action
+    if(steps >= entity->getMovesLeft()) {
+        participants[currentParticipant]->actions[Action::Move]--;
+        entity->setMovesLeft(entity->getCurrentStats().movesPerTurn);
+    }
+
+    std::cout << currentParticipant << " Did move, " << participants[currentParticipant]->actions[Action::Move] << " actions left" << std::endl;
+
+    return true;
+}
+
+bool TurnController::performAttackAction(
+    const std::shared_ptr<Entity>& entity,
+    const std::shared_ptr<Weapon>& weapon,
+    const std::shared_ptr<Entity>& target
+) {
+    if(participants[currentParticipant]->actions[Action::Attack] <= 0) {
+        return false;
+    }
+
+    // Bug - if entity doesn't finish all it's attacks then another entity from the same participant
+    // can 'steal' the attack action
+    entity->attack(target, weapon);
+
+    if(weapon->getUsesLeft() <= 0) {
+        participants[currentParticipant]->actions[Action::Attack]--;
+        // weapon->reset();
+    }
+
+    std::cout << currentParticipant << " Did attack, " << participants[currentParticipant]->actions[Action::Attack] << " actions left" << std::endl;
+
+    return true;
+}
+
 void TurnController::addOnNextTurnFunction(std::function<void(int, int)> onNextTurnFunc) {
     onNextTurnWorkers.push_back(onNextTurnFunc);
 }
@@ -148,8 +234,11 @@ int TurnController::getTurnNumber(void) const {
 }
 
 bool TurnController::canProgressToNextTurn(const std::shared_ptr<Entity>& entity) {
+    // if(!participants[currentParticipant]->hasRolledForActions) {
+    //     return false;
+    // }
+
     return 
         !entity->isTurnInProgress() || 
-        entity->endTurnCondition() || 
         participants[currentParticipant]->passNextTurn;
 }

@@ -83,7 +83,8 @@
     "ranges": "cpp",
     "span": "cpp",
     "stack": "cpp",
-    "variant": "cpp"
+    "variant": "cpp",
+    "condition_variable": "cpp"
   },
   "editor.formatOnSave": false,
   "C_Cpp.clang_format_fallbackStyle": "{ BasedOnStyle: Google, IndentWidth: 4, ColumnLimit: 0 }"

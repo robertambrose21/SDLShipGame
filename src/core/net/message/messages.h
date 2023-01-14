@@ -16,6 +16,8 @@ enum class GameMessageType {
     SET_PARTICIPANT_ACK,
     PASS_PARTICIPANT_TURN,
     LOAD_MAP,
+    ACTIONS_ROLL,
+    ACTIONS_ROLL_RESPONSE,
     COUNT
 };
 
@@ -234,6 +236,49 @@ public:
     YOJIMBO_VIRTUAL_SERIALIZE_FUNCTIONS();
 };
 
+class ActionsRollMessage : public yojimbo::Message {
+public:
+    int participantId;
+
+    ActionsRollMessage() :
+        participantId(0)
+    { }
+
+    template <typename Stream>
+    bool Serialize(Stream& stream) {
+        serialize_int(stream, participantId, 0, 64);
+
+        return true;
+    }
+
+    YOJIMBO_VIRTUAL_SERIALIZE_FUNCTIONS();
+};
+
+class ActionsRollResponseMessage : public yojimbo::Message {
+public:
+    int participantId;
+    int rollNumber;
+    int actions[6] = { 0 }; 
+
+    ActionsRollResponseMessage() :
+        participantId(0),
+        rollNumber(0)
+    { }
+
+    template <typename Stream>
+    bool Serialize(Stream& stream) {
+        serialize_int(stream, participantId, 0, 64);
+        serialize_int(stream, rollNumber, 1, 6);
+        for(int i = 0; i < rollNumber; i++) {
+            serialize_int(stream, actions[i], 0, 255);
+        }
+
+        return true;
+    }
+
+    YOJIMBO_VIRTUAL_SERIALIZE_FUNCTIONS();
+};
+
 YOJIMBO_MESSAGE_FACTORY_START(GameMessageFactory, (int)GameMessageType::COUNT);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::FIND_PATH, FindPathMessage);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::SELECT_ENTITY, SelectEntityMessage);
@@ -244,4 +289,6 @@ YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::SET_PARTICIPANT, SetParticipa
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::SET_PARTICIPANT_ACK, SetParticipantAckMessage);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::PASS_PARTICIPANT_TURN, PassParticipantTurnMessage);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::LOAD_MAP, LoadMapMessage);
+YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::ACTIONS_ROLL, ActionsRollMessage);
+YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::ACTIONS_ROLL_RESPONSE, ActionsRollResponseMessage);
 YOJIMBO_MESSAGE_FACTORY_FINISH();

@@ -7,15 +7,27 @@
 
 #include "game/entities/entity.h"
 #include "core/util/gameassert.h"
+#include "core/util/randomrolls.h"
+#include "game/entities/behaviour/behaviourstrategy.h"
 
 class TurnController {
 public:
+    enum Action {
+        Move = 0,
+        Attack,
+        Freeze,
+        Count
+    };
+
     // TODO: Consider making entities a map rather than a set
     typedef struct _participant {
         int id;
         bool isPlayer;
         std::set<std::shared_ptr<Entity>> entities;
         bool passNextTurn;
+        std::map<Action, int> actions;
+        bool hasRolledForActions;
+        std::shared_ptr<BehaviourStrategy> behaviourStrategy;
     } Participant;
 
 private:
@@ -32,12 +44,13 @@ private:
 public:
     TurnController();
 
-    void update(uint32_t timeSinceLastFrame);
+    void update(uint32_t timeSinceLastFrame, bool& quit);
 
     std::shared_ptr<Participant> addParticipant(
         int id,
+        bool isPlayer,
         const std::set<std::shared_ptr<Entity>>& entities, 
-        bool isPlayer
+        const std::shared_ptr<BehaviourStrategy>& behaviourStrategy = nullptr
     );
     void addEntityToParticipant(int participantId, const std::shared_ptr<Entity>& entity);
     std::shared_ptr<Participant> getParticipant(int id);
@@ -48,6 +61,19 @@ public:
     void passParticipant(int id);
     void setCurrentParticipant(int id);
     int getCurrentParticipant(void) const;
+
+    void setActions(int participantId, const std::map<Action, int>& actions);
+    std::map<Action, int> rollActions(int participantId);
+    bool performMoveAction(
+        const std::shared_ptr<Entity>& entity, 
+        const glm::ivec2& position,
+        int shortStopSteps = 0
+    );
+    bool performAttackAction(
+        const std::shared_ptr<Entity>& entity, 
+        const std::shared_ptr<Weapon>& weapon,
+        const std::shared_ptr<Entity>& target
+    );
 
     void addOnNextTurnFunction(std::function<void(int, int)> onNextTurnFunc);
     void setOnAllParticipantsSetFunction(std::function<void()> onAllParticipantsSet);

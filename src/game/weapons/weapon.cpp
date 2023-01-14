@@ -12,7 +12,7 @@ Weapon::Weapon(
     grid(grid),
     name(name),
     stats(stats),
-    usesLeft(stats.uses)
+    usesLeft(0)
 {
     game_assert(owner != nullptr);
     game_assert(grid != nullptr);

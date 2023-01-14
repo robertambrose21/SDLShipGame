@@ -29,6 +29,7 @@ void ServerApplication::initialise(void) {
             onClientConnect(clientIndex);
         }
     );
+    receiver->setTransmitter(transmitter);
 
     server->setReceiver(receiver);
     server->setTransmitter(transmitter);
@@ -36,7 +37,7 @@ void ServerApplication::initialise(void) {
 
     context->getWindow()->addLoopLogicWorker([&](auto const& timeSinceLastFrame, auto& quit) {
         server->update(timeSinceLastFrame);
-        turnController->update(timeSinceLastFrame);
+        turnController->update(timeSinceLastFrame, quit);
         entityPool->updateEntities(timeSinceLastFrame, quit);
         projectilePool->update(timeSinceLastFrame);
         areaOfEffectPool->update(timeSinceLastFrame);
@@ -162,25 +163,28 @@ void ServerApplication::loadGame(void) {
     auto teeth = context->getWeaponController()->createWeapon("Space Worm Teeth", enemy);
     enemy->addWeapon(teeth);
     enemy->setCurrentWeapon(teeth);
-    enemy->setBehaviourStrategy(std::make_shared<ChaseAndAttackStrategy>(enemy));
+    // enemy->setBehaviourStrategy(std::make_shared<ChaseAndAttackStrategy>(enemy));
 
     auto enemy2 = context->getEntityPool()->addEntity("Space Worm");
     enemy2->setPosition(glm::ivec2(5, context->getGrid()->getHeight() - 3));
     auto teeth2 = context->getWeaponController()->createWeapon("Space Worm Teeth", enemy2);
     enemy2->addWeapon(teeth2);
     enemy2->setCurrentWeapon(teeth2);
-    enemy2->setBehaviourStrategy(std::make_shared<ChaseAndAttackStrategy>(enemy2));
+    // enemy2->setBehaviourStrategy(std::make_shared<ChaseAndAttackStrategy>(enemy2));
 
     auto enemy3 = context->getEntityPool()->addEntity("Space Worm");
     enemy3->setPosition(glm::ivec2(17, context->getGrid()->getHeight() - 3));
     auto teeth3 = context->getWeaponController()->createWeapon("Space Worm Teeth", enemy3);
     enemy3->addWeapon(teeth3);
     enemy3->setCurrentWeapon(teeth3);
-    enemy3->setBehaviourStrategy(std::make_shared<ChaseAndAttackStrategy>(enemy3));
+    // enemy3->setBehaviourStrategy(std::make_shared<ChaseAndAttackStrategy>(enemy3));
 
-    context->getTurnController()->addParticipant(0, { player, player2 }, true);
-    context->getTurnController()->addParticipant(1, { enemy, enemy2 }, false);
-    context->getTurnController()->addParticipant(2, { enemy3 }, false);
+    // context->getTurnController()->addParticipant(0, { player, player2 }, true);
+    // context->getTurnController()->addParticipant(1, { enemy, enemy2 }, false);
+    // context->getTurnController()->addParticipant(2, { enemy3 }, false);
+    context->getTurnController()->addParticipant(0, true, { player, player2 });
+    context->getTurnController()->addParticipant(1, false, { enemy, enemy2 }, std::make_shared<ChaseAndAttackStrategy>(1));
+    context->getTurnController()->addParticipant(2, false, { enemy3 }, std::make_shared<ChaseAndAttackStrategy>(2));
     context->getTurnController()->reset();
 }
 

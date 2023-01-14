@@ -73,3 +73,16 @@ void GameServerMessagesTransmitter::sendAttackEntity(
 
     server->sendMessage(clientIndex, message);
 }
+
+void GameServerMessagesTransmitter::sendActionsRollResponse(int clientIndex, int participantId, int rollNumber, int actions[6]) {
+    ActionsRollResponseMessage* message = 
+        (ActionsRollResponseMessage*) server->createMessage(clientIndex, GameMessageType::ACTIONS_ROLL_RESPONSE);
+
+    message->participantId = participantId;
+    message->rollNumber = rollNumber;
+    for(int i = 0; i < rollNumber; i++) {
+        message->actions[i] = actions[i];
+    }
+
+    server->sendMessage(clientIndex, message);
+}

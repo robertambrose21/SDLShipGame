@@ -18,6 +18,7 @@ add_library(
     net/yojimboimport.h
     util/idgenerator.h
     util/gameassert.h
+    util/randomrolls.h
     state/state.h
     state/statemachine.cpp
 )

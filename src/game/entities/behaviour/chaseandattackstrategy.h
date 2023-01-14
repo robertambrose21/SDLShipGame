@@ -13,14 +13,16 @@ private:
     std::shared_ptr<GameServerMessagesTransmitter> transmitter;
 
     std::shared_ptr<EntityPool> entityPool;
-    std::shared_ptr<Entity> target;
+    std::shared_ptr<TurnController> turnController;
+
+    std::map<TurnController::Action, int> presetActions;
 
     bool canPassTurn;
 
-    std::shared_ptr<Entity> findClosestTarget(void);
+    std::shared_ptr<Entity> findClosestTarget(const std::shared_ptr<Entity>& attacker);
 
 public:
-    ChaseAndAttackStrategy(const std::shared_ptr<Entity>& owner);
+    ChaseAndAttackStrategy(int participantId);
 
     void onUpdate(uint32_t timeSinceLastFrame, bool& quit);
     void onNextTurn(void);

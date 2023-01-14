@@ -1,56 +1,76 @@
 #include "chaseandattackstrategy.h"
 
-ChaseAndAttackStrategy::ChaseAndAttackStrategy(const std::shared_ptr<Entity>& owner) :
-    BehaviourStrategy(owner),
-    target(nullptr),
+ChaseAndAttackStrategy::ChaseAndAttackStrategy(int participantId) :
+    BehaviourStrategy(participantId),
+    // target(nullptr),
     canPassTurn(false)
 {
-    entityPool = Application::getContext()->getEntityPool();
-    transmitter = std::dynamic_pointer_cast<GameServerMessagesTransmitter>(Application::getContext()->getServerMessagesTransmitter());
+    auto context = Application::getContext();
+    entityPool = context->getEntityPool();
+    turnController = context->getTurnController();
+    transmitter = std::dynamic_pointer_cast<GameServerMessagesTransmitter>(context->getServerMessagesTransmitter());
+
+    presetActions = {
+        { TurnController::Action::Move, 1 },
+        { TurnController::Action::Attack, 1}
+    };
 }
 
 void ChaseAndAttackStrategy::onUpdate(uint32_t timeSinceLastFrame, bool& quit) {
-    if(target == nullptr) {
-        return;
-    }
+    auto participant = turnController->getParticipant(participantId);
+    auto totalPassable = true;
 
-    if(owner->isNeighbour(target)) {
-        if(owner->getCurrentWeapon()->hasFinished()) {
-            canPassTurn = true;
+    for(auto entity : participant->entities) {
+        auto target = findClosestTarget(entity);
+
+        if(entity->isNeighbour(target)) {
+            if(turnController->performAttackAction(entity, entity->getCurrentWeapon(), target)) {
+                transmitter->sendAttackEntity(0, entity->getId(), target->getId(), entity->getCurrentWeapon()->getId());
+            };
+
+            totalPassable = totalPassable && participant->actions[TurnController::Action::Attack] <= 0;
         }
         else {
-            owner->attack(target, owner->getCurrentWeapon());
-            transmitter->sendAttackEntity(0, owner->getId(), target->getId(), owner->getCurrentWeapon()->getId());
+            if(turnController->performMoveAction(entity, target->getPosition(), 1)) {
+                transmitter->sendFindPath(0, entity->getId(), target->getPosition(), 1);
+            }
+
+            if(entity->hasPath()) {
+                totalPassable = totalPassable && participant->actions[TurnController::Action::Move] <= 0 && entity->getMovesLeft() <= 0;
+            }
         }
     }
-    else if(owner->getMovesLeft() <= 0) {
-        owner->getCurrentWeapon()->setFinished();
-    }
-    else if(!owner->hasPath()) {
-        owner->findPath(target->getPosition(), 1);
-        transmitter->sendFindPath(0, owner->getId(), target->getPosition(), 1);
-    }
+
+    canPassTurn = totalPassable;
 }
 
 void ChaseAndAttackStrategy::onNextTurn(void) {
-    target = findClosestTarget();
+    // target = findClosestTarget();
+    turnController->setActions(participantId, presetActions);
+
+    std::vector<int> actions = { 0, 1 };
+
+    transmitter->sendActionsRollResponse(0, participantId, 2, &actions[0]);
+
     canPassTurn = false;
 }
 
 bool ChaseAndAttackStrategy::endTurnCondition(void) {
-    return canPassTurn;
+    return 
+        canPassTurn; //|| 
+        // turnController->getParticipant(participantId)->actions[TurnController::Action::Move] <= 0;
 }
 
-std::shared_ptr<Entity> ChaseAndAttackStrategy::findClosestTarget(void) {
+std::shared_ptr<Entity> ChaseAndAttackStrategy::findClosestTarget(const std::shared_ptr<Entity>& attacker) {
     std::shared_ptr<Entity> closestEntity = nullptr;
     auto shortestDistance = std::numeric_limits<float>::max();
     
     for(auto [entityId, entity] : entityPool->getEntities()) {
-        if(entity->getParticipantId() == owner->getParticipantId()) {
+        if(entity->getParticipantId() == participantId) {
             continue;
         }
 
-        auto distance = glm::distance(glm::vec2(owner->getPosition()), glm::vec2(entity->getPosition()));
+        auto distance = glm::distance(glm::vec2(attacker->getPosition()), glm::vec2(entity->getPosition()));
 
         if(distance < shortestDistance) {
             shortestDistance = distance;

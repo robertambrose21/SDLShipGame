@@ -11,6 +11,8 @@ add_library(
     graphicscontext.cpp
     sdlimport.h
     healthbar.cpp
+    dice.cpp
+    button.cpp
 )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX CXX_STANDARD 20)

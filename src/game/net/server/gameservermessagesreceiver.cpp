@@ -4,6 +4,10 @@ GameServerMessagesReceiver::GameServerMessagesReceiver(const std::shared_ptr<App
     context(context)
 { }
 
+void GameServerMessagesReceiver::setTransmitter(const std::shared_ptr<GameServerMessagesTransmitter>& transmitter) {
+    this->transmitter = transmitter;
+}
+
 void GameServerMessagesReceiver::receiveMessage(int clientIndex, yojimbo::Message* message) {
     switch(message->GetType()) {
         case (int) GameMessageType::FIND_PATH: {
@@ -46,6 +50,11 @@ void GameServerMessagesReceiver::receiveMessage(int clientIndex, yojimbo::Messag
             break;
         }
 
+        case (int) GameMessageType::ACTIONS_ROLL: {
+            ActionsRollMessage* actionsRollMessage = (ActionsRollMessage*) message;
+            receiveActionsRollMessage(clientIndex, actionsRollMessage->participantId);
+        }
+
         default:
             break;
     }
@@ -66,7 +75,8 @@ void GameServerMessagesReceiver::receiveFindPathMessage(
 
     for(auto const& entity : entities) {
         if(entity->getId() == entityId) {
-            entity->findPath(position, shortStopSteps);
+            context->getTurnController()->performMoveAction(entity, position);
+            // entity->findPath(position, shortStopSteps);
         }
     }
 }
@@ -105,7 +115,8 @@ void GameServerMessagesReceiver::receieveAttackEntityMessage(
 
     for(auto [_, weapon] : entity->getWeapons()) {
         if(weapon->getId() == weaponId) {
-            entity->attack(target, weapon);
+            // entity->attack(target, weapon);
+            context->getTurnController()->performAttackAction(entity, weapon, target);
         }
     }
 }
@@ -126,6 +137,24 @@ void GameServerMessagesReceiver::receiveSetParticipantAckMessage(int clientIndex
     clientParticipantsLoaded[clientIndex].insert(participantId);
 
     std::cout << "Got participant ACK " << participantId << std::endl;
+}
+
+void GameServerMessagesReceiver::receiveActionsRollMessage(int clientIndex, int participantId) {
+    std::cout << "Got actions roll message" << std::endl;
+
+    auto actions = std::vector<int>();
+
+    for(auto [action, num] : context->getTurnController()->rollActions(participantId)) {
+        for(int i = 0; i < num; i++) {
+            actions.push_back(action);
+        }
+    }
+
+    auto rollNumber = actions.size();
+
+    game_assert(rollNumber >= 1 && rollNumber <= 6);
+
+    transmitter->sendActionsRollResponse(clientIndex, participantId, rollNumber, &actions[0]);
 }
 
 bool GameServerMessagesReceiver::areParticipantsLoadedForClient(int clientIndex) {

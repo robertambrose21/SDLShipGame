@@ -13,6 +13,7 @@ private:
     std::shared_ptr<ApplicationContext> context;
     std::shared_ptr<GameClientMessagesTransmitter> transmitter;
     std::shared_ptr<PlayerController> playerController;
+    std::shared_ptr<TurnController> turnController;
 
     void receiveTestMessage(int data);
     void receiveGameStateUpdate(const GameStateUpdate& update);
@@ -28,6 +29,7 @@ private:
         uint32_t targetId, 
         uint32_t weaponId
     );
+    void receiveActionsRollResponse(int participantId, int rollNumber, int actions[6]);
 
 public:
     GameClientMessagesReceiver(const std::shared_ptr<ApplicationContext>& context);

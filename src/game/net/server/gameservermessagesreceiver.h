@@ -9,10 +9,14 @@
 #include "core/net/gameadapter.h"
 #include "core/net/server/servermessagesreceiver.h"
 #include "game/application/applicationcontext.h"
+#include "game/net/server/gameservermessagestransmitter.h"
 
+// TODO: Ensure participants are validated
 class GameServerMessagesReceiver : public ServerMessagesReceiver {
 private:
     std::shared_ptr<ApplicationContext> context;
+    std::shared_ptr<GameServerMessagesTransmitter> transmitter;
+
     std::map<int, std::set<int>> clientParticipantsLoaded;
 
     void receiveFindPathMessage(
@@ -30,9 +34,12 @@ private:
     );
     void receivePassParticipantTurnMessage(int clientIndex, int participantId);
     void receiveSetParticipantAckMessage(int clientIndex, int participantId);
+    void receiveActionsRollMessage(int clientIndex, int participantId);
 
 public:
     GameServerMessagesReceiver(const std::shared_ptr<ApplicationContext>& context);
+
+    void setTransmitter(const std::shared_ptr<GameServerMessagesTransmitter>& transmitter);
 
     void receiveMessage(int clientIndex, yojimbo::Message* message) override;
     bool areParticipantsLoadedForClient(int clientIndex);

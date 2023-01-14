@@ -43,9 +43,7 @@ void ClientApplication::initialise(void) {
     }
 
     playerController = std::make_shared<PlayerController>(
-        clientMessagesTransmitter,
-        context->getWindow()->getGridRenderer(),
-        context->getEntityPool()
+        clientMessagesTransmitter, context
     );
     clientMessagesReceiver->setPlayerController(playerController);
 
@@ -70,6 +68,7 @@ void ClientApplication::draw(const std::shared_ptr<GraphicsContext>& graphicsCon
             projectilePool->draw(graphicsContext);
             areaOfEffectPool->draw(graphicsContext);
             entityPool->drawEntities(graphicsContext);
+            playerController->draw(graphicsContext);
             break;
 
         default:
@@ -85,7 +84,7 @@ void ClientApplication::update(uint32_t timeSinceLastFrame, bool& quit) {
             break;
 
         case ClientStateMachine::GameLoop:
-            turnController->update(timeSinceLastFrame);
+            turnController->update(timeSinceLastFrame, quit);
             entityPool->updateEntities(timeSinceLastFrame, quit);
             projectilePool->update(timeSinceLastFrame);
             areaOfEffectPool->update(timeSinceLastFrame);

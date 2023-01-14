@@ -2,7 +2,9 @@
 
 GameClientMessagesReceiver::GameClientMessagesReceiver(const std::shared_ptr<ApplicationContext>& context) :
     context(context)
-{ }
+{
+    turnController = context->getTurnController();
+}
 
 void GameClientMessagesReceiver::setTransmitter(const std::shared_ptr<GameClientMessagesTransmitter>& transmitter) {
     this->transmitter = transmitter;
@@ -62,6 +64,16 @@ void GameClientMessagesReceiver::receiveMessage(yojimbo::Message* message) {
             break;
         }
 
+        case (int) GameMessageType::ACTIONS_ROLL_RESPONSE: {
+            ActionsRollResponseMessage* actionsRollResponseMessage = (ActionsRollResponseMessage*) message;
+            receiveActionsRollResponse(
+                actionsRollResponseMessage->participantId,
+                actionsRollResponseMessage->rollNumber, 
+                actionsRollResponseMessage->actions
+            );
+            break;
+        }
+
         default:
             break;
     }
@@ -84,8 +96,7 @@ void GameClientMessagesReceiver::receiveSetParticipant(
     bool isPlayer
 ) {
     auto const& turnController = context->getTurnController();
-
-    auto const& participant = turnController->addParticipant(participantId, { }, isPlayer);
+    auto const& participant = turnController->addParticipant(participantId, isPlayer, { });
 
     if(isPlayer) {
         playerController->setParticipant(participant);
@@ -122,7 +133,8 @@ void GameClientMessagesReceiver::receiveFindPath(
 
     auto const& entity = context->getEntityPool()->getEntity(entityId);
 
-    entity->findPath(position, shortStopSteps);
+    // entity->findPath(position, shortStopSteps);
+    turnController->performMoveAction(entity, position, shortStopSteps);
 }
 
 void GameClientMessagesReceiver::receiveAttackEntity(
@@ -141,7 +153,39 @@ void GameClientMessagesReceiver::receiveAttackEntity(
 
     for(auto [_, weapon] : entity->getWeapons()) {
         if(weapon->getId() == weaponId) {
-            entity->attack(target, weapon);
+            // entity->attack(target, weapon);
+            turnController->performAttackAction(entity, weapon, target);
         }
     }
+}
+
+void GameClientMessagesReceiver::receiveActionsRollResponse(int participantId, int rollNumber, int actions[6]) {
+    std::cout << "Received some filth " << rollNumber << std::endl;
+
+    if(participantId == 0) {
+        std::vector<int> vActions;
+        for(int i = 0; i < rollNumber; i++) {
+            vActions.push_back(actions[i]);
+        }
+
+        playerController->getDice()->setActionsFromServer(vActions);
+    }
+    else {
+        std::map<TurnController::Action, int> vActions = {
+            { TurnController::Action::Move, 0 },
+            { TurnController::Action::Attack, 0 }
+        };
+
+        for(int i = 0; i < rollNumber; i++) {
+            vActions[(TurnController::Action) actions[i]]++;
+        }
+
+        turnController->setActions(participantId, vActions);
+    }
+
+    // for(int i = 0; i < rollNumber; i++) {
+    //     std::cout << actions[i] << ", ";
+    // }
+
+    // std::cout << std::endl;
 }

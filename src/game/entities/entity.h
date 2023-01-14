@@ -7,14 +7,12 @@
 #include "graphics/gridrenderer.h"
 #include "graphics/healthbar.h"
 #include "game/weapons/weapon.h"
-#include "behaviour/behaviourstrategy.h"
 #include "core/util/gameassert.h"
 #include "entitystats.h"
 #include "game/effects/statuseffect.h"
 
 // TODO: Fix with modules?
 class Weapon;
-class BehaviourStrategy;
 
 class Entity {
 public:
@@ -46,8 +44,6 @@ private:
 
     std::shared_ptr<Grid> grid;
     std::shared_ptr<HealthBar> healthBar;
-
-    std::shared_ptr<BehaviourStrategy> behaviourStrategy;
 
     glm::ivec2 position;
     std::deque<glm::ivec2> path;
@@ -120,9 +116,6 @@ public:
     void setSelected(bool selected);
     bool isSelected(void) const;
 
-    std::shared_ptr<BehaviourStrategy> getBehaviourStrategy(void);
-    void setBehaviourStrategy(const std::shared_ptr<BehaviourStrategy>& behaviourStrategy);
-
     EntityBaseStats getBaseStats(void) const;
     EntityCurrentStats getCurrentStats(void) const;
     const float getSpeed(void);
@@ -148,7 +141,7 @@ public:
     bool isOnTile(int x, int y);
 
     void setPosition(const glm::ivec2& position);
-    bool findPath(const glm::ivec2& target, int stopShortSteps = 0);
+    int findPath(const glm::ivec2& target, int stopShortSteps = 0);
     bool isNeighbour(const std::shared_ptr<Entity>& entity) const;
     bool hasPath(void);
 

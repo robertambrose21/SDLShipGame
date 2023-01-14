@@ -72,9 +72,9 @@ void Entity::update(uint32_t timeSinceLastFrame, bool& quit) {
         weapon->update(timeSinceLastFrame);
     }
 
-    if(behaviourStrategy != nullptr) {
-        behaviourStrategy->onUpdate(timeSinceLastFrame, quit);
-    }
+    // if(behaviourStrategy != nullptr) {
+    //     behaviourStrategy->onUpdate(timeSinceLastFrame, quit);
+    // }
     
     if(getMovesLeft() == 0) {
         return;
@@ -100,14 +100,6 @@ void Entity::setSelected(bool selected) {
 
 bool Entity::isSelected(void) const {
     return selected;
-}
-
-std::shared_ptr<BehaviourStrategy> Entity::getBehaviourStrategy(void) {
-    return behaviourStrategy;
-}
-
-void Entity::setBehaviourStrategy(const std::shared_ptr<BehaviourStrategy>& behaviourStrategy) {
-    this->behaviourStrategy = behaviourStrategy;
 }
 
 EntityBaseStats Entity::getBaseStats(void) const {
@@ -202,7 +194,7 @@ void Entity::setPosition(const glm::ivec2& position) {
     this->position = position;
 }
 
-bool Entity::findPath(const glm::ivec2& target, int stopShortSteps) {
+int Entity::findPath(const glm::ivec2& target, int stopShortSteps) {
     auto path = grid->findPath(getPosition(), target);
 
     if(path.empty()) {
@@ -219,7 +211,7 @@ bool Entity::findPath(const glm::ivec2& target, int stopShortSteps) {
     }
 
     this->path = path;
-    return !path.empty();
+    return path.size();
 }
 
 bool Entity::hasPath(void) {
@@ -253,18 +245,15 @@ void Entity::useMoves(int numMoves) {
 void Entity::nextTurn(void) {
     currentStats.movesLeft = stats.movesPerTurn;
     path.clear();
-    
+
     for(auto [_, weapon] : weapons) {
         weapon->reset();
     }
-
-    if(behaviourStrategy != nullptr) {
-        behaviourStrategy->onNextTurn();
-    }
 }
 
+// TODO: Maybe irrelevant now?
 bool Entity::endTurnCondition(void) {
-    return behaviourStrategy == nullptr ? false : behaviourStrategy->endTurnCondition();
+    return false;
 }
 
 void Entity::reset(void) {

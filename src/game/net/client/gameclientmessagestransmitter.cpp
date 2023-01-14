@@ -4,6 +4,14 @@ GameClientMessagesTransmitter::GameClientMessagesTransmitter(const std::shared_p
     client(client)
 { }
 
+void GameClientMessagesTransmitter::sendActionsRollMessage(int participantId) {
+    ActionsRollMessage* message = (ActionsRollMessage*) client->createMessage(GameMessageType::ACTIONS_ROLL);
+
+    message->participantId = participantId;
+
+    client->sendMessage(message);
+}
+
 void GameClientMessagesTransmitter::sendFindPathMessage(
     uint32_t entityId,
     const glm::ivec2& position,

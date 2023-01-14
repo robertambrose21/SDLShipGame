@@ -2,21 +2,33 @@
 
 PlayerController::PlayerController(
     const std::shared_ptr<GameClientMessagesTransmitter>& clientMessagesTransmitter,
-    const std::shared_ptr<GridRenderer>& grid, 
-    const std::shared_ptr<EntityPool>& entityPool
+    const std::shared_ptr<ApplicationContext>& context
 ) :
     clientMessagesTransmitter(clientMessagesTransmitter),
-    grid(grid),
-    entityPool(entityPool)
-{ }
+    grid(context->getGraphicsContext()->getGridRenderer()),
+    entityPool(context->getEntityPool()),
+    turnController(context->getTurnController())
+{
+    dice = std::make_shared<Dice>(3, clientMessagesTransmitter);
+}
+
+void PlayerController::draw(const std::shared_ptr<GraphicsContext>& graphicsContext) {
+    dice->draw(graphicsContext);
+}
 
 void PlayerController::handleKeyPress(const SDL_Event& event) {
     if(event.type == SDL_KEYDOWN) {
         switch(event.key.keysym.sym) {
-            case SDLK_p:
+            case SDLK_p: {
                 clientMessagesTransmitter->sendPassParticipantTurnMessage(participant->id);
                 Application::getContext()->getTurnController()->passParticipant(participant->id);
                 break;
+            }
+
+            case SDLK_d: {
+                dice->roll(participant->id);
+                break;
+            }
 
             default:
                 break;
@@ -36,6 +48,8 @@ void PlayerController::handleMouseEvent(const SDL_Event& event) {
                 auto const& entity = Entity::filterByTile(dX, dY, participant->entities);
 
                 toggleSelection(entity);
+
+                dice->handleClickEvent(x, y);
                 break;
             }
         
@@ -53,7 +67,8 @@ void PlayerController::handleMouseEvent(const SDL_Event& event) {
                             weapon->getId()
                         );
                         
-                        entity->attack(target, weapon);
+                        // entity->attack(target, weapon);
+                        turnController->performAttackAction(entity, weapon, target);
                     }
                 }
                 else {
@@ -88,7 +103,8 @@ void PlayerController::move(const glm::ivec2& mouseCoords) {
 
     for(auto const& entity : selectedEntities) {
         clientMessagesTransmitter->sendFindPathMessage(entity->getId(), {dX, dY}, 0);
-        entity->findPath(glm::ivec2(dX, dY));
+        // entity->findPath(glm::ivec2(dX, dY));
+        turnController->performMoveAction(entity, glm::ivec2(dX, dY));
     }
 }
 
@@ -98,5 +114,10 @@ const std::vector<std::shared_ptr<Entity>>& PlayerController::getSelectedEntitie
 
 void PlayerController::setParticipant(const std::shared_ptr<TurnController::Participant>& participant) {
     game_assert(participant != nullptr);
+    game_assert(participant->isPlayer);
     this->participant = participant;
+}
+
+std::shared_ptr<Dice> PlayerController::getDice(void) {
+    return dice;
 }

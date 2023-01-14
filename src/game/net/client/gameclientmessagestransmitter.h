@@ -11,6 +11,7 @@ private:
 public:
     GameClientMessagesTransmitter(const std::shared_ptr<GameClient>& client);
 
+    void sendActionsRollMessage(int participantId);
     void sendFindPathMessage(
         uint32_t entityId, 
         const glm::ivec2& position,
