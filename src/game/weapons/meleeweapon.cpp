@@ -19,9 +19,10 @@ MeleeWeapon::MeleeWeapon(
     Weapon(owner, grid, name, stats)
 { }
 
-void MeleeWeapon::onUse(const glm::ivec2& position, const std::shared_ptr<Entity>& target) {
+bool MeleeWeapon::onUse(const glm::ivec2& position, const std::shared_ptr<Entity>& target) {
     game_assert(target != nullptr);
     target->takeDamage(stats.damage);
+    return true;
 }
 
 void MeleeWeapon::draw(const std::shared_ptr<GraphicsContext>& graphicsContext) {

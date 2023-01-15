@@ -29,7 +29,10 @@ Weapon::Weapon(
 
 void Weapon::use(const glm::ivec2& position, const std::shared_ptr<Entity>& target) {
     if(usesLeft > 0) {
-        onUse(position, target);
+        if(!onUse(position, target)) {
+            return;
+        }
+        
         usesLeft--;
 
         std::cout

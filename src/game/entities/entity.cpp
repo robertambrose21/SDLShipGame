@@ -71,10 +71,6 @@ void Entity::update(uint32_t timeSinceLastFrame, bool& quit) {
     for(auto [_, weapon] : weapons) {
         weapon->update(timeSinceLastFrame);
     }
-
-    // if(behaviourStrategy != nullptr) {
-    //     behaviourStrategy->onUpdate(timeSinceLastFrame, quit);
-    // }
     
     if(getMovesLeft() == 0) {
         return;

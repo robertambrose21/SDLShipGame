@@ -49,7 +49,9 @@ Projectile::Blueprint ProjectilePool::create(const std::string& name) {
         name,
         definition.textureId,
         [&, aoe](auto grid, auto entity, auto turnNumber) { // TODO: Don't add this if there's no aoe
-            areaOfEffectPool->add(aoe, turnNumber, entity->getPosition());
+            if(aoe != "") {
+                areaOfEffectPool->add(aoe, turnNumber, entity->getPosition());
+            }
         }
     );
 

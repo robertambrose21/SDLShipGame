@@ -20,6 +20,7 @@ private:
     bool canPassTurn;
 
     std::shared_ptr<Entity> findClosestTarget(const std::shared_ptr<Entity>& attacker);
+    std::shared_ptr<Weapon> getBestInRangeWeapon(const std::shared_ptr<Entity>& attacker, const glm::ivec2& target);
 
 public:
     ChaseAndAttackStrategy(int participantId);

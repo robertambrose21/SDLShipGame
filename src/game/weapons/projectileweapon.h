@@ -9,7 +9,7 @@ class ProjectileWeapon : public Weapon {
 private:
     Projectile::Blueprint projectileBlueprint;
     
-    void onUse(const glm::ivec2& position, const std::shared_ptr<Entity>& target);
+    bool onUse(const glm::ivec2& position, const std::shared_ptr<Entity>& target);
 
 public:
     ProjectileWeapon(

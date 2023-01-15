@@ -4,7 +4,7 @@
 
 class MeleeWeapon : public Weapon {
 private:
-    void onUse(const glm::ivec2& position, const std::shared_ptr<Entity>& target);
+    bool onUse(const glm::ivec2& position, const std::shared_ptr<Entity>& target);
 
 public:
     MeleeWeapon(

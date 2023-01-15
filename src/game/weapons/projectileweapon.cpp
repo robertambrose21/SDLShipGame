@@ -22,11 +22,17 @@ ProjectileWeapon::ProjectileWeapon(
     ProjectileWeapon(owner, grid, getNewId(), name, stats, projectileBlueprint)
 { }
 
-void ProjectileWeapon::onUse(const glm::ivec2& position, const std::shared_ptr<Entity>& target) {
+bool ProjectileWeapon::onUse(const glm::ivec2& position, const std::shared_ptr<Entity>& target) {
+    if(glm::distance(glm::vec2(position), glm::vec2(target->getPosition())) > stats.range) {
+        return false;
+    }
+
     Application::getContext()->getProjectilePool()->add(
         Projectile::create(grid, projectileBlueprint, position, target, stats.damage),
         owner
     );
+
+    return true;
 }
 
 void ProjectileWeapon::draw(const std::shared_ptr<GraphicsContext>& graphicsContext) {

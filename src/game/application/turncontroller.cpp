@@ -26,7 +26,7 @@ void TurnController::update(uint32_t timeSinceLastFrame, bool& quit) {
 
     nextTurn = nextTurn || (bs == nullptr ? false : bs->endTurnCondition());
 
-    if(nextTurn) {//} && numEntities > 0) {
+    if(nextTurn && numEntities > 0) {
         nextParticipantTurn((currentParticipant + 1) % participants.size());
     }
 }
@@ -209,7 +209,7 @@ bool TurnController::performAttackAction(
 
     if(weapon->getUsesLeft() <= 0) {
         participants[currentParticipant]->actions[Action::Attack]--;
-        // weapon->reset();
+        weapon->reset();
     }
 
     std::cout << currentParticipant << " Did attack, " << participants[currentParticipant]->actions[Action::Attack] << " actions left" << std::endl;
