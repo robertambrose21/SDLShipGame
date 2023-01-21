@@ -37,6 +37,7 @@ public:
         const std::shared_ptr<ApplicationContext>& context
     );
 
+    void update(uint32_t timeSinceLastFrame);
     void draw(const std::shared_ptr<GraphicsContext>& graphicsContext);
 
     void handleKeyPress(const SDL_Event& event);

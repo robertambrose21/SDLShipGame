@@ -12,6 +12,14 @@ PlayerController::PlayerController(
     dice = std::make_shared<Dice>(3, clientMessagesTransmitter);
 }
 
+void PlayerController::update(uint32_t timeSinceLastFrame) {
+    for(auto entity : selectedEntities) {
+        if(entity == nullptr || entity->getCurrentHP() <= 0) {
+            selectedEntities.erase(std::remove(selectedEntities.begin(), selectedEntities.end(), entity), selectedEntities.end());
+        }
+    }
+}
+
 void PlayerController::draw(const std::shared_ptr<GraphicsContext>& graphicsContext) {
     dice->draw(graphicsContext);
 }

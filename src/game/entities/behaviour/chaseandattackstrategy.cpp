@@ -79,7 +79,7 @@ void ChaseAndAttackStrategy::onNextTurn(void) {
         }
     }
 
-    transmitter->sendActionsRollResponse(0, participantId, 2, &actions[0]);
+    transmitter->sendActionsRollResponse(0, participantId, actions.size(), &actions[0]);
 
     canPassTurn = false;
 }

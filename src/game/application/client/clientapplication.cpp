@@ -86,6 +86,7 @@ void ClientApplication::update(uint32_t timeSinceLastFrame, bool& quit) {
         case ClientStateMachine::GameLoop:
             turnController->update(timeSinceLastFrame, quit);
             entityPool->updateEntities(timeSinceLastFrame, quit);
+            playerController->update(timeSinceLastFrame);
             projectilePool->update(timeSinceLastFrame);
             areaOfEffectPool->update(timeSinceLastFrame);
             break;

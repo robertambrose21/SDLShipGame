@@ -106,7 +106,7 @@ public:
             serialize_bits(stream, entity.participantId, 16);
             serialize_bits(stream, entity.totalHP, 16);
             // TODO: This screws up if currentHP goes negative
-            serialize_bits(stream, entity.currentHP, 16);
+            serialize_int(stream, entity.currentHP, -256, 256);
             serialize_bits(stream, entity.x, 16);
             serialize_bits(stream, entity.y, 16);
             serialize_bits(stream, entity.movesPerTurn, 16);
