@@ -264,6 +264,13 @@ void Entity::nextTurn(void) {
 
     if(frozenForNumTurns > 0) {
         frozenForNumTurns--;
+
+        if(frozenForNumTurns == 0) {
+            std::cout << "[" << name << "#" << id << "] unfreezes!" << std::endl;
+        }
+        else {
+            std::cout << "[" << name << "#" << id << "] will be unfrozen in " << frozenForNumTurns << " turns" << std::endl;
+        }
     }
 }
 

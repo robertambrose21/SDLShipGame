@@ -38,6 +38,8 @@ void Weapon::use(const glm::ivec2& position, const std::shared_ptr<Entity>& targ
         std::cout
         << "["
         << owner->getName()
+        << "#"
+        << owner->getId()
         << "] attacked the [" 
         << target->getName()
         << "] for [" 
@@ -46,6 +48,8 @@ void Weapon::use(const glm::ivec2& position, const std::shared_ptr<Entity>& targ
         << getName()
         << "], ["
         << target->getName()
+        << "#"
+        << target->getId()
         << "] now has [" 
         << (target == nullptr ? 0 : target->getCurrentHP() - getStats().damage)
         << "] hp" 

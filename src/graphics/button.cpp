@@ -20,12 +20,13 @@ void Button::draw(const std::shared_ptr<GraphicsContext>& graphicsContext) {
         ->draw(graphicsContext->getRenderer(), NULL, &dst);
 }
 
-void Button::handleClickEvent(int mouseX, int mouseY) {
+bool Button::handleClickEvent(int mouseX, int mouseY) {
     if(!isInBounds(mouseX, mouseY)) {
-        return;
+        return false;
     }
 
     onClickFunc();
+    return true;
 }
 
 void Button::onClick(std::function<void()>&& onClickFunc) {

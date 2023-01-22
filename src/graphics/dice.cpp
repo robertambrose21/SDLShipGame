@@ -37,7 +37,9 @@ void Dice::handleClickEvent(int mouseX, int mouseY) {
     }
 
     for(auto const& button : actions) {
-        button->handleClickEvent(mouseX, mouseY);
+        if(button->handleClickEvent(mouseX, mouseY)) {
+            actions.erase(std::remove(actions.begin(), actions.end(), button), actions.end());
+        }
     }
 }
 

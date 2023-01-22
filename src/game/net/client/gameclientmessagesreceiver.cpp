@@ -80,7 +80,7 @@ void GameClientMessagesReceiver::receiveMessage(yojimbo::Message* message) {
 }
 
 void GameClientMessagesReceiver::receiveGameStateUpdate(const GameStateUpdate& update) {
-    std::cout << "Got game state update " << update.currentParticipant << std::endl;
+    // std::cout << "Got game state update " << update.currentParticipant << std::endl;
 
     context->getTurnController()->setCurrentParticipant(update.currentParticipant);
     context->getEntityPool()->addGameStateUpdate(update);
@@ -160,7 +160,7 @@ void GameClientMessagesReceiver::receiveAttackEntity(
 }
 
 void GameClientMessagesReceiver::receiveActionsRollResponse(int participantId, int rollNumber, int actions[6]) {
-    std::cout << "Received some filth " << rollNumber << std::endl;
+    // std::cout << "Received some filth " << rollNumber << std::endl;
 
     if(participantId == 0) {
         std::vector<int> vActions;
