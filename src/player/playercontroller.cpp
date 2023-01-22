@@ -75,7 +75,6 @@ void PlayerController::handleMouseEvent(const SDL_Event& event) {
                             weapon->getId()
                         );
                         
-                        // entity->attack(target, weapon);
                         turnController->performAttackAction(entity, weapon, target);
                     }
                 }
@@ -111,7 +110,6 @@ void PlayerController::move(const glm::ivec2& mouseCoords) {
 
     for(auto const& entity : selectedEntities) {
         clientMessagesTransmitter->sendFindPathMessage(entity->getId(), {dX, dY}, 0);
-        // entity->findPath(glm::ivec2(dX, dY));
         turnController->performMoveAction(entity, glm::ivec2(dX, dY));
     }
 }

@@ -60,6 +60,8 @@ private:
 
     int participantId;
 
+    int frozenForNumTurns;
+
 public:
     const uint32_t MOVES_PER_SECOND = 5;
 
@@ -156,4 +158,7 @@ public:
     void reset(void);
     void nextTurn(void);
     bool endTurnCondition(void);
+
+    bool getIsFrozen(void) const;
+    void setFrozenFor(int numTurns);
 };

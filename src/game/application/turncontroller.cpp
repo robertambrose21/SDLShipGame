@@ -180,16 +180,12 @@ bool TurnController::performMoveAction(
 
     auto steps = entity->findPath(position, shortStopSteps);
 
-    std::cout << "Steps: " << steps << " moves left: " << entity->getMovesLeft() << " ";
-
     // Bug - if entity doesn't finish all it's steps then another entity from the same participant
     // can 'steal' the move action
     if(steps >= entity->getMovesLeft()) {
         participants[currentParticipant]->actions[Action::Move]--;
         entity->setMovesLeft(entity->getCurrentStats().movesPerTurn);
     }
-
-    std::cout << currentParticipant << " Did move, " << participants[currentParticipant]->actions[Action::Move] << " actions left" << std::endl;
 
     return true;
 }
@@ -211,8 +207,6 @@ bool TurnController::performAttackAction(
         participants[currentParticipant]->actions[Action::Attack]--;
         weapon->reset();
     }
-
-    std::cout << currentParticipant << " Did attack, " << participants[currentParticipant]->actions[Action::Attack] << " actions left" << std::endl;
 
     return true;
 }

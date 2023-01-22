@@ -5,6 +5,7 @@
 #include "core/glmimport.h"
 #include "graphics/gridrenderer.h"
 #include "game/entities/entity.h"
+#include "game/effects/effect.h"
 
 class Entity;
 
@@ -13,6 +14,7 @@ public:
     typedef struct _stats {
         float damageMultiplier;
         float speed;
+        std::vector<Effect> effects;
     } Stats;
 
     typedef struct _blueprint {

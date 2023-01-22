@@ -34,6 +34,12 @@ void Projectile::update(uint32_t timeSinceLastFrame) {
     if(hasReachedTarget()) {
         target->takeDamage((float) weaponBaseDamage * stats.damageMultiplier);
         onHitCallback(grid, target, 1);
+
+        for(auto const& effect : stats.effects) {
+            if(effect.name == "freeze") {
+                target->setFrozenFor(effect.duration);
+            }
+        }
     }
 }
 

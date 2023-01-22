@@ -7,6 +7,7 @@
 #include "projectile.h"
 #include "game/entities/entity.h"
 #include "areaofeffectpool.h"
+#include "game/effects/effect.h"
 
 using json = nlohmann::json;
 
@@ -19,6 +20,7 @@ private:
         uint32_t textureId;
         float multiplier;
         float speed;
+        std::vector<Effect> effects;
     } ProjectileDefinition;
 
     std::map<std::string, ProjectileDefinition> projectileDefinitions;

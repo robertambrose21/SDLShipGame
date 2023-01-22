@@ -15,7 +15,7 @@ public:
     enum Action {
         Move = 0,
         Attack,
-        Freeze,
+        // Freeze,
         Count
     };
 

@@ -25,6 +25,17 @@ void ProjectilePool::loadProjectileDefinitions(void) {
         definition.textureId = data["textureId"].get<uint32_t>();
         definition.multiplier = data["multiplier"].get<float>();
         definition.speed = data["speed"].get<float>();
+        if(data.contains("effects")) {
+            auto const& effects = data["effects"].get<std::vector<json>>();
+
+            for(auto const& effect : effects) {
+                if(effect.contains("freeze")) {
+                    auto duration = effect["freeze"].get<int>();
+
+                    definition.effects.push_back(Effect("freeze", duration));
+                }
+            }
+        }
 
         std::cout << "Loaded projectile definition \"" << definition.name << "\"" << std::endl;
 
@@ -45,7 +56,7 @@ Projectile::Blueprint ProjectilePool::create(const std::string& name) {
     auto const& definition = projectileDefinitions[name];
     auto const& aoe = definition.aoe;
     Projectile::Blueprint blueprint(
-        Projectile::Stats { definition.multiplier, definition.speed },
+        Projectile::Stats { definition.multiplier, definition.speed, definition.effects },
         name,
         definition.textureId,
         [&, aoe](auto grid, auto entity, auto turnNumber) { // TODO: Don't add this if there's no aoe

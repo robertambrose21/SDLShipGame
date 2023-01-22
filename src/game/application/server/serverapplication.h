@@ -36,5 +36,5 @@ public:
     // Temp
     void loadGame(void);
     // Temp
-    std::shared_ptr<Entity> addPlayer(glm::ivec2 position);
+    std::shared_ptr<Entity> addPlayer(glm::ivec2 position, bool hasFreezeGun);
 };

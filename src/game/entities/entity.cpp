@@ -12,7 +12,8 @@ Entity::Entity(
     currentStats(stats),
     position({ 0, 0 }),
     timeSinceLastMoved(0),
-    selected(false)
+    selected(false),
+    frozenForNumTurns(0)
 {
     grid = Application::getContext()->getGrid();
     healthBar = std::make_shared<HealthBar>(stats.totalHP);
@@ -64,12 +65,27 @@ void Entity::draw(const std::shared_ptr<GraphicsContext>& graphicsContext) {
         weapon->draw(graphicsContext);
     }
 
+    if(frozenForNumTurns > 0) {
+        auto const &realPosition = graphicsContext->getGridRenderer()->getTilePosition(position.x, position.y);
+        auto const &size = graphicsContext->getGridRenderer()->getTileSize();
+
+        SDL_Rect frozen = { realPosition.x, realPosition.y, size, size };
+
+        SDL_SetRenderDrawBlendMode(graphicsContext->getRenderer().get(), SDL_BLENDMODE_BLEND);
+        SDL_SetRenderDrawColor(graphicsContext->getRenderer().get(), 0x00, 0xFF, 0xFF, 0x7F);
+        SDL_RenderFillRect(graphicsContext->getRenderer().get(), &frozen);
+    }
+
     healthBar->draw(graphicsContext, position, currentStats.totalHP);
 }
 
 void Entity::update(uint32_t timeSinceLastFrame, bool& quit) {
     for(auto [_, weapon] : weapons) {
         weapon->update(timeSinceLastFrame);
+    }
+
+    if(frozenForNumTurns > 0) {
+        return;
     }
     
     if(getMovesLeft() == 0) {
@@ -245,6 +261,10 @@ void Entity::nextTurn(void) {
     for(auto [_, weapon] : weapons) {
         weapon->reset();
     }
+
+    if(frozenForNumTurns > 0) {
+        frozenForNumTurns--;
+    }
 }
 
 // TODO: Maybe irrelevant now?
@@ -269,4 +289,12 @@ void Entity::setParticipantId(int participantId) {
 
 int Entity::getParticipantId(void) const {
     return participantId;
+}
+
+bool Entity::getIsFrozen(void) const {
+    return frozenForNumTurns > 0;
+}
+
+void Entity::setFrozenFor(int numTurns) {
+    frozenForNumTurns = numTurns;
 }

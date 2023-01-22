@@ -6,6 +6,7 @@ include_directories(../)
 add_library(
     ${PROJECT_NAME}
     effects/statuseffect.cpp
+    effects/effect.h
     entities/entity.cpp 
     entities/entitystats.h
     entities/entitypool.cpp 

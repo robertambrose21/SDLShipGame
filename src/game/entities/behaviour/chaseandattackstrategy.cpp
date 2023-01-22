@@ -19,6 +19,10 @@ void ChaseAndAttackStrategy::onUpdate(uint32_t timeSinceLastFrame, bool& quit) {
         auto target = findClosestTarget(entity);
         auto bWeapon = target == nullptr ? nullptr : getBestInRangeWeapon(entity, target->getPosition());
 
+        if(entity->getIsFrozen()) {
+            continue;
+        }
+
         if(entity->isNeighbour(target)) {
             if(turnController->performAttackAction(entity, entity->getCurrentWeapon(), target)) {
                 transmitter->sendAttackEntity(0, entity->getId(), target->getId(), entity->getCurrentWeapon()->getId());

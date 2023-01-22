@@ -154,8 +154,8 @@ void ServerApplication::loadMap(void) {
 void ServerApplication::loadGame(void) {
     auto context = Application::getContext();
 
-    auto player = addPlayer(glm::ivec2(0, 0));
-    auto player2 = addPlayer(glm::ivec2(2, 1));
+    auto player = addPlayer(glm::ivec2(0, 0), false);
+    auto player2 = addPlayer(glm::ivec2(2, 1), true);
 
     // TODO: Weapon blueprints
     auto enemy = context->getEntityPool()->addEntity("Space Worm");
@@ -198,12 +198,18 @@ void ServerApplication::loadGame(void) {
     context->getTurnController()->reset();
 }
 
-std::shared_ptr<Entity> ServerApplication::addPlayer(glm::ivec2 position) {
+std::shared_ptr<Entity> ServerApplication::addPlayer(glm::ivec2 position, bool hasFreezeGun) {
     auto context = Application::getContext();
 
     auto player = context->getEntityPool()->addEntity("Player");
     player->setPosition(position);
-    auto grenadeLauncher = player->addWeapon(context->getWeaponController()->createWeapon("Grenade Launcher", player));
-    player->setCurrentWeapon(grenadeLauncher);
+    if(hasFreezeGun) {
+        auto freezeGun = player->addWeapon(context->getWeaponController()->createWeapon("Freeze Gun", player));
+        player->setCurrentWeapon(freezeGun);
+    }
+    else {
+        auto grenadeLauncher = player->addWeapon(context->getWeaponController()->createWeapon("Grenade Launcher", player));
+        player->setCurrentWeapon(grenadeLauncher);
+    }
     return player;
 }
