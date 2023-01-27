@@ -75,7 +75,9 @@ void PlayerController::handleMouseEvent(const SDL_Event& event) {
                             weapon->getId()
                         );
                         
-                        turnController->performAttackAction(entity, weapon, target);
+                        if(turnController->performAttackAction(entity, weapon, target)) {
+                            dice->removeAction(1);
+                        }
                     }
                 }
                 else {
@@ -110,7 +112,9 @@ void PlayerController::move(const glm::ivec2& mouseCoords) {
 
     for(auto const& entity : selectedEntities) {
         clientMessagesTransmitter->sendFindPathMessage(entity->getId(), {dX, dY}, 0);
-        turnController->performMoveAction(entity, glm::ivec2(dX, dY));
+        if(turnController->performMoveAction(entity, glm::ivec2(dX, dY))) {
+            dice->removeAction(0);
+        }
     }
 }
 

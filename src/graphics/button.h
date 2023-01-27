@@ -12,6 +12,7 @@ private:
     uint32_t textureId;
     glm::ivec2 position;
     glm::ivec2 size;
+    bool isDisabled;
 
     std::function<void()> onClickFunc;
 
@@ -24,4 +25,6 @@ public:
     bool handleClickEvent(int mouseX, int mouseY);
 
     void onClick(std::function<void()>&& onClickFunc);
+    void toggleDisabled(void);
+    bool getIsDisabled(void) const;
 };

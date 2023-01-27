@@ -26,8 +26,10 @@ void Dice::draw(const std::shared_ptr<GraphicsContext>& graphicsContext) {
         ->loadTexture(face + diceTextureIdOffset)
         ->draw(graphicsContext->getRenderer(), NULL, &dst);
 
-    for(auto const& button : actions) {
-        button->draw(graphicsContext);
+    for(auto [_, buttons] : actions) {
+        for(auto const& button : buttons) {
+            button->draw(graphicsContext);
+        }
     }
 }
 
@@ -36,9 +38,22 @@ void Dice::handleClickEvent(int mouseX, int mouseY) {
         return;
     }
 
-    for(auto const& button : actions) {
-        if(button->handleClickEvent(mouseX, mouseY)) {
-            actions.erase(std::remove(actions.begin(), actions.end(), button), actions.end());
+    for(auto [_, buttons] : actions) {
+        for(auto const& button : buttons) {
+            button->handleClickEvent(mouseX, mouseY);
+        }
+    }
+}
+
+void Dice::removeAction(int id) {
+    for(auto [actionId, buttons] : actions) {
+        if(actionId == id) {
+            for(auto const& button : buttons) {
+                if(!button->getIsDisabled()) {
+                    button->toggleDisabled();
+                    return;
+                }
+            }
         }
     }
 }
@@ -90,7 +105,7 @@ void Dice::rollFunc(int seconds) {
             moveButton->onClick([]{
                 std::cout << "Move clicked" << std::endl;
             });
-            actions.push_back(moveButton);
+            actions[buttonTypeId].push_back(moveButton);
             numMoveActions++;
         }
         else if(buttonTypeId == 1) {
@@ -98,7 +113,7 @@ void Dice::rollFunc(int seconds) {
             shootButton->onClick([]{
                 std::cout << "Shoot clicked" << std::endl;
             });
-            actions.push_back(shootButton);
+            actions[buttonTypeId].push_back(shootButton);
             numAttackActions++;
         }
         else if(buttonTypeId == 2) {
@@ -106,7 +121,7 @@ void Dice::rollFunc(int seconds) {
             freezeButton->onClick([]{
                 std::cout << "Freeze clicked" << std::endl;
             });
-            actions.push_back(freezeButton);
+            actions[buttonTypeId].push_back(freezeButton);
         }
     }
 

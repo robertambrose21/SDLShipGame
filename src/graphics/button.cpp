@@ -4,7 +4,8 @@ Button::Button(uint32_t textureId, const glm::ivec2& position, const glm::ivec2&
     textureId(textureId),
     position(position),
     size(size),
-    onClickFunc([]{})
+    onClickFunc([]{}),
+    isDisabled(false)
 { }
 
 void Button::draw(const std::shared_ptr<GraphicsContext>& graphicsContext) {
@@ -15,18 +16,32 @@ void Button::draw(const std::shared_ptr<GraphicsContext>& graphicsContext) {
         size.y
     };
 
+    auto colour = isDisabled ? Texture::Colour { 0x7F, 0x7F, 0x7F } : Texture::Colour { 0xFF, 0xFF, 0xFF };
+
     graphicsContext->getTextureLoader()
         ->loadTexture(textureId)
-        ->draw(graphicsContext->getRenderer(), NULL, &dst);
+        ->draw(graphicsContext->getRenderer(), colour, 0xFF, NULL, &dst);
 }
 
 bool Button::handleClickEvent(int mouseX, int mouseY) {
+    if(isDisabled) {
+        return false;
+    }
+
     if(!isInBounds(mouseX, mouseY)) {
         return false;
     }
 
     onClickFunc();
     return true;
+}
+
+void Button::toggleDisabled(void) {
+    isDisabled = !isDisabled;
+}
+
+bool Button::getIsDisabled(void) const {
+    return isDisabled;
 }
 
 void Button::onClick(std::function<void()>&& onClickFunc) {

@@ -22,7 +22,7 @@ private:
     bool rolling;
     std::vector<int> actionsFromServer;
 
-    std::vector<std::shared_ptr<Button>> actions;
+    std::map<int, std::vector<std::shared_ptr<Button>>> actions;
 
     std::shared_ptr<TurnController> turnController;
     std::shared_ptr<GameClientMessagesTransmitter> clientMessagesTransmitter;
@@ -38,6 +38,7 @@ public:
 
     void draw(const std::shared_ptr<GraphicsContext>& graphicsContext);
     void handleClickEvent(int mouseX, int mouseY);
+    void removeAction(int id);
 
     void roll(int participantId);
     bool isRolling(void) const;
