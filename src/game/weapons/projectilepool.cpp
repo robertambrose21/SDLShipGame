@@ -59,9 +59,9 @@ Projectile::Blueprint ProjectilePool::create(const std::string& name) {
         Projectile::Stats { definition.multiplier, definition.speed, definition.effects },
         name,
         definition.textureId,
-        [&, aoe](auto grid, auto entity, auto turnNumber) { // TODO: Don't add this if there's no aoe
+        [&, aoe](auto grid, auto ownerId, auto target, auto turnNumber) { // TODO: Don't add this if there's no aoe
             if(aoe != "") {
-                areaOfEffectPool->add(aoe, turnNumber, entity->getPosition());
+                areaOfEffectPool->add(aoe, ownerId, turnNumber, target->getPosition());
             }
         }
     );

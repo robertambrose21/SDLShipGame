@@ -28,7 +28,7 @@ bool ProjectileWeapon::onUse(const glm::ivec2& position, const std::shared_ptr<E
     }
 
     Application::getContext()->getProjectilePool()->add(
-        Projectile::create(grid, projectileBlueprint, position, target, stats.damage),
+        Projectile::create(grid, owner->getParticipantId(), projectileBlueprint, position, target, stats.damage),
         owner
     );
 

@@ -17,6 +17,7 @@ private:
         uint32_t textureId;
         float radius;
         int turns;
+        int damagePerTurn;
     } AoeDefinition;
 
     std::map<std::string, AoeDefinition> aoeDefinitions;
@@ -36,7 +37,7 @@ public:
     );
 
     void add(const std::shared_ptr<AreaOfEffect>& areaOfEffect);
-    void add(const std::string& name, int turnNumber, const glm::ivec2& position);
+    void add(const std::string& name, int ownerId, int turnNumber, const glm::ivec2& position);
 
     void draw(const std::shared_ptr<GraphicsContext>& graphicsContext);
     void update(uint32_t timeSinceLastFrame);

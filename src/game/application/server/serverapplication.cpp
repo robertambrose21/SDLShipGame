@@ -157,57 +157,53 @@ void ServerApplication::loadGame(void) {
     auto player = addPlayer(glm::ivec2(0, 0), false);
     auto player2 = addPlayer(glm::ivec2(2, 1), true);
 
-    // TODO: Weapon blueprints
-    auto enemy = context->getEntityPool()->addEntity("Space Worm");
-    enemy->setPosition(glm::ivec2(0, context->getGrid()->getHeight() - 1));
-    auto teeth = context->getWeaponController()->createWeapon("Space Worm Teeth", enemy);
-    auto poisonSpit = context->getWeaponController()->createWeapon("Poison Spit", enemy);
-    enemy->addWeapon(teeth);
-    enemy->addWeapon(poisonSpit);
-    enemy->setCurrentWeapon(teeth);
-    // enemy->setBehaviourStrategy(std::make_shared<ChaseAndAttackStrategy>(enemy));
+    auto numEnemies = randomRange(8, 12);
+    std::set<std::shared_ptr<Entity>> enemies;
 
-    auto enemy2 = context->getEntityPool()->addEntity("Space Worm");
-    enemy2->setPosition(glm::ivec2(5, context->getGrid()->getHeight() - 3));
-    auto teeth2 = context->getWeaponController()->createWeapon("Space Worm Teeth", enemy2);
-    auto poisonSpit2 = context->getWeaponController()->createWeapon("Poison Spit", enemy);
-    enemy2->addWeapon(teeth2);
-    enemy->addWeapon(poisonSpit2);
-    enemy2->setCurrentWeapon(teeth2);
-    // enemy2->setBehaviourStrategy(std::make_shared<ChaseAndAttackStrategy>(enemy2));
+    for(int i = 0; i < numEnemies; i++) {
+        std::shared_ptr<Entity> enemy;
+        auto entityType = randomRange(0, 10);
+        auto x = randomRange(0, 9);
+        auto y = randomRange(context->getGrid()->getHeight() - 6, context->getGrid()->getHeight() - 1);
 
-    // auto enemy3 = context->getEntityPool()->addEntity("Space Worm");
-    // enemy3->setPosition(glm::ivec2(17, context->getGrid()->getHeight() - 3));
-    // auto teeth3 = context->getWeaponController()->createWeapon("Space Worm Teeth", enemy3);
-    // enemy3->addWeapon(teeth3);
-    // enemy3->setCurrentWeapon(teeth3);
-    // enemy3->setBehaviourStrategy(std::make_shared<ChaseAndAttackStrategy>(enemy3));
+        if(entityType > 2) {
+            enemy = context->getEntityPool()->addEntity("Space Worm");
+            enemy->setPosition(glm::ivec2(x, y));
+            auto teeth = context->getWeaponController()->createWeapon("Space Worm Teeth", enemy);
+            auto poisonSpit = context->getWeaponController()->createWeapon("Poison Spit", enemy);
+            enemy->addWeapon(teeth);
+            enemy->addWeapon(poisonSpit);
+            enemy->setCurrentWeapon(teeth);
+        }
+        else {
+            enemy = context->getEntityPool()->addEntity("Brute");
+            enemy->setPosition(glm::ivec2(x, y));
+            auto fists = context->getWeaponController()->createWeapon("Brute Fists", enemy);
+            enemy->addWeapon(fists);
+            enemy->setCurrentWeapon(fists);
+        }
 
-    auto brute = context->getEntityPool()->addEntity("Brute");
-    brute->setPosition(glm::ivec2(18, 3));
-    auto fists = context->getWeaponController()->createWeapon("Brute Fists", brute);
-    brute->addWeapon(fists);
-    brute->setCurrentWeapon(fists);
-
-    // context->getTurnController()->addParticipant(0, { player, player2 }, true);
-    // context->getTurnController()->addParticipant(1, { enemy, enemy2 }, false);
-    // context->getTurnController()->addParticipant(2, { enemy3 }, false);
+        enemies.insert(enemy);
+    }
     context->getTurnController()->addParticipant(0, true, { player, player2 });
-    context->getTurnController()->addParticipant(1, false, { enemy, enemy2, brute }, std::make_shared<ChaseAndAttackStrategy>(1));
+    context->getTurnController()->addParticipant(1, false, enemies, std::make_shared<ChaseAndAttackStrategy>(1));
     // context->getTurnController()->addParticipant(2, false, { enemy3 }, std::make_shared<ChaseAndAttackStrategy>(2));
     context->getTurnController()->reset();
 }
 
 std::shared_ptr<Entity> ServerApplication::addPlayer(glm::ivec2 position, bool hasFreezeGun) {
     auto context = Application::getContext();
+    std::shared_ptr<Entity> player;
 
-    auto player = context->getEntityPool()->addEntity("Player");
-    player->setPosition(position);
     if(hasFreezeGun) {
+        player = context->getEntityPool()->addEntity("Player FreezeGun");
+        player->setPosition(position);
         auto freezeGun = player->addWeapon(context->getWeaponController()->createWeapon("Freeze Gun", player));
         player->setCurrentWeapon(freezeGun);
     }
     else {
+        player = context->getEntityPool()->addEntity("Player");
+        player->setPosition(position);
         auto grenadeLauncher = player->addWeapon(context->getWeaponController()->createWeapon("Grenade Launcher", player));
         player->setCurrentWeapon(grenadeLauncher);
     }

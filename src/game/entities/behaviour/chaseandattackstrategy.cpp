@@ -2,7 +2,6 @@
 
 ChaseAndAttackStrategy::ChaseAndAttackStrategy(int participantId) :
     BehaviourStrategy(participantId),
-    // target(nullptr),
     canPassTurn(false)
 {
     auto context = Application::getContext();
@@ -67,16 +66,14 @@ std::shared_ptr<Weapon> ChaseAndAttackStrategy::getBestInRangeWeapon(
 }
 
 void ChaseAndAttackStrategy::onNextTurn(void) {
-    // target = findClosestTarget();
-
     std::map<TurnController::Action, int> presetActions = {
-        { TurnController::Action::Move, randomDN(3) },
-        { TurnController::Action::Attack, randomDN(3) }
+        { TurnController::Action::Move, 3 },
+        { TurnController::Action::Attack, 3 }
     };
 
     turnController->setActions(participantId, presetActions);
 
-    std::vector<int> actions;// = { 0, 1 };
+    std::vector<int> actions;
     for(auto [action, num] : presetActions) {
         for(int i = 0; i < num; i++) {
             actions.push_back(action);

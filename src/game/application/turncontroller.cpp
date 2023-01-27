@@ -94,6 +94,7 @@ void TurnController::reset(void) {
     }
 }
 
+// TODO: This is doing way too much - offload to some helper classes/functions
 void TurnController::nextParticipantTurn(int id) {
     if(id == currentParticipant) {
         return;

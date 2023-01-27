@@ -76,6 +76,7 @@ public:
         const EntityBaseStats& stats
     );
 
+    // TODO: Should these be in EntityPool?
     static std::shared_ptr<Entity> filterByTile(
         int x, 
         int y, 
@@ -102,6 +103,24 @@ public:
         }
 
         return nullptr;
+    }
+
+    static std::set<std::shared_ptr<Entity>> filterByTiles(
+        const std::vector<glm::ivec2>& tiles,
+        const std::map<uint32_t, std::shared_ptr<Entity>>& entities,
+        int excludedParticipantId = -1
+    ) {
+        std::set<std::shared_ptr<Entity>> filteredEntities;
+
+        for(auto [entityId, entity] : entities) {
+            for(auto const& tile : tiles) {
+                if(entity->isOnTile(tile.x, tile.y) && entity->getId() != excludedParticipantId) {
+                    filteredEntities.insert(entity);
+                }
+            }
+        }
+
+        return filteredEntities;
     }
 
     void update(uint32_t timeSinceLastFrame, bool& quit);

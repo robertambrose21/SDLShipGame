@@ -3,14 +3,16 @@
 Projectile::Projectile(
     const std::shared_ptr<Grid>& grid,
     uint32_t textureId,
+    int ownerId,
     const glm::ivec2& startPosition,
     const std::shared_ptr<Entity>& target,
     const Stats& stats,
     int weaponBaseDamage,
-    std::function<void(const std::shared_ptr<Grid>&, const std::shared_ptr<Entity>&, int)> onHitCallback
+    std::function<void(const std::shared_ptr<Grid>&, int, const std::shared_ptr<Entity>&, int)> onHitCallback
 ) :
     grid(grid),
     textureId(textureId),
+    ownerId(ownerId),
     startPosition(startPosition),
     target(target),
     stats(stats),
@@ -33,7 +35,7 @@ void Projectile::update(uint32_t timeSinceLastFrame) {
 
     if(hasReachedTarget()) {
         target->takeDamage((float) weaponBaseDamage * stats.damageMultiplier);
-        onHitCallback(grid, target, 1);
+        onHitCallback(grid, ownerId, target, 1);
 
         for(auto const& effect : stats.effects) {
             if(effect.name == "freeze") {

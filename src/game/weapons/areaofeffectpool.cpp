@@ -8,6 +8,12 @@ AreaOfEffectPool::AreaOfEffectPool(
     grid(grid)
 {
     loadAoeDefinitions();
+
+    turnController->addOnNextTurnFunction([&](auto const& currentParticipant, auto const& turnNumber) {
+        for(auto [_, aoe]  : aoeObjects) {
+            aoe->onNextTurn(currentParticipant, turnNumber);
+        }
+    });
 }
 
 void AreaOfEffectPool::loadAoeDefinitions(void) {
@@ -23,6 +29,7 @@ void AreaOfEffectPool::loadAoeDefinitions(void) {
         definition.textureId = data["textureId"].get<uint32_t>();
         definition.radius = data["radius"].get<float>();
         definition.turns = data["turns"].get<int>();
+        definition.damagePerTurn = data["damagePerTurn"].get<int>();
 
         std::cout << "Loaded area of effect definition \"" << definition.name << "\"" << std::endl;
 
@@ -36,23 +43,24 @@ void AreaOfEffectPool::add(const std::shared_ptr<AreaOfEffect>& areaOfEffect) {
     aoeObjects.push_back(std::make_pair(turnController->getTurnNumber(), areaOfEffect));
 }
 
-void AreaOfEffectPool::add(const std::string& name, int turnNumber, const glm::ivec2& position) {
+void AreaOfEffectPool::add(const std::string& name, int ownerId, int turnNumber, const glm::ivec2& position) {
     game_assert(aoeDefinitions.contains(name));
     auto const& definition = aoeDefinitions[name];
     auto aoe = std::make_shared<AreaOfEffect>(
         grid,
         definition.textureId,
+        ownerId,
         turnNumber,
         position,
-        AreaOfEffect::Stats { definition.radius, definition.turns }
+        AreaOfEffect::Stats { definition.radius, definition.turns, definition.damagePerTurn }
     );
 
     add(aoe);
 }
 
 void AreaOfEffectPool::draw(const std::shared_ptr<GraphicsContext>& graphicsContext) {
-    for(auto const& areaOfEffect : aoeObjects) {
-        areaOfEffect.second->draw(graphicsContext);
+    for(auto [_, aoe] : aoeObjects) {
+        aoe->draw(graphicsContext);
     }
 }
 

@@ -21,14 +21,14 @@ public:
         Stats stats;
         std::string name;
         uint32_t textureId;
-        std::function<void(const std::shared_ptr<Grid>&, const std::shared_ptr<Entity>&, int)> onHitCallback;
+        std::function<void(const std::shared_ptr<Grid>&, int, const std::shared_ptr<Entity>&, int)> onHitCallback;
 
         _blueprint(
             const Stats& stats,
             const std::string& name,
             uint32_t textureId,
-            std::function<void(const std::shared_ptr<Grid>&, const std::shared_ptr<Entity>&, int)> onHitCallback =
-                [](const std::shared_ptr<Grid>&, const std::shared_ptr<Entity>&, int){ }
+            std::function<void(const std::shared_ptr<Grid>&, int, const std::shared_ptr<Entity>&, int)> onHitCallback =
+                [](const std::shared_ptr<Grid>&, int, const std::shared_ptr<Entity>&, int){ }
         ) :
             stats(stats),
             name(name),
@@ -47,12 +47,14 @@ private:
     glm::ivec2 startPosition;
     std::shared_ptr<Entity> target;
 
+    int ownerId;
+
     float timeSinceLive;
     float distanceToTarget;
 
     int weaponBaseDamage;
 
-    std::function<void(const std::shared_ptr<Grid>&, const std::shared_ptr<Entity>&, int)> onHitCallback;
+    std::function<void(const std::shared_ptr<Grid>&, int, const std::shared_ptr<Entity>&, int)> onHitCallback;
 
     float getStep(void) const;
 
@@ -60,16 +62,18 @@ public:
     Projectile(
         const std::shared_ptr<Grid>& grid,
         uint32_t textureId,
+        int ownerId,
         const glm::ivec2& startPosition,
         const std::shared_ptr<Entity>& target,
         const Stats& stats,
         int weaponBaseDamage,
-        std::function<void(const std::shared_ptr<Grid>&, const std::shared_ptr<Entity>&, int)> onHitCallback = 
-            [](const std::shared_ptr<Grid>&, const std::shared_ptr<Entity>&, int){ }
+        std::function<void(const std::shared_ptr<Grid>&, int, const std::shared_ptr<Entity>&, int)> onHitCallback = 
+            [](const std::shared_ptr<Grid>&, int, const std::shared_ptr<Entity>&, int){ }
     );
 
     static std::shared_ptr<Projectile> create(
         const std::shared_ptr<Grid>& grid,
+        int ownerId,
         const Blueprint& blueprint, 
         const glm::ivec2& startPosition,
         const std::shared_ptr<Entity>& target,
@@ -77,7 +81,8 @@ public:
     ) {
         return std::make_shared<Projectile>(
             grid,
-            blueprint.textureId, 
+            blueprint.textureId,
+            ownerId,
             startPosition, 
             target, 
             blueprint.stats, 

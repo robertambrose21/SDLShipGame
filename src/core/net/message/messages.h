@@ -259,6 +259,7 @@ class ActionsRollResponseMessage : public yojimbo::Message {
 public:
     int participantId;
     int rollNumber;
+    // TODO: This should be able to take multiple dice
     int actions[6] = { 0 }; 
 
     ActionsRollResponseMessage() :
