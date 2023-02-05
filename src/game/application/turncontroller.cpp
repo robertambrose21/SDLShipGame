@@ -101,6 +101,7 @@ void TurnController::nextParticipantTurn(int id) {
     }
 
     participants[currentParticipant]->passNextTurn = false;
+    participants[currentParticipant]->hasRolledForActions = false;
 
     currentParticipant = id;
 
@@ -151,6 +152,10 @@ int TurnController::getCurrentParticipant(void) const {
 }
 
 void TurnController::setActions(int participantId, const std::map<Action, int>& actions) {
+    if(participants[participantId]->hasRolledForActions) {
+        return;
+    }
+
     participants[participantId]->actions = actions;
     participants[participantId]->hasRolledForActions = true;
 }

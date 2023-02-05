@@ -34,7 +34,9 @@ void PlayerController::handleKeyPress(const SDL_Event& event) {
             }
 
             case SDLK_d: {
-                dice->roll(participant->id);
+                if(!participant->hasRolledForActions) {
+                    dice->roll(participant->id);
+                }
                 break;
             }
 
