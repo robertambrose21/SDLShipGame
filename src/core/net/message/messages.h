@@ -258,21 +258,24 @@ public:
 class ActionsRollResponseMessage : public yojimbo::Message {
 public:
     int participantId;
-    int rollNumber;
-    // TODO: This should be able to take multiple dice
-    int actions[6] = { 0 }; 
+    int numDice;
+    DiceActionResult dice[64];
 
     ActionsRollResponseMessage() :
         participantId(0),
-        rollNumber(0)
+        numDice(0)
     { }
 
     template <typename Stream>
     bool Serialize(Stream& stream) {
         serialize_int(stream, participantId, 0, 64);
-        serialize_int(stream, rollNumber, 1, 6);
-        for(int i = 0; i < rollNumber; i++) {
-            serialize_int(stream, actions[i], 0, 255);
+        serialize_int(stream, numDice, 1, 64);
+        for(int i = 0; i < numDice; i++) {
+            serialize_int(stream, dice[i].rollNumber, 1, 6);
+
+            for(int j = 0; j < 6; j++) {
+                serialize_int(stream, dice[i].actions[j], 0, 255);
+            }
         }
 
         return true;

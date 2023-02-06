@@ -74,14 +74,14 @@ void GameServerMessagesTransmitter::sendAttackEntity(
     server->sendMessage(clientIndex, message);
 }
 
-void GameServerMessagesTransmitter::sendActionsRollResponse(int clientIndex, int participantId, int rollNumber, int actions[6]) {
+void GameServerMessagesTransmitter::sendActionsRollResponse(int clientIndex, int participantId, const std::vector<DiceActionResult>& dice) {
     ActionsRollResponseMessage* message = 
         (ActionsRollResponseMessage*) server->createMessage(clientIndex, GameMessageType::ACTIONS_ROLL_RESPONSE);
 
     message->participantId = participantId;
-    message->rollNumber = rollNumber;
-    for(int i = 0; i < rollNumber; i++) {
-        message->actions[i] = actions[i];
+    message->numDice = dice.size();
+    for(int i = 0; i < dice.size(); i++) {
+        message->dice[i] = dice[i];
     }
 
     server->sendMessage(clientIndex, message);

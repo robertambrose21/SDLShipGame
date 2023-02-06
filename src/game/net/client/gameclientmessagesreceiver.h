@@ -29,7 +29,7 @@ private:
         uint32_t targetId, 
         uint32_t weaponId
     );
-    void receiveActionsRollResponse(int participantId, int rollNumber, int actions[6]);
+    void receiveActionsRollResponse(int participantId, int numDice, DiceActionResult dice[64]);
 
 public:
     GameClientMessagesReceiver(const std::shared_ptr<ApplicationContext>& context);

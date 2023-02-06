@@ -68,8 +68,8 @@ void GameClientMessagesReceiver::receiveMessage(yojimbo::Message* message) {
             ActionsRollResponseMessage* actionsRollResponseMessage = (ActionsRollResponseMessage*) message;
             receiveActionsRollResponse(
                 actionsRollResponseMessage->participantId,
-                actionsRollResponseMessage->rollNumber, 
-                actionsRollResponseMessage->actions
+                actionsRollResponseMessage->numDice,
+                actionsRollResponseMessage->dice
             );
             break;
         }
@@ -133,7 +133,6 @@ void GameClientMessagesReceiver::receiveFindPath(
 
     auto const& entity = context->getEntityPool()->getEntity(entityId);
 
-    // entity->findPath(position, shortStopSteps);
     turnController->performMoveAction(entity, position, shortStopSteps);
 }
 
@@ -153,19 +152,18 @@ void GameClientMessagesReceiver::receiveAttackEntity(
 
     for(auto [_, weapon] : entity->getWeapons()) {
         if(weapon->getId() == weaponId) {
-            // entity->attack(target, weapon);
             turnController->performAttackAction(entity, weapon, target);
         }
     }
 }
 
-void GameClientMessagesReceiver::receiveActionsRollResponse(int participantId, int rollNumber, int actions[6]) {
-    // std::cout << "Received some filth " << rollNumber << std::endl;
-
+void GameClientMessagesReceiver::receiveActionsRollResponse(int participantId, int numDice, DiceActionResult dice[64]) {
     if(participantId == 0) {
         std::vector<int> vActions;
-        for(int i = 0; i < rollNumber; i++) {
-            vActions.push_back(actions[i]);
+        for(int i = 0; i < numDice; i++) {
+            for(int j = 0; j < dice[i].rollNumber; j++) {
+                vActions.push_back(dice[i].actions[j]);
+            }
         }
 
         playerController->getDice()->setActionsFromServer(vActions);
@@ -176,16 +174,12 @@ void GameClientMessagesReceiver::receiveActionsRollResponse(int participantId, i
             { TurnController::Action::Attack, 0 }
         };
 
-        for(int i = 0; i < rollNumber; i++) {
-            vActions[(TurnController::Action) actions[i]]++;
+        for(int i = 0; i < numDice; i++) {
+            for(int j = 0; j < dice[i].rollNumber; j++) {
+                vActions[(TurnController::Action) dice[i].actions[j]]++;
+            }
         }
 
         turnController->setActions(participantId, vActions);
     }
-
-    // for(int i = 0; i < rollNumber; i++) {
-    //     std::cout << actions[i] << ", ";
-    // }
-
-    // std::cout << std::endl;
 }

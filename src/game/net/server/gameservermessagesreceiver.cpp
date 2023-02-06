@@ -142,19 +142,18 @@ void GameServerMessagesReceiver::receiveSetParticipantAckMessage(int clientIndex
 void GameServerMessagesReceiver::receiveActionsRollMessage(int clientIndex, int participantId) {
     std::cout << "Got actions roll message" << std::endl;
 
-    auto actions = std::vector<int>();
+    DiceActionResult dice;
 
     for(auto [action, num] : context->getTurnController()->rollActions(participantId)) {
         for(int i = 0; i < num; i++) {
-            actions.push_back(action);
+            dice.actions[i] = action;
+            dice.rollNumber++;
         }
     }
 
-    auto rollNumber = actions.size();
+    game_assert(dice.rollNumber >= 1 && dice.rollNumber <= 6);
 
-    game_assert(rollNumber >= 1 && rollNumber <= 6);
-
-    transmitter->sendActionsRollResponse(clientIndex, participantId, rollNumber, &actions[0]);
+    transmitter->sendActionsRollResponse(clientIndex, participantId, { dice });
 }
 
 bool GameServerMessagesReceiver::areParticipantsLoadedForClient(int clientIndex) {

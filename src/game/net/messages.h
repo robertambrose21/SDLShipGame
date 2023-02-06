@@ -96,3 +96,12 @@ struct MapBlock {
         memset(this, 0, sizeof(MapBlock));
     }
 };
+
+struct DiceActionResult {
+    int rollNumber;
+    int actions[6] = { 0 };
+
+    DiceActionResult() {
+        memset(this, 0, sizeof(DiceActionResult));
+    }
+};

@@ -66,21 +66,26 @@ std::shared_ptr<Weapon> ChaseAndAttackStrategy::getBestInRangeWeapon(
 }
 
 void ChaseAndAttackStrategy::onNextTurn(void) {
-    std::map<TurnController::Action, int> presetActions = {
-        { TurnController::Action::Move, 3 },
-        { TurnController::Action::Attack, 3 }
-    };
+    std::map<TurnController::Action, int> actions;
+    std::vector<DiceActionResult> serializedActions;
 
-    turnController->setActions(participantId, presetActions);
+    for(int i = 0; i < 3; i++) {
+        DiceActionResult dice;
 
-    std::vector<int> actions;
-    for(auto [action, num] : presetActions) {
-        for(int i = 0; i < num; i++) {
-            actions.push_back(action);
+        dice.rollNumber = randomD6();
+        
+        for(int j = 0; j < dice.rollNumber; j++) {
+            auto action = randomRange(0, TurnController::Action::Count - 1);
+            
+            dice.actions[j] = action;
+            actions[(TurnController::Action) action]++;
         }
+
+        serializedActions.push_back(dice);
     }
 
-    transmitter->sendActionsRollResponse(0, participantId, actions.size(), &actions[0]);
+    turnController->setActions(participantId, actions);
+    transmitter->sendActionsRollResponse(0, participantId, serializedActions);
 
     canPassTurn = false;
 }
