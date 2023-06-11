@@ -1,11 +1,12 @@
 #include "projectile.h"
+#include "game/application/application.h"
 
 Projectile::Projectile(
     const std::shared_ptr<Grid>& grid,
     uint32_t textureId,
     int ownerId,
     const glm::ivec2& startPosition,
-    const std::shared_ptr<Entity>& target,
+    const glm::ivec2& target,
     const Stats& stats,
     int weaponBaseDamage,
     std::function<void(const std::shared_ptr<Grid>&, int, const std::shared_ptr<Entity>&, int)> onHitCallback
@@ -20,7 +21,7 @@ Projectile::Projectile(
     onHitCallback(onHitCallback),
     timeSinceLive(0.0f)
 {
-    distanceToTarget = glm::distance(glm::vec2(target->getPosition()), glm::vec2(startPosition));
+    distanceToTarget = glm::distance(glm::vec2(target), glm::vec2(startPosition));
 }
 
 void Projectile::draw(const std::shared_ptr<GraphicsContext>& graphicsContext) {
@@ -31,15 +32,32 @@ void Projectile::draw(const std::shared_ptr<GraphicsContext>& graphicsContext) {
 void Projectile::update(uint32_t timeSinceLastFrame) {
     timeSinceLive += timeSinceLastFrame;
 
-    position = glm::lerp(startPosition, target->getPosition(), getStep());
+    position = glm::lerp(startPosition, target, getStep());
+
+    auto entity = Entity::filterByTile(
+        position.x, 
+        position.y, 
+        Application::getContext()->getEntityPool()->getEntities(), 
+        ownerId
+    );
 
     if(hasReachedTarget()) {
-        target->takeDamage((float) weaponBaseDamage * stats.damageMultiplier);
-        onHitCallback(grid, ownerId, target, 1);
+        if(entity != nullptr) {
+            entity->takeDamage((float) weaponBaseDamage * stats.damageMultiplier);
+            onHitCallback(grid, ownerId, entity, 1);
 
-        for(auto const& effect : stats.effects) {
-            if(effect.name == "freeze") {
-                target->setFrozenFor(effect.duration);
+            for(auto const& effect : stats.effects) {
+                if(effect.name == "freeze") {
+                    entity->setFrozenFor(effect.duration);
+                }
+            }
+        }
+        else {
+            for(auto const& effect : stats.effects) {
+                if(effect.name == "freeze") {
+                    // TODO: Colour/unfreeze tiles after some time
+                    grid->setTileWalkable(position.x, position.y, false);
+                }
             }
         }
     }

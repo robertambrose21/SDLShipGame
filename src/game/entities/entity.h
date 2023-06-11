@@ -94,10 +94,11 @@ public:
     static std::shared_ptr<Entity> filterByTile(
         int x, 
         int y, 
-        const std::map<uint32_t, std::shared_ptr<Entity>>& entities
+        const std::map<uint32_t, std::shared_ptr<Entity>>& entities,
+        int excludedParticipantId = -1
     ) {
         for(auto [entityId, entity] : entities) {
-            if(entity->isOnTile(x, y)) {
+            if(entity->isOnTile(x, y) && entity->getParticipantId() != excludedParticipantId) {
                 return entity;
             }
         }
@@ -114,7 +115,7 @@ public:
 
         for(auto [entityId, entity] : entities) {
             for(auto const& tile : tiles) {
-                if(entity->isOnTile(tile.x, tile.y) && entity->getId() != excludedParticipantId) {
+                if(entity->isOnTile(tile.x, tile.y) && entity->getParticipantId() != excludedParticipantId) {
                     filteredEntities.insert(entity);
                 }
             }

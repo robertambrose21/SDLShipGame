@@ -45,7 +45,7 @@ private:
 
     glm::ivec2 position;
     glm::ivec2 startPosition;
-    std::shared_ptr<Entity> target;
+    glm::ivec2 target;
 
     int ownerId;
 
@@ -64,7 +64,7 @@ public:
         uint32_t textureId,
         int ownerId,
         const glm::ivec2& startPosition,
-        const std::shared_ptr<Entity>& target,
+        const glm::ivec2& target,
         const Stats& stats,
         int weaponBaseDamage,
         std::function<void(const std::shared_ptr<Grid>&, int, const std::shared_ptr<Entity>&, int)> onHitCallback = 
@@ -76,7 +76,7 @@ public:
         int ownerId,
         const Blueprint& blueprint, 
         const glm::ivec2& startPosition,
-        const std::shared_ptr<Entity>& target,
+        const glm::ivec2& target,
         int weaponBaseDamage
     ) {
         return std::make_shared<Projectile>(

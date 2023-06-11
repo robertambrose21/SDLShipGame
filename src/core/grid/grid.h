@@ -47,6 +47,7 @@ public:
     int getHeight(void) const;
 
     void setTile(int x, int y, const Tile& tile);
+    void setTileWalkable(int x, int y, bool isWalkable);
 
     const std::vector<std::vector<Tile>>& getData(void) const;
     // TODO: Throw exception if x/y are out of bounds

@@ -26,6 +26,11 @@ void Grid::setTile(int x, int y, const Tile& tile) {
     data[y][x] = tile;
 }
 
+void Grid::setTileWalkable(int x, int y, bool isWalkable) {
+    game_assert(x < getWidth() && y < getHeight());
+    data[y][x].isWalkable = isWalkable;
+}
+
 const std::vector<std::vector<Tile>>& Grid::getData(void) const {
     return data;
 }
