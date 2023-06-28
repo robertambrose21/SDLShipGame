@@ -26,7 +26,8 @@ private:
     );
     void receiveAttackEntity(
         uint32_t entityId, 
-        uint32_t targetId, 
+        int x,
+        int y,
         uint32_t weaponId
     );
     void receiveActionsRollResponse(int participantId, int numDice, DiceActionResult dice[64]);

@@ -55,11 +55,12 @@ void GameClientMessagesReceiver::receiveMessage(yojimbo::Message* message) {
         }
 
         case (int) GameMessageType::ATTACK_ENTITY: {
-            AttackEntityMessage* attackEntityMessage = (AttackEntityMessage*) message;
+            AttackMessage* attackMessage = (AttackMessage*) message;
             receiveAttackEntity(
-                attackEntityMessage->entityId,
-                attackEntityMessage->targetId,
-                attackEntityMessage->weaponId
+                attackMessage->entityId,
+                attackMessage->x,
+                attackMessage->y,
+                attackMessage->weaponId
             );
             break;
         }
@@ -138,21 +139,21 @@ void GameClientMessagesReceiver::receiveFindPath(
 
 void GameClientMessagesReceiver::receiveAttackEntity(
     uint32_t entityId, 
-    uint32_t targetId, 
+    int x,
+    int y,
     uint32_t weaponId
 ) {
     auto const& entityPool = context->getEntityPool();
 
-    if(!entityPool->hasEntity(entityId) || !entityPool->hasEntity(targetId)) {
+    if(!entityPool->hasEntity(entityId)) {
         return;
     }
 
     auto const& entity = entityPool->getEntity(entityId);
-    auto const& target = entityPool->getEntity(targetId);
 
     for(auto [_, weapon] : entity->getWeapons()) {
         if(weapon->getId() == weaponId) {
-            turnController->performAttackAction(entity, weapon, target);
+            turnController->performAttackAction(entity, weapon, glm::ivec2(x, y));
         }
     }
 }

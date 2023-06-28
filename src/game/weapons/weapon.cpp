@@ -27,34 +27,16 @@ Weapon::Weapon(
     Weapon(owner, grid, getNewId(), name, stats)
 { }
 
-void Weapon::use(const glm::ivec2& position, const std::shared_ptr<Entity>& target) {
-    if(usesLeft > 0) {
-        if(!onUse(position, target)) {
-            return;
-        }
-        
-        usesLeft--;
-
-        std::cout
-        << "["
-        << owner->getName()
-        << "#"
-        << owner->getId()
-        << "] attacked the [" 
-        << target->getName()
-        << "] for [" 
-        << getStats().damage 
-        << "] damage with ["
-        << getName()
-        << "], ["
-        << target->getName()
-        << "#"
-        << target->getId()
-        << "] now has [" 
-        << (target == nullptr ? 0 : target->getCurrentHP() - getStats().damage)
-        << "] hp" 
-        << std::endl;
+void Weapon::use(const glm::ivec2& position, const glm::ivec2& target) {
+    if(usesLeft <= 0) {
+        return;
     }
+
+    if(!onUse(position, target)) {
+        return;
+    }
+    
+    usesLeft--;
 }
 
 bool Weapon::hasFinished(void) {

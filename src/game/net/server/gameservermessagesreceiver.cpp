@@ -28,12 +28,13 @@ void GameServerMessagesReceiver::receiveMessage(int clientIndex, yojimbo::Messag
         }
 
         case (int) GameMessageType::ATTACK_ENTITY: {
-            AttackEntityMessage* attackEntityMessage = (AttackEntityMessage*) message;
-            receieveAttackEntityMessage(
+            AttackMessage* attackMessage = (AttackMessage*) message;
+            receieveAttackMessage(
                 clientIndex, 
-                attackEntityMessage->entityId, 
-                attackEntityMessage->targetId, 
-                attackEntityMessage->weaponId
+                attackMessage->entityId, 
+                attackMessage->x, 
+                attackMessage->y,
+                attackMessage->weaponId
             );
             break;
         }
@@ -95,13 +96,14 @@ void GameServerMessagesReceiver::receiveSelectEntityMessage(int clientIndex, uin
     entity->setSelected(!entity->isSelected());
 }
 
-void GameServerMessagesReceiver::receieveAttackEntityMessage(
+void GameServerMessagesReceiver::receieveAttackMessage(
     int clientIndex, 
     uint32_t entityId, 
-    uint32_t targetId, 
+    int x,
+    int y,
     uint32_t weaponId
 ) {
-    if(!context->getEntityPool()->hasEntity(entityId) || !context->getEntityPool()->hasEntity(targetId)) {
+    if(!context->getEntityPool()->hasEntity(entityId)) {
         return;
     }
 
@@ -111,12 +113,11 @@ void GameServerMessagesReceiver::receieveAttackEntityMessage(
         return;
     }
 
-    auto const& target = context->getEntityPool()->getEntity(targetId);
+    // auto const& target = context->getEntityPool()->getEntity(targetId);
 
     for(auto [_, weapon] : entity->getWeapons()) {
         if(weapon->getId() == weaponId) {
-            // entity->attack(target, weapon);
-            context->getTurnController()->performAttackAction(entity, weapon, target);
+            context->getTurnController()->performAttackAction(entity, weapon, glm::ivec2(x, y));
         }
     }
 }

@@ -1,10 +1,12 @@
 #pragma once
 
 #include "weapon.h"
+#include "game/application/application.h"
 
 class MeleeWeapon : public Weapon {
 private:
     bool onUse(const glm::ivec2& position, const std::shared_ptr<Entity>& target);
+    bool onUse(const glm::ivec2& position, const glm::ivec2& target);
 
 public:
     MeleeWeapon(

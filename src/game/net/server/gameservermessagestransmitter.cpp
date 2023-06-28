@@ -59,16 +59,17 @@ void GameServerMessagesTransmitter::sendFindPath(
     server->sendMessage(clientIndex, message);
 }
 
-void GameServerMessagesTransmitter::sendAttackEntity(
+void GameServerMessagesTransmitter::sendAttack(
     int clientIndex,
     uint32_t entityId, 
-    uint32_t targetId, 
+    const glm::ivec2& target,
     uint32_t weaponId
 ) {
-    AttackEntityMessage* message = (AttackEntityMessage*) server->createMessage(clientIndex, GameMessageType::ATTACK_ENTITY);
+    AttackMessage* message = (AttackMessage*) server->createMessage(clientIndex, GameMessageType::ATTACK_ENTITY);
 
     message->entityId = entityId;
-    message->targetId = targetId;
+    message->x = target.x;
+    message->y = target.y;
     message->weaponId = weaponId;
 
     server->sendMessage(clientIndex, message);

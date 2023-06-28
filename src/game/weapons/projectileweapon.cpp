@@ -35,6 +35,19 @@ bool ProjectileWeapon::onUse(const glm::ivec2& position, const std::shared_ptr<E
     return true;
 }
 
+bool ProjectileWeapon::onUse(const glm::ivec2& position, const glm::ivec2& target) {
+    if(glm::distance(glm::vec2(position), glm::vec2(target)) > stats.range) {
+        return false;
+    }
+
+    Application::getContext()->getProjectilePool()->add(
+        Projectile::create(grid, owner->getParticipantId(), projectileBlueprint, position, target, stats.damage),
+        owner
+    );
+
+    return true;
+}
+
 void ProjectileWeapon::draw(const std::shared_ptr<GraphicsContext>& graphicsContext) {
     // no-op
 }

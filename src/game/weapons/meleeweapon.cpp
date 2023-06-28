@@ -25,6 +25,17 @@ bool MeleeWeapon::onUse(const glm::ivec2& position, const std::shared_ptr<Entity
     return true;
 }
 
+bool MeleeWeapon::onUse(const glm::ivec2& position, const glm::ivec2& target) {
+    auto entities = Application::getContext()->getEntityPool()->getEntities();
+    auto entity = Entity::filterByTile(position.x, position.y, entities, owner->getId());
+    
+    if(entity != nullptr) {
+        entity->takeDamage(stats.damage);
+    }
+
+    return true;
+}
+
 void MeleeWeapon::draw(const std::shared_ptr<GraphicsContext>& graphicsContext) {
     // no-op
 }

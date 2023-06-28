@@ -35,15 +35,16 @@ void GameClientMessagesTransmitter::sendSelectEntityMessage(uint32_t entityId) {
     client->sendMessage(message);
 }
 
-void GameClientMessagesTransmitter::sendAttackEntityMessage(
+void GameClientMessagesTransmitter::sendAttackMessage(
     uint32_t entityId, 
-    uint32_t targetId, 
+    const glm::ivec2& target,
     uint32_t weaponId
 ) {
-    AttackEntityMessage* message = (AttackEntityMessage*) client->createMessage(GameMessageType::ATTACK_ENTITY);
+    AttackMessage* message = (AttackMessage*) client->createMessage(GameMessageType::ATTACK_ENTITY);
     
     message->entityId = entityId;
-    message->targetId = targetId;
+    message->x = target.x;
+    message->y = target.y;
     message->weaponId = weaponId;
 
     client->sendMessage(message);

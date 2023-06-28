@@ -123,7 +123,7 @@ EntityCurrentStats Entity::getCurrentStats(void) const {
 }
 
 const float Entity::getSpeed(void) {
-    return 1000.0f / (MOVES_PER_SECOND * getCurrentStats().movesPerTurn);
+    return 2000.0f / (MOVES_PER_SECOND * getCurrentStats().movesPerTurn);
 }
 
 int Entity::getCurrentHP(void) const {
@@ -138,9 +138,7 @@ void Entity::takeDamage(int amount) {
     currentStats.totalHP -= amount;
 }
 
-void Entity::attack(const std::shared_ptr<Entity>& target, const std::shared_ptr<Weapon>& weapon) {
-    auto targetName = target->getName();
-
+void Entity::attack(const glm::ivec2& target, const std::shared_ptr<Weapon>& weapon) {
     weapon->use(position, target);
 }
 

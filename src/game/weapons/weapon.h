@@ -33,7 +33,7 @@ protected:
 
     std::shared_ptr<Grid> grid;
 
-    virtual bool onUse(const glm::ivec2& position, const std::shared_ptr<Entity>& target) = 0;
+    virtual bool onUse(const glm::ivec2& position, const glm::ivec2& target) = 0;
 
 public:
     Weapon(
@@ -51,7 +51,7 @@ public:
         const Stats& stats
     );
 
-    void use(const glm::ivec2& position, const std::shared_ptr<Entity>& target);
+    void use(const glm::ivec2& position, const glm::ivec2& target);
     void reset(void);
     void setFinished(void);
     bool isInRange(const glm::ivec2& position);

@@ -189,7 +189,7 @@ bool TurnController::performMoveAction(
 bool TurnController::performAttackAction(
     const std::shared_ptr<Entity>& entity,
     const std::shared_ptr<Weapon>& weapon,
-    const std::shared_ptr<Entity>& target
+    const glm::ivec2& target
 ) {
     if(participants[currentParticipant]->actions[Action::Attack] <= 0) {
         return false;

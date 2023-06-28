@@ -71,13 +71,14 @@ void PlayerController::handleMouseEvent(const SDL_Event& event) {
                     for(auto const& entity : selectedEntities) {
                         auto const& weapon = entity->getCurrentWeapon();
 
-                        clientMessagesTransmitter->sendAttackEntityMessage(
+                        clientMessagesTransmitter->sendAttackMessage(
                             entity->getId(), 
-                            target->getId(), 
+                            target->getPosition(), 
                             weapon->getId()
                         );
                         
-                        if(turnController->performAttackAction(entity, weapon, target)) {
+                        if(turnController->performAttackAction(entity, weapon, target->getPosition())) {
+                            // TODO: Bug
                             dice->removeAction(1);
                         }
                     }

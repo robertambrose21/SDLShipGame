@@ -64,22 +64,24 @@ public:
     YOJIMBO_VIRTUAL_SERIALIZE_FUNCTIONS();
 };
 
-class AttackEntityMessage : public yojimbo::Message {
+class AttackMessage : public yojimbo::Message {
 public:
     uint32_t entityId;
-    uint32_t targetId;
+    int x, y;
     uint32_t weaponId;
 
-    AttackEntityMessage() :
+    AttackMessage() :
         entityId(0),
-        targetId(0),
+        x(0),
+        y(0),
         weaponId(0)
     { }
 
     template <typename Stream>
     bool Serialize(Stream& stream) {
         serialize_varint32(stream, entityId);
-        serialize_varint32(stream, targetId);
+        serialize_int(stream, x, 0, 512);
+        serialize_int(stream, y, 0, 512);
         serialize_varint32(stream, weaponId);
         return true;
     }
@@ -287,7 +289,7 @@ public:
 YOJIMBO_MESSAGE_FACTORY_START(GameMessageFactory, (int)GameMessageType::COUNT);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::FIND_PATH, FindPathMessage);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::SELECT_ENTITY, SelectEntityMessage);
-YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::ATTACK_ENTITY, AttackEntityMessage);
+YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::ATTACK_ENTITY, AttackMessage);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::GAME_STATE_UPDATE, GameStateUpdateMessage);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::TEST_MESSAGE, GameTestMessage);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::SET_PARTICIPANT, SetParticipantMessage);

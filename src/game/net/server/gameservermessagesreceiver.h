@@ -26,10 +26,11 @@ private:
         int shortStopSteps
     );
     void receiveSelectEntityMessage(int clientIndex, uint32_t entityId);
-    void receieveAttackEntityMessage(
+    void receieveAttackMessage(
         int clientIndex, 
         uint32_t entityId, 
-        uint32_t targetId, 
+        int x,
+        int y,
         uint32_t weaponId
     );
     void receivePassParticipantTurnMessage(int clientIndex, int participantId);

@@ -18,9 +18,9 @@ public:
         int shortStopSteps
     );
     void sendSelectEntityMessage(uint32_t entityId);
-    void sendAttackEntityMessage(
+    void sendAttackMessage(
         uint32_t entityId, 
-        uint32_t targetId, 
+        const glm::ivec2& target, 
         uint32_t weaponId
     );
     void sendPassParticipantTurnMessage(int participantId);

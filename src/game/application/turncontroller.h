@@ -72,7 +72,7 @@ public:
     bool performAttackAction(
         const std::shared_ptr<Entity>& entity, 
         const std::shared_ptr<Weapon>& weapon,
-        const std::shared_ptr<Entity>& target
+        const glm::ivec2& target
     );
 
     void addOnNextTurnFunction(std::function<void(int, int)> onNextTurnFunc);

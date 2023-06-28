@@ -144,7 +144,7 @@ public:
     int getCurrentHP(void) const;
     void setCurrentHP(int hp);
     void takeDamage(int amount);
-    void attack(const std::shared_ptr<Entity>& target, const std::shared_ptr<Weapon>& weapon);
+    void attack(const glm::ivec2& target, const std::shared_ptr<Weapon>& weapon);
 
     std::map<uint32_t, std::shared_ptr<Weapon>> getWeapons(void) const;
     std::shared_ptr<Weapon> getWeapon(uint32_t weaponId);
