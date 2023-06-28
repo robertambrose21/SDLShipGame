@@ -51,12 +51,14 @@ private:
 
     float timeSinceLive;
     float distanceToTarget;
+    float step;
 
     int weaponBaseDamage;
 
     std::function<void(const std::shared_ptr<Grid>&, int, const std::shared_ptr<Entity>&, int)> onHitCallback;
 
-    float getStep(void) const;
+    float calculateStep(void) const;
+    void doHit(const glm::ivec2& position);
 
 public:
     Projectile(

@@ -32,8 +32,19 @@ void Projectile::draw(const std::shared_ptr<GraphicsContext>& graphicsContext) {
 void Projectile::update(uint32_t timeSinceLastFrame) {
     timeSinceLive += timeSinceLastFrame;
 
-    position = glm::lerp(startPosition, target, getStep());
+    step = std::min(1.0f, calculateStep());
+    position = glm::lerp(startPosition, target, step);
 
+    if(hasReachedTarget()) {
+        doHit(position);
+    }
+}
+
+bool Projectile::hasReachedTarget(void) const {
+    return step >= 1.0f;
+}
+
+void Projectile::doHit(const glm::ivec2& position) {
     auto entity = Entity::filterByTile(
         position.x, 
         position.y, 
@@ -41,32 +52,26 @@ void Projectile::update(uint32_t timeSinceLastFrame) {
         ownerId
     );
 
-    if(hasReachedTarget()) {
-        if(entity != nullptr) {
-            entity->takeDamage((float) weaponBaseDamage * stats.damageMultiplier);
-            onHitCallback(grid, ownerId, entity, 1);
+    if(entity != nullptr) {
+        entity->takeDamage((float) weaponBaseDamage * stats.damageMultiplier);
+        onHitCallback(grid, ownerId, entity, 1);
 
-            for(auto const& effect : stats.effects) {
-                if(effect.name == "freeze") {
-                    entity->setFrozenFor(effect.duration);
-                }
+        for(auto const& effect : stats.effects) {
+            if(effect.name == "freeze") {
+                entity->setFrozenFor(effect.duration);
             }
         }
-        else {
-            for(auto const& effect : stats.effects) {
-                if(effect.name == "freeze") {
-                    // TODO: Colour/unfreeze tiles after some time
-                    grid->setTileWalkable(position.x, position.y, false);
-                }
+    }
+    else {
+        for(auto const& effect : stats.effects) {
+            if(effect.name == "freeze") {
+                // TODO: Colour/unfreeze tiles after some time
+                grid->setTileWalkable(position.x, position.y, false);
             }
         }
     }
 }
 
-bool Projectile::hasReachedTarget(void) const {
-    return getStep() >= 1.0f;
-}
-
-float Projectile::getStep(void) const {
+float Projectile::calculateStep(void) const {
     return ((timeSinceLive / 1000.0f) * stats.speed) / distanceToTarget;
 }

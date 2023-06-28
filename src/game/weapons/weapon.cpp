@@ -58,7 +58,7 @@ void Weapon::use(const glm::ivec2& position, const std::shared_ptr<Entity>& targ
 }
 
 bool Weapon::hasFinished(void) {
-    return usesLeft <= 0;
+    return true;
 }
 
 void Weapon::setFinished(void) {

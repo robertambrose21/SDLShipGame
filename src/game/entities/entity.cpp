@@ -243,7 +243,7 @@ void Entity::setMovesLeft(int movesLeft) {
 }
 
 bool Entity::isTurnInProgress(void) const {
-    return getMovesLeft() > 0 || !currentWeapon->hasFinished();
+    return !currentWeapon->hasFinished();
 }
 
 void Entity::useMoves(int numMoves) {

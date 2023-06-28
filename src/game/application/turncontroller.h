@@ -38,7 +38,7 @@ private:
     std::vector<std::function<void(int, int)>> onNextTurnWorkers;
     std::function<void()> onAllParticipantsSet;
 
-    bool canProgressToNextTurn(const std::shared_ptr<Entity>& entity);
+    bool canProgressToNextTurn(const std::shared_ptr<Participant>& participant);
     void nextParticipantTurn(int id);
 
 public:

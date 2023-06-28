@@ -16,17 +16,7 @@ void TurnController::update(uint32_t timeSinceLastFrame, bool& quit) {
         bs->onUpdate(timeSinceLastFrame, quit);
     }
 
-    bool nextTurn = true;
-    int numEntities = 0;
-
-    for(auto entity : participants[currentParticipant]->entities) {
-        nextTurn = nextTurn && canProgressToNextTurn(entity);
-        numEntities++;
-    }
-
-    nextTurn = nextTurn || (bs == nullptr ? false : bs->endTurnCondition());
-
-    if(nextTurn && numEntities > 0) {
+    if(canProgressToNextTurn(participants[currentParticipant])) {
         nextParticipantTurn((currentParticipant + 1) % participants.size());
     }
 }
@@ -233,12 +223,28 @@ int TurnController::getTurnNumber(void) const {
     return turnNumber;
 }
 
-bool TurnController::canProgressToNextTurn(const std::shared_ptr<Entity>& entity) {
-    // if(!participants[currentParticipant]->hasRolledForActions) {
-    //     return false;
-    // }
+bool TurnController::canProgressToNextTurn(const std::shared_ptr<Participant>& participant) {
+    if(participant->entities.empty()) {
+        return false;
+    }
 
-    return 
-        !entity->isTurnInProgress() || 
-        participants[currentParticipant]->passNextTurn;
+    bool areEntitiesDone = true;
+    for(auto entity : participant->entities) {
+        areEntitiesDone = areEntitiesDone && !entity->isTurnInProgress();
+    }
+
+    if(!areEntitiesDone) {
+        return false;
+    }
+
+    bool areActionsDone = participant->hasRolledForActions;
+
+    for(auto [_, numActionsLeft] : participant->actions) {
+        areActionsDone = areActionsDone && numActionsLeft == 0;
+    }
+
+    bool behaviourStrategyDone = participant->behaviourStrategy == nullptr ? false : 
+        participant->behaviourStrategy->endTurnCondition();
+
+    return areActionsDone || behaviourStrategyDone || participant->passNextTurn;
 }
