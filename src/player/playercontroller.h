@@ -28,8 +28,9 @@ private:
     std::shared_ptr<TurnController> turnController;
 
     std::shared_ptr<Dice> dice;
+    bool isLeftShiftPressed;
 
-    void move(const glm::ivec2& mouseCoords);
+    void move(const glm::ivec2& position);
 
 public:
     PlayerController(

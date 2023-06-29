@@ -9,7 +9,7 @@ Projectile::Projectile(
     const glm::ivec2& target,
     const Stats& stats,
     int weaponBaseDamage,
-    std::function<void(const std::shared_ptr<Grid>&, int, const std::shared_ptr<Entity>&, int)> onHitCallback
+    std::function<void(const std::shared_ptr<Grid>&, int, const glm::ivec2&, int)> onHitCallback
 ) :
     grid(grid),
     textureId(textureId),
@@ -52,16 +52,17 @@ void Projectile::doHit(const glm::ivec2& position) {
         ownerId
     );
 
+    onHitCallback(grid, ownerId, position, 1);
+
     if(entity != nullptr) {
         entity->takeDamage((float) weaponBaseDamage * stats.damageMultiplier);
-        onHitCallback(grid, ownerId, entity, 1);
-
         for(auto const& effect : stats.effects) {
             if(effect.name == "freeze") {
                 entity->setFrozenFor(effect.duration);
             }
         }
     }
+    // TODO: This is just an onHitCallback
     else {
         for(auto const& effect : stats.effects) {
             if(effect.name == "freeze") {

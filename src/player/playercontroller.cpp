@@ -7,7 +7,8 @@ PlayerController::PlayerController(
     clientMessagesTransmitter(clientMessagesTransmitter),
     grid(context->getGraphicsContext()->getGridRenderer()),
     entityPool(context->getEntityPool()),
-    turnController(context->getTurnController())
+    turnController(context->getTurnController()),
+    isLeftShiftPressed(false)
 {
     dice = std::make_shared<Dice>(3, clientMessagesTransmitter);
 }
@@ -40,22 +41,33 @@ void PlayerController::handleKeyPress(const SDL_Event& event) {
                 break;
             }
 
+            case SDLK_LSHIFT:
+                isLeftShiftPressed = true;
+                break;
+
             default:
                 break;
+        }
+    }
+    if(event.type == SDL_KEYUP) {
+        switch(event.key.keysym.sym) {
+            case SDLK_LSHIFT:
+                    isLeftShiftPressed = false;
+                    break;
+
+                default:
+                    break;
         }
     }
 }
 
 void PlayerController::handleMouseEvent(const SDL_Event& event) {
     if(event.type == SDL_MOUSEBUTTONDOWN) {
-        int x, y;
-        SDL_GetMouseState(&x, &y);
-
-        auto [dX, dY] = grid->getTileIndices(glm::ivec2(x, y));
+        auto [x, y] = grid->getTileIndices(glm::ivec2(event.button.x, event.button.y));
 
         switch(event.button.button) {
             case SDL_BUTTON_LEFT: {
-                auto const& entity = Entity::filterByTile(dX, dY, participant->entities);
+                auto const& entity = Entity::filterByTile(x, y, participant->entities);
 
                 toggleSelection(entity);
 
@@ -65,19 +77,20 @@ void PlayerController::handleMouseEvent(const SDL_Event& event) {
         
 
             case SDL_BUTTON_RIGHT: {
-                auto const& target = Entity::filterByTile(dX, dY, entityPool->getEntities());
+                auto const& target = Entity::filterByTile(x, y, entityPool->getEntities());
+                auto position = glm::ivec2(x, y);
 
-                if(target != nullptr) {
+                if(target != nullptr || isLeftShiftPressed) {
                     for(auto const& entity : selectedEntities) {
                         auto const& weapon = entity->getCurrentWeapon();
 
                         clientMessagesTransmitter->sendAttackMessage(
                             entity->getId(), 
-                            target->getPosition(), 
+                            position, 
                             weapon->getId()
                         );
                         
-                        if(turnController->performAttackAction(entity, weapon, target->getPosition())) {
+                        if(turnController->performAttackAction(entity, weapon, position)) {
                             // TODO: Bug
                             dice->removeAction(1);
                         }
@@ -110,12 +123,10 @@ void PlayerController::toggleSelection(const std::shared_ptr<Entity>& entity) {
     }
 }
 
-void PlayerController::move(const glm::ivec2& mouseCoords) {
-    auto [dX, dY] = grid->getTileIndices(mouseCoords);
-
+void PlayerController::move(const glm::ivec2& position) {
     for(auto const& entity : selectedEntities) {
-        clientMessagesTransmitter->sendFindPathMessage(entity->getId(), {dX, dY}, 0);
-        if(turnController->performMoveAction(entity, glm::ivec2(dX, dY))) {
+        clientMessagesTransmitter->sendFindPathMessage(entity->getId(), position, 0);
+        if(turnController->performMoveAction(entity, position)) {
             dice->removeAction(0);
         }
     }

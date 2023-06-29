@@ -21,14 +21,14 @@ public:
         Stats stats;
         std::string name;
         uint32_t textureId;
-        std::function<void(const std::shared_ptr<Grid>&, int, const std::shared_ptr<Entity>&, int)> onHitCallback;
+        std::function<void(const std::shared_ptr<Grid>&, int, const glm::ivec2&, int)> onHitCallback;
 
         _blueprint(
             const Stats& stats,
             const std::string& name,
             uint32_t textureId,
-            std::function<void(const std::shared_ptr<Grid>&, int, const std::shared_ptr<Entity>&, int)> onHitCallback =
-                [](const std::shared_ptr<Grid>&, int, const std::shared_ptr<Entity>&, int){ }
+            std::function<void(const std::shared_ptr<Grid>&, int, const glm::ivec2&, int)> onHitCallback =
+                [](const std::shared_ptr<Grid>&, int, const glm::ivec2&, int){ }
         ) :
             stats(stats),
             name(name),
@@ -55,7 +55,8 @@ private:
 
     int weaponBaseDamage;
 
-    std::function<void(const std::shared_ptr<Grid>&, int, const std::shared_ptr<Entity>&, int)> onHitCallback;
+    // TODO: position not entity for target
+    std::function<void(const std::shared_ptr<Grid>&, int, const glm::ivec2&, int)> onHitCallback;
 
     float calculateStep(void) const;
     void doHit(const glm::ivec2& position);
@@ -69,8 +70,8 @@ public:
         const glm::ivec2& target,
         const Stats& stats,
         int weaponBaseDamage,
-        std::function<void(const std::shared_ptr<Grid>&, int, const std::shared_ptr<Entity>&, int)> onHitCallback = 
-            [](const std::shared_ptr<Grid>&, int, const std::shared_ptr<Entity>&, int){ }
+        std::function<void(const std::shared_ptr<Grid>&, int, const glm::ivec2&, int)> onHitCallback = 
+            [](const std::shared_ptr<Grid>&, int, const glm::ivec2&, int){ }
     );
 
     static std::shared_ptr<Projectile> create(
