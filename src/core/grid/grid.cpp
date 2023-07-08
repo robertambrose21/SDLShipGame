@@ -13,6 +13,16 @@ Grid::Grid(int width, int height, const std::vector<std::vector<Tile>>& data) :
     }
 }
 
+void Grid::nextTurn(void) {
+    for(auto y = 0; y < getHeight(); y++) {
+        for(auto x = 0; x < getWidth(); x++) {
+            if(data[y][x].turnsFrozenFor > 0) {
+                data[y][x].turnsFrozenFor--;
+            }
+        }
+    }
+}
+
 int Grid::getWidth(void) const {
     return width;
 }
@@ -29,6 +39,11 @@ void Grid::setTile(int x, int y, const Tile& tile) {
 void Grid::setTileWalkable(int x, int y, bool isWalkable) {
     game_assert(x < getWidth() && y < getHeight());
     data[y][x].isWalkable = isWalkable;
+}
+
+void Grid::setTileFrozenFor(int x, int y, int turnsFrozenFor) {
+    game_assert(x < getWidth() && y < getHeight());
+    data[y][x].turnsFrozenFor = turnsFrozenFor;
 }
 
 const std::vector<std::vector<Tile>>& Grid::getData(void) const {
@@ -201,7 +216,9 @@ bool Grid::isNodeInBounds(const glm::ivec2& node) const {
 }
 
 bool Grid::isNodeWalkable(const glm::ivec2& node) const {
-    return getTileAt(node.x, node.y).isWalkable;
+    auto tile = getTileAt(node.x, node.y);
+
+    return tile.isWalkable && tile.turnsFrozenFor <= 0;
 }
 
 std::deque<glm::ivec2> Grid::buildPath(

@@ -27,9 +27,28 @@ bool MeleeWeapon::onUse(const glm::ivec2& position, const std::shared_ptr<Entity
 
 bool MeleeWeapon::onUse(const glm::ivec2& position, const glm::ivec2& target) {
     auto entities = Application::getContext()->getEntityPool()->getEntities();
-    auto entity = Entity::filterByTile(position.x, position.y, entities, owner->getId());
+    auto entity = Entity::filterByTile(target.x, target.y, entities, owner->getParticipantId());
     
     if(entity != nullptr) {
+        std::cout 
+            << owner->getName() 
+            << "#" 
+            << owner->getId() 
+            << " meleed " 
+            << entity->getName()
+            << "#"
+            << entity->getId()
+            << " for "
+            << stats.damage
+            << " damage! "
+            << entity->getName()
+            << "#"
+            << entity->getId()
+            << " now has "
+            << entity->getCurrentHP()
+            << " HP."
+            << std::endl;
+
         entity->takeDamage(stats.damage);
     }
 

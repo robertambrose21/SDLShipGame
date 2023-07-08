@@ -38,6 +38,23 @@ void AreaOfEffect::apply(void) {
 
     for(auto const& entity : effectedEntities) {
         entity->takeDamage(stats.damagePerTurn);
+
+        std::cout 
+            << entity->getName()
+            << "#"
+            << entity->getId()
+            << " was hit by an area of effect from participant ["
+            << ownerId
+            << "] and took "
+            << stats.damagePerTurn
+            << " damage! "
+            << entity->getName()
+            << "#"
+            << entity->getId()
+            << " now has "
+            << entity->getCurrentHP()
+            << " HP."
+            << std::endl;
     }
 }
 

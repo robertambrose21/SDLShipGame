@@ -12,7 +12,8 @@
 
 typedef struct _tile {
     int id;
-    bool isWalkable;
+    bool isWalkable = true;
+    int turnsFrozenFor = 0;
 } Tile;
 
 class Grid {
@@ -43,11 +44,14 @@ private:
 public:
     Grid(int width, int height, const std::vector<std::vector<Tile>>& data = { });
 
+    void nextTurn(void);
+
     int getWidth(void) const;
     int getHeight(void) const;
 
     void setTile(int x, int y, const Tile& tile);
     void setTileWalkable(int x, int y, bool isWalkable);
+    void setTileFrozenFor(int x, int y, int turnsFrozenFor);
 
     const std::vector<std::vector<Tile>>& getData(void) const;
     // TODO: Throw exception if x/y are out of bounds

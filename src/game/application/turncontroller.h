@@ -31,6 +31,8 @@ public:
     } Participant;
 
 private:
+    std::shared_ptr<Grid> grid;
+
     int turnNumber;
     int currentParticipant;
 
@@ -42,7 +44,7 @@ private:
     void nextParticipantTurn(int id);
 
 public:
-    TurnController();
+    TurnController(std::shared_ptr<Grid> grid);
 
     void update(uint32_t timeSinceLastFrame, bool& quit);
 

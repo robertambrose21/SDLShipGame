@@ -36,7 +36,7 @@ void Projectile::update(uint32_t timeSinceLastFrame) {
     position = glm::lerp(startPosition, target, step);
 
     if(hasReachedTarget()) {
-        doHit(position);
+        doHit(target);
     }
 }
 
@@ -55,19 +55,45 @@ void Projectile::doHit(const glm::ivec2& position) {
     onHitCallback(grid, ownerId, position, 1);
 
     if(entity != nullptr) {
-        entity->takeDamage((float) weaponBaseDamage * stats.damageMultiplier);
+        auto damage = std::floor(weaponBaseDamage * stats.damageMultiplier);
+
+        entity->takeDamage(damage);
         for(auto const& effect : stats.effects) {
             if(effect.name == "freeze") {
                 entity->setFrozenFor(effect.duration);
             }
         }
+
+        std::cout 
+            << entity->getName()
+            << "#"
+            << entity->getId()
+            << " was hit by a projectile from participant ["
+            << ownerId
+            << "] and took "
+            << damage
+            << " damage! "
+            << entity->getName()
+            << "#"
+            << entity->getId()
+            << " now has "
+            << entity->getCurrentHP()
+            << " HP."
+            << std::endl;
     }
     // TODO: This is just an onHitCallback
     else {
         for(auto const& effect : stats.effects) {
             if(effect.name == "freeze") {
+                glm::ivec2 dir = startPosition - target;
+                auto perp = glm::normalize(glm::vec2(dir.y, -dir.x));
+                auto pX = std::min(grid->getWidth() - 1, (int) std::round(perp.x));
+                auto pY = std::min(grid->getHeight() - 1, (int) std::round(perp.y));
+
                 // TODO: Colour/unfreeze tiles after some time
-                grid->setTileWalkable(position.x, position.y, false);
+                grid->setTileFrozenFor(position.x, position.y, effect.duration);
+                grid->setTileFrozenFor(position.x + pX, position.y + pY, effect.duration);
+                grid->setTileFrozenFor(position.x - pX, position.y - pY, effect.duration);
             }
         }
     }

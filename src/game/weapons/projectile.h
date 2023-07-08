@@ -1,6 +1,7 @@
 #pragma once
 
 #include <functional>
+#include <algorithm>
 
 #include "core/glmimport.h"
 #include "graphics/gridrenderer.h"

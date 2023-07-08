@@ -1,6 +1,7 @@
 #include "turncontroller.h"
 
-TurnController::TurnController() :
+TurnController::TurnController(std::shared_ptr<Grid> grid) :
+    grid(grid),
     turnNumber(0),
     currentParticipant(0)
 { }
@@ -95,8 +96,10 @@ void TurnController::nextParticipantTurn(int id) {
 
     currentParticipant = id;
 
+    // TODO: Offload to some kind of global turn controller
     if(currentParticipant == 0) {
         turnNumber++;
+        grid->nextTurn();
         std::cout << "Turn number: [" << turnNumber << "]" << std::endl;
     }
 

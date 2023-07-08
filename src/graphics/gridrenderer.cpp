@@ -29,9 +29,18 @@ void GridRenderer::draw(
     const glm::ivec2& position
 ) {
     game_assert(graphicsContext != nullptr);
+
+    auto renderer = graphicsContext->getRenderer();
+
     auto const& realPosition = getTilePosition(position.x, position.y);
     SDL_Rect dst = { realPosition.x, realPosition.y, getTileSize(), getTileSize() };
-    graphicsContext->getTextureLoader()->loadTexture(textureId)->draw(graphicsContext->getRenderer(), NULL, &dst);
+    graphicsContext->getTextureLoader()->loadTexture(textureId)->draw(renderer, NULL, &dst);
+
+    if(grid->getTileAt(position.x, position.y).turnsFrozenFor > 0) {
+        SDL_SetRenderDrawBlendMode(renderer.get(), SDL_BLENDMODE_BLEND);
+        SDL_SetRenderDrawColor(renderer.get(), 0x00, 0xFF, 0xFF, 0x7F);
+        SDL_RenderFillRect(renderer.get(), &dst);
+    }
 }
 
 void GridRenderer::draw(
