@@ -205,6 +205,7 @@ void Entity::setPosition(const glm::ivec2& position) {
 }
 
 int Entity::findPath(const glm::ivec2& target, int stopShortSteps) {
+    auto startTime = SDL_GetTicks();
     auto path = grid->findPath(getPosition(), target);
 
     if(path.empty()) {
@@ -221,6 +222,25 @@ int Entity::findPath(const glm::ivec2& target, int stopShortSteps) {
     }
 
     this->path = path;
+
+    std::cout 
+        << "[" 
+        << getName() 
+        << "#" 
+        << getId() 
+        << "]: Finding path time ("
+        << position.x
+        << ", "
+        << position.y
+        << ") -> ("
+        << target.x
+        << ", "
+        << target.y
+        << "): "
+        << (SDL_GetTicks() - startTime) 
+        << "ms" 
+        << std::endl;
+
     return path.size();
 }
 

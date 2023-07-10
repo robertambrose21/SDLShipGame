@@ -113,14 +113,23 @@ void GameClientMessagesReceiver::receiveSetParticipant(
 void GameClientMessagesReceiver::receiveLoadMap(const MapBlock& block) {
     // TODO: Sequencing
     auto const& grid = context->getGrid();
+    auto offset = block.sequence * MaxMapBlockSize;
 
     for(int i = 0; i < block.blockSize; i++) {
-        auto x = i / block.width;
-        auto y = i % block.width;
+        auto x = (i + offset) / block.width;
+        auto y = (i + offset) % block.width;
         auto id = block.data[i];
 
         grid->setTile(x, y, { id, id == 1 });
     }
+
+    std::cout 
+        << "Received map block sequence [" 
+        << (block.sequence + 1)
+        << "] of [" 
+        << block.numSequences
+        << "]"
+        << std::endl;
 }
 
 void GameClientMessagesReceiver::receiveFindPath(

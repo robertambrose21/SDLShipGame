@@ -3,8 +3,10 @@
 GridRenderer::GridRenderer(const std::shared_ptr<Grid>& grid, int windowHeight) :
     grid(grid),
     windowHeight(windowHeight),
-    tileSize(windowHeight / grid->getHeight())
-{ }
+    tileSize(32)
+{
+    camera = std::make_shared<Camera>(glm::ivec2(0, 0));
+}
 
 void GridRenderer::setTileTexture(int tileId, uint32_t textureId) {
     game_assert(tileId >= 0);
@@ -32,7 +34,7 @@ void GridRenderer::draw(
 
     auto renderer = graphicsContext->getRenderer();
 
-    auto const& realPosition = getTilePosition(position.x, position.y);
+    auto const& realPosition = getTilePosition(position.x, position.y) + camera->getPosition();
     SDL_Rect dst = { realPosition.x, realPosition.y, getTileSize(), getTileSize() };
     graphicsContext->getTextureLoader()->loadTexture(textureId)->draw(renderer, NULL, &dst);
 
@@ -51,11 +53,15 @@ void GridRenderer::draw(
     const glm::ivec2& position
 ) {
     game_assert(graphicsContext != nullptr);
-    auto const& realPosition = getTilePosition(position.x, position.y);
+    auto const& realPosition = getTilePosition(position.x, position.y) + camera->getPosition();
     SDL_Rect dst = { realPosition.x, realPosition.y, getTileSize(), getTileSize() };
     graphicsContext->getTextureLoader()->loadTexture(textureId)->draw(
         graphicsContext->getRenderer(), colour, alpha, NULL, &dst
     );
+}
+
+std::shared_ptr<Camera> GridRenderer::getCamera(void) {
+    return camera;
 }
 
 glm::ivec2 GridRenderer::getTilePosition(int x, int y) const {

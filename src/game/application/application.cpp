@@ -1,8 +1,8 @@
 #include "application.h"
 
 Application::Application() {
-    grid = std::make_shared<Grid>(20, 20);
-    window = std::make_shared<Window>(1024, 768, grid);
+    grid = std::make_shared<Grid>(100, 100);
+    window = std::make_shared<Window>(1920, 1080, grid);
     turnController = std::make_shared<TurnController>(grid);
     areaOfEffectPool = std::make_shared<AreaOfEffectPool>(turnController, grid);
     projectilePool = std::make_shared<ProjectilePool>(areaOfEffectPool);

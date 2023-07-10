@@ -227,6 +227,7 @@ public:
         serialize_int(stream, mapBlock.width, 0, 256);
         serialize_int(stream, mapBlock.height, 0, 256);
         serialize_int(stream, mapBlock.sequence, 0, 256);
+        serialize_int(stream, mapBlock.numSequences, 0, 256);
         serialize_int(stream, mapBlock.totalSize, 0, UINT16_MAX);
         serialize_int(stream, mapBlock.blockSize, 0, MaxMapBlockSize);
 

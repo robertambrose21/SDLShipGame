@@ -87,6 +87,7 @@ void ServerApplication::sendLoadMapToClient(int clientIndex) {
         block.width = grid->getWidth();
         block.height = grid->getHeight();
         block.sequence = i;
+        block.numSequences = numSequences;
         block.totalSize = gridSize;
         block.blockSize = MaxMapBlockSize;
 
@@ -102,6 +103,16 @@ void ServerApplication::sendLoadMapToClient(int clientIndex) {
 
             block.data[j] = grid->getTileAt(x, y).id;
         }
+
+        std::cout 
+            << "Sending map block sequence [" 
+            << (i + 1)
+            << "] of [" 
+            << numSequences
+            << "] to client: [" 
+            << clientIndex 
+            << "]"
+            << std::endl;
 
         transmitter->sendLoadMap(clientIndex, block);
     }

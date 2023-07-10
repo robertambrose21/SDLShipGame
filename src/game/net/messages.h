@@ -88,6 +88,7 @@ struct MapBlock {
     int height;
     int totalSize;
     int sequence;
+    int numSequences;
     int blockSize;
 
     int data[MaxMapBlockSize];

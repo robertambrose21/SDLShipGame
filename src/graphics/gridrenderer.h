@@ -5,10 +5,12 @@
 
 #include "graphicscontext.h"
 #include "textureloader.h"
+#include "camera.h"
 #include "core/grid/grid.h"
 
 class GraphicsContext;
 
+// TODO: This is potentially overloaded - entities/projectiles and everything else call the 'draw' function
 class GridRenderer {
 private:
     int windowHeight;
@@ -16,6 +18,8 @@ private:
 
     std::map<int, uint32_t> tileTextures;
     std::shared_ptr<Grid> grid;
+
+    std::shared_ptr<Camera> camera;
 
 public:
     GridRenderer(const std::shared_ptr<Grid>& grid, int windowHeight);
@@ -30,6 +34,8 @@ public:
         const uint8_t alpha,
         const glm::ivec2& position
     );
+
+    std::shared_ptr<Camera> getCamera(void);
 
     glm::ivec2 getTilePosition(int x, int y) const;
     std::pair<int, int> getTileIndices(const glm::ivec2& position) const;

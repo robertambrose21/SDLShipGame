@@ -49,7 +49,7 @@ bool Window::initialiseWindow(const Headless& headless) {
         std::cout << "SDL_image could not be initialised: " << IMG_GetError() << std::endl;
         return false;
     }
-
+    
     textureLoader = std::make_shared<TextureLoader>(renderer);
     graphicsContext = std::make_shared<GraphicsContext>(renderer, textureLoader, gridRenderer);
 

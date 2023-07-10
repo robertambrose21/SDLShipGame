@@ -8,12 +8,16 @@ PlayerController::PlayerController(
     grid(context->getGraphicsContext()->getGridRenderer()),
     entityPool(context->getEntityPool()),
     turnController(context->getTurnController()),
-    isLeftShiftPressed(false)
+    isLeftShiftPressed(false),
+    cameraVector(glm::ivec2(0, 0))
 {
     dice = std::make_shared<Dice>(3, clientMessagesTransmitter);
+    camera = context->getGraphicsContext()->getGridRenderer()->getCamera();
 }
 
 void PlayerController::update(uint32_t timeSinceLastFrame) {
+    camera->move(cameraVector * (int) timeSinceLastFrame);
+
     for(auto entity : selectedEntities) {
         if(entity == nullptr || entity->getCurrentHP() <= 0) {
             selectedEntities.erase(std::remove(selectedEntities.begin(), selectedEntities.end(), entity), selectedEntities.end());
@@ -26,7 +30,7 @@ void PlayerController::draw(const std::shared_ptr<GraphicsContext>& graphicsCont
 }
 
 void PlayerController::handleKeyPress(const SDL_Event& event) {
-    if(event.type == SDL_KEYDOWN) {
+    if(event.type == SDL_KEYDOWN && event.key.repeat == 0) {
         switch(event.key.keysym.sym) {
             case SDLK_p: {
                 clientMessagesTransmitter->sendPassParticipantTurnMessage(participant->id);
@@ -45,6 +49,22 @@ void PlayerController::handleKeyPress(const SDL_Event& event) {
                 isLeftShiftPressed = true;
                 break;
 
+            case SDLK_RIGHT:
+                cameraVector += glm::ivec2(-1, 0);
+                break;
+
+            case SDLK_LEFT:
+                cameraVector += glm::ivec2(1, 0);
+                break;
+
+            case SDLK_UP:
+                cameraVector += glm::ivec2(0, 1);
+                break;
+
+            case SDLK_DOWN:
+                cameraVector += glm::ivec2(0, -1);
+                break;
+
             default:
                 break;
         }
@@ -52,11 +72,27 @@ void PlayerController::handleKeyPress(const SDL_Event& event) {
     if(event.type == SDL_KEYUP) {
         switch(event.key.keysym.sym) {
             case SDLK_LSHIFT:
-                    isLeftShiftPressed = false;
-                    break;
+                isLeftShiftPressed = false;
+                break;
 
-                default:
-                    break;
+            case SDLK_RIGHT:
+                cameraVector -= glm::ivec2(-1, 0);
+                break;
+
+            case SDLK_LEFT:
+                cameraVector -= glm::ivec2(1, 0);
+                break;
+
+            case SDLK_UP:
+                cameraVector -= glm::ivec2(0, 1);
+                break;
+
+            case SDLK_DOWN:
+                cameraVector -= glm::ivec2(0, -1);
+                break;
+
+            default:
+                break;
         }
     }
 }

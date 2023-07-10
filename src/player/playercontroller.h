@@ -30,6 +30,9 @@ private:
     std::shared_ptr<Dice> dice;
     bool isLeftShiftPressed;
 
+    std::shared_ptr<Camera> camera;
+    glm::ivec2 cameraVector;
+
     void move(const glm::ivec2& position);
 
 public:
