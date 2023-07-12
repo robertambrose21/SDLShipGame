@@ -4,8 +4,8 @@
 
 #include "core/glmimport.h"
 #include "core/util/gameassert.h"
-#include "sdlimport.h"
-#include "graphicscontext.h"
+#include "../sdlimport.h"
+#include "../graphicscontext.h"
 
 class Button {
 private:

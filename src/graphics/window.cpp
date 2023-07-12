@@ -8,7 +8,9 @@ Window::Window(int width, int height, const std::shared_ptr<Grid>& grid) :
 }
 
 Window::~Window() {
+    TTF_Quit();
     IMG_Quit();
+    SDL_Quit();
 }
 
 bool Window::initialiseWindow(const Headless& headless) {
@@ -47,6 +49,11 @@ bool Window::initialiseWindow(const Headless& headless) {
 
     if(!(IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG)) {
         std::cout << "SDL_image could not be initialised: " << IMG_GetError() << std::endl;
+        return false;
+    }
+
+    if(TTF_Init() == -1) {
+        std::cout << "SDL_ttf could not be initialised: " << TTF_GetError() << std::endl;
         return false;
     }
     

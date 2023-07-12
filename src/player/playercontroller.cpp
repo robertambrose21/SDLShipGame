@@ -13,6 +13,8 @@ PlayerController::PlayerController(
 {
     dice = std::make_shared<Dice>(3, clientMessagesTransmitter);
     camera = context->getGraphicsContext()->getGridRenderer()->getCamera();
+    playerPanel = std::make_shared<PlayerPanel>(1920, 1080);
+    text = std::make_shared<Text>("../assets/fonts/RobotoMono-SemiBold.ttf", glm::ivec2(300, 300));
 }
 
 void PlayerController::update(uint32_t timeSinceLastFrame) {
@@ -27,6 +29,8 @@ void PlayerController::update(uint32_t timeSinceLastFrame) {
 
 void PlayerController::draw(const std::shared_ptr<GraphicsContext>& graphicsContext) {
     dice->draw(graphicsContext);
+    playerPanel->draw(graphicsContext->getRenderer());
+    text->draw(graphicsContext->getRenderer(), "Hello");
 }
 
 void PlayerController::handleKeyPress(const SDL_Event& event) {

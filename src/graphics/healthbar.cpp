@@ -4,6 +4,7 @@ HealthBar::HealthBar(int totalHP) :
     totalHP(totalHP)
 { }
 
+// TODO: Camera position
 void HealthBar::draw(const std::shared_ptr<GraphicsContext>& graphicsContext, const glm::ivec2& position, int currentHP) {
     if(totalHP == currentHP) {
         return;

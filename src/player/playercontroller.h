@@ -13,8 +13,10 @@
 #include "game/entities/entitypool.h"
 #include "game/weapons/weapon.h"
 #include "game/application/turncontroller.h"
-#include "graphics/dice.h"
-#include "graphics/button.h"
+#include "graphics/ui/dice.h"
+#include "graphics/ui/button.h"
+#include "graphics/ui/playerpanel.h"
+#include "graphics/ui/text.h"
 
 class PlayerController {
 private:
@@ -32,6 +34,9 @@ private:
 
     std::shared_ptr<Camera> camera;
     glm::ivec2 cameraVector;
+
+    std::shared_ptr<PlayerPanel> playerPanel;
+    std::shared_ptr<Text> text;
 
     void move(const glm::ivec2& position);
 
