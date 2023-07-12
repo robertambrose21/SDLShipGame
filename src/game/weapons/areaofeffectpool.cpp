@@ -10,7 +10,7 @@ AreaOfEffectPool::AreaOfEffectPool(
     loadAoeDefinitions();
 
     turnController->addOnNextTurnFunction([&](auto const& currentParticipant, auto const& turnNumber) {
-        for(auto& [_, aoe]  : aoeObjects) {
+        for(auto&& [_, aoe]  : aoeObjects) {
             aoe->onNextTurn(currentParticipant, turnNumber);
         }
     });
@@ -57,14 +57,14 @@ void AreaOfEffectPool::add(const std::string& name, int ownerId, int turnNumber,
 }
 
 void AreaOfEffectPool::draw(const std::shared_ptr<GraphicsContext>& graphicsContext) {
-    for(auto& [_, aoe] : aoeObjects) {
+    for(auto&& [_, aoe] : aoeObjects) {
         aoe->draw(graphicsContext);
     }
 }
 
 void AreaOfEffectPool::update(uint32_t timeSinceLastFrame) {
     for(auto i = 0; i < aoeObjects.size(); i++) {
-        auto& [startTurn, areaOfEffect] = aoeObjects[i];
+        auto&& [startTurn, areaOfEffect] = aoeObjects[i];
 
         areaOfEffect->update(timeSinceLastFrame);
 
