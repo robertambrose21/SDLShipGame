@@ -19,12 +19,6 @@ MeleeWeapon::MeleeWeapon(
     Weapon(owner, grid, name, stats)
 { }
 
-bool MeleeWeapon::onUse(const glm::ivec2& position, const std::shared_ptr<Entity>& target) {
-    game_assert(target != nullptr);
-    target->takeDamage(stats.damage);
-    return true;
-}
-
 bool MeleeWeapon::onUse(const glm::ivec2& position, const glm::ivec2& target) {
     auto entities = Application::getContext()->getEntityPool()->getEntities();
     auto entity = Entity::filterByTile(target.x, target.y, entities, owner->getParticipantId());

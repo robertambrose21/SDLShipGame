@@ -22,19 +22,6 @@ ProjectileWeapon::ProjectileWeapon(
     ProjectileWeapon(owner, grid, getNewId(), name, stats, projectileBlueprint)
 { }
 
-bool ProjectileWeapon::onUse(const glm::ivec2& position, const std::shared_ptr<Entity>& target) {
-    if(glm::distance(glm::vec2(position), glm::vec2(target->getPosition())) > stats.range) {
-        return false;
-    }
-
-    Application::getContext()->getProjectilePool()->add(
-        Projectile::create(grid, owner->getParticipantId(), projectileBlueprint, position, target->getPosition(), stats.damage),
-        owner
-    );
-
-    return true;
-}
-
 bool ProjectileWeapon::onUse(const glm::ivec2& position, const glm::ivec2& target) {
     if(glm::distance(glm::vec2(position), glm::vec2(target)) > stats.range) {
         return false;
