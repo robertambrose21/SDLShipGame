@@ -12,7 +12,7 @@ public:
     HealthBar(int totalHP);
 
     void draw(
-        const std::shared_ptr<GraphicsContext>& graphicsContext, 
+        GraphicsContext& graphicsContext, 
         const glm::ivec2& position, 
         int currentHP
     );

@@ -13,8 +13,8 @@
 class Window {
 private:
     struct sdl_deleter {
-        void operator()(SDL_Window *p) const { }
-        void operator()(SDL_Renderer *p) const { }
+        void operator()(SDL_Window *p) const { SDL_DestroyWindow(p); }
+        void operator()(SDL_Renderer *p) const { SDL_DestroyRenderer(p); }
     };
 
     bool headless;
@@ -22,15 +22,15 @@ private:
     int width;
     int height;
 
-    std::shared_ptr<SDL_Window> window;
+    std::unique_ptr<SDL_Window, sdl_deleter> window;
 
-    std::shared_ptr<GraphicsContext> graphicsContext;
-    std::shared_ptr<SDL_Renderer> renderer;
-    std::shared_ptr<TextureLoader> textureLoader;
-    std::shared_ptr<GridRenderer> gridRenderer;
+    std::unique_ptr<GraphicsContext> graphicsContext;
+    std::unique_ptr<SDL_Renderer, sdl_deleter> renderer;
+    TextureLoader textureLoader;
+    std::unique_ptr<GridRenderer> gridRenderer;
 
     std::vector<std::function<void(uint32_t, bool&)>> logicWorkers;
-    std::vector<std::function<void(const std::shared_ptr<GraphicsContext>&, bool&)>> drawWorkers;
+    std::vector<std::function<void(GraphicsContext&, bool&)>> drawWorkers;
     std::vector<std::function<void(const SDL_Event&, bool&)>> eventWorkers;
     
 public:
@@ -39,20 +39,19 @@ public:
         NO
     };
 
-    Window(int width, int height, const std::shared_ptr<Grid>& grid);
+    Window(int width, int height, Grid& grid);
     ~Window();
  
     bool initialiseWindow(const Headless& headless);
     void loop(void);
 
     void addLoopLogicWorker(std::function<void(uint32_t, bool&)> worker);
-    void addLoopDrawWorker(std::function<void(const std::shared_ptr<GraphicsContext>&, bool&)> worker);
+    void addLoopDrawWorker(std::function<void(GraphicsContext&, bool&)> worker);
     void addLoopEventWorker(std::function<void(const SDL_Event&, bool&)> worker);
     
     void setGridTileTexture(int tileId, uint32_t textureId);
 
-    std::shared_ptr<GridRenderer> getGridRenderer(void);
-    std::shared_ptr<TextureLoader> getTextureLoader(void);
-
-    std::shared_ptr<GraphicsContext> getGraphicsContext(void);
+    GridRenderer& getGridRenderer(void);
+    TextureLoader& getTextureLoader(void);
+    GraphicsContext& getGraphicsContext(void);
 };

@@ -9,18 +9,18 @@ class GridRenderer;
 
 class GraphicsContext {
 private:
-    std::shared_ptr<SDL_Renderer> renderer;
-    std::shared_ptr<TextureLoader> textureLoader;
-    std::shared_ptr<GridRenderer> gridRenderer;
+    SDL_Renderer* renderer;
+    TextureLoader& textureLoader;
+    GridRenderer& gridRenderer;
 
 public:
     GraphicsContext(
-        const std::shared_ptr<SDL_Renderer>& renderer,
-        const std::shared_ptr<TextureLoader>& textureLoader,
-        const std::shared_ptr<GridRenderer>& gridRenderer
+        SDL_Renderer* renderer,
+        TextureLoader& textureLoader,
+        GridRenderer& gridRenderer
     );
 
-    std::shared_ptr<SDL_Renderer> getRenderer(void);
-    std::shared_ptr<TextureLoader> getTextureLoader(void);
-    std::shared_ptr<GridRenderer> getGridRenderer(void);
+    SDL_Renderer* getRenderer(void);
+    TextureLoader& getTextureLoader(void);
+    GridRenderer& getGridRenderer(void);
 };

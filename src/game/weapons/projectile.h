@@ -22,14 +22,14 @@ public:
         Stats stats;
         std::string name;
         uint32_t textureId;
-        std::function<void(const std::shared_ptr<Grid>&, int, const glm::ivec2&, int)> onHitCallback;
+        std::function<void(Grid&, int, const glm::ivec2&, int)> onHitCallback;
 
         _blueprint(
             const Stats& stats,
             const std::string& name,
             uint32_t textureId,
-            std::function<void(const std::shared_ptr<Grid>&, int, const glm::ivec2&, int)> onHitCallback =
-                [](const std::shared_ptr<Grid>&, int, const glm::ivec2&, int){ }
+            std::function<void(Grid&, int, const glm::ivec2&, int)> onHitCallback =
+                [](Grid&, int, const glm::ivec2&, int){ }
         ) :
             stats(stats),
             name(name),
@@ -41,7 +41,7 @@ public:
 private:
     Stats stats;
 
-    std::shared_ptr<Grid> grid;
+    Grid& grid;
     uint32_t textureId;
 
     glm::ivec2 position;
@@ -57,33 +57,33 @@ private:
     int weaponBaseDamage;
 
     // TODO: position not entity for target
-    std::function<void(const std::shared_ptr<Grid>&, int, const glm::ivec2&, int)> onHitCallback;
+    std::function<void(Grid&, int, const glm::ivec2&, int)> onHitCallback;
 
     float calculateStep(void) const;
     void doHit(const glm::ivec2& position);
 
 public:
     Projectile(
-        const std::shared_ptr<Grid>& grid,
+        Grid& grid,
         uint32_t textureId,
         int ownerId,
         const glm::ivec2& startPosition,
         const glm::ivec2& target,
         const Stats& stats,
         int weaponBaseDamage,
-        std::function<void(const std::shared_ptr<Grid>&, int, const glm::ivec2&, int)> onHitCallback = 
-            [](const std::shared_ptr<Grid>&, int, const glm::ivec2&, int){ }
+        std::function<void(Grid&, int, const glm::ivec2&, int)> onHitCallback = 
+            [](Grid&, int, const glm::ivec2&, int){ }
     );
 
-    static std::shared_ptr<Projectile> create(
-        const std::shared_ptr<Grid>& grid,
+    static std::unique_ptr<Projectile> create(
+        Grid& grid,
         int ownerId,
         const Blueprint& blueprint, 
         const glm::ivec2& startPosition,
         const glm::ivec2& target,
         int weaponBaseDamage
     ) {
-        return std::make_shared<Projectile>(
+        return std::make_unique<Projectile>(
             grid,
             blueprint.textureId,
             ownerId,
@@ -95,7 +95,7 @@ public:
         );
     }
 
-    void draw(const std::shared_ptr<GraphicsContext>& graphicsContext);
+    void draw(GraphicsContext& graphicsContext);
     void update(uint32_t timeSinceLastFrame);
 
     bool hasReachedTarget(void) const;

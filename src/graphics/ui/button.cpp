@@ -8,7 +8,7 @@ Button::Button(uint32_t textureId, const glm::ivec2& position, const glm::ivec2&
     isDisabled(false)
 { }
 
-void Button::draw(const std::shared_ptr<GraphicsContext>& graphicsContext) {
+void Button::draw(GraphicsContext& graphicsContext) {
     SDL_Rect dst = {
         position.x,
         position.y,
@@ -18,9 +18,9 @@ void Button::draw(const std::shared_ptr<GraphicsContext>& graphicsContext) {
 
     auto colour = isDisabled ? Texture::Colour { 0x7F, 0x7F, 0x7F } : Texture::Colour { 0xFF, 0xFF, 0xFF };
 
-    graphicsContext->getTextureLoader()
-        ->loadTexture(textureId)
-        ->draw(graphicsContext->getRenderer(), colour, 0xFF, NULL, &dst);
+    graphicsContext.getTextureLoader()
+        .loadTexture(textureId)
+        ->draw(graphicsContext.getRenderer(), colour, 0xFF, NULL, &dst);
 }
 
 bool Button::handleClickEvent(int mouseX, int mouseY) {

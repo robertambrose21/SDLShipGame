@@ -8,8 +8,8 @@
 
 class GameServerMessagesTransmitter : public ServerMessagesTransmitter {
 private:
-    std::shared_ptr<GameServer> server;
-    std::shared_ptr<TurnController> turnController;
+    GameServer& server;
+    TurnController& turnController;
 
     std::function<void(int)> onClientConnectFunc;
 
@@ -17,11 +17,11 @@ private:
 
 public:
     GameServerMessagesTransmitter(
-        std::shared_ptr<GameServer> server, 
+        GameServer& server, 
         std::function<void(int)> onClientConnectFunc = [](int) { }
     );
 
-    void sendSetParticipant(int clientIndex, const std::shared_ptr<TurnController::Participant>& participant);
+    void sendSetParticipant(int clientIndex, TurnController::Participant* participant);
     void sendGameStateUpdate(int clientIndex, const GameStateUpdate& update);
     void sendLoadMap(int clientIndex, const MapBlock& block);
     void sendFindPath(

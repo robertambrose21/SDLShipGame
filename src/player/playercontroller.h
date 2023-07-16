@@ -20,42 +20,42 @@
 
 class PlayerController {
 private:
-    std::shared_ptr<GameClientMessagesTransmitter> clientMessagesTransmitter;
+    GameClientMessagesTransmitter& clientMessagesTransmitter;
 
-    std::shared_ptr<TurnController::Participant> participant;
+    TurnController::Participant* participant;
 
-    std::vector<std::shared_ptr<Entity>> selectedEntities;
-    std::shared_ptr<GridRenderer> grid;
-    std::shared_ptr<EntityPool> entityPool;
-    std::shared_ptr<TurnController> turnController;
+    std::vector<Entity*> selectedEntities;
+    GridRenderer& gridRenderer;
+    TurnController& turnController;
+    EntityPool& entityPool;
 
-    std::shared_ptr<Dice> dice;
+    std::unique_ptr<Dice> dice;
     bool isLeftShiftPressed;
 
-    std::shared_ptr<Camera> camera;
+    Camera& camera;
     glm::ivec2 cameraVector;
 
-    std::shared_ptr<PlayerPanel> playerPanel;
-    std::shared_ptr<Text> text;
+    std::unique_ptr<PlayerPanel> playerPanel;
+    std::unique_ptr<Text> text;
 
     void move(const glm::ivec2& position);
 
 public:
     PlayerController(
-        const std::shared_ptr<GameClientMessagesTransmitter>& clientMessagesTransmitter,
-        const std::shared_ptr<ApplicationContext>& context
+        GameClientMessagesTransmitter& clientMessagesTransmitter,
+        ApplicationContext& context
     );
 
     void update(uint32_t timeSinceLastFrame);
-    void draw(const std::shared_ptr<GraphicsContext>& graphicsContext);
+    void draw(GraphicsContext& graphicsContext);
 
     void handleKeyPress(const SDL_Event& event);
     void handleMouseEvent(const SDL_Event& event);
 
-    const std::vector<std::shared_ptr<Entity>>& getSelectedEntities(void) const;
-    void setParticipant(const std::shared_ptr<TurnController::Participant>& participant);
+    const std::vector<Entity*>& getSelectedEntities(void) const;
+    void setParticipant(TurnController::Participant* participant);
 
-    void toggleSelection(const std::shared_ptr<Entity>& entity);
+    void toggleSelection(Entity* entity);
 
-    std::shared_ptr<Dice> getDice(void);
+    Dice& getDice(void);
 };

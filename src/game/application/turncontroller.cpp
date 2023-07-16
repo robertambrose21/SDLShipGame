@@ -1,6 +1,6 @@
 #include "turncontroller.h"
 
-TurnController::TurnController(std::shared_ptr<Grid> grid) :
+TurnController::TurnController(Grid& grid) :
     grid(grid),
     turnNumber(0),
     currentParticipant(0)
@@ -11,22 +11,22 @@ void TurnController::update(uint32_t timeSinceLastFrame, bool& quit) {
         return;
     }
 
-    auto bs = participants[currentParticipant]->behaviourStrategy;
+    auto& bs = participants[currentParticipant]->behaviourStrategy;
 
     if(bs != nullptr) {
         bs->onUpdate(timeSinceLastFrame, quit);
     }
 
-    if(canProgressToNextTurn(participants[currentParticipant])) {
+    if(canProgressToNextTurn(currentParticipant)) {
         nextParticipantTurn((currentParticipant + 1) % participants.size());
     }
 }
 
-std::shared_ptr<TurnController::Participant> TurnController::addParticipant(
+TurnController::Participant* TurnController::addParticipant(
     int id,
     bool isPlayer,
-    const std::set<std::shared_ptr<Entity>>& entities, 
-    const std::shared_ptr<BehaviourStrategy>& behaviourStrategy
+    const std::set<Entity*>& entities, 
+    std::unique_ptr<BehaviourStrategy> behaviourStrategy
 ) {
     Participant participant;
     participant.id = id;
@@ -35,20 +35,18 @@ std::shared_ptr<TurnController::Participant> TurnController::addParticipant(
     participant.passNextTurn = false;
     participant.actions = { };
     participant.hasRolledForActions = false;
-    participant.behaviourStrategy = behaviourStrategy;
+    participant.behaviourStrategy = std::move(behaviourStrategy);
 
     for(auto const& entity : entities) {
         entity->setParticipantId(participant.id);
     }
 
-    auto participantPtr = std::make_shared<Participant>(participant);
+    participants[id] = std::make_unique<Participant>(std::move(participant));
 
-    participants[id] = participantPtr;
-
-    return participantPtr;
+    return participants[id].get();
 }
 
-void TurnController::addEntityToParticipant(int participantId, const std::shared_ptr<Entity>& entity) {
+void TurnController::addEntityToParticipant(int participantId, Entity* entity) {
     game_assert(entity != nullptr);
 
     if(!participants.contains(participantId)) {
@@ -62,17 +60,25 @@ void TurnController::addEntityToParticipant(int participantId, const std::shared
     participants[participantId]->entities.insert(entity);
 }
 
-std::shared_ptr<TurnController::Participant> TurnController::getParticipant(int id) {
+TurnController::Participant* TurnController::getParticipant(int id) {
     game_assert(participants.contains(id));
-    return participants[id];
+    return participants[id].get();
 }
 
-const std::map<int, std::shared_ptr<TurnController::Participant>>& TurnController::getParticipants(void) const {
-    return participants;
+std::vector<TurnController::Participant*> TurnController::getParticipants(void) {
+    std::vector<Participant*> vParticipants;
+    
+    for(auto& [_, participant] : participants) {
+        if(participant != nullptr) {
+            vParticipants.push_back(participant.get());
+        }
+    }
+
+    return vParticipants;
 }
 
 void TurnController::reset(void) {
-    for(auto [participantId, participant] : participants) {
+    for(auto& [participantId, participant] : participants) {
         for(auto entity : participant->entities) {
             // Why is this different for participant 0???
             if(participantId > 0) {
@@ -99,13 +105,13 @@ void TurnController::nextParticipantTurn(int id) {
     // TODO: Offload to some kind of global turn controller
     if(currentParticipant == 0) {
         turnNumber++;
-        grid->nextTurn();
+        grid.nextTurn();
         std::cout << "Turn number: [" << turnNumber << "]" << std::endl;
     }
 
     auto& entities = participants[currentParticipant]->entities;
 
-    std::set<std::shared_ptr<Entity>> entitiesForDeletion;
+    std::set<Entity*> entitiesForDeletion;
 
     for(auto const& entity : participants[currentParticipant]->entities) {
         entity->nextTurn();
@@ -169,7 +175,7 @@ std::map<TurnController::Action, int> TurnController::rollActions(int participan
 }
 
 bool TurnController::performMoveAction(
-    const std::shared_ptr<Entity>& entity, 
+    Entity* entity, 
     const glm::ivec2& position,
     int shortStopSteps
 ) {
@@ -190,17 +196,21 @@ bool TurnController::performMoveAction(
 }
 
 bool TurnController::performAttackAction(
-    const std::shared_ptr<Entity>& entity,
-    const std::shared_ptr<Weapon>& weapon,
+    Entity* entity,
+    Weapon* weapon,
     const glm::ivec2& target
 ) {
     if(participants[currentParticipant]->actions[Action::Attack] <= 0) {
         return false;
     }
 
+    if(weapon == nullptr) {
+        return false;
+    }
+
     // Bug - if entity doesn't finish all it's attacks then another entity from the same participant
     // can 'steal' the attack action
-    entity->attack(target, weapon);
+    entity->attack(target, weapon->getId());
 
     if(weapon->getUsesLeft() <= 0) {
         participants[currentParticipant]->actions[Action::Attack]--;
@@ -226,7 +236,9 @@ int TurnController::getTurnNumber(void) const {
     return turnNumber;
 }
 
-bool TurnController::canProgressToNextTurn(const std::shared_ptr<Participant>& participant) {
+bool TurnController::canProgressToNextTurn(int participantId) {
+    auto& participant = participants[participantId];
+
     if(participant->entities.empty()) {
         return false;
     }

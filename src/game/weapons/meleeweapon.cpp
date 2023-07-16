@@ -1,8 +1,8 @@
 #include "meleeweapon.h"
 
 MeleeWeapon::MeleeWeapon(
-    const std::shared_ptr<Entity>& owner, 
-    const std::shared_ptr<Grid>& grid,
+    Entity* owner, 
+    Grid& grid,
     uint32_t id,
     const std::string& name, 
     const Stats& stats
@@ -11,8 +11,8 @@ MeleeWeapon::MeleeWeapon(
 { }
 
 MeleeWeapon::MeleeWeapon(
-    const std::shared_ptr<Entity>& owner, 
-    const std::shared_ptr<Grid>& grid, 
+    Entity* owner, 
+    Grid& grid, 
     const std::string& name, 
     const Stats& stats
 ) :
@@ -20,7 +20,7 @@ MeleeWeapon::MeleeWeapon(
 { }
 
 bool MeleeWeapon::onUse(const glm::ivec2& position, const glm::ivec2& target) {
-    auto entities = Application::getContext()->getEntityPool()->getEntities();
+    auto entities = Application::getContext().getEntityPool().getEntities();
     auto entity = Entity::filterByTile(target.x, target.y, entities, owner->getParticipantId());
     
     if(entity != nullptr) {
@@ -49,7 +49,7 @@ bool MeleeWeapon::onUse(const glm::ivec2& position, const glm::ivec2& target) {
     return true;
 }
 
-void MeleeWeapon::draw(const std::shared_ptr<GraphicsContext>& graphicsContext) {
+void MeleeWeapon::draw(GraphicsContext& graphicsContext) {
     // no-op
 }
 

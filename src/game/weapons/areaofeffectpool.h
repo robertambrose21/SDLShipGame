@@ -25,19 +25,19 @@ private:
     std::vector<std::pair<int, std::unique_ptr<AreaOfEffect>>> aoeObjects;
     std::vector<int> aoeObjectsForDeletion;
 
-    std::shared_ptr<TurnController> turnController;
-    std::shared_ptr<Grid> grid;
+    TurnController& turnController;
+    Grid& grid;
 
     void loadAoeDefinitions(void);
 
 public:
     AreaOfEffectPool(
-        const std::shared_ptr<TurnController>& turnController, 
-        const std::shared_ptr<Grid>& grid
+        TurnController& turnController, 
+        Grid& grid
     );
 
     void add(const std::string& name, int ownerId, int turnNumber, const glm::ivec2& position);
 
-    void draw(const std::shared_ptr<GraphicsContext>& graphicsContext);
+    void draw(GraphicsContext& graphicsContext);
     void update(uint32_t timeSinceLastFrame);
 };

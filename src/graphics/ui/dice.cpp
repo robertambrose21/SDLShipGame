@@ -2,17 +2,17 @@
 
 Dice::Dice(
     int face,
-    std::shared_ptr<GameClientMessagesTransmitter> clientMessagesTransmitter
+    GameClientMessagesTransmitter& clientMessagesTransmitter
 ) :
     face(face),
     clientMessagesTransmitter(clientMessagesTransmitter),
-    rolling(false)
+    rolling(false),
+    turnController(Application::getContext().getTurnController())
 {
     game_assert(face >= 1 && face <= 6);
-    turnController = Application::getContext()->getTurnController();
 }
 
-void Dice::draw(const std::shared_ptr<GraphicsContext>& graphicsContext) {
+void Dice::draw(GraphicsContext& graphicsContext) {
     static uint32_t diceTextureIdOffset = 7;
 
     SDL_Rect dst = {
@@ -22,11 +22,11 @@ void Dice::draw(const std::shared_ptr<GraphicsContext>& graphicsContext) {
         64
     };
 
-    graphicsContext->getTextureLoader()
-        ->loadTexture(face + diceTextureIdOffset)
-        ->draw(graphicsContext->getRenderer(), NULL, &dst);
+    graphicsContext.getTextureLoader()
+        .loadTexture(face + diceTextureIdOffset)
+        ->draw(graphicsContext.getRenderer(), NULL, &dst);
 
-    for(auto [_, buttons] : actions) {
+    for(auto& [_, buttons] : actions) {
         for(auto const& button : buttons) {
             button->draw(graphicsContext);
         }
@@ -38,7 +38,7 @@ void Dice::handleClickEvent(int mouseX, int mouseY) {
         return;
     }
 
-    for(auto [_, buttons] : actions) {
+    for(auto& [_, buttons] : actions) {
         for(auto const& button : buttons) {
             button->handleClickEvent(mouseX, mouseY);
         }
@@ -46,7 +46,7 @@ void Dice::handleClickEvent(int mouseX, int mouseY) {
 }
 
 void Dice::removeAction(int id) {
-    for(auto [actionId, buttons] : actions) {
+    for(auto& [actionId, buttons] : actions) {
         if(actionId == id) {
             for(auto const& button : buttons) {
                 if(!button->getIsDisabled()) {
@@ -66,7 +66,7 @@ void Dice::roll(int participantId) {
     actionsFromServer.clear();
     actions.clear();
     
-    clientMessagesTransmitter->sendActionsRollMessage(participantId);
+    clientMessagesTransmitter.sendActionsRollMessage(participantId);
 
     rolling = true;
     std::thread t(&Dice::rollFunc, this, 3);
@@ -101,31 +101,31 @@ void Dice::rollFunc(int seconds) {
         auto buttonTypeId = actionsFromServer[i];//randomRange(0, 2);
 
         if(buttonTypeId == 0) {
-            auto moveButton = std::make_shared<Button>(14, glm::ivec2{900, (i * 70) + 50}, glm::ivec2{64, 64});
+            auto moveButton = std::make_unique<Button>(14, glm::ivec2{900, (i * 70) + 50}, glm::ivec2{64, 64});
             moveButton->onClick([]{
                 std::cout << "Move clicked" << std::endl;
             });
-            actions[buttonTypeId].push_back(moveButton);
+            actions[buttonTypeId].push_back(std::move(moveButton));
             numMoveActions++;
         }
         else if(buttonTypeId == 1) {
-            auto shootButton = std::make_shared<Button>(15, glm::ivec2{900, (i * 70) + 50}, glm::ivec2{64, 64});
+            auto shootButton = std::make_unique<Button>(15, glm::ivec2{900, (i * 70) + 50}, glm::ivec2{64, 64});
             shootButton->onClick([]{
                 std::cout << "Shoot clicked" << std::endl;
             });
-            actions[buttonTypeId].push_back(shootButton);
+            actions[buttonTypeId].push_back(std::move(shootButton));
             numAttackActions++;
         }
         else if(buttonTypeId == 2) {
-            auto freezeButton = std::make_shared<Button>(16, glm::ivec2{900, (i * 70) + 50}, glm::ivec2{64, 64});
+            auto freezeButton = std::make_unique<Button>(16, glm::ivec2{900, (i * 70) + 50}, glm::ivec2{64, 64});
             freezeButton->onClick([]{
                 std::cout << "Freeze clicked" << std::endl;
             });
-            actions[buttonTypeId].push_back(freezeButton);
+            actions[buttonTypeId].push_back(std::move(freezeButton));
         }
     }
 
-    turnController->setActions(0, 
+    turnController.setActions(0, 
         {
             { TurnController::Action::Move, numMoveActions },
             { TurnController::Action::Attack, numAttackActions }

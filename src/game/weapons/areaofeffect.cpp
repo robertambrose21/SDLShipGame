@@ -2,7 +2,7 @@
 #include "game/application/application.h"
 
 AreaOfEffect::AreaOfEffect(
-    const std::shared_ptr<Grid>& grid,
+    Grid& grid,
     uint32_t textureId,
     int ownerId,
     int liveTurn,
@@ -16,15 +16,14 @@ AreaOfEffect::AreaOfEffect(
     position(position),
     stats(stats)
 {
-    effectedTilePositions = grid->getTilesInCircle(position.x, position.y, stats.radius);
+    effectedTilePositions = grid.getTilesInCircle(position.x, position.y, stats.radius);
 
     apply();
 }
 
-void AreaOfEffect::draw(const std::shared_ptr<GraphicsContext>& graphicsContext) {
-    game_assert(graphicsContext != nullptr);
+void AreaOfEffect::draw(GraphicsContext& graphicsContext) {
     for(auto const& position : effectedTilePositions) {
-        graphicsContext->getGridRenderer()->draw(graphicsContext, textureId, position);
+        graphicsContext.getGridRenderer().draw(graphicsContext, textureId, position);
     }
 }
 
@@ -33,7 +32,7 @@ void AreaOfEffect::update(uint32_t timeSinceLastFrame) {
 }
 
 void AreaOfEffect::apply(void) {
-    auto entities = Application::getContext()->getEntityPool()->getEntities();
+    auto entities = Application::getContext().getEntityPool().getEntities();
     auto effectedEntities = Entity::filterByTiles(effectedTilePositions, entities, ownerId);
 
     for(auto const& entity : effectedEntities) {

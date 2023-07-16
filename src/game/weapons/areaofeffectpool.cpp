@@ -1,15 +1,15 @@
 #include "areaofeffectpool.h"
 
 AreaOfEffectPool::AreaOfEffectPool(
-    const std::shared_ptr<TurnController>& turnController, 
-    const std::shared_ptr<Grid>& grid
+    TurnController& turnController, 
+    Grid& grid
 ) :
     turnController(turnController),
     grid(grid)
 {
     loadAoeDefinitions();
 
-    turnController->addOnNextTurnFunction([&](auto const& currentParticipant, auto const& turnNumber) {
+    turnController.addOnNextTurnFunction([&](auto const& currentParticipant, auto const& turnNumber) {
         for(auto&& [_, aoe]  : aoeObjects) {
             aoe->onNextTurn(currentParticipant, turnNumber);
         }
@@ -43,7 +43,7 @@ void AreaOfEffectPool::add(const std::string& name, int ownerId, int turnNumber,
     game_assert(aoeDefinitions.contains(name));
     auto const& definition = aoeDefinitions[name];
     aoeObjects.push_back(
-        std::make_pair(turnController->getTurnNumber(),
+        std::make_pair(turnController.getTurnNumber(),
             std::make_unique<AreaOfEffect>(
                 grid,
                 definition.textureId,
@@ -56,26 +56,26 @@ void AreaOfEffectPool::add(const std::string& name, int ownerId, int turnNumber,
     );
 }
 
-void AreaOfEffectPool::draw(const std::shared_ptr<GraphicsContext>& graphicsContext) {
+void AreaOfEffectPool::draw(GraphicsContext& graphicsContext) {
     for(auto&& [_, aoe] : aoeObjects) {
         aoe->draw(graphicsContext);
     }
 }
 
 void AreaOfEffectPool::update(uint32_t timeSinceLastFrame) {
-    for(auto i = 0; i < aoeObjects.size(); i++) {
-        auto&& [startTurn, areaOfEffect] = aoeObjects[i];
-
-        areaOfEffect->update(timeSinceLastFrame);
-
-        if(turnController->getTurnNumber() - startTurn >= areaOfEffect->getStats().turns) {
-            aoeObjectsForDeletion.push_back(i);
-        }
-    }
-
     for(auto const& index : aoeObjectsForDeletion) {
         aoeObjects.erase(aoeObjects.begin() + index);
     }
     
     aoeObjectsForDeletion.clear();
+
+    for(auto i = 0; i < aoeObjects.size(); i++) {
+        auto&& [startTurn, areaOfEffect] = aoeObjects[i];
+
+        areaOfEffect->update(timeSinceLastFrame);
+
+        if(turnController.getTurnNumber() - startTurn >= areaOfEffect->getStats().turns) {
+            aoeObjectsForDeletion.push_back(i);
+        }
+    }
 }

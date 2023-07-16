@@ -25,12 +25,12 @@ private:
     glm::ivec2 dimensions;
 
     void loadFromFile(const std::string& path);
-    void setMessage(const std::shared_ptr<SDL_Renderer>& renderer, const std::string& message);
+    void setMessage(SDL_Renderer* renderer, const std::string& message);
 
 public:
     Text(const std::string& path, const glm::ivec2& position);
 
-    void draw(const std::shared_ptr<SDL_Renderer>& renderer, const std::string& message);
+    void draw(SDL_Renderer* renderer, const std::string& message);
 
     void setPosition(const glm::ivec2& position);
     glm::ivec2 getPosition(void) const;

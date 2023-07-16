@@ -7,7 +7,7 @@
 
 class BehaviourStrategy {
 protected:
-    // std::shared_ptr<Entity> owner;
+    // Entity* owner;
     int participantId;
 
 public:

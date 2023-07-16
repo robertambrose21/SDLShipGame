@@ -26,27 +26,27 @@ public:
 protected:
     uint32_t id;
     std::string name;
-    std::shared_ptr<Entity> owner;
+    Entity* owner;
     Stats stats;
 
     int usesLeft;
 
-    std::shared_ptr<Grid> grid;
+    Grid& grid;
 
     virtual bool onUse(const glm::ivec2& position, const glm::ivec2& target) = 0;
 
 public:
     Weapon(
-        const std::shared_ptr<Entity>& owner,
-        const std::shared_ptr<Grid>& grid,
+        Entity* owner,
+        Grid& grid,
         uint32_t id,
         const std::string& name, 
         const Stats& stats
     );
 
     Weapon(
-        const std::shared_ptr<Entity>& owner,
-        const std::shared_ptr<Grid>& grid, 
+        Entity* owner,
+        Grid& grid, 
         const std::string& name, 
         const Stats& stats
     );
@@ -56,7 +56,7 @@ public:
     void setFinished(void);
     bool isInRange(const glm::ivec2& position);
 
-    virtual void draw(const std::shared_ptr<GraphicsContext>& graphicsContext) = 0;
+    virtual void draw(GraphicsContext& graphicsContext) = 0;
     virtual void update(uint32_t timeSinceLastFrame) = 0;
     virtual bool hasFinished(void);
     virtual Type getType(void) const = 0;
@@ -67,5 +67,5 @@ public:
 
     uint32_t getId(void) const;
     std::string getName(void) const;
-    std::shared_ptr<Entity> getOwner(void);
+    Entity* getOwner(void);
 };

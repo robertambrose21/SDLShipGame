@@ -14,8 +14,8 @@
 // TODO: Ensure participants are validated
 class GameServerMessagesReceiver : public ServerMessagesReceiver {
 private:
-    std::shared_ptr<ApplicationContext> context;
-    std::shared_ptr<GameServerMessagesTransmitter> transmitter;
+    ApplicationContext& context;
+    GameServerMessagesTransmitter* transmitter;
 
     std::map<int, std::set<int>> clientParticipantsLoaded;
 
@@ -38,9 +38,9 @@ private:
     void receiveActionsRollMessage(int clientIndex, int participantId);
 
 public:
-    GameServerMessagesReceiver(const std::shared_ptr<ApplicationContext>& context);
+    GameServerMessagesReceiver(ApplicationContext& context);
 
-    void setTransmitter(const std::shared_ptr<GameServerMessagesTransmitter>& transmitter);
+    void setTransmitter(GameServerMessagesTransmitter* transmitter);
 
     void receiveMessage(int clientIndex, yojimbo::Message* message) override;
     bool areParticipantsLoadedForClient(int clientIndex);

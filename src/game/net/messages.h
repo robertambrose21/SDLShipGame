@@ -28,8 +28,8 @@ struct WeaponStateUpdate {
         memset(this, 0, sizeof(WeaponStateUpdate));
     }
 
-    static WeaponStateUpdate serialize(const std::shared_ptr<Weapon>& weapon);
-    static std::shared_ptr<Weapon> deserialize(const WeaponStateUpdate& update, const std::shared_ptr<Weapon>& existing);
+    static WeaponStateUpdate serialize(Weapon* weapon);
+    static Weapon* deserialize(const WeaponStateUpdate& update, Weapon* existing);
 };
 
 // TODO: Send weapon state updates separately if entity has more than the max number of weapons
@@ -50,8 +50,8 @@ struct EntityStateUpdate {
         memset(this, 0, sizeof(EntityStateUpdate));
     }
 
-    static EntityStateUpdate serialize(const std::shared_ptr<Entity>& entity);
-    static std::shared_ptr<Entity> deserialize(const EntityStateUpdate& update, const std::shared_ptr<Entity>& existing);
+    static EntityStateUpdate serialize(Entity* entity);
+    static void deserialize(const EntityStateUpdate& update, Entity* existing);
 };
 
 struct GameStateUpdate {
@@ -65,13 +65,13 @@ struct GameStateUpdate {
 
     static GameStateUpdate serialize(
         int currentParticipant, 
-        const std::map<uint32_t, std::shared_ptr<Entity>>& entities
+        const std::vector<Entity*>& entities
     ) {
         GameStateUpdate update;
         update.numEntities = entities.size();
 
         int index = 0;
-        for(auto [_, entity] : entities) {
+        for(auto entity : entities) {
             update.entities[index++] = EntityStateUpdate::serialize(entity);
         }
 

@@ -17,29 +17,28 @@ private:
     int tileSize;
 
     std::map<int, uint32_t> tileTextures;
-    std::shared_ptr<Grid> grid;
+    Grid& grid;
 
-    std::shared_ptr<Camera> camera;
+    std::unique_ptr<Camera> camera;
 
 public:
-    GridRenderer(const std::shared_ptr<Grid>& grid, int windowHeight);
+    GridRenderer(Grid& grid, int windowHeight);
 
     void setTileTexture(int tileId, uint32_t textureId);
-    void draw(const std::shared_ptr<GraphicsContext>& graphicsContext);
-    void draw(const std::shared_ptr<GraphicsContext>& graphicsContext, uint32_t textureId, const glm::ivec2& position);
+    void draw(GraphicsContext& graphicsContext);
+    void draw(GraphicsContext& graphicsContext, uint32_t textureId, const glm::ivec2& position);
     void draw(
-        const std::shared_ptr<GraphicsContext>& graphicsContext,
+        GraphicsContext& graphicsContext,
         uint32_t textureId,
         const Texture::Colour& colour,
         const uint8_t alpha,
         const glm::ivec2& position
     );
 
-    std::shared_ptr<Camera> getCamera(void);
+    Grid& getGrid(void);
+    Camera& getCamera(void);
 
     glm::ivec2 getTilePosition(int x, int y) const;
     std::pair<int, int> getTileIndices(const glm::ivec2& position) const;
     int getTileSize(void) const;
-
-    std::shared_ptr<Grid> getGrid(void);
 };

@@ -2,14 +2,14 @@
 #include "game/application/application.h"
 
 Projectile::Projectile(
-    const std::shared_ptr<Grid>& grid,
+    Grid& grid,
     uint32_t textureId,
     int ownerId,
     const glm::ivec2& startPosition,
     const glm::ivec2& target,
     const Stats& stats,
     int weaponBaseDamage,
-    std::function<void(const std::shared_ptr<Grid>&, int, const glm::ivec2&, int)> onHitCallback
+    std::function<void(Grid&, int, const glm::ivec2&, int)> onHitCallback
 ) :
     grid(grid),
     textureId(textureId),
@@ -24,9 +24,8 @@ Projectile::Projectile(
     distanceToTarget = glm::distance(glm::vec2(target), glm::vec2(startPosition));
 }
 
-void Projectile::draw(const std::shared_ptr<GraphicsContext>& graphicsContext) {
-    game_assert(graphicsContext != nullptr);
-    graphicsContext->getGridRenderer()->draw(graphicsContext, textureId, position);
+void Projectile::draw(GraphicsContext& graphicsContext) {
+    graphicsContext.getGridRenderer().draw(graphicsContext, textureId, position);
 }
 
 void Projectile::update(uint32_t timeSinceLastFrame) {
@@ -48,7 +47,7 @@ void Projectile::doHit(const glm::ivec2& position) {
     auto entity = Entity::filterByTile(
         position.x, 
         position.y, 
-        Application::getContext()->getEntityPool()->getEntities(), 
+        Application::getContext().getEntityPool().getEntities(), 
         ownerId
     );
 
@@ -87,13 +86,13 @@ void Projectile::doHit(const glm::ivec2& position) {
             if(effect.name == "freeze") {
                 glm::ivec2 dir = startPosition - target;
                 auto perp = glm::normalize(glm::vec2(dir.y, -dir.x));
-                auto pX = std::min(grid->getWidth() - 1, (int) std::round(perp.x));
-                auto pY = std::min(grid->getHeight() - 1, (int) std::round(perp.y));
+                auto pX = std::min(grid.getWidth() - 1, (int) std::round(perp.x));
+                auto pY = std::min(grid.getHeight() - 1, (int) std::round(perp.y));
 
                 // TODO: Colour/unfreeze tiles after some time
-                grid->setTileFrozenFor(position.x, position.y, effect.duration);
-                grid->setTileFrozenFor(position.x + pX, position.y + pY, effect.duration);
-                grid->setTileFrozenFor(position.x - pX, position.y - pY, effect.duration);
+                grid.setTileFrozenFor(position.x, position.y, effect.duration);
+                grid.setTileFrozenFor(position.x + pX, position.y + pY, effect.duration);
+                grid.setTileFrozenFor(position.x - pX, position.y - pY, effect.duration);
             }
         }
     }

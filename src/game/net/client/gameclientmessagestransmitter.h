@@ -6,10 +6,10 @@
 
 class GameClientMessagesTransmitter {
 private:
-    std::shared_ptr<GameClient> client;
+    GameClient& client;
 
 public:
-    GameClientMessagesTransmitter(const std::shared_ptr<GameClient>& client);
+    GameClientMessagesTransmitter(GameClient& client);
 
     void sendActionsRollMessage(int participantId);
     void sendFindPathMessage(

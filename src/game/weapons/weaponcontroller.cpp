@@ -1,7 +1,7 @@
 #include "weaponcontroller.h"
 #include "projectileweapon.h"
 
-WeaponController::WeaponController(const std::shared_ptr<Grid>& grid, const std::shared_ptr<ProjectilePool>& projectilePool) :
+WeaponController::WeaponController(Grid& grid, ProjectilePool& projectilePool) :
     grid(grid),
     projectilePool(projectilePool)
 {
@@ -35,26 +35,26 @@ void WeaponController::loadWeaponDefinitions(void) {
     }
 }
 
-std::shared_ptr<Weapon> WeaponController::createWeapon(
+std::unique_ptr<Weapon> WeaponController::createWeapon(
     uint32_t id, 
     const std::string& name, 
-    const std::shared_ptr<Entity>& owner
+    Entity* owner
 ) {
     game_assert(weaponDefinitions.contains(name));
     auto definition = weaponDefinitions[name];
     
     if(definition.weaponClass == "Projectile") {
-        return std::make_shared<ProjectileWeapon>(
+        return std::make_unique<ProjectileWeapon>(
             owner,
             grid,
             id,
             definition.name,
             Weapon::Stats { definition.damage, definition.range, definition.uses },
-            projectilePool->create(definition.projectile)
+            projectilePool.create(definition.projectile)
         );
     }
     else if(definition.weaponClass == "Melee") {
-        return std::make_shared<MeleeWeapon>(
+        return std::make_unique<MeleeWeapon>(
             owner,
             grid,
             id,
@@ -66,6 +66,6 @@ std::shared_ptr<Weapon> WeaponController::createWeapon(
     throw std::runtime_error("Could not create weapon of class \"" + definition.weaponClass + "\"");
 }
 
-std::shared_ptr<Weapon> WeaponController::createWeapon(const std::string& name, const std::shared_ptr<Entity>& owner) {
+std::unique_ptr<Weapon> WeaponController::createWeapon(const std::string& name, Entity* owner) {
     return createWeapon(getNewId(), name, owner);
 }

@@ -9,10 +9,10 @@ Panel::Panel(const glm::ivec2& position, const glm::ivec2& size) :
     a(0xFF)
 { }
 
-void Panel::draw(const std::shared_ptr<SDL_Renderer>& renderer) {
+void Panel::draw(SDL_Renderer* renderer) {
     SDL_Rect rect = { position.x, position.y, size.x, size.y };
-    SDL_SetRenderDrawColor(renderer.get(), r, g, b, a);
-    SDL_RenderFillRect(renderer.get(), &rect);
+    SDL_SetRenderDrawColor(renderer, r, g, b, a);
+    SDL_RenderFillRect(renderer, &rect);
 }
 
 void Panel::setPosition(const glm::ivec2& position) {

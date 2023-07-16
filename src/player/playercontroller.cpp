@@ -1,24 +1,24 @@
 #include "playercontroller.h"
 
 PlayerController::PlayerController(
-    const std::shared_ptr<GameClientMessagesTransmitter>& clientMessagesTransmitter,
-    const std::shared_ptr<ApplicationContext>& context
+    GameClientMessagesTransmitter& clientMessagesTransmitter,
+    ApplicationContext& context
 ) :
     clientMessagesTransmitter(clientMessagesTransmitter),
-    grid(context->getGraphicsContext()->getGridRenderer()),
-    entityPool(context->getEntityPool()),
-    turnController(context->getTurnController()),
+    gridRenderer(context.getGraphicsContext().getGridRenderer()),
+    turnController(context.getTurnController()),
+    entityPool(context.getEntityPool()),
+    camera(context.getGraphicsContext().getGridRenderer().getCamera()),
     isLeftShiftPressed(false),
     cameraVector(glm::ivec2(0, 0))
 {
-    dice = std::make_shared<Dice>(3, clientMessagesTransmitter);
-    camera = context->getGraphicsContext()->getGridRenderer()->getCamera();
-    playerPanel = std::make_shared<PlayerPanel>(1920, 1080);
-    text = std::make_shared<Text>("../assets/fonts/RobotoMono-SemiBold.ttf", glm::ivec2(300, 300));
+    dice = std::make_unique<Dice>(3, clientMessagesTransmitter);
+    playerPanel = std::make_unique<PlayerPanel>(1920, 1080);
+    text = std::make_unique<Text>("../assets/fonts/RobotoMono-SemiBold.ttf", glm::ivec2(300, 300));
 }
 
 void PlayerController::update(uint32_t timeSinceLastFrame) {
-    camera->move(cameraVector * (int) timeSinceLastFrame);
+    camera.move(cameraVector * (int) timeSinceLastFrame);
 
     for(auto entity : selectedEntities) {
         if(entity == nullptr || entity->getCurrentHP() <= 0) {
@@ -27,18 +27,18 @@ void PlayerController::update(uint32_t timeSinceLastFrame) {
     }
 }
 
-void PlayerController::draw(const std::shared_ptr<GraphicsContext>& graphicsContext) {
+void PlayerController::draw(GraphicsContext& graphicsContext) {
     dice->draw(graphicsContext);
-    playerPanel->draw(graphicsContext->getRenderer());
-    text->draw(graphicsContext->getRenderer(), "Hello");
+    playerPanel->draw(graphicsContext.getRenderer());
+    text->draw(graphicsContext.getRenderer(), "Hello");
 }
 
 void PlayerController::handleKeyPress(const SDL_Event& event) {
     if(event.type == SDL_KEYDOWN && event.key.repeat == 0) {
         switch(event.key.keysym.sym) {
             case SDLK_p: {
-                clientMessagesTransmitter->sendPassParticipantTurnMessage(participant->id);
-                Application::getContext()->getTurnController()->passParticipant(participant->id);
+                clientMessagesTransmitter.sendPassParticipantTurnMessage(participant->id);
+                Application::getContext().getTurnController().passParticipant(participant->id);
                 break;
             }
 
@@ -103,7 +103,7 @@ void PlayerController::handleKeyPress(const SDL_Event& event) {
 
 void PlayerController::handleMouseEvent(const SDL_Event& event) {
     if(event.type == SDL_MOUSEBUTTONDOWN) {
-        auto [x, y] = grid->getTileIndices(glm::ivec2(event.button.x, event.button.y));
+        auto [x, y] = gridRenderer.getTileIndices(glm::ivec2(event.button.x, event.button.y) - camera.getPosition());
 
         switch(event.button.button) {
             case SDL_BUTTON_LEFT: {
@@ -117,20 +117,20 @@ void PlayerController::handleMouseEvent(const SDL_Event& event) {
         
 
             case SDL_BUTTON_RIGHT: {
-                auto const& target = Entity::filterByTile(x, y, entityPool->getEntities());
+                auto const& target = Entity::filterByTile(x, y, entityPool.getEntities());
                 auto position = glm::ivec2(x, y);
 
                 if(target != nullptr || isLeftShiftPressed) {
                     for(auto const& entity : selectedEntities) {
                         auto const& weapon = entity->getCurrentWeapon();
 
-                        clientMessagesTransmitter->sendAttackMessage(
+                        clientMessagesTransmitter.sendAttackMessage(
                             entity->getId(), 
                             position, 
                             weapon->getId()
                         );
                         
-                        if(turnController->performAttackAction(entity, weapon, position)) {
+                        if(turnController.performAttackAction(entity, weapon, position)) {
                             // TODO: Bug
                             dice->removeAction(1);
                         }
@@ -146,12 +146,12 @@ void PlayerController::handleMouseEvent(const SDL_Event& event) {
     }
 }
 
-void PlayerController::toggleSelection(const std::shared_ptr<Entity>& entity) {
+void PlayerController::toggleSelection(Entity* entity) {
     if(entity == nullptr) {
         return;
     }
 
-    clientMessagesTransmitter->sendSelectEntityMessage(entity->getId());
+    clientMessagesTransmitter.sendSelectEntityMessage(entity->getId());
 
     if(entity->isSelected()) {
         selectedEntities.erase(std::find(selectedEntities.begin(), selectedEntities.end(), entity));
@@ -165,23 +165,23 @@ void PlayerController::toggleSelection(const std::shared_ptr<Entity>& entity) {
 
 void PlayerController::move(const glm::ivec2& position) {
     for(auto const& entity : selectedEntities) {
-        clientMessagesTransmitter->sendFindPathMessage(entity->getId(), position, 0);
-        if(turnController->performMoveAction(entity, position)) {
+        clientMessagesTransmitter.sendFindPathMessage(entity->getId(), position, 0);
+        if(turnController.performMoveAction(entity, position)) {
             dice->removeAction(0);
         }
     }
 }
 
-const std::vector<std::shared_ptr<Entity>>& PlayerController::getSelectedEntities(void) const {
+const std::vector<Entity*>& PlayerController::getSelectedEntities(void) const {
     return selectedEntities;
 }
 
-void PlayerController::setParticipant(const std::shared_ptr<TurnController::Participant>& participant) {
+void PlayerController::setParticipant(TurnController::Participant* participant) {
     game_assert(participant != nullptr);
     game_assert(participant->isPlayer);
     this->participant = participant;
 }
 
-std::shared_ptr<Dice> PlayerController::getDice(void) {
-    return dice;
+Dice& PlayerController::getDice(void) {
+    return *dice;
 }

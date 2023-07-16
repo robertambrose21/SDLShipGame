@@ -1,7 +1,7 @@
 #include "textureloader.h"
 
-Texture::Texture(const std::shared_ptr<SDL_Texture>& texture, const std::string& id) :
-    texture(texture),
+Texture::Texture(std::unique_ptr<SDL_Texture, sdl_deleter> texture, const std::string& id) :
+    texture(std::move(texture)),
     id(id),
     colour({ 0xFF, 0xFF, 0xFF }),
     alpha(0xFF)
@@ -12,7 +12,7 @@ std::string Texture::getId(void) const {
 }
 
 void Texture::draw(
-    const std::shared_ptr<SDL_Renderer>& renderer,
+    SDL_Renderer* renderer,
     const SDL_Rect* srcRect,
     const SDL_Rect* dstRect
 ) {
@@ -20,7 +20,7 @@ void Texture::draw(
 }
 
 void Texture::draw(
-    const std::shared_ptr<SDL_Renderer>& renderer,
+    SDL_Renderer* renderer,
     const Colour& colour,
     uint8_t alpha,
     const SDL_Rect* srcRect,
@@ -28,7 +28,7 @@ void Texture::draw(
 ) {
     SDL_SetTextureAlphaMod(texture.get(), alpha);
     SDL_SetTextureColorMod(texture.get(), colour.r, colour.g, colour.b);
-    SDL_RenderCopy(renderer.get(), texture.get(), srcRect, dstRect);
+    SDL_RenderCopy(renderer, texture.get(), srcRect, dstRect);
 }
 
 void Texture::setColour(const Colour& colour) {
@@ -47,7 +47,10 @@ uint8_t Texture::getAlpha(void) const {
     return alpha;
 }
 
-TextureLoader::TextureLoader(const std::shared_ptr<SDL_Renderer>& renderer) :
+TextureLoader::TextureLoader()
+{ }
+
+TextureLoader::TextureLoader(SDL_Renderer* renderer) :
     renderer(renderer)
 {
     std::ifstream f("../assets/data/textures/textures.json");
@@ -67,36 +70,38 @@ TextureLoader::TextureLoader(const std::shared_ptr<SDL_Renderer>& renderer) :
     game_assert(availableTextures.size() == texturesData.size());
 }
 
-std::shared_ptr<Texture> TextureLoader::loadTexture(uint32_t id) {
+Texture* TextureLoader::loadTexture(uint32_t id) {
+    if(!availableTextures.contains(id)) {
+        throw TextureLoaderException("Unable to create texture from id \'" + std::to_string(id) 
+            + "\': id is not associated with any available textures");
+    }
+
     return loadTexture(availableTextures[id].path);
 }
 
-std::shared_ptr<Texture> TextureLoader::loadTexture(const std::string& path) {
+Texture* TextureLoader::loadTexture(const std::string& path) {
     if(loadedTextures.contains(path)) {
-        return loadedTextures[path];
+        return loadedTextures[path].get();
     }
 
-    auto surface = std::unique_ptr<SDL_Surface, sdl_deleter>(
-        IMG_Load(path.c_str()),
-        sdl_deleter()
-    );
+    auto surface = IMG_Load(path.c_str());
 
     if(surface == nullptr) {
         throw TextureLoaderException("Unable to load image: \'" + path + "\': " + SDL_GetError());
     }
 
-    auto texture = std::unique_ptr<SDL_Texture, sdl_deleter>(
-        SDL_CreateTextureFromSurface(renderer.get(), surface.get()),
-        sdl_deleter()
+    auto texture = std::unique_ptr<SDL_Texture, Texture::sdl_deleter>(
+        SDL_CreateTextureFromSurface(renderer, surface),
+        Texture::sdl_deleter()
     );
 
     if(texture == nullptr) {
         throw TextureLoaderException("Unable to create texture from \'" + path + "\': " + SDL_GetError());
     }
 
-    loadedTextures[path] = std::make_shared<Texture>(std::move(texture), path);
+    loadedTextures[path] = std::make_unique<Texture>(std::move(texture), path);
 
-    SDL_FreeSurface(surface.get());
+    SDL_FreeSurface(surface);
 
-    return loadedTextures[path];
+    return loadedTextures[path].get();
 }

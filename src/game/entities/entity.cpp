@@ -10,13 +10,13 @@ Entity::Entity(
     name(name),
     stats(stats),
     currentStats(stats),
+    grid(Application::getContext().getGrid()),
     position({ 0, 0 }),
     timeSinceLastMoved(0),
     selected(false),
     frozenForNumTurns(0)
 {
-    grid = Application::getContext()->getGrid();
-    healthBar = std::make_shared<HealthBar>(stats.totalHP);
+    healthBar = std::make_unique<HealthBar>(stats.totalHP);
 }
 
 Entity::Entity(
@@ -46,10 +46,8 @@ Entity::Colour Entity::getColour(void) const {
     return colour;
 }
 
-void Entity::draw(const std::shared_ptr<GraphicsContext>& graphicsContext) {
-    game_assert(graphicsContext != nullptr);
-
-    graphicsContext->getGridRenderer()->draw(
+void Entity::draw(GraphicsContext& graphicsContext) {
+    graphicsContext.getGridRenderer().draw(
         graphicsContext,
         textureId,
         { colour.r, colour.g, colour.b },
@@ -58,29 +56,29 @@ void Entity::draw(const std::shared_ptr<GraphicsContext>& graphicsContext) {
     );
 
     if(selected) {
-        graphicsContext->getGridRenderer()->draw(graphicsContext, selectedTextureId, position);
+        graphicsContext.getGridRenderer().draw(graphicsContext, selectedTextureId, position);
     }
 
-    for(auto [_, weapon] : weapons) {
+    for(auto& [_, weapon] : weapons) {
         weapon->draw(graphicsContext);
     }
 
     if(frozenForNumTurns > 0) {
-        auto const &realPosition = graphicsContext->getGridRenderer()->getTilePosition(position.x, position.y);
-        auto const &size = graphicsContext->getGridRenderer()->getTileSize();
+        auto const &realPosition = graphicsContext.getGridRenderer().getTilePosition(position.x, position.y);
+        auto const &size = graphicsContext.getGridRenderer().getTileSize();
 
         SDL_Rect frozen = { realPosition.x, realPosition.y, size, size };
 
-        SDL_SetRenderDrawBlendMode(graphicsContext->getRenderer().get(), SDL_BLENDMODE_BLEND);
-        SDL_SetRenderDrawColor(graphicsContext->getRenderer().get(), 0x00, 0xFF, 0xFF, 0x7F);
-        SDL_RenderFillRect(graphicsContext->getRenderer().get(), &frozen);
+        SDL_SetRenderDrawBlendMode(graphicsContext.getRenderer(), SDL_BLENDMODE_BLEND);
+        SDL_SetRenderDrawColor(graphicsContext.getRenderer(), 0x00, 0xFF, 0xFF, 0x7F);
+        SDL_RenderFillRect(graphicsContext.getRenderer(), &frozen);
     }
 
     healthBar->draw(graphicsContext, position, currentStats.totalHP);
 }
 
 void Entity::update(uint32_t timeSinceLastFrame, bool& quit) {
-    for(auto [_, weapon] : weapons) {
+    for(auto& [_, weapon] : weapons) {
         weapon->update(timeSinceLastFrame);
     }
 
@@ -138,41 +136,49 @@ void Entity::takeDamage(int amount) {
     currentStats.totalHP -= amount;
 }
 
-void Entity::attack(const glm::ivec2& target, const std::shared_ptr<Weapon>& weapon) {
-    weapon->use(position, target);
+void Entity::attack(const glm::ivec2& target, uint32_t weaponId) {
+    weapons[weaponId]->use(position, target);
 }
 
-std::map<uint32_t, std::shared_ptr<Weapon>> Entity::getWeapons(void) const {
-    return weapons;
+std::vector<Weapon*> Entity::getWeapons(void) const {
+    std::vector<Weapon*> vWeapons;
+    
+    for(auto& [_, weapon] : weapons) {
+        if(weapon != nullptr) {
+            vWeapons.push_back(weapon.get());
+        }
+    }
+
+    return vWeapons;
 }
 
-std::shared_ptr<Weapon> Entity::getWeapon(uint32_t weaponId) {
-    game_assert(weapons.contains(weaponId));
-    return weapons[weaponId];
+Weapon* Entity::getWeapon(uint32_t weaponId) {
+    return weapons[weaponId].get();
 }
 
 bool Entity::hasWeapon(uint32_t weaponId) {
     return weapons.contains(weaponId);
 }
 
-std::shared_ptr<Weapon> Entity::addWeapon(const std::shared_ptr<Weapon>& weapon) {
-    weapons[weapon->getId()] = weapon;
-    return weapon;
+Weapon* Entity::addWeapon(std::unique_ptr<Weapon> weapon) {
+    auto id = weapon->getId();
+    weapons[id] = std::move(weapon);
+    return weapons[id].get();
 }
 
-void Entity::removeWeapon(const std::string& name) {
-    for(auto [weaponId, weapon] : weapons) {
-        if(weapon->getName() == name) {
-            weapons.erase(weaponId);
-        }
-    }
+void Entity::removeWeapon(uint32_t weaponId) {
+    weapons.erase(weaponId);
 }
 
-void Entity::setCurrentWeapon(const std::shared_ptr<Weapon>& weapon) {
-    currentWeapon = weapon;
+void Entity::removeAllWeapons(void) {
+    weapons.clear();
 }
 
-std::shared_ptr<Weapon> Entity::getCurrentWeapon(void) {
+void Entity::setCurrentWeapon(uint32_t weaponId) {
+    currentWeapon = weapons[weaponId].get();
+}
+
+Weapon* Entity::getCurrentWeapon(void) {
     return currentWeapon;
 }
 
@@ -206,7 +212,7 @@ void Entity::setPosition(const glm::ivec2& position) {
 
 int Entity::findPath(const glm::ivec2& target, int stopShortSteps) {
     auto startTime = SDL_GetTicks();
-    auto path = grid->findPath(getPosition(), target);
+    auto path = grid.findPath(getPosition(), target);
 
     if(path.empty()) {
         return false;
@@ -248,7 +254,7 @@ bool Entity::hasPath(void) {
     return !path.empty();
 }
 
-bool Entity::isNeighbour(const std::shared_ptr<Entity>& entity) const {
+bool Entity::isNeighbour(Entity* entity) const {
     return glm::distance(glm::vec2(getPosition()), glm::vec2(entity->getPosition())) < 2;
 }
 
@@ -261,7 +267,7 @@ void Entity::setMovesLeft(int movesLeft) {
 }
 
 bool Entity::isTurnInProgress(void) const {
-    return !currentWeapon->hasFinished();
+    return currentWeapon != nullptr && !currentWeapon->hasFinished();
 }
 
 void Entity::useMoves(int numMoves) {
@@ -276,8 +282,10 @@ void Entity::nextTurn(void) {
     currentStats.movesLeft = stats.movesPerTurn;
     path.clear();
 
-    for(auto [_, weapon] : weapons) {
-        weapon->reset();
+    for(auto& [_, weapon] : weapons) {
+        if(weapon != nullptr) {
+            weapon->reset();
+        }
     }
 
     if(frozenForNumTurns > 0) {
@@ -303,7 +311,7 @@ void Entity::reset(void) {
     currentStats.totalHP = stats.totalHP;
     path.clear();
 
-    for(auto [_, weapon] : weapons) {
+    for(auto& [_, weapon] : weapons) {
         weapon->reset();
     }
 }

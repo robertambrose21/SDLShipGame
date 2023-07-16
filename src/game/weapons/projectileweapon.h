@@ -13,8 +13,8 @@ private:
 
 public:
     ProjectileWeapon(
-        const std::shared_ptr<Entity>& owner,
-        const std::shared_ptr<Grid>& grid,
+        Entity* owner,
+        Grid& grid,
         uint32_t id,
         const std::string& name, 
         const Stats& stats, 
@@ -22,14 +22,14 @@ public:
     );
 
     ProjectileWeapon(
-        const std::shared_ptr<Entity>& owner,
-        const std::shared_ptr<Grid>& grid, 
+        Entity* owner,
+        Grid& grid, 
         const std::string& name, 
         const Stats& stats, 
         const Projectile::Blueprint& projectileBlueprint
     );
     
-    void draw(const std::shared_ptr<GraphicsContext>& graphicsContext);
+    void draw(GraphicsContext& graphicsContext);
     void update(uint32_t timeSinceLastFrame);
     bool hasFinished(void);
     Type getType(void) const;

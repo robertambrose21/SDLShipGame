@@ -1,8 +1,8 @@
 #include "projectileweapon.h"
 
 ProjectileWeapon::ProjectileWeapon(
-    const std::shared_ptr<Entity>& owner,
-    const std::shared_ptr<Grid>& grid, 
+    Entity* owner,
+    Grid& grid, 
     uint32_t id,
     const std::string& name, 
     const Stats& stats,
@@ -13,8 +13,8 @@ ProjectileWeapon::ProjectileWeapon(
 { }
 
 ProjectileWeapon::ProjectileWeapon(
-    const std::shared_ptr<Entity>& owner,
-    const std::shared_ptr<Grid>& grid, 
+    Entity* owner,
+    Grid& grid, 
     const std::string& name, 
     const Stats& stats,
     const Projectile::Blueprint& projectileBlueprint
@@ -27,7 +27,7 @@ bool ProjectileWeapon::onUse(const glm::ivec2& position, const glm::ivec2& targe
         return false;
     }
 
-    Application::getContext()->getProjectilePool()->add(
+    Application::getContext().getProjectilePool().add(
         Projectile::create(grid, owner->getParticipantId(), projectileBlueprint, position, target, stats.damage),
         owner
     );
@@ -35,7 +35,7 @@ bool ProjectileWeapon::onUse(const glm::ivec2& position, const glm::ivec2& targe
     return true;
 }
 
-void ProjectileWeapon::draw(const std::shared_ptr<GraphicsContext>& graphicsContext) {
+void ProjectileWeapon::draw(GraphicsContext& graphicsContext) {
     // no-op
 }
 
@@ -52,9 +52,9 @@ Projectile::Blueprint ProjectileWeapon::getProjectileBluePrint(void) const {
 }
 
 bool ProjectileWeapon::hasFinished(void) {
-    auto activeProjectiles = Application::getContext()->getProjectilePool()->getProjectilesForOwner(owner);
+    auto activeProjectiles = Application::getContext().getProjectilePool().getNumProjectilesForOwner(owner);
 
-    return Weapon::hasFinished() && activeProjectiles.size() == 0;
+    return Weapon::hasFinished() && activeProjectiles == 0;
 }
 
 Weapon::Type ProjectileWeapon::getType(void) const {

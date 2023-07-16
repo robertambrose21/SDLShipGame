@@ -1,10 +1,10 @@
 #include "gameservermessagesreceiver.h"
 
-GameServerMessagesReceiver::GameServerMessagesReceiver(const std::shared_ptr<ApplicationContext>& context) :
+GameServerMessagesReceiver::GameServerMessagesReceiver(ApplicationContext& context) :
     context(context)
 { }
 
-void GameServerMessagesReceiver::setTransmitter(const std::shared_ptr<GameServerMessagesTransmitter>& transmitter) {
+void GameServerMessagesReceiver::setTransmitter(GameServerMessagesTransmitter* transmitter) {
     this->transmitter = transmitter;
 }
 
@@ -67,27 +67,27 @@ void GameServerMessagesReceiver::receiveFindPathMessage(
     const glm::ivec2& position,
     int shortStopSteps
 ) {
-    if(!context->getEntityPool()->hasEntity(entityId)) {
+    if(!context.getEntityPool().hasEntity(entityId)) {
         return;
     }
 
     // TODO: Get real participant
-    auto const& entities = context->getTurnController()->getParticipant(0)->entities;
+    auto const& entities = context.getTurnController().getParticipant(0)->entities;
 
     for(auto const& entity : entities) {
         if(entity->getId() == entityId) {
-            context->getTurnController()->performMoveAction(entity, position);
+            context.getTurnController().performMoveAction(entity, position);
             // entity->findPath(position, shortStopSteps);
         }
     }
 }
 
 void GameServerMessagesReceiver::receiveSelectEntityMessage(int clientIndex, uint32_t entityId) {
-    if(!context->getEntityPool()->hasEntity(entityId)) {
+    if(!context.getEntityPool().hasEntity(entityId)) {
         return;
     }
     
-    auto const& entity = context->getEntityPool()->getEntity(entityId);
+    auto const& entity = context.getEntityPool().getEntity(entityId);
 
     if(entity->getParticipantId() != 0) {
         return;
@@ -103,21 +103,21 @@ void GameServerMessagesReceiver::receieveAttackMessage(
     int y,
     uint32_t weaponId
 ) {
-    if(!context->getEntityPool()->hasEntity(entityId)) {
+    if(!context.getEntityPool().hasEntity(entityId)) {
         return;
     }
 
-    auto const& entity = context->getEntityPool()->getEntity(entityId);
+    auto const& entity = context.getEntityPool().getEntity(entityId);
 
     if(entity->getParticipantId() != 0) {
         return;
     }
 
-    // auto const& target = context->getEntityPool()->getEntity(targetId);
+    // auto const& target = context.getEntityPool().getEntity(targetId);
 
-    for(auto [_, weapon] : entity->getWeapons()) {
+    for(auto weapon : entity->getWeapons()) {
         if(weapon->getId() == weaponId) {
-            context->getTurnController()->performAttackAction(entity, weapon, glm::ivec2(x, y));
+            context.getTurnController().performAttackAction(entity, weapon, glm::ivec2(x, y));
         }
     }
 }
@@ -131,7 +131,7 @@ void GameServerMessagesReceiver::receivePassParticipantTurnMessage(
         return;
     }
 
-    context->getTurnController()->passParticipant(clientIndex);
+    context.getTurnController().passParticipant(clientIndex);
 }
 
 void GameServerMessagesReceiver::receiveSetParticipantAckMessage(int clientIndex, int participantId) {
@@ -145,7 +145,7 @@ void GameServerMessagesReceiver::receiveActionsRollMessage(int clientIndex, int 
 
     DiceActionResult dice;
 
-    for(auto [action, num] : context->getTurnController()->rollActions(participantId)) {
+    for(auto [action, num] : context.getTurnController().rollActions(participantId)) {
         for(int i = 0; i < num; i++) {
             dice.actions[i] = action;
             dice.rollNumber++;
@@ -162,15 +162,15 @@ bool GameServerMessagesReceiver::areParticipantsLoadedForClient(int clientIndex)
         return false;
     }
 
-    auto const& participants = context->getTurnController()->getParticipants();
+    auto const& participants = context.getTurnController().getParticipants();
     auto const& loaded = clientParticipantsLoaded[clientIndex];
 
     if(participants.size() != loaded.size()) {
         return false;
     }
 
-    for(auto [participantId, _] : participants) {
-        if(!loaded.contains(participantId)) {
+    for(auto& participant : participants) {
+        if(!loaded.contains(participant->id)) {
             return false;
         }
     }

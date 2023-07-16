@@ -23,40 +23,40 @@ public:
     typedef struct _participant {
         int id;
         bool isPlayer;
-        std::set<std::shared_ptr<Entity>> entities;
+        std::set<Entity*> entities;
         bool passNextTurn;
         std::map<Action, int> actions;
         bool hasRolledForActions;
-        std::shared_ptr<BehaviourStrategy> behaviourStrategy;
+        std::unique_ptr<BehaviourStrategy> behaviourStrategy;
     } Participant;
 
 private:
-    std::shared_ptr<Grid> grid;
+    Grid& grid;
 
     int turnNumber;
     int currentParticipant;
 
-    std::map<int, std::shared_ptr<Participant>> participants;
+    std::map<int, std::unique_ptr<Participant>> participants;
     std::vector<std::function<void(int, int)>> onNextTurnWorkers;
     std::function<void()> onAllParticipantsSet;
 
-    bool canProgressToNextTurn(const std::shared_ptr<Participant>& participant);
+    bool canProgressToNextTurn(int participantId);
     void nextParticipantTurn(int id);
 
 public:
-    TurnController(std::shared_ptr<Grid> grid);
+    TurnController(Grid& grid);
 
     void update(uint32_t timeSinceLastFrame, bool& quit);
 
-    std::shared_ptr<Participant> addParticipant(
+    Participant* addParticipant(
         int id,
         bool isPlayer,
-        const std::set<std::shared_ptr<Entity>>& entities, 
-        const std::shared_ptr<BehaviourStrategy>& behaviourStrategy = nullptr
+        const std::set<Entity*>& entities, 
+        std::unique_ptr<BehaviourStrategy> behaviourStrategy = nullptr
     );
-    void addEntityToParticipant(int participantId, const std::shared_ptr<Entity>& entity);
-    std::shared_ptr<Participant> getParticipant(int id);
-    const std::map<int, std::shared_ptr<Participant>>& getParticipants(void) const;
+    void addEntityToParticipant(int participantId, Entity* entity);
+    Participant* getParticipant(int id);
+    std::vector<Participant*> getParticipants(void);
 
     void reset(void);
     
@@ -67,13 +67,13 @@ public:
     void setActions(int participantId, const std::map<Action, int>& actions);
     std::map<Action, int> rollActions(int participantId);
     bool performMoveAction(
-        const std::shared_ptr<Entity>& entity, 
+        Entity* entity, 
         const glm::ivec2& position,
         int shortStopSteps = 0
     );
     bool performAttackAction(
-        const std::shared_ptr<Entity>& entity, 
-        const std::shared_ptr<Weapon>& weapon,
+        Entity* entity, 
+        Weapon* weapon,
         const glm::ivec2& target
     );
 

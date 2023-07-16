@@ -1,8 +1,8 @@
 #include "weapon.h"
 
 Weapon::Weapon(
-    const std::shared_ptr<Entity>& owner,
-    const std::shared_ptr<Grid>& grid,
+    Entity* owner,
+    Grid& grid,
     uint32_t id,
     const std::string& name, 
     const Stats& stats
@@ -15,12 +15,11 @@ Weapon::Weapon(
     usesLeft(0)
 {
     game_assert(owner != nullptr);
-    game_assert(grid != nullptr);
 }
 
 Weapon::Weapon(
-    const std::shared_ptr<Entity>& owner,
-    const std::shared_ptr<Grid>& grid, 
+    Entity* owner,
+    Grid& grid, 
     const std::string& name, 
     const Stats& stats
 ) :
@@ -75,6 +74,6 @@ std::string Weapon::getName(void) const {
     return name;
 }
 
-std::shared_ptr<Entity> Weapon::getOwner(void) {
+Entity* Weapon::getOwner(void) {
     return owner;
 }

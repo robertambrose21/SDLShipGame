@@ -14,7 +14,7 @@ private:
 public:
     Panel(const glm::ivec2& position, const glm::ivec2& size);
 
-    void draw(const std::shared_ptr<SDL_Renderer>& renderer);
+    void draw(SDL_Renderer* renderer);
 
     void setPosition(const glm::ivec2& position);
     glm::ivec2 getPosition(void) const;

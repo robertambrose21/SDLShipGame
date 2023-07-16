@@ -42,8 +42,8 @@ private:
 
     bool selected;
 
-    std::shared_ptr<Grid> grid;
-    std::shared_ptr<HealthBar> healthBar;
+    Grid& grid;
+    std::unique_ptr<HealthBar> healthBar;
 
     glm::ivec2 position;
     std::deque<glm::ivec2> path;
@@ -53,8 +53,8 @@ private:
     EntityCurrentStats currentStats;
     std::set<StatusEffect> statusEffects;
 
-    std::map<uint32_t, std::shared_ptr<Weapon>> weapons;
-    std::shared_ptr<Weapon> currentWeapon;
+    std::map<uint32_t, std::unique_ptr<Weapon>> weapons;
+    Weapon* currentWeapon;
 
     std::string name;
 
@@ -77,10 +77,10 @@ public:
     );
 
     // TODO: Should these be in EntityPool?
-    static std::shared_ptr<Entity> filterByTile(
+    static Entity* filterByTile(
         int x, 
         int y, 
-        const std::set<std::shared_ptr<Entity>>& entities
+        const std::set<Entity*>& entities
     ) {
         for(auto const& entity : entities) {
             if(entity->isOnTile(x, y)) {
@@ -91,13 +91,13 @@ public:
         return nullptr;
     }
 
-    static std::shared_ptr<Entity> filterByTile(
+    static Entity* filterByTile(
         int x, 
         int y, 
-        const std::map<uint32_t, std::shared_ptr<Entity>>& entities,
+        const std::vector<Entity*>& entities,
         int excludedParticipantId = -1
     ) {
-        for(auto [entityId, entity] : entities) {
+        for(auto entity : entities) {
             if(entity->isOnTile(x, y) && entity->getParticipantId() != excludedParticipantId) {
                 return entity;
             }
@@ -106,14 +106,14 @@ public:
         return nullptr;
     }
 
-    static std::set<std::shared_ptr<Entity>> filterByTiles(
+    static std::set<Entity*> filterByTiles(
         const std::vector<glm::ivec2>& tiles,
-        const std::map<uint32_t, std::shared_ptr<Entity>>& entities,
+        const std::vector<Entity*>& entities,
         int excludedParticipantId = -1
     ) {
-        std::set<std::shared_ptr<Entity>> filteredEntities;
+        std::set<Entity*> filteredEntities;
 
-        for(auto [entityId, entity] : entities) {
+        for(auto entity : entities) {
             for(auto const& tile : tiles) {
                 if(entity->isOnTile(tile.x, tile.y) && entity->getParticipantId() != excludedParticipantId) {
                     filteredEntities.insert(entity);
@@ -133,7 +133,7 @@ public:
     void setColour(const Colour& colour);
     Colour getColour(void) const;
 
-    void draw(const std::shared_ptr<GraphicsContext>& graphicsContext);
+    void draw(GraphicsContext& graphicsContext);
 
     void setSelected(bool selected);
     bool isSelected(void) const;
@@ -144,15 +144,16 @@ public:
     int getCurrentHP(void) const;
     void setCurrentHP(int hp);
     void takeDamage(int amount);
-    void attack(const glm::ivec2& target, const std::shared_ptr<Weapon>& weapon);
+    void attack(const glm::ivec2& target, uint32_t weaponId);
 
-    std::map<uint32_t, std::shared_ptr<Weapon>> getWeapons(void) const;
-    std::shared_ptr<Weapon> getWeapon(uint32_t weaponId);
+    std::vector<Weapon*> getWeapons(void) const;
+    Weapon* getWeapon(uint32_t weaponId);
     bool hasWeapon(uint32_t weaponId);
-    std::shared_ptr<Weapon> addWeapon(const std::shared_ptr<Weapon>& weapon);
-    void removeWeapon(const std::string& name);
-    void setCurrentWeapon(const std::shared_ptr<Weapon>& weapon);
-    std::shared_ptr<Weapon> getCurrentWeapon(void);
+    Weapon* addWeapon(std::unique_ptr<Weapon> weapon);
+    void removeWeapon(uint32_t weaponId);
+    void removeAllWeapons(void);
+    void setCurrentWeapon(uint32_t weaponId);
+    Weapon* getCurrentWeapon(void);
 
     uint32_t getId(void) const;
     void setId(uint32_t id);
@@ -164,7 +165,7 @@ public:
 
     void setPosition(const glm::ivec2& position);
     int findPath(const glm::ivec2& target, int stopShortSteps = 0);
-    bool isNeighbour(const std::shared_ptr<Entity>& entity) const;
+    bool isNeighbour(Entity* entity) const;
     bool hasPath(void);
 
     int getMovesLeft(void) const;

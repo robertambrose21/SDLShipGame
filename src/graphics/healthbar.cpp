@@ -5,16 +5,16 @@ HealthBar::HealthBar(int totalHP) :
 { }
 
 // TODO: Camera position
-void HealthBar::draw(const std::shared_ptr<GraphicsContext>& graphicsContext, const glm::ivec2& position, int currentHP) {
+void HealthBar::draw(GraphicsContext& graphicsContext, const glm::ivec2& position, int currentHP) {
     if(totalHP == currentHP) {
         return;
     }
 
-    auto renderer = graphicsContext->getRenderer().get();
-    auto gridRenderer = graphicsContext->getGridRenderer();
+    auto renderer = graphicsContext.getRenderer();
+    auto& gridRenderer = graphicsContext.getGridRenderer();
 
-    auto const &realPosition = gridRenderer->getTilePosition(position.x, position.y);
-    auto const &width = gridRenderer->getTileSize();
+    auto const &realPosition = gridRenderer.getTilePosition(position.x, position.y);
+    auto const &width = gridRenderer.getTileSize();
 
     int hpLeftWidth = (currentHP / (float)totalHP) * width;
 

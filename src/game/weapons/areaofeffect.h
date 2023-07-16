@@ -15,8 +15,7 @@ public:
     } Stats;
 
 private:
-    std::shared_ptr<EntityPool> entityPool;
-    std::shared_ptr<Grid> grid;
+    Grid& grid;
     uint32_t textureId;
 
     std::vector<glm::ivec2> effectedTilePositions;
@@ -28,7 +27,7 @@ private:
 
 public:
     AreaOfEffect(
-        const std::shared_ptr<Grid>& grid, 
+        Grid& grid, 
         uint32_t textureId,
         int ownerId,
         int liveTurn,
@@ -36,7 +35,7 @@ public:
         const Stats& stats
     );
 
-    void draw(const std::shared_ptr<GraphicsContext>& graphicsContext);
+    void draw(GraphicsContext& graphicsContext);
     void update(uint32_t timeSinceLastFrame);
     void apply(void);
     void onNextTurn(int currentParticipant, int turnNumber);
