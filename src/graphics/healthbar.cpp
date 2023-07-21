@@ -4,7 +4,6 @@ HealthBar::HealthBar(int totalHP) :
     totalHP(totalHP)
 { }
 
-// TODO: Camera position
 void HealthBar::draw(GraphicsContext& graphicsContext, const glm::ivec2& position, int currentHP) {
     if(totalHP == currentHP) {
         return;
@@ -12,8 +11,9 @@ void HealthBar::draw(GraphicsContext& graphicsContext, const glm::ivec2& positio
 
     auto renderer = graphicsContext.getRenderer();
     auto& gridRenderer = graphicsContext.getGridRenderer();
+    auto& camera = gridRenderer.getCamera();
 
-    auto const &realPosition = gridRenderer.getTilePosition(position.x, position.y);
+    auto const &realPosition = gridRenderer.getTilePosition(position.x, position.y) + camera.getPosition();
     auto const &width = gridRenderer.getTileSize();
 
     int hpLeftWidth = (currentHP / (float)totalHP) * width;
