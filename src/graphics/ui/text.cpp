@@ -26,14 +26,14 @@ void Text::setMessage(SDL_Renderer* renderer, const std::string& message) {
     SDL_Surface* surface = TTF_RenderText_Solid(font.get(), message.c_str(), { 0xFF, 0x00, 0x00, 0xFF});
 
     if(surface == NULL) {
-        std::cout << "Failed to set message \"" << message << "\":" << TTF_GetError() << std::endl;
+        std::cout << "Failed to set message \"" << message << "\": " << TTF_GetError() << std::endl;
         return;
     }
 
     texture = std::unique_ptr<SDL_Texture, sdl_deleter>(SDL_CreateTextureFromSurface(renderer, surface), sdl_deleter());
 
     if(texture == NULL) {
-        std::cout << "Failed to create texture from message \"" << message << "\":" << SDL_GetError() << std::endl;
+        std::cout << "Failed to create texture from message \"" << message << "\": " << SDL_GetError() << std::endl;
     }
     else {
         dimensions.x = surface->w;

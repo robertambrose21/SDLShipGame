@@ -28,6 +28,7 @@ add_library(
     weapons/areaofeffectpool.cpp
     weapons/weaponcontroller.cpp
     application/turncontroller.cpp
+    application/stdoutsubscriber.cpp
     net/client/gameclientmessagesreceiver.cpp
     net/client/gameclientmessagestransmitter.cpp
     net/server/gameservermessagesreceiver.cpp

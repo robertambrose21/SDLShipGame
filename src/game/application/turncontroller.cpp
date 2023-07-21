@@ -106,7 +106,7 @@ void TurnController::nextParticipantTurn(int id) {
     if(currentParticipant == 0) {
         turnNumber++;
         grid.nextTurn();
-        std::cout << "Turn number: [" << turnNumber << "]" << std::endl;
+        publish({ turnNumber, currentParticipant });
     }
 
     auto& entities = participants[currentParticipant]->entities;

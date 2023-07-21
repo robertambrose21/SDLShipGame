@@ -21,6 +21,9 @@ add_library(
     util/randomrolls.h
     state/state.h
     state/statemachine.cpp
+    event/event.h
+    event/eventpublisher.h
+    event/eventsubscriber.h
 )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX CXX_STANDARD 20)

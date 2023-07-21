@@ -21,6 +21,8 @@ void ServerApplication::initialise(void) {
     auto& areaOfEffectPool = context.getAreaOfEffectPool();
     auto& turnController = context.getTurnController();
 
+    turnController.subscribe(&stdoutSubscriber);
+
     server = std::make_unique<GameServer>(yojimbo::Address("127.0.0.1", 8081));
 
     receiver = std::make_unique<GameServerMessagesReceiver>(context);

@@ -8,9 +8,15 @@
 #include "game/entities/entity.h"
 #include "core/util/gameassert.h"
 #include "core/util/randomrolls.h"
+#include "core/event/eventpublisher.h"
 #include "game/entities/behaviour/behaviourstrategy.h"
 
-class TurnController {
+struct TurnControllerEventData {
+    int turnNumber;
+    int currentParticipant;
+};
+
+class TurnController : public EventPublisher<TurnControllerEventData> {
 public:
     enum Action {
         Move = 0,
