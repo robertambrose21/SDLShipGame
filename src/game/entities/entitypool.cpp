@@ -44,9 +44,9 @@ void EntityPool::updateEntities(uint32_t timeSinceLastFrame, bool& quit) {
 
     for(auto const& entityId : entitiesForDeletion) {
         auto entity = getEntity(entityId);
+        publish({ entity, "Death" });
         turnController.getParticipant(entity->getParticipantId())->entities.erase(entity);
         entities.erase(entityId);
-        // std::cout << "[" << entity->getName() << "#" << entity->getId() << "] died" << std::endl;
     }
     
     entitiesForDeletion.clear();
@@ -145,6 +145,7 @@ Entity* EntityPool::addEntity(const std::string& name, uint32_t id) {
     auto definition = entityDefinitions[name];
     auto entity = std::make_unique<Entity>(
         id,
+        *this,
         definition.name,
         EntityBaseStats {
             definition.movesPerTurn,

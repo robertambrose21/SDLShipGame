@@ -42,11 +42,12 @@ std::unique_ptr<Weapon> WeaponController::createWeapon(
 ) {
     game_assert(weaponDefinitions.contains(name));
     auto definition = weaponDefinitions[name];
-    
+
     if(definition.weaponClass == "Projectile") {
         return std::make_unique<ProjectileWeapon>(
             owner,
             grid,
+            *this,
             id,
             definition.name,
             Weapon::Stats { definition.damage, definition.range, definition.uses },
@@ -57,6 +58,7 @@ std::unique_ptr<Weapon> WeaponController::createWeapon(
         return std::make_unique<MeleeWeapon>(
             owner,
             grid,
+            *this,
             id,
             definition.name,
             Weapon::Stats { definition.damage, definition.range, definition.uses }

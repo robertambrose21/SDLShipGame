@@ -6,12 +6,21 @@
 
 #include "game/entities/entity.h"
 #include "projectile.h"
+#include "core/event/eventpublisher.h"
 
 class Entity;
 class Projectile;
+class Weapon;
+
+struct WeaponEventData {
+    Entity* owner;
+    Entity* target;
+    Weapon* weapon;
+};
 
 class Weapon {
 public:
+    // TODO: Probably a better way to do abstraction than this
     enum Type {
         MELEE,
         PROJECTILE
@@ -32,6 +41,7 @@ protected:
     int usesLeft;
 
     Grid& grid;
+    EventPublisher<WeaponEventData>& publisher;
 
     virtual bool onUse(const glm::ivec2& position, const glm::ivec2& target) = 0;
 
@@ -39,6 +49,7 @@ public:
     Weapon(
         Entity* owner,
         Grid& grid,
+        EventPublisher<WeaponEventData>& publisher,
         uint32_t id,
         const std::string& name, 
         const Stats& stats
@@ -46,7 +57,8 @@ public:
 
     Weapon(
         Entity* owner,
-        Grid& grid, 
+        Grid& grid,
+        EventPublisher<WeaponEventData>& publisher,
         const std::string& name, 
         const Stats& stats
     );

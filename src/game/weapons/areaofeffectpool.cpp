@@ -46,6 +46,7 @@ void AreaOfEffectPool::add(const std::string& name, int ownerId, int turnNumber,
         std::make_pair(turnController.getTurnNumber(),
             std::make_unique<AreaOfEffect>(
                 grid,
+                *this,
                 definition.textureId,
                 ownerId,
                 turnNumber,

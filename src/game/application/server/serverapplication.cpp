@@ -22,6 +22,10 @@ void ServerApplication::initialise(void) {
     auto& turnController = context.getTurnController();
 
     turnController.subscribe(&stdoutSubscriber);
+    entityPool.subscribe(&stdoutSubscriber);
+    context.getWeaponController().subscribe(&stdoutSubscriber);
+    projectilePool.subscribe(&stdoutSubscriber);
+    areaOfEffectPool.subscribe(&stdoutSubscriber);
 
     server = std::make_unique<GameServer>(yojimbo::Address("127.0.0.1", 8081));
 

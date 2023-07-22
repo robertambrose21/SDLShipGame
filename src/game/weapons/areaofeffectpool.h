@@ -6,10 +6,11 @@
 #include "core/json.hpp"
 #include "areaofeffect.h"
 #include "game/application/turncontroller.h"
+#include "core/event/eventpublisher.h"
 
 using json = nlohmann::json;
 
-class AreaOfEffectPool {
+class AreaOfEffectPool : public EventPublisher<AreaOfEffectEventData> {
 private:
     typedef struct _aoeDefinition {
         std::string filename;

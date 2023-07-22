@@ -1,14 +1,19 @@
 #include "text.h"
 
-Text::Text(const std::string& path, const glm::ivec2& position) :
+Text::Text(
+    std::unique_ptr<Font> font, 
+    const glm::ivec2& position, 
+    const glm::ivec2& maxDimensions,
+    const SDL_Color& colour
+) :
+    font(std::move(font)),
     message(""),
-    position(position)
+    position(position),
+    maxDimensions(maxDimensions),
+    colour(colour)
 {
-    loadFromFile(path);
-}
-
-void Text::loadFromFile(const std::string& path) {
-    font = std::unique_ptr<TTF_Font, ttf_deleter>(TTF_OpenFont(path.c_str(), 28), ttf_deleter());
+    game_assert(maxDimensions.x > 0);
+    game_assert(maxDimensions.y > 0);
 }
 
 void Text::draw(SDL_Renderer* renderer, const std::string& message) {
@@ -16,14 +21,23 @@ void Text::draw(SDL_Renderer* renderer, const std::string& message) {
         setMessage(renderer, message);
     }
 
-    SDL_Rect rect = { position.x, position.y, dimensions.x, dimensions.y };
-    SDL_RenderCopy(renderer, texture.get(), NULL, &rect);
+    int scroll = std::max(0, dimensions.y - maxDimensions.y);
+
+    SDL_Rect rect = { 
+        position.x, 
+        position.y, 
+        std::min(dimensions.x, maxDimensions.x),
+        std::min(dimensions.y, maxDimensions.y)
+    };
+    SDL_Rect clip = { 0, scroll, maxDimensions.x, maxDimensions.y };
+    SDL_RenderCopy(renderer, texture.get(), &clip, &rect);
 }
 
 void Text::setMessage(SDL_Renderer* renderer, const std::string& message) {
     this->message = message;
 
-    SDL_Surface* surface = TTF_RenderText_Solid(font.get(), message.c_str(), { 0xFF, 0x00, 0x00, 0xFF});
+    SDL_Surface* surface = TTF_RenderText_Blended_Wrapped(
+        font->font.get(), message.c_str(), colour, maxDimensions.x);
 
     if(surface == NULL) {
         std::cout << "Failed to set message \"" << message << "\": " << TTF_GetError() << std::endl;
@@ -50,4 +64,16 @@ void Text::setPosition(const glm::ivec2& position) {
 
 glm::ivec2 Text::getPosition(void) const {
     return position;
+}
+
+glm::ivec2 Text::getDimensions(void) const {
+    return dimensions;
+}
+
+void Text::setColour(const SDL_Color& colour) {
+    this->colour = colour;
+}
+
+SDL_Color Text::getColour(void) const {
+    return colour;
 }

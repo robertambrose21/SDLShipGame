@@ -3,6 +3,7 @@
 
 Projectile::Projectile(
     Grid& grid,
+    EventPublisher<ProjectileEventData>& publisher,
     uint32_t textureId,
     int ownerId,
     const glm::ivec2& startPosition,
@@ -12,6 +13,7 @@ Projectile::Projectile(
     std::function<void(Grid&, int, const glm::ivec2&, int)> onHitCallback
 ) :
     grid(grid),
+    publisher(publisher),
     textureId(textureId),
     ownerId(ownerId),
     startPosition(startPosition),
@@ -39,8 +41,16 @@ void Projectile::update(uint32_t timeSinceLastFrame) {
     }
 }
 
-bool Projectile::hasReachedTarget(void) const {
+bool Projectile::hasReachedTarget(void) {
     return step >= 1.0f;
+}
+
+int Projectile::getOwnerId(void) const {
+    return ownerId;
+}
+
+Projectile::Stats Projectile::getStats(void) const {
+    return stats;
 }
 
 void Projectile::doHit(const glm::ivec2& position) {
@@ -51,10 +61,12 @@ void Projectile::doHit(const glm::ivec2& position) {
         ownerId
     );
 
+    int damage = 0;
+
     onHitCallback(grid, ownerId, position, 1);
 
     if(entity != nullptr) {
-        auto damage = std::floor(weaponBaseDamage * stats.damageMultiplier);
+        damage = std::floor(weaponBaseDamage * stats.damageMultiplier);
 
         entity->takeDamage(damage);
         for(auto const& effect : stats.effects) {
@@ -62,23 +74,6 @@ void Projectile::doHit(const glm::ivec2& position) {
                 entity->setFrozenFor(effect.duration);
             }
         }
-
-        std::cout 
-            << entity->getName()
-            << "#"
-            << entity->getId()
-            << " was hit by a projectile from participant ["
-            << ownerId
-            << "] and took "
-            << damage
-            << " damage! "
-            << entity->getName()
-            << "#"
-            << entity->getId()
-            << " now has "
-            << entity->getCurrentHP()
-            << " HP."
-            << std::endl;
     }
     // TODO: This is just an onHitCallback
     else {
@@ -96,6 +91,8 @@ void Projectile::doHit(const glm::ivec2& position) {
             }
         }
     }
+
+    publisher.publish({ this, entity, position, damage });
 }
 
 float Projectile::calculateStep(void) const {

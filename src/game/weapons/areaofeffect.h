@@ -3,8 +3,15 @@
 #include "core/glmimport.h"
 #include "graphics/gridrenderer.h"
 #include "game/entities/entity.h"
+#include "core/event/eventpublisher.h"
 
 class EntityPool;
+class AreaOfEffect;
+
+struct AreaOfEffectEventData {
+    AreaOfEffect* aoe;
+    Entity* target;
+};
 
 class AreaOfEffect {
 public:
@@ -16,6 +23,8 @@ public:
 
 private:
     Grid& grid;
+    EventPublisher<AreaOfEffectEventData>& publisher;
+
     uint32_t textureId;
 
     std::vector<glm::ivec2> effectedTilePositions;
@@ -27,7 +36,8 @@ private:
 
 public:
     AreaOfEffect(
-        Grid& grid, 
+        Grid& grid,
+        EventPublisher<AreaOfEffectEventData>& publisher,
         uint32_t textureId,
         int ownerId,
         int liveTurn,
@@ -40,5 +50,6 @@ public:
     void apply(void);
     void onNextTurn(int currentParticipant, int turnNumber);
 
+    int getOwnerId(void) const;
     Stats getStats(void) const;
 };

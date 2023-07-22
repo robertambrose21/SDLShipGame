@@ -3,20 +3,22 @@
 MeleeWeapon::MeleeWeapon(
     Entity* owner, 
     Grid& grid,
+    EventPublisher<WeaponEventData>& publisher,
     uint32_t id,
     const std::string& name, 
     const Stats& stats
 ) :
-    Weapon(owner, grid, id, name, stats)
+    Weapon(owner, grid, publisher, id, name, stats)
 { }
 
 MeleeWeapon::MeleeWeapon(
     Entity* owner, 
     Grid& grid, 
+    EventPublisher<WeaponEventData>& publisher,
     const std::string& name, 
     const Stats& stats
 ) :
-    Weapon(owner, grid, name, stats)
+    Weapon(owner, grid, publisher, name, stats)
 { }
 
 bool MeleeWeapon::onUse(const glm::ivec2& position, const glm::ivec2& target) {
@@ -24,26 +26,7 @@ bool MeleeWeapon::onUse(const glm::ivec2& position, const glm::ivec2& target) {
     auto entity = Entity::filterByTile(target.x, target.y, entities, owner->getParticipantId());
     
     if(entity != nullptr) {
-        std::cout 
-            << owner->getName() 
-            << "#" 
-            << owner->getId() 
-            << " meleed " 
-            << entity->getName()
-            << "#"
-            << entity->getId()
-            << " for "
-            << stats.damage
-            << " damage! "
-            << entity->getName()
-            << "#"
-            << entity->getId()
-            << " now has "
-            << entity->getCurrentHP()
-            << " HP."
-            << std::endl;
-
-        entity->takeDamage(stats.damage);
+        publisher.publish({ owner, entity, this });
     }
 
     return true;

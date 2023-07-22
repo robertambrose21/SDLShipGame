@@ -10,9 +10,16 @@
 #include "core/util/gameassert.h"
 #include "entitystats.h"
 #include "game/effects/statuseffect.h"
+#include "core/event/eventpublisher.h"
 
 // TODO: Fix with modules?
 class Weapon;
+class Entity;
+
+struct EntityEventData {
+    Entity* entity;
+    std::string type;
+};
 
 class Entity {
 public:
@@ -43,6 +50,7 @@ private:
     bool selected;
 
     Grid& grid;
+    EventPublisher<EntityEventData>& publisher;
     std::unique_ptr<HealthBar> healthBar;
 
     glm::ivec2 position;
@@ -67,11 +75,13 @@ public:
 
     Entity(
         uint32_t id,
+        EventPublisher<EntityEventData>& publisher,
         const std::string& name,
         const EntityBaseStats& stats
     );
 
     Entity(
+        EventPublisher<EntityEventData>& publisher,
         const std::string& name,
         const EntityBaseStats& stats
     );
@@ -180,6 +190,6 @@ public:
     void nextTurn(void);
     bool endTurnCondition(void);
 
-    bool getIsFrozen(void) const;
+    int getFrozenFor(void) const;
     void setFrozenFor(int numTurns);
 };

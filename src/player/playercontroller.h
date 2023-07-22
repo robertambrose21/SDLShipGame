@@ -16,7 +16,7 @@
 #include "graphics/ui/dice.h"
 #include "graphics/ui/button.h"
 #include "graphics/ui/playerpanel.h"
-#include "graphics/ui/text.h"
+#include "graphics/ui/textpanel.h"
 
 class PlayerController {
 private:
@@ -36,7 +36,6 @@ private:
     glm::ivec2 cameraVector;
 
     std::unique_ptr<PlayerPanel> playerPanel;
-    std::unique_ptr<Text> text;
 
     void move(const glm::ivec2& position);
 

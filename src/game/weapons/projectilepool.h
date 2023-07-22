@@ -8,10 +8,11 @@
 #include "game/entities/entity.h"
 #include "areaofeffectpool.h"
 #include "game/effects/effect.h"
+#include "core/event/eventpublisher.h"
 
 using json = nlohmann::json;
 
-class ProjectilePool {
+class ProjectilePool : public EventPublisher<ProjectileEventData> {
 private:
     typedef struct _projectileDefinition {
         std::string filename;

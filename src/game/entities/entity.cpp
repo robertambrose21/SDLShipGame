@@ -3,10 +3,12 @@
 
 Entity::Entity(
     uint32_t id,
+    EventPublisher<EntityEventData>& publisher,
     const std::string& name,
     const EntityBaseStats& stats
 ) :
     id(id),
+    publisher(publisher),
     name(name),
     stats(stats),
     currentStats(stats),
@@ -20,9 +22,10 @@ Entity::Entity(
 }
 
 Entity::Entity(
+    EventPublisher<EntityEventData>& publisher,
     const std::string& name,
     const EntityBaseStats& stats
-) : Entity(getNewId(), name, stats)
+) : Entity(getNewId(), publisher, name, stats)
 { }
 
 void Entity::setTextureId(uint32_t textureId) {
@@ -290,13 +293,7 @@ void Entity::nextTurn(void) {
 
     if(frozenForNumTurns > 0) {
         frozenForNumTurns--;
-
-        if(frozenForNumTurns == 0) {
-            std::cout << "[" << name << "#" << id << "] unfreezes!" << std::endl;
-        }
-        else {
-            std::cout << "[" << name << "#" << id << "] will be unfrozen in " << frozenForNumTurns << " turns" << std::endl;
-        }
+        publisher.publish({ this, "Freeze" });
     }
 }
 
@@ -324,7 +321,7 @@ int Entity::getParticipantId(void) const {
     return participantId;
 }
 
-bool Entity::getIsFrozen(void) const {
+int Entity::getFrozenFor(void) const {
     return frozenForNumTurns > 0;
 }
 

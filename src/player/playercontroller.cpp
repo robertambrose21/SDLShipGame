@@ -14,7 +14,12 @@ PlayerController::PlayerController(
 {
     dice = std::make_unique<Dice>(3, clientMessagesTransmitter);
     playerPanel = std::make_unique<PlayerPanel>(1920, 1080);
-    text = std::make_unique<Text>("../assets/fonts/RobotoMono-SemiBold.ttf", glm::ivec2(300, 300));
+    
+    turnController.subscribe(playerPanel.get());
+    entityPool.subscribe(playerPanel.get());
+    context.getWeaponController().subscribe(playerPanel.get());
+    context.getProjectilePool().subscribe(playerPanel.get());
+    context.getAreaOfEffectPool().subscribe(playerPanel.get());
 }
 
 void PlayerController::update(uint32_t timeSinceLastFrame) {
@@ -30,7 +35,6 @@ void PlayerController::update(uint32_t timeSinceLastFrame) {
 void PlayerController::draw(GraphicsContext& graphicsContext) {
     dice->draw(graphicsContext);
     playerPanel->draw(graphicsContext.getRenderer());
-    text->draw(graphicsContext.getRenderer(), "Hello");
 }
 
 void PlayerController::handleKeyPress(const SDL_Event& event) {

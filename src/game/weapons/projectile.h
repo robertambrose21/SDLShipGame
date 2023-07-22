@@ -2,13 +2,23 @@
 
 #include <functional>
 #include <algorithm>
+#include <vector>
 
 #include "core/glmimport.h"
 #include "graphics/gridrenderer.h"
 #include "game/entities/entity.h"
 #include "game/effects/effect.h"
+#include "core/event/eventpublisher.h"
 
 class Entity;
+class Projectile;
+
+struct ProjectileEventData {
+    Projectile* projectile;
+    Entity* target;
+    glm::ivec2 hitPosition;
+    int damage;
+};
 
 class Projectile {
 public:
@@ -42,6 +52,7 @@ private:
     Stats stats;
 
     Grid& grid;
+    EventPublisher<ProjectileEventData>& publisher;
     uint32_t textureId;
 
     glm::ivec2 position;
@@ -65,6 +76,7 @@ private:
 public:
     Projectile(
         Grid& grid,
+        EventPublisher<ProjectileEventData>& publisher,
         uint32_t textureId,
         int ownerId,
         const glm::ivec2& startPosition,
@@ -77,6 +89,7 @@ public:
 
     static std::unique_ptr<Projectile> create(
         Grid& grid,
+        EventPublisher<ProjectileEventData>& publisher,
         int ownerId,
         const Blueprint& blueprint, 
         const glm::ivec2& startPosition,
@@ -85,6 +98,7 @@ public:
     ) {
         return std::make_unique<Projectile>(
             grid,
+            publisher,
             blueprint.textureId,
             ownerId,
             startPosition, 
@@ -98,5 +112,8 @@ public:
     void draw(GraphicsContext& graphicsContext);
     void update(uint32_t timeSinceLastFrame);
 
-    bool hasReachedTarget(void) const;
+    bool hasReachedTarget(void);
+
+    int getOwnerId(void) const;
+    Stats getStats(void) const;
 };

@@ -15,6 +15,7 @@ public:
     ProjectileWeapon(
         Entity* owner,
         Grid& grid,
+        EventPublisher<WeaponEventData>& publisher,
         uint32_t id,
         const std::string& name, 
         const Stats& stats, 
@@ -23,7 +24,8 @@ public:
 
     ProjectileWeapon(
         Entity* owner,
-        Grid& grid, 
+        Grid& grid,
+        EventPublisher<WeaponEventData>& publisher,
         const std::string& name, 
         const Stats& stats, 
         const Projectile::Blueprint& projectileBlueprint

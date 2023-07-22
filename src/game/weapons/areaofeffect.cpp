@@ -3,6 +3,7 @@
 
 AreaOfEffect::AreaOfEffect(
     Grid& grid,
+    EventPublisher<AreaOfEffectEventData>& publisher,
     uint32_t textureId,
     int ownerId,
     int liveTurn,
@@ -10,6 +11,7 @@ AreaOfEffect::AreaOfEffect(
     const Stats& stats
 ) :
     grid(grid),
+    publisher(publisher),
     textureId(textureId),
     ownerId(ownerId),
     liveTurn(liveTurn),
@@ -37,23 +39,7 @@ void AreaOfEffect::apply(void) {
 
     for(auto const& entity : effectedEntities) {
         entity->takeDamage(stats.damagePerTurn);
-
-        std::cout 
-            << entity->getName()
-            << "#"
-            << entity->getId()
-            << " was hit by an area of effect from participant ["
-            << ownerId
-            << "] and took "
-            << stats.damagePerTurn
-            << " damage! "
-            << entity->getName()
-            << "#"
-            << entity->getId()
-            << " now has "
-            << entity->getCurrentHP()
-            << " HP."
-            << std::endl;
+        publisher.publish({ this, entity });
     }
 }
 
@@ -63,6 +49,10 @@ void AreaOfEffect::onNextTurn(int currentParticipant, int turnNumber) {
     }
 
     apply();
+}
+
+int AreaOfEffect::getOwnerId(void) const {
+    return ownerId;
 }
 
 AreaOfEffect::Stats AreaOfEffect::getStats(void) const {

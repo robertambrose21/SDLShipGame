@@ -16,7 +16,7 @@ void ChaseAndAttackStrategy::onUpdate(uint32_t timeSinceLastFrame, bool& quit) {
         auto target = findClosestTarget(entity);
         auto bWeapon = target == nullptr ? nullptr : getBestInRangeWeapon(entity, target->getPosition());
 
-        if(entity->getIsFrozen()) {
+        if(entity->getFrozenFor() > 0) {
             continue;
         }
 

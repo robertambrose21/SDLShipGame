@@ -11,12 +11,13 @@
 #include "game/application/turncontroller.h"
 #include "game/weapons/weaponcontroller.h"
 #include "game/net/messages.h"
+#include "core/event/eventpublisher.h"
 
 using json = nlohmann::json;
 
 struct GameStateUpdate;
 
-class EntityPool {
+class EntityPool : public EventPublisher<EntityEventData> {
 private:
     typedef struct _entityDefinition {
         std::string filename;

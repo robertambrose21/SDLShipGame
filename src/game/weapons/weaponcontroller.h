@@ -4,10 +4,11 @@
 #include "game/entities/entity.h"
 #include "core/json.hpp"
 #include "projectilepool.h"
+#include "core/event/eventpublisher.h"
 
 using json = nlohmann::json;
 
-class WeaponController {
+class WeaponController : public EventPublisher<WeaponEventData> {
 private:
     typedef struct _weaponDefinition {
         std::string filename;
