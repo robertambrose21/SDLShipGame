@@ -42,7 +42,7 @@ void Weapon::use(const glm::ivec2& position, const glm::ivec2& target) {
 }
 
 bool Weapon::hasFinished(void) {
-    return true;
+    return usesLeft <= 0;
 }
 
 void Weapon::setFinished(void) {

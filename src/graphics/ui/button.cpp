@@ -32,16 +32,40 @@ bool Button::handleClickEvent(int mouseX, int mouseY) {
         return false;
     }
 
-    onClickFunc();
+    click();
     return true;
+}
+
+void Button::click(void) {
+    onClickFunc();
 }
 
 void Button::toggleDisabled(void) {
     isDisabled = !isDisabled;
 }
 
+void Button::setDisabled(bool isDisabled) {
+    this->isDisabled = isDisabled;
+}
+
 bool Button::getIsDisabled(void) const {
     return isDisabled;
+}
+
+void Button::setPosition(const glm::ivec2& position) {
+    this->position = position;
+}
+
+glm::ivec2 Button::getPosition(void) const {
+    return position;
+}
+
+void Button::setSize(const glm::ivec2& size) {
+    this->size = size;
+}
+
+glm::ivec2 Button::getSize(void) const {
+    return size;
 }
 
 void Button::onClick(std::function<void()>&& onClickFunc) {

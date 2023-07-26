@@ -50,7 +50,9 @@ Entity::Colour Entity::getColour(void) const {
 }
 
 void Entity::draw(GraphicsContext& graphicsContext) {
-    graphicsContext.getGridRenderer().draw(
+    auto& gridRenderer = graphicsContext.getGridRenderer();
+
+    gridRenderer.draw(
         graphicsContext,
         textureId,
         { colour.r, colour.g, colour.b },
@@ -59,7 +61,7 @@ void Entity::draw(GraphicsContext& graphicsContext) {
     );
 
     if(selected) {
-        graphicsContext.getGridRenderer().draw(graphicsContext, selectedTextureId, position);
+        gridRenderer.draw(graphicsContext, selectedTextureId, position);
     }
 
     for(auto& [_, weapon] : weapons) {
@@ -67,8 +69,8 @@ void Entity::draw(GraphicsContext& graphicsContext) {
     }
 
     if(frozenForNumTurns > 0) {
-        auto const &realPosition = graphicsContext.getGridRenderer().getTilePosition(position.x, position.y);
-        auto const &size = graphicsContext.getGridRenderer().getTileSize();
+        auto const &realPosition = gridRenderer.getTilePosition(position.x, position.y) + gridRenderer.getCamera().getPosition();
+        auto const &size = gridRenderer.getTileSize();
 
         SDL_Rect frozen = { realPosition.x, realPosition.y, size, size };
 
@@ -270,7 +272,7 @@ void Entity::setMovesLeft(int movesLeft) {
 }
 
 bool Entity::isTurnInProgress(void) const {
-    return currentWeapon != nullptr && !currentWeapon->hasFinished();
+    return (currentWeapon != nullptr && !currentWeapon->hasFinished()) || getMovesLeft() > 0;
 }
 
 void Entity::useMoves(int numMoves) {
@@ -282,12 +284,12 @@ void Entity::useMoves(int numMoves) {
 }
 
 void Entity::nextTurn(void) {
-    currentStats.movesLeft = stats.movesPerTurn;
+    currentStats.movesLeft = 0;
     path.clear();
 
     for(auto& [_, weapon] : weapons) {
         if(weapon != nullptr) {
-            weapon->reset();
+            weapon->setUsesLeft(0);
         }
     }
 
@@ -309,7 +311,7 @@ void Entity::reset(void) {
     path.clear();
 
     for(auto& [_, weapon] : weapons) {
-        weapon->reset();
+        weapon->setUsesLeft(0);
     }
 }
 

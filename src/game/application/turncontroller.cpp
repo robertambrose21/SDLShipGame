@@ -179,20 +179,23 @@ bool TurnController::performMoveAction(
     const glm::ivec2& position,
     int shortStopSteps
 ) {
-    if(participants[currentParticipant]->actions[Action::Move] <= 0) {
+    auto numMoveActions = participants[currentParticipant]->actions[Action::Move];
+
+    if(entity == nullptr) {
         return false;
     }
 
-    auto steps = entity->findPath(position, shortStopSteps);
-
-    // Bug - if entity doesn't finish all it's steps then another entity from the same participant
-    // can 'steal' the move action
-    if(steps >= entity->getMovesLeft()) {
+    if(numMoveActions > 0 && entity->getMovesLeft() <= 0) {
         participants[currentParticipant]->actions[Action::Move]--;
         entity->setMovesLeft(entity->getCurrentStats().movesPerTurn);
     }
+    
+    if(entity->getMovesLeft() > 0) {
+        entity->findPath(position, shortStopSteps);
+        return true;
+    }
 
-    return true;
+    return false;
 }
 
 bool TurnController::performAttackAction(
@@ -200,22 +203,18 @@ bool TurnController::performAttackAction(
     Weapon* weapon,
     const glm::ivec2& target
 ) {
-    if(participants[currentParticipant]->actions[Action::Attack] <= 0) {
+    auto numAttackActions = participants[currentParticipant]->actions[Action::Attack];
+
+    if(weapon == nullptr || entity == nullptr) {
         return false;
     }
 
-    if(weapon == nullptr) {
-        return false;
-    }
-
-    // Bug - if entity doesn't finish all it's attacks then another entity from the same participant
-    // can 'steal' the attack action
-    entity->attack(target, weapon->getId());
-
-    if(weapon->getUsesLeft() <= 0) {
+    if(numAttackActions > 0 && weapon->getUsesLeft() <= 0) {
         participants[currentParticipant]->actions[Action::Attack]--;
         weapon->reset();
     }
+
+    entity->attack(target, weapon->getId());
 
     return true;
 }

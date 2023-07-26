@@ -17,6 +17,7 @@ add_library(
     ui/playerpanel.cpp
     ui/text.cpp
     ui/textpanel.cpp
+    ui/actionbutton.cpp
     camera.cpp
 )
 

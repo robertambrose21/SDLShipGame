@@ -135,8 +135,7 @@ void PlayerController::handleMouseEvent(const SDL_Event& event) {
                         );
                         
                         if(turnController.performAttackAction(entity, weapon, position)) {
-                            // TODO: Bug
-                            dice->removeAction(1);
+                            dice->clickAction(1);
                         }
                     }
                 }
@@ -171,7 +170,7 @@ void PlayerController::move(const glm::ivec2& position) {
     for(auto const& entity : selectedEntities) {
         clientMessagesTransmitter.sendFindPathMessage(entity->getId(), position, 0);
         if(turnController.performMoveAction(entity, position)) {
-            dice->removeAction(0);
+            dice->clickAction(0);
         }
     }
 }

@@ -11,7 +11,7 @@
 #include "core/util/randomrolls.h"
 #include "../sdlimport.h"
 #include "../graphicscontext.h"
-#include "button.h"
+#include "actionbutton.h"
 #include "game/application/application.h"
 #include "game/application/turncontroller.h"
 #include "game/net/client/gameclientmessagestransmitter.h"
@@ -22,7 +22,7 @@ private:
     bool rolling;
     std::vector<int> actionsFromServer;
 
-    std::map<int, std::vector<std::unique_ptr<Button>>> actions;
+    std::map<int, std::vector<std::unique_ptr<ActionButton>>> actions;
 
     TurnController& turnController;
     GameClientMessagesTransmitter& clientMessagesTransmitter;
@@ -38,7 +38,7 @@ public:
 
     void draw(GraphicsContext& graphicsContext);
     void handleClickEvent(int mouseX, int mouseY);
-    void removeAction(int id);
+    void clickAction(int id);
 
     void roll(int participantId);
     bool isRolling(void) const;
