@@ -26,6 +26,7 @@ bool MeleeWeapon::onUse(const glm::ivec2& position, const glm::ivec2& target) {
     auto entity = Entity::filterByTile(target.x, target.y, entities, owner->getParticipantId());
     
     if(entity != nullptr) {
+        entity->takeDamage(stats.damage);
         publisher.publish({ owner, entity, this });
     }
 
