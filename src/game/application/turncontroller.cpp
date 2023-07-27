@@ -25,7 +25,7 @@ void TurnController::update(uint32_t timeSinceLastFrame, bool& quit) {
 TurnController::Participant* TurnController::addParticipant(
     int id,
     bool isPlayer,
-    const std::set<Entity*>& entities, 
+    const std::vector<Entity*>& entities, 
     std::unique_ptr<BehaviourStrategy> behaviourStrategy
 ) {
     Participant participant;
@@ -57,7 +57,7 @@ void TurnController::addEntityToParticipant(int participantId, Entity* entity) {
         );
     }
 
-    participants[participantId]->entities.insert(entity);
+    participants[participantId]->entities.push_back(entity);
 }
 
 TurnController::Participant* TurnController::getParticipant(int id) {

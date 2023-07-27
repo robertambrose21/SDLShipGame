@@ -116,17 +116,17 @@ public:
         return nullptr;
     }
 
-    static std::set<Entity*> filterByTiles(
+    static std::vector<Entity*> filterByTiles(
         const std::vector<glm::ivec2>& tiles,
         const std::vector<Entity*>& entities,
         int excludedParticipantId = -1
     ) {
-        std::set<Entity*> filteredEntities;
+        std::vector<Entity*> filteredEntities;
 
         for(auto entity : entities) {
             for(auto const& tile : tiles) {
                 if(entity->isOnTile(tile.x, tile.y) && entity->getParticipantId() != excludedParticipantId) {
-                    filteredEntities.insert(entity);
+                    filteredEntities.push_back(entity);
                 }
             }
         }

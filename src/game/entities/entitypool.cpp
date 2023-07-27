@@ -45,7 +45,9 @@ void EntityPool::updateEntities(uint32_t timeSinceLastFrame, bool& quit) {
     for(auto const& entityId : entitiesForDeletion) {
         auto entity = getEntity(entityId);
         publish({ entity, "Death" });
-        turnController.getParticipant(entity->getParticipantId())->entities.erase(entity);
+        auto& participantEntities = turnController.getParticipant(entity->getParticipantId())->entities;
+        participantEntities.erase(
+            std::remove(participantEntities.begin(), participantEntities.end(), entity), participantEntities.end());
         entities.erase(entityId);
     }
     

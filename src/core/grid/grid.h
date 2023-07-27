@@ -57,6 +57,7 @@ public:
     // TODO: Throw exception if x/y are out of bounds
     const Tile& getTileAt(int x, int y) const;
     std::vector<glm::ivec2> getTilesInCircle(int x, int y, float radius);
+    std::vector<glm::ivec2> getTilesInSquare(int x, int y, int w, int h);
 
     std::deque<glm::ivec2> findPath(const glm::ivec2& source, const glm::ivec2& destination);
 };

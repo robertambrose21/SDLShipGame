@@ -39,6 +39,6 @@ public:
     Camera& getCamera(void);
 
     glm::ivec2 getTilePosition(int x, int y) const;
-    std::pair<int, int> getTileIndices(const glm::ivec2& position) const;
+    std::pair<int, int> getTileIndices(const glm::ivec2& position);
     int getTileSize(void) const;
 };

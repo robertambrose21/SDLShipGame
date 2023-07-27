@@ -175,7 +175,7 @@ void ServerApplication::loadGame(void) {
     auto player2 = addPlayer(glm::ivec2(2, 1), true);
 
     auto numEnemies = randomRange(8, 12);
-    std::set<Entity*> enemies;
+    std::vector<Entity*> enemies;
 
     for(int i = 0; i < numEnemies; i++) {
         Entity* enemy;
@@ -200,7 +200,7 @@ void ServerApplication::loadGame(void) {
             enemy->setCurrentWeapon(fistsId);
         }
 
-        enemies.insert(enemy);
+        enemies.push_back(enemy);
     }
     context.getTurnController().addParticipant(0, true, { player, player2 });
     context.getTurnController().addParticipant(1, false, enemies, std::make_unique<ChaseAndAttackStrategy>(1));

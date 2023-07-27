@@ -29,7 +29,7 @@ public:
     typedef struct _participant {
         int id;
         bool isPlayer;
-        std::set<Entity*> entities;
+        std::vector<Entity*> entities;
         bool passNextTurn;
         std::map<Action, int> actions;
         bool hasRolledForActions;
@@ -57,7 +57,7 @@ public:
     Participant* addParticipant(
         int id,
         bool isPlayer,
-        const std::set<Entity*>& entities, 
+        const std::vector<Entity*>& entities, 
         std::unique_ptr<BehaviourStrategy> behaviourStrategy = nullptr
     );
     void addEntityToParticipant(int participantId, Entity* entity);

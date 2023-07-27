@@ -1,7 +1,7 @@
 #include "application.h"
 
 Application::Application() {
-    grid = std::make_unique<Grid>(100, 100);
+    grid = std::make_unique<Grid>(25, 25);
     window = std::make_unique<Window>(1920, 1080, *grid);
     turnController = std::make_unique<TurnController>(*grid);
     areaOfEffectPool = std::make_unique<AreaOfEffectPool>(*turnController, *grid);

@@ -84,6 +84,20 @@ std::vector<glm::ivec2> Grid::getTilesInCircle(int x, int y, float radius) {
     return tilePositions;
 }
 
+std::vector<glm::ivec2> Grid::getTilesInSquare(int x, int y, int w, int h) {
+    game_assert(x < getWidth() && y < getHeight());
+
+    std::vector<glm::ivec2> tiles;
+
+    for(int i = x; i <= x + w; i++) {
+        for(int j = y; j <= y + h; j++) {
+            tiles.push_back(glm::vec2(i, j));
+        }
+    }
+
+    return tiles;
+}
+
 bool Grid::isTileInRange(int x, int y, const glm::vec2& position, float distance) {
     game_assert(x < getWidth() && y < getHeight());
 

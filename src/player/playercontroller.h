@@ -20,6 +20,15 @@
 
 class PlayerController {
 private:
+    typedef struct _selection {
+        glm::ivec2 start, end;
+        bool isActive;
+
+        _selection() :
+            isActive(false)
+        { }
+    } Selection;
+
     GameClientMessagesTransmitter& clientMessagesTransmitter;
 
     TurnController::Participant* participant;
@@ -34,10 +43,13 @@ private:
 
     Camera& camera;
     glm::ivec2 cameraVector;
+    Selection selection;
 
     std::unique_ptr<PlayerPanel> playerPanel;
 
     void move(const glm::ivec2& position);
+    void handleMouseDown(const SDL_Event& event);
+    void handleMouseUp(const SDL_Event& event);
 
 public:
     PlayerController(
@@ -54,7 +66,8 @@ public:
     const std::vector<Entity*>& getSelectedEntities(void) const;
     void setParticipant(TurnController::Participant* participant);
 
-    void toggleSelection(Entity* entity);
+    void toggleSelection(const std::vector<Entity*>& entities);
+    void deselectAll(void);
 
     Dice& getDice(void);
 };

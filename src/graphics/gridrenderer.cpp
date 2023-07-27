@@ -65,7 +65,7 @@ glm::ivec2 GridRenderer::getTilePosition(int x, int y) const {
     return { x * tileSize, y * tileSize };
 }
 
-std::pair<int, int> GridRenderer::getTileIndices(const glm::ivec2& position) const {
+std::pair<int, int> GridRenderer::getTileIndices(const glm::ivec2& position) {
     return { position.x / tileSize, position.y / tileSize };
 }
 
