@@ -34,15 +34,12 @@ void ChaseAndAttackStrategy::onUpdate(uint32_t timeSinceLastFrame, bool& quit) {
 
             totalPassable = totalPassable && participant->actions[TurnController::Action::Attack] <= 0;
         }
-        else {
-            // TODO: Consider not sending a move action this often
-            if(turnController.performMoveAction(entity, target->getPosition(), 1)) {
-                transmitter->sendFindPath(0, entity->getId(), target->getPosition(), 1);
-            }
-
-            if(entity->hasPath()) {
-                totalPassable = totalPassable && participant->actions[TurnController::Action::Move] <= 0 && entity->getMovesLeft() <= 0;
-            }
+        else if(entity->hasPath()) {
+            totalPassable = totalPassable && 
+            participant->actions[TurnController::Action::Move] <= 0 && entity->getMovesLeft() <= 0;
+        }
+        else if(turnController.performMoveAction(entity, target->getPosition(), 1)) {
+            transmitter->sendFindPath(0, entity->getId(), target->getPosition(), 1);
         }
     }
 
