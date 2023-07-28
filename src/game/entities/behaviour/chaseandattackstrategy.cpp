@@ -10,7 +10,7 @@ ChaseAndAttackStrategy::ChaseAndAttackStrategy(int participantId) :
 void ChaseAndAttackStrategy::onUpdate(uint32_t timeSinceLastFrame, bool& quit) {
     auto& turnController = Application::getContext().getTurnController();
     auto participant = turnController.getParticipant(participantId);
-    auto totalPassable = true;
+    auto isPassable = true;
 
     for(auto entity : participant->entities) {
         auto target = findClosestTarget(entity);
@@ -25,25 +25,26 @@ void ChaseAndAttackStrategy::onUpdate(uint32_t timeSinceLastFrame, bool& quit) {
                 transmitter->sendAttack(0, entity->getId(), target->getPosition(), entity->getCurrentWeapon()->getId());
             };
 
-            totalPassable = totalPassable && participant->actions[TurnController::Action::Attack] <= 0;
+            isPassable = isPassable && participant->actions[TurnController::Action::Attack] <= 0;
         }
         else if(participant->actions[TurnController::Action::Attack] > 0 && bWeapon != nullptr) {
             if(turnController.performAttackAction(entity, bWeapon, target->getPosition())) {
                 transmitter->sendAttack(0, entity->getId(), target->getPosition(), bWeapon->getId());
             }
 
-            totalPassable = totalPassable && participant->actions[TurnController::Action::Attack] <= 0;
+            isPassable = isPassable && participant->actions[TurnController::Action::Attack] <= 0;
         }
         else if(entity->hasPath()) {
-            totalPassable = totalPassable && 
-            participant->actions[TurnController::Action::Move] <= 0 && entity->getMovesLeft() <= 0;
+            isPassable = isPassable && 
+                participant->actions[TurnController::Action::Move] <= 0 && entity->getMovesLeft() <= 0;
         }
         else if(turnController.performMoveAction(entity, target->getPosition(), 1)) {
             transmitter->sendFindPath(0, entity->getId(), target->getPosition(), 1);
+            isPassable = false;
         }
     }
 
-    canPassTurn = totalPassable;
+    canPassTurn = isPassable;
 }
 
 Weapon* ChaseAndAttackStrategy::getBestInRangeWeapon(

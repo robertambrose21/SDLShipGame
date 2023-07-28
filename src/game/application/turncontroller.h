@@ -28,6 +28,7 @@ public:
     // TODO: Consider making entities a map rather than a set
     typedef struct _participant {
         int id;
+        bool isReady;
         bool isPlayer;
         std::vector<Entity*> entities;
         bool passNextTurn;
@@ -58,7 +59,8 @@ public:
         int id,
         bool isPlayer,
         const std::vector<Entity*>& entities, 
-        std::unique_ptr<BehaviourStrategy> behaviourStrategy = nullptr
+        std::unique_ptr<BehaviourStrategy> behaviourStrategy = nullptr,
+        bool isReady = true
     );
     void addEntityToParticipant(int participantId, Entity* entity);
     Participant* getParticipant(int id);

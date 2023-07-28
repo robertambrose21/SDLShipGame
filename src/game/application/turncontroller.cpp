@@ -26,10 +26,12 @@ TurnController::Participant* TurnController::addParticipant(
     int id,
     bool isPlayer,
     const std::vector<Entity*>& entities, 
-    std::unique_ptr<BehaviourStrategy> behaviourStrategy
+    std::unique_ptr<BehaviourStrategy> behaviourStrategy,
+    bool isReady
 ) {
     Participant participant;
     participant.id = id;
+    participant.isReady = isReady;
     participant.entities = entities;
     participant.isPlayer = isPlayer;
     participant.passNextTurn = false;
@@ -214,9 +216,10 @@ bool TurnController::performAttackAction(
         weapon->reset();
     }
 
+    int usesLeft = weapon->getUsesLeft();
     entity->attack(target, weapon->getId());
 
-    return true;
+    return usesLeft > 0;
 }
 
 void TurnController::addOnNextTurnFunction(std::function<void(int, int)> onNextTurnFunc) {
@@ -229,6 +232,9 @@ void TurnController::setOnAllParticipantsSetFunction(std::function<void()> onAll
 
 void TurnController::allParticipantsSet(void) {
     onAllParticipantsSet();
+    for(auto& [_, participant] : participants) {
+        participant->isReady = true;
+    }
 }
 
 int TurnController::getTurnNumber(void) const {
@@ -238,27 +244,32 @@ int TurnController::getTurnNumber(void) const {
 bool TurnController::canProgressToNextTurn(int participantId) {
     auto& participant = participants[participantId];
 
+    if(!participant->isReady) {
+        return false;
+    }
+
     if(participant->entities.empty()) {
         return false;
     }
 
-    bool areEntitiesDone = true;
-    for(auto entity : participant->entities) {
-        areEntitiesDone = areEntitiesDone && !entity->isTurnInProgress();
+    if(participant->behaviourStrategy != nullptr && participant->behaviourStrategy->endTurnCondition()) {
+        return true;
     }
 
-    if(!areEntitiesDone) {
+    bool haveEntitiesTurnsFinished = true;
+    for(auto entity : participant->entities) {
+        haveEntitiesTurnsFinished = haveEntitiesTurnsFinished && !entity->isTurnInProgress();
+    }
+
+    if(!haveEntitiesTurnsFinished) {
         return false;
     }
 
-    bool areActionsDone = participant->hasRolledForActions;
+    bool haveActionsCompleted = participant->hasRolledForActions;
 
     for(auto [_, numActionsLeft] : participant->actions) {
-        areActionsDone = areActionsDone && numActionsLeft == 0;
+        haveActionsCompleted = haveActionsCompleted && numActionsLeft == 0;
     }
 
-    bool behaviourStrategyDone = participant->behaviourStrategy == nullptr ? false : 
-        participant->behaviourStrategy->endTurnCondition();
-
-    return areActionsDone || behaviourStrategyDone || participant->passNextTurn;
+    return haveActionsCompleted || participant->passNextTurn;
 }

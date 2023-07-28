@@ -95,7 +95,7 @@ void GameClientMessagesReceiver::receiveSetParticipant(
     bool isPlayer
 ) {
     auto& turnController = context.getTurnController();
-    auto const& participant = turnController.addParticipant(participantId, isPlayer, { });
+    auto const& participant = turnController.addParticipant(participantId, isPlayer, { }, nullptr, false);
 
     if(isPlayer) {
         playerController->setParticipant(participant);
