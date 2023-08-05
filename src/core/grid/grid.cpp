@@ -120,19 +120,19 @@ bool Grid::isTileInRange(int x, int y, const glm::vec2& position, float distance
     return false;
 }
 
-bool Grid::hasIntersection(const glm::vec2& p1, const glm::vec2 p2, const std::vector<int>& tileIds) {
-    int xMin = std::max(0, (int) std::floor(std::min(p1.x, p2.x)));
-    int xMax = std::min(getWidth(), (int) std::ceil(std::max(p1.x, p2.x)));
-    int yMin = std::max(0, (int) std::floor(std::min(p1.y, p2.y)));
-    int yMax = std::min(getHeight(), (int) std::ceil(std::max(p1.y, p2.y)));
+bool Grid::hasIntersection(const glm::vec2& p1, const glm::vec2& p2) {
+    // Offset so we get the center of the tile
+    auto op1 = p1 + glm::vec2(.5f, .5f);
+    auto op2 = p2 + glm::vec2(.5f, .5f);
+
+    int xMin = std::max(0, (int) std::floor(std::min(op1.x, op2.x)));
+    int xMax = std::min(getWidth(), (int) std::ceil(std::max(op1.x, op2.x)));
+    int yMin = std::max(0, (int) std::floor(std::min(op1.y, op2.y)));
+    int yMax = std::min(getHeight(), (int) std::ceil(std::max(op1.y, op2.y)));
 
     for(int x = xMin; x < xMax; x++) {
         for(int y = yMin; y < yMax; y++) {
-            if(std::find(tileIds.begin(), tileIds.end(), data[y][x].id) == tileIds.end()) {
-                continue;
-            }
-
-            if(hasTileIntersection(p1, p2, x, y)) {
+            if(!data[y][x].isWalkable && hasTileIntersection(op1, op2, x, y)) {
                 return true;
             }
         }

@@ -45,7 +45,7 @@ private:
     glm::ivec2 cameraVector;
     Selection selection;
     std::vector<glm::ivec2> hoverTiles;
-    bool hasLOS;
+    bool isCurrentWeaponInRange;
     glm::ivec2 p1, p2;
 
     std::unique_ptr<PlayerPanel> playerPanel;

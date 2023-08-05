@@ -36,6 +36,8 @@ public:
     bool hasFinished(void);
     Type getType(void) const;
 
+    bool isInRange(const glm::ivec2& target);
+
     void setProjectileBlueprint(const Projectile::Blueprint& projectileBlueprint);
     Projectile::Blueprint getProjectileBluePrint(void) const;
 };

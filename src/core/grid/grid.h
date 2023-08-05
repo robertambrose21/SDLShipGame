@@ -65,7 +65,7 @@ public:
     // x x o
     // o o o
     // Where x are the tiles checked and o are unchecked tiles
-    bool hasIntersection(const glm::vec2& p1, const glm::vec2 p2, const std::vector<int>& tileIds);
+    bool hasIntersection(const glm::vec2& p1, const glm::vec2& p2);
 
     const std::vector<std::vector<Tile>>& getData(void) const;
     // TODO: Throw exception if x/y are out of bounds

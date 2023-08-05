@@ -66,7 +66,7 @@ public:
     void use(const glm::ivec2& position, const glm::ivec2& target);
     void reset(void);
     void setFinished(void);
-    bool isInRange(const glm::ivec2& position);
+    virtual bool isInRange(const glm::ivec2& position);
 
     virtual void draw(GraphicsContext& graphicsContext) = 0;
     virtual void update(uint32_t timeSinceLastFrame) = 0;

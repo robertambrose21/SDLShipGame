@@ -25,7 +25,7 @@ ProjectileWeapon::ProjectileWeapon(
 { }
 
 bool ProjectileWeapon::onUse(const glm::ivec2& position, const glm::ivec2& target) {
-    if(glm::distance(glm::vec2(position), glm::vec2(target)) > stats.range) {
+    if(!isInRange(target)) {
         return false;
     }
 
@@ -45,6 +45,10 @@ void ProjectileWeapon::draw(GraphicsContext& graphicsContext) {
 
 void ProjectileWeapon::update(uint32_t timeSinceLastFrame) {
     // no-op
+}
+
+bool ProjectileWeapon::isInRange(const glm::ivec2& target) {
+    return Weapon::isInRange(target) && !grid.hasIntersection(owner->getPosition(), target);
 }
 
 void ProjectileWeapon::setProjectileBlueprint(const Projectile::Blueprint& projectileBlueprint) {

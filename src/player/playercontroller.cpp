@@ -10,7 +10,7 @@ PlayerController::PlayerController(
     entityPool(context.getEntityPool()),
     camera(context.getGraphicsContext().getGridRenderer().getCamera()),
     isLeftShiftPressed(false),
-    hasLOS(true),
+    isCurrentWeaponInRange(true),
     cameraVector(glm::ivec2(0, 0))
 {
     dice = std::make_unique<Dice>(3, clientMessagesTransmitter);
@@ -51,7 +51,7 @@ void PlayerController::draw(GraphicsContext& graphicsContext) {
         auto const& realPosition = gridRenderer.getTilePosition(tile.x, tile.y) + camera.getPosition();
         SDL_Rect dst = { realPosition.x, realPosition.y, gridRenderer.getTileSize(), gridRenderer.getTileSize() };
         SDL_SetRenderDrawBlendMode(graphicsContext.getRenderer(), SDL_BLENDMODE_BLEND);
-        if(hasLOS) {
+        if(isCurrentWeaponInRange) {
             SDL_SetRenderDrawColor(graphicsContext.getRenderer(), 0x00, 0xFF, 0x00, 0x7F);
         }
         else {
@@ -298,14 +298,10 @@ void PlayerController::setHoverTiles(void) {
     auto [x, y] = gridRenderer.getTileIndices(mousePosition - camera.getPosition());
 
     auto& grid = gridRenderer.getGrid();
-    
-    // Offset so we get the center of the tile
-    auto position = glm::vec2(entity->getPosition()) + glm::vec2(.5f, .5f);
-    auto target = glm::vec2(x + .5f, y + .5f);
 
-    hasLOS = !grid.hasIntersection(position, target, { 2 });
-    p1 = position * 32.0f;
-    p2 = target * 32.0f;
+    isCurrentWeaponInRange = weapon->isInRange(glm::vec2(x, y));
+    p1 = (entity->getPosition() * 32) + glm::ivec2(16, 16);
+    p2 = (glm::ivec2(x, y) * 32) + glm::ivec2(16, 16);
 
     if(weapon->getName() == "Grenade Launcher") {
         hoverTiles = gridRenderer.getGrid().getTilesInCircle(x, y, 2);
