@@ -45,6 +45,8 @@ private:
     glm::ivec2 cameraVector;
     Selection selection;
     std::vector<glm::ivec2> hoverTiles;
+    bool hasLOS;
+    glm::ivec2 p1, p2;
 
     std::unique_ptr<PlayerPanel> playerPanel;
 
@@ -52,7 +54,7 @@ private:
     void attack(const glm::ivec2& target);
     void handleMouseDown(const SDL_Event& event);
     void handleMouseUp(const SDL_Event& event);
-    void setHoverTiles(int centerTileX, int centerTileY);
+    void setHoverTiles(void);
 
 public:
     PlayerController(

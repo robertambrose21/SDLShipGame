@@ -10,6 +10,7 @@ PlayerController::PlayerController(
     entityPool(context.getEntityPool()),
     camera(context.getGraphicsContext().getGridRenderer().getCamera()),
     isLeftShiftPressed(false),
+    hasLOS(true),
     cameraVector(glm::ivec2(0, 0))
 {
     dice = std::make_unique<Dice>(3, clientMessagesTransmitter);
@@ -25,10 +26,7 @@ PlayerController::PlayerController(
 void PlayerController::update(uint32_t timeSinceLastFrame) {
     camera.move(cameraVector * (int) timeSinceLastFrame);
 
-    glm::ivec2 mousePosition;
-    SDL_GetMouseState(&mousePosition.x, &mousePosition.y);
-    auto [x, y] = gridRenderer.getTileIndices(mousePosition - camera.getPosition());
-    setHoverTiles(x, y);
+    setHoverTiles();
 
     for(auto entity : selectedEntities) {
         if(entity == nullptr || entity->getCurrentHP() <= 0) {
@@ -53,8 +51,14 @@ void PlayerController::draw(GraphicsContext& graphicsContext) {
         auto const& realPosition = gridRenderer.getTilePosition(tile.x, tile.y) + camera.getPosition();
         SDL_Rect dst = { realPosition.x, realPosition.y, gridRenderer.getTileSize(), gridRenderer.getTileSize() };
         SDL_SetRenderDrawBlendMode(graphicsContext.getRenderer(), SDL_BLENDMODE_BLEND);
-        SDL_SetRenderDrawColor(graphicsContext.getRenderer(), 0x00, 0xFF, 0x00, 0x7F);
+        if(hasLOS) {
+            SDL_SetRenderDrawColor(graphicsContext.getRenderer(), 0x00, 0xFF, 0x00, 0x7F);
+        }
+        else {
+            SDL_SetRenderDrawColor(graphicsContext.getRenderer(), 0xFF, 0x00, 0x00, 0x7F);
+        }
         SDL_RenderFillRect(graphicsContext.getRenderer(), &dst);
+        SDL_RenderDrawLine(graphicsContext.getRenderer(), p1.x, p1.y, p2.x, p2.y);
     }
 }
 
@@ -276,7 +280,7 @@ void PlayerController::attack(const glm::ivec2& target) {
     }
 }
 
-void PlayerController::setHoverTiles(int centerTileX, int centerTileY) {
+void PlayerController::setHoverTiles(void) {
     if(!isLeftShiftPressed || selectedEntities.empty()) {
         hoverTiles.clear();
         return;
@@ -284,23 +288,38 @@ void PlayerController::setHoverTiles(int centerTileX, int centerTileY) {
 
     auto entity = selectedEntities[0];
     auto weapon = entity->getCurrentWeapon();
+
+    if(weapon->getType() != Weapon::PROJECTILE) {
+        return;
+    }
+
+    glm::ivec2 mousePosition;
+    SDL_GetMouseState(&mousePosition.x, &mousePosition.y);
+    auto [x, y] = gridRenderer.getTileIndices(mousePosition - camera.getPosition());
+
+    auto& grid = gridRenderer.getGrid();
     
+    // Offset so we get the center of the tile
+    auto position = glm::vec2(entity->getPosition()) + glm::vec2(.5f, .5f);
+    auto target = glm::vec2(x + .5f, y + .5f);
+
+    hasLOS = !grid.hasIntersection(position, target, { 2 });
+    p1 = position * 32.0f;
+    p2 = target * 32.0f;
+
     if(weapon->getName() == "Grenade Launcher") {
-        hoverTiles = gridRenderer.getGrid().getTilesInCircle(centerTileX, centerTileY, 2);
+        hoverTiles = gridRenderer.getGrid().getTilesInCircle(x, y, 2);
     }
     else if(weapon->getName()== "Freeze Gun") {
-        auto& grid = gridRenderer.getGrid();
-        auto target = gridRenderer.getTilePosition(centerTileX, centerTileY);
-
-        glm::ivec2 dir = entity->getPosition() - glm::ivec2(centerTileX, centerTileY);
+        glm::ivec2 dir = entity->getPosition() - glm::ivec2(x, y);
         auto perp = glm::normalize(glm::vec2(dir.y, -dir.x));
         auto pX = std::min(grid.getWidth() - 1, (int) std::round(perp.x));
         auto pY = std::min(grid.getHeight() - 1, (int) std::round(perp.y));
 
         hoverTiles = {
-            glm::ivec2(centerTileX, centerTileY),
-            glm::ivec2(centerTileX + pX, centerTileY + pY),
-            glm::ivec2(centerTileX - pX, centerTileY - pY)
+            glm::ivec2(x, y),
+            glm::ivec2(x + pX, y + pY),
+            glm::ivec2(x - pX, y - pY)
         };
     }
 }

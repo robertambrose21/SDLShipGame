@@ -120,6 +120,73 @@ bool Grid::isTileInRange(int x, int y, const glm::vec2& position, float distance
     return false;
 }
 
+bool Grid::hasIntersection(const glm::vec2& p1, const glm::vec2 p2, const std::vector<int>& tileIds) {
+    int xMin = std::max(0, (int) std::floor(std::min(p1.x, p2.x)));
+    int xMax = std::min(getWidth(), (int) std::ceil(std::max(p1.x, p2.x)));
+    int yMin = std::max(0, (int) std::floor(std::min(p1.y, p2.y)));
+    int yMax = std::min(getHeight(), (int) std::ceil(std::max(p1.y, p2.y)));
+
+    for(int x = xMin; x < xMax; x++) {
+        for(int y = yMin; y < yMax; y++) {
+            if(std::find(tileIds.begin(), tileIds.end(), data[y][x].id) == tileIds.end()) {
+                continue;
+            }
+
+            if(hasTileIntersection(p1, p2, x, y)) {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+bool Grid::hasTileIntersection(const glm::vec2& p1, const glm::vec2& p2, int x, int y) {
+    std::vector<glm::vec2> corners = {
+        glm::vec2(x, y),
+        glm::vec2(x, y + 1),
+        glm::vec2(x + 1, y),
+        glm::vec2(x + 1, y + 1)
+    };
+
+    if(!hasPointsOnDifferentSides(p1, p2, corners)) {
+        return false;
+    }
+    else if(p1.x > corners[3].x && p2.x > corners[3].x) {
+        return false;
+    }
+    else if(p1.x < corners[0].x && p2.x < corners[0].x) {
+        return false;
+    }
+    else if(p1.y > corners[3].y && p2.y > corners[3].y) {
+        return false;
+    }
+    else if(p1.y < corners[0].y && p2.y < corners[0].y) {
+        return false;
+    }
+    
+    return true;
+}
+
+bool Grid::hasPointsOnDifferentSides(const glm::vec2& p1, const glm::vec2& p2, const std::vector<glm::vec2>& corners) {
+    game_assert(corners.size() == 4);
+
+    float p = pointOnLineSide(p1, p2, corners[0]);
+
+    for(int i = 1; i < 4; i++) {
+        p *= pointOnLineSide(p1, p2, corners[i]);
+        if(p < 0) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+float Grid::pointOnLineSide(const glm::vec2& p1, const glm::vec2& p2, const glm::vec2& point) {
+    return ((p2.y - p1.y) * point.x) + ((p1.x - p2.x) * point.y) + (p2.x * p1.y - p1.x * p2.y); 
+}
+
 std::deque<glm::ivec2> Grid::findPath(const glm::ivec2& source, const glm::ivec2& destination) {
     if(!isNodeWalkable(source) || !isNodeWalkable(destination)) {
         return std::deque<glm::ivec2>();

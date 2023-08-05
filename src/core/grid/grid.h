@@ -7,6 +7,7 @@
 #include <set>  
 #include <deque>
 #include <limits.h>
+#include <algorithm>
 
 #include "core/util/gameassert.h"
 
@@ -41,6 +42,11 @@ private:
 
     bool isTileInRange(int x, int y, const glm::vec2& position, float distance);
 
+    // Line intersection
+    float pointOnLineSide(const glm::vec2& p1, const glm::vec2& p2, const glm::vec2& point);
+    bool hasPointsOnDifferentSides(const glm::vec2& p1, const glm::vec2& p2, const std::vector<glm::vec2>& corners);
+    bool hasTileIntersection(const glm::vec2& p1, const glm::vec2& p2, int x, int y);
+
 public:
     Grid(int width, int height, const std::vector<std::vector<Tile>>& data = { });
 
@@ -52,6 +58,14 @@ public:
     void setTile(int x, int y, const Tile& tile);
     void setTileWalkable(int x, int y, bool isWalkable);
     void setTileFrozenFor(int x, int y, int turnsFrozenFor);
+
+    // Expects points to be in tile space.
+    // e.g. the line (0, 0) -> (1, 1) in a 3x3 grid will check a 4x4 square of tiles like so:
+    // x x o
+    // x x o
+    // o o o
+    // Where x are the tiles checked and o are unchecked tiles
+    bool hasIntersection(const glm::vec2& p1, const glm::vec2 p2, const std::vector<int>& tileIds);
 
     const std::vector<std::vector<Tile>>& getData(void) const;
     // TODO: Throw exception if x/y are out of bounds
