@@ -57,7 +57,7 @@ const Tile& Grid::getTileAt(int x, int y) const {
 }
 
 std::vector<glm::ivec2> Grid::getTilesInCircle(int x, int y, float radius) {
-    if(x < 0 || y < 0 || x >= getWidth() || y >= getHeight()) {
+    if(!isTileInBounds(x, y)) {
         return std::vector<glm::ivec2>();
     }
 
@@ -72,7 +72,9 @@ std::vector<glm::ivec2> Grid::getTilesInCircle(int x, int y, float radius) {
 
     for(int i = lowerX; i < upperX; i++) {
         for(int j = lowerY; j < upperY; j++) {
-            square.push_back(glm::vec2(i, j));
+            if(isTileInBounds(i, j)) {
+                square.push_back(glm::vec2(i, j));
+            }
         }
     }
 
@@ -118,6 +120,10 @@ bool Grid::isTileInRange(int x, int y, const glm::vec2& position, float distance
     }
 
     return false;
+}
+
+bool Grid::isTileInBounds(int x, int y) {
+    return x >= 0 && y >= 0 && x < getWidth() && y < getHeight();
 }
 
 bool Grid::hasIntersection(const glm::vec2& p1, const glm::vec2& p2) {

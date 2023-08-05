@@ -41,6 +41,7 @@ private:
     );
 
     bool isTileInRange(int x, int y, const glm::vec2& position, float distance);
+    bool isTileInBounds(int x, int y);
 
     // Line intersection
     float pointOnLineSide(const glm::vec2& p1, const glm::vec2& p2, const glm::vec2& point);
