@@ -25,6 +25,11 @@ PlayerController::PlayerController(
 void PlayerController::update(uint32_t timeSinceLastFrame) {
     camera.move(cameraVector * (int) timeSinceLastFrame);
 
+    glm::ivec2 mousePosition;
+    SDL_GetMouseState(&mousePosition.x, &mousePosition.y);
+    auto [x, y] = gridRenderer.getTileIndices(mousePosition - camera.getPosition());
+    setHoverTiles(x, y);
+
     for(auto entity : selectedEntities) {
         if(entity == nullptr || entity->getCurrentHP() <= 0) {
             selectedEntities.erase(std::remove(selectedEntities.begin(), selectedEntities.end(), entity), selectedEntities.end());
@@ -42,6 +47,14 @@ void PlayerController::draw(GraphicsContext& graphicsContext) {
         SDL_Rect rect = { selection.start.x, selection.start.y, size.x, size.y };
         SDL_SetRenderDrawColor(graphicsContext.getRenderer(), 0x00, 0xFF, 0x00, 0xFF);
         SDL_RenderDrawRect(graphicsContext.getRenderer(), &rect);
+    }
+
+    for(auto tile : hoverTiles) {
+        auto const& realPosition = gridRenderer.getTilePosition(tile.x, tile.y) + camera.getPosition();
+        SDL_Rect dst = { realPosition.x, realPosition.y, gridRenderer.getTileSize(), gridRenderer.getTileSize() };
+        SDL_SetRenderDrawBlendMode(graphicsContext.getRenderer(), SDL_BLENDMODE_BLEND);
+        SDL_SetRenderDrawColor(graphicsContext.getRenderer(), 0x00, 0xFF, 0x00, 0x7F);
+        SDL_RenderFillRect(graphicsContext.getRenderer(), &dst);
     }
 }
 
@@ -114,6 +127,9 @@ void PlayerController::handleKeyPress(const SDL_Event& event) {
 }
 
 void PlayerController::handleMouseEvent(const SDL_Event& event) {
+    auto mousePosition = glm::ivec2(event.button.x, event.button.y);
+    auto [x, y] = gridRenderer.getTileIndices(mousePosition - camera.getPosition());
+
     switch(event.type) {
         case SDL_MOUSEBUTTONDOWN: {
             handleMouseDown(event);
@@ -129,6 +145,7 @@ void PlayerController::handleMouseEvent(const SDL_Event& event) {
             if(selection.isActive) {
                 selection.end = glm::ivec2(event.motion.x, event.motion.y);
             }
+
             break;
         }
 
@@ -140,9 +157,15 @@ void PlayerController::handleMouseEvent(const SDL_Event& event) {
 void PlayerController::handleMouseDown(const SDL_Event& event) {
     auto mousePosition = glm::ivec2(event.button.x, event.button.y);
     auto [x, y] = gridRenderer.getTileIndices(mousePosition - camera.getPosition());
+    auto position = glm::ivec2(x, y);
 
     switch(event.button.button) {
         case SDL_BUTTON_LEFT: {
+            if(isLeftShiftPressed) {
+                attack(position);
+                break;
+            }
+
             auto entity = Entity::filterByTile(x, y, participant->entities);
 
             if(entity != nullptr) {
@@ -160,22 +183,9 @@ void PlayerController::handleMouseDown(const SDL_Event& event) {
 
         case SDL_BUTTON_RIGHT: {
             auto const& target = Entity::filterByTile(x, y, entityPool.getEntities());
-            auto position = glm::ivec2(x, y);
 
             if(target != nullptr || isLeftShiftPressed) {
-                for(auto const& entity : selectedEntities) {
-                    auto const& weapon = entity->getCurrentWeapon();
-
-                    clientMessagesTransmitter.sendAttackMessage(
-                        entity->getId(), 
-                        position, 
-                        weapon->getId()
-                    );
-                    
-                    if(turnController.performAttackAction(entity, weapon, position)) {
-                        dice->clickAction(1);
-                    }
-                }
+                attack(position);
             }
             else {
                 move(glm::ivec2(x, y));
@@ -247,6 +257,51 @@ void PlayerController::move(const glm::ivec2& position) {
         if(turnController.performMoveAction(entity, position)) {
             dice->clickAction(0);
         }
+    }
+}
+
+void PlayerController::attack(const glm::ivec2& target) {
+    for(auto const& entity : selectedEntities) {
+        auto const& weapon = entity->getCurrentWeapon();
+
+        clientMessagesTransmitter.sendAttackMessage(
+            entity->getId(), 
+            target, 
+            weapon->getId()
+        );
+        
+        if(turnController.performAttackAction(entity, weapon, target)) {
+            dice->clickAction(1);
+        }
+    }
+}
+
+void PlayerController::setHoverTiles(int centerTileX, int centerTileY) {
+    if(!isLeftShiftPressed || selectedEntities.empty()) {
+        hoverTiles.clear();
+        return;
+    }
+
+    auto entity = selectedEntities[0];
+    auto weapon = entity->getCurrentWeapon();
+    
+    if(weapon->getName() == "Grenade Launcher") {
+        hoverTiles = gridRenderer.getGrid().getTilesInCircle(centerTileX, centerTileY, 2);
+    }
+    else if(weapon->getName()== "Freeze Gun") {
+        auto& grid = gridRenderer.getGrid();
+        auto target = gridRenderer.getTilePosition(centerTileX, centerTileY);
+
+        glm::ivec2 dir = entity->getPosition() - glm::ivec2(centerTileX, centerTileY);
+        auto perp = glm::normalize(glm::vec2(dir.y, -dir.x));
+        auto pX = std::min(grid.getWidth() - 1, (int) std::round(perp.x));
+        auto pY = std::min(grid.getHeight() - 1, (int) std::round(perp.y));
+
+        hoverTiles = {
+            glm::ivec2(centerTileX, centerTileY),
+            glm::ivec2(centerTileX + pX, centerTileY + pY),
+            glm::ivec2(centerTileX - pX, centerTileY - pY)
+        };
     }
 }
 

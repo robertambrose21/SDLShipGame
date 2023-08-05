@@ -44,12 +44,15 @@ private:
     Camera& camera;
     glm::ivec2 cameraVector;
     Selection selection;
+    std::vector<glm::ivec2> hoverTiles;
 
     std::unique_ptr<PlayerPanel> playerPanel;
 
     void move(const glm::ivec2& position);
+    void attack(const glm::ivec2& target);
     void handleMouseDown(const SDL_Event& event);
     void handleMouseUp(const SDL_Event& event);
+    void setHoverTiles(int centerTileX, int centerTileY);
 
 public:
     PlayerController(

@@ -51,12 +51,15 @@ const std::vector<std::vector<Tile>>& Grid::getData(void) const {
 }
 
 const Tile& Grid::getTileAt(int x, int y) const {
+    game_assert(x >= 0 && y >= 0);
     game_assert(x < getWidth() && y < getHeight());
     return data[y][x];
 }
 
 std::vector<glm::ivec2> Grid::getTilesInCircle(int x, int y, float radius) {
-    game_assert(x < getWidth() && y < getHeight());
+    if(x < 0 || y < 0 || x >= getWidth() || y >= getHeight()) {
+        return std::vector<glm::ivec2>();
+    }
 
     int squareHalfSize = std::floor(radius);
     int upperX = std::max(x + squareHalfSize + 1, x);
