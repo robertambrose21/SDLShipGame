@@ -24,12 +24,12 @@ GameServer::GameServer(const yojimbo::Address& address) :
     std::cout << "Server address is " << buffer << std::endl;
 }
 
-void GameServer::setReceiver(const std::shared_ptr<ServerMessagesReceiver>& receiver) {
+void GameServer::setReceiver(ServerMessagesReceiver* receiver) {
     game_assert(receiver != nullptr);
     this->receiver = receiver;
 }
 
-void GameServer::setTransmitter(const std::shared_ptr<ServerMessagesTransmitter>& transmitter) {
+void GameServer::setTransmitter(ServerMessagesTransmitter* transmitter) {
     game_assert(transmitter != nullptr);
     this->transmitter = transmitter;
 }

@@ -9,23 +9,18 @@
 
 class ClientApplication {
 private:
-    std::shared_ptr<PlayerController> playerController;
-    std::shared_ptr<GameClientMessagesTransmitter> clientMessagesTransmitter;
-    std::shared_ptr<GameClientMessagesReceiver> clientMessagesReceiver;
-    std::shared_ptr<GameClient> client;
+    std::unique_ptr<PlayerController> playerController;
+    std::unique_ptr<GameClientMessagesTransmitter> clientMessagesTransmitter;
+    std::unique_ptr<GameClientMessagesReceiver> clientMessagesReceiver;
+    std::unique_ptr<GameClient> client;
 
-    std::shared_ptr<ClientStateMachine> clientStateMachine;
-
-    std::shared_ptr<EntityPool> entityPool;
-    std::shared_ptr<ProjectilePool> projectilePool;
-    std::shared_ptr<AreaOfEffectPool> areaOfEffectPool;
-    std::shared_ptr<TurnController> turnController;
+    std::unique_ptr<ClientStateMachine> clientStateMachine;
 
 public:
     ClientApplication();
     ~ClientApplication();
 
-    void draw(const std::shared_ptr<GraphicsContext>& graphicsContext, bool& quit);
+    void draw(GraphicsContext& graphicsContext, bool& quit);
     void update(uint32_t timeSinceLastFrame, bool& quit);
     void initialise(void);
     void run(void);

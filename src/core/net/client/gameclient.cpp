@@ -1,7 +1,7 @@
 #include "gameclient.h"
 
 GameClient::GameClient(
-    const std::shared_ptr<ClientMessagesReceiver>& receiver,
+    ClientMessagesReceiver& receiver,
     const yojimbo::Address& serverAddress
 ) :
     receiver(receiver),
@@ -54,5 +54,5 @@ void GameClient::processMessages(void) {
 }
 
 void GameClient::processMessage(yojimbo::Message* message) {
-    receiver->receiveMessage(message);
+    receiver.receiveMessage(message);
 }

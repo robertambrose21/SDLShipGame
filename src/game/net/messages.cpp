@@ -2,7 +2,7 @@
 #include "game/weapons/weapon.h"
 #include "game/weapons/projectileweapon.h"
 
-WeaponStateUpdate WeaponStateUpdate::serialize(const std::shared_ptr<Weapon>& weapon) {
+WeaponStateUpdate WeaponStateUpdate::serialize(Weapon* weapon) {
     WeaponStateUpdate weaponUpdate;
 
     switch(weapon->getType()) {
@@ -12,7 +12,7 @@ WeaponStateUpdate WeaponStateUpdate::serialize(const std::shared_ptr<Weapon>& we
 
         case Weapon::Type::PROJECTILE:
             strcpy(weaponUpdate.weaponClass, "Projectile");
-            strcpy(weaponUpdate.projectile, std::dynamic_pointer_cast<ProjectileWeapon>(weapon)->getProjectileBluePrint().name.c_str());
+            strcpy(weaponUpdate.projectile, ((ProjectileWeapon*) weapon)->getProjectileBluePrint().name.c_str());
             break;
 
         default:
@@ -29,13 +29,13 @@ WeaponStateUpdate WeaponStateUpdate::serialize(const std::shared_ptr<Weapon>& we
     return weaponUpdate;
 }
 
-std::shared_ptr<Weapon> WeaponStateUpdate::deserialize(const WeaponStateUpdate& update, const std::shared_ptr<Weapon>& existing) {
+Weapon* WeaponStateUpdate::deserialize(const WeaponStateUpdate& update, Weapon* existing) {
     game_assert(existing != nullptr);
     existing->setUsesLeft(update.usesLeft);
     return existing;
 }
 
-EntityStateUpdate EntityStateUpdate::serialize(const std::shared_ptr<Entity>& entity) {
+EntityStateUpdate EntityStateUpdate::serialize(Entity* entity) {
     game_assert(entity != nullptr);
 
     EntityStateUpdate entityStateUpdate;
@@ -53,14 +53,14 @@ EntityStateUpdate EntityStateUpdate::serialize(const std::shared_ptr<Entity>& en
     entityStateUpdate.numWeapons = entity->getWeapons().size();
 
     int index = 0;
-    for(auto [_, weapon] : entity->getWeapons()) {
+    for(auto weapon : entity->getWeapons()) {
         entityStateUpdate.weaponUpdates[index++] = WeaponStateUpdate::serialize(weapon);
     }
 
     return entityStateUpdate;
 }
 
-std::shared_ptr<Entity> EntityStateUpdate::deserialize(const EntityStateUpdate& update, const std::shared_ptr<Entity>& existing) {
+void EntityStateUpdate::deserialize(const EntityStateUpdate& update, Entity* existing) {
     game_assert(existing != nullptr);
     existing->setPosition(glm::ivec2(update.x, update.y));
     existing->setCurrentHP(update.currentHP);
@@ -71,12 +71,12 @@ std::shared_ptr<Entity> EntityStateUpdate::deserialize(const EntityStateUpdate& 
         auto& weaponUpdate = update.weaponUpdates[i];
         auto weapon = existing->getWeapon(weaponUpdate.id);
 
+        game_assert(weapon != nullptr);
+
         if(weaponUpdate.id == update.currentWeaponId) {
-            existing->setCurrentWeapon(weapon);
+            existing->setCurrentWeapon(weapon->getId());
         }
 
-        weapon = WeaponStateUpdate::deserialize(weaponUpdate, weapon);
+        WeaponStateUpdate::deserialize(weaponUpdate, weapon);
     }
-
-    return existing;
 }

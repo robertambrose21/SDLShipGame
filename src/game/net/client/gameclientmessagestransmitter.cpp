@@ -1,58 +1,67 @@
 #include "gameclientmessagestransmitter.h"
 
-GameClientMessagesTransmitter::GameClientMessagesTransmitter(const std::shared_ptr<GameClient>& client) :
+GameClientMessagesTransmitter::GameClientMessagesTransmitter(GameClient& client) :
     client(client)
 { }
+
+void GameClientMessagesTransmitter::sendActionsRollMessage(int participantId) {
+    ActionsRollMessage* message = (ActionsRollMessage*) client.createMessage(GameMessageType::ACTIONS_ROLL);
+
+    message->participantId = participantId;
+
+    client.sendMessage(message);
+}
 
 void GameClientMessagesTransmitter::sendFindPathMessage(
     uint32_t entityId,
     const glm::ivec2& position,
     int shortStopSteps
 ) {
-    FindPathMessage* message = (FindPathMessage*) client->createMessage(GameMessageType::FIND_PATH);
+    FindPathMessage* message = (FindPathMessage*) client.createMessage(GameMessageType::FIND_PATH);
 
     message->entityId = entityId;
     message->x = position.x;
     message->y = position.y;
     message->shortStopSteps = shortStopSteps;
 
-    client->sendMessage(message);
+    client.sendMessage(message);
 }
 
 void GameClientMessagesTransmitter::sendSelectEntityMessage(uint32_t entityId) {
-    SelectEntityMessage* message = (SelectEntityMessage*) client->createMessage(GameMessageType::SELECT_ENTITY);
+    SelectEntityMessage* message = (SelectEntityMessage*) client.createMessage(GameMessageType::SELECT_ENTITY);
 
     message->id = entityId;
 
-    client->sendMessage(message);
+    client.sendMessage(message);
 }
 
-void GameClientMessagesTransmitter::sendAttackEntityMessage(
+void GameClientMessagesTransmitter::sendAttackMessage(
     uint32_t entityId, 
-    uint32_t targetId, 
+    const glm::ivec2& target,
     uint32_t weaponId
 ) {
-    AttackEntityMessage* message = (AttackEntityMessage*) client->createMessage(GameMessageType::ATTACK_ENTITY);
+    AttackMessage* message = (AttackMessage*) client.createMessage(GameMessageType::ATTACK_ENTITY);
     
     message->entityId = entityId;
-    message->targetId = targetId;
+    message->x = target.x;
+    message->y = target.y;
     message->weaponId = weaponId;
 
-    client->sendMessage(message);
+    client.sendMessage(message);
 }
 
 void GameClientMessagesTransmitter::sendPassParticipantTurnMessage(int participantId) {
-    PassParticipantTurnMessage* message = (PassParticipantTurnMessage*) client->createMessage(GameMessageType::PASS_PARTICIPANT_TURN);
+    PassParticipantTurnMessage* message = (PassParticipantTurnMessage*) client.createMessage(GameMessageType::PASS_PARTICIPANT_TURN);
 
     message->participantId = participantId;
 
-    client->sendMessage(message);
+    client.sendMessage(message);
 }
 
 void GameClientMessagesTransmitter::sendSetParticipantAckMessage(int participantId) {
-    SetParticipantAckMessage* message = (SetParticipantAckMessage*) client->createMessage(GameMessageType::SET_PARTICIPANT_ACK);
+    SetParticipantAckMessage* message = (SetParticipantAckMessage*) client.createMessage(GameMessageType::SET_PARTICIPANT_ACK);
 
     message->participantId = participantId;
 
-    client->sendMessage(message);
+    client.sendMessage(message);
 }

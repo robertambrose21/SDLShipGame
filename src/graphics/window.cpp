@@ -1,14 +1,16 @@
 #include "window.h"
 
-Window::Window(int width, int height, const std::shared_ptr<Grid>& grid) :
+Window::Window(int width, int height, Grid& grid) :
     width(width),
     height(height)
 {
-    gridRenderer = std::make_shared<GridRenderer>(grid, height);
+    gridRenderer = std::make_unique<GridRenderer>(grid, height);
 }
 
 Window::~Window() {
+    TTF_Quit();
     IMG_Quit();
+    SDL_Quit();
 }
 
 bool Window::initialiseWindow(const Headless& headless) {
@@ -50,8 +52,13 @@ bool Window::initialiseWindow(const Headless& headless) {
         return false;
     }
 
-    textureLoader = std::make_shared<TextureLoader>(renderer);
-    graphicsContext = std::make_shared<GraphicsContext>(renderer, textureLoader, gridRenderer);
+    if(TTF_Init() == -1) {
+        std::cout << "SDL_ttf could not be initialised: " << TTF_GetError() << std::endl;
+        return false;
+    }
+    
+    textureLoader = TextureLoader(renderer.get());
+    graphicsContext = std::make_unique<GraphicsContext>(renderer.get(), textureLoader, *gridRenderer);
 
     return true;
 }
@@ -85,10 +92,10 @@ void Window::loop(void) {
         if(headless == Headless::NO) {
             SDL_RenderClear(renderer.get());
 
-            gridRenderer->draw(graphicsContext);
+            gridRenderer->draw(*graphicsContext);
 
             for(auto const& worker : drawWorkers) {
-                worker(graphicsContext, quit);
+                worker(*graphicsContext, quit);
             }
 
             SDL_SetRenderDrawColor(renderer.get(), 0x00, 0x00, 0x00, 0xFF);
@@ -101,7 +108,7 @@ void Window::addLoopLogicWorker(std::function<void(uint32_t, bool&)> worker) {
     logicWorkers.push_back(worker);
 }
 
-void Window::addLoopDrawWorker(std::function<void(const std::shared_ptr<GraphicsContext>&, bool&)> worker) {
+void Window::addLoopDrawWorker(std::function<void(GraphicsContext&, bool&)> worker) {
     drawWorkers.push_back(worker);
 }
 
@@ -113,15 +120,16 @@ void Window::setGridTileTexture(int tileId, uint32_t textureId) {
     gridRenderer->setTileTexture(tileId, textureId);
 }
 
-std::shared_ptr<GridRenderer> Window::getGridRenderer(void) {
-    return gridRenderer;
+GridRenderer& Window::getGridRenderer(void) {
+    game_assert(gridRenderer != nullptr);
+    return *gridRenderer;
 }
 
-std::shared_ptr<TextureLoader> Window::getTextureLoader(void) {
+TextureLoader& Window::getTextureLoader(void) {
     return textureLoader;
 }
 
-std::shared_ptr<GraphicsContext> Window::getGraphicsContext(void) {
+GraphicsContext& Window::getGraphicsContext(void) {
     game_assert(graphicsContext != nullptr);
-    return graphicsContext;
+    return *graphicsContext;
 }

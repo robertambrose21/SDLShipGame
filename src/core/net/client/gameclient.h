@@ -15,7 +15,7 @@ private:
     yojimbo::Address address;
     GameConnectionConfig connectionConfig;
 
-    std::shared_ptr<ClientMessagesReceiver> receiver;
+    ClientMessagesReceiver& receiver;
 
     std::queue<yojimbo::Message*> messageQueue;
 
@@ -24,7 +24,7 @@ private:
 
 public:
     GameClient(
-        const std::shared_ptr<ClientMessagesReceiver>& receiver,
+        ClientMessagesReceiver& receiver,
         const yojimbo::Address& serverAddress
     );
 

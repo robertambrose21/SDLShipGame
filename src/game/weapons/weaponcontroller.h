@@ -4,10 +4,11 @@
 #include "game/entities/entity.h"
 #include "core/json.hpp"
 #include "projectilepool.h"
+#include "core/event/eventpublisher.h"
 
 using json = nlohmann::json;
 
-class WeaponController {
+class WeaponController : public EventPublisher<WeaponEventData> {
 private:
     typedef struct _weaponDefinition {
         std::string filename;
@@ -23,12 +24,12 @@ private:
 
     std::map<std::string, WeaponDefinition> weaponDefinitions;
 
-    std::shared_ptr<Grid> grid;
-    std::shared_ptr<ProjectilePool> projectilePool;
+    Grid& grid;
+    ProjectilePool& projectilePool;
 
 public:
-    WeaponController(const std::shared_ptr<Grid>& grid, const std::shared_ptr<ProjectilePool>& projectilePool);
+    WeaponController(Grid& grid, ProjectilePool& projectilePool);
 
-    std::shared_ptr<Weapon> createWeapon(const std::string& name, const std::shared_ptr<Entity>& owner);
-    std::shared_ptr<Weapon> createWeapon(uint32_t id, const std::string& name, const std::shared_ptr<Entity>& owner);
+    std::unique_ptr<Weapon> createWeapon(const std::string& name, Entity* owner);
+    std::unique_ptr<Weapon> createWeapon(uint32_t id, const std::string& name, Entity* owner);
 };

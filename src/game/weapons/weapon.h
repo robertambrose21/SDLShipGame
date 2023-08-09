@@ -6,12 +6,21 @@
 
 #include "game/entities/entity.h"
 #include "projectile.h"
+#include "core/event/eventpublisher.h"
 
 class Entity;
 class Projectile;
+class Weapon;
+
+struct WeaponEventData {
+    Entity* owner;
+    Entity* target;
+    Weapon* weapon;
+};
 
 class Weapon {
 public:
+    // TODO: Probably a better way to do abstraction than this
     enum Type {
         MELEE,
         PROJECTILE
@@ -26,39 +35,43 @@ public:
 protected:
     uint32_t id;
     std::string name;
-    std::shared_ptr<Entity> owner;
+    Entity* owner;
     Stats stats;
 
     int usesLeft;
 
-    std::shared_ptr<Grid> grid;
+    Grid& grid;
+    EventPublisher<WeaponEventData>& publisher;
 
-    virtual void onUse(const glm::ivec2& position, const std::shared_ptr<Entity>& target) = 0;
+    virtual bool onUse(const glm::ivec2& position, const glm::ivec2& target) = 0;
 
 public:
     Weapon(
-        const std::shared_ptr<Entity>& owner,
-        const std::shared_ptr<Grid>& grid,
+        Entity* owner,
+        Grid& grid,
+        EventPublisher<WeaponEventData>& publisher,
         uint32_t id,
         const std::string& name, 
         const Stats& stats
     );
 
     Weapon(
-        const std::shared_ptr<Entity>& owner,
-        const std::shared_ptr<Grid>& grid, 
+        Entity* owner,
+        Grid& grid,
+        EventPublisher<WeaponEventData>& publisher,
         const std::string& name, 
         const Stats& stats
     );
 
-    void use(const glm::ivec2& position, const std::shared_ptr<Entity>& target);
+    void use(const glm::ivec2& position, const glm::ivec2& target);
     void reset(void);
     void setFinished(void);
-    bool isInRange(const glm::ivec2& position);
+    virtual bool isInRange(const glm::ivec2& position);
 
-    virtual void draw(const std::shared_ptr<GraphicsContext>& graphicsContext) = 0;
+    virtual void draw(GraphicsContext& graphicsContext) = 0;
     virtual void update(uint32_t timeSinceLastFrame) = 0;
     virtual bool hasFinished(void);
+    virtual bool isAnimationInProgress(void);
     virtual Type getType(void) const = 0;
 
     Stats getStats(void) const;
@@ -67,5 +80,5 @@ public:
 
     uint32_t getId(void) const;
     std::string getName(void) const;
-    std::shared_ptr<Entity> getOwner(void);
+    Entity* getOwner(void);
 };

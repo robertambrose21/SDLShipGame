@@ -13,63 +13,69 @@ void ClientApplication::initialise(void) {
         return;
     }
 
-    auto context = Application::getContext();
-    auto grid = context->getGrid();
-    entityPool = context->getEntityPool();
-    projectilePool = context->getProjectilePool();
-    areaOfEffectPool = context->getAreaOfEffectPool();
-    turnController = context->getTurnController();
+    auto& context = Application::getContext();
+    auto& grid = context.getGrid();
+    auto& entityPool = context.getEntityPool();
+    auto& projectilePool = context.getProjectilePool();
+    auto& areaOfEffectPool = context.getAreaOfEffectPool();
+    auto& turnController = context.getTurnController();
 
-    clientStateMachine = std::make_shared<ClientStateMachine>();
-    clientStateMachine->setState(std::make_shared<ClientLoadingState>());
+    clientStateMachine = std::make_unique<ClientStateMachine>();
+    clientStateMachine->setState(std::make_unique<ClientLoadingState>());
 
-    clientMessagesReceiver = std::make_shared<GameClientMessagesReceiver>(context);
+    clientMessagesReceiver = std::make_unique<GameClientMessagesReceiver>(context);
 
-    client = std::make_shared<GameClient>(clientMessagesReceiver, yojimbo::Address("127.0.0.1", 8081));
-    clientMessagesTransmitter = std::make_shared<GameClientMessagesTransmitter>(client);
+    client = std::make_unique<GameClient>(*clientMessagesReceiver, yojimbo::Address("127.0.0.1", 8081));
+    clientMessagesTransmitter = std::make_unique<GameClientMessagesTransmitter>(*client);
 
-    clientMessagesReceiver->setTransmitter(clientMessagesTransmitter);
+    clientMessagesReceiver->setTransmitter(clientMessagesTransmitter.get());
 
-    turnController->setOnAllParticipantsSetFunction([&]() {
-        clientStateMachine->setState(std::make_shared<ClientGameLoopState>());
+    turnController.setOnAllParticipantsSetFunction([&]() {
+        clientStateMachine->setState(std::make_unique<ClientGameLoopState>());
     });
 
     Application::instance().initialise(Window::Headless::NO);
+
+    auto& window = context.getWindow();
     
-    for(auto i = 0; i < grid->getWidth(); i++) {
-        for(auto j = 0; j < grid->getHeight(); j++) {
-            grid->setTile(i, j, { 1, true });
+    for(auto i = 0; i < grid.getWidth(); i++) {
+        for(auto j = 0; j < grid.getHeight(); j++) {
+            grid.setTile(i, j, { 1, true });
         }
     }
 
-    playerController = std::make_shared<PlayerController>(
-        clientMessagesTransmitter,
-        context->getWindow()->getGridRenderer(),
-        context->getEntityPool()
+    playerController = std::make_unique<PlayerController>(
+        *clientMessagesTransmitter, context
     );
-    clientMessagesReceiver->setPlayerController(playerController);
+    clientMessagesReceiver->setPlayerController(playerController.get());
 
-    context->getWindow()->addLoopLogicWorker([&](auto const& timeSinceLastFrame, auto& quit) {
+    window.addLoopLogicWorker([&](auto const& timeSinceLastFrame, auto& quit) {
         update(timeSinceLastFrame, quit);
     });
-    context->getWindow()->addLoopDrawWorker([&](auto const& graphicsContext, auto& quit) {
+    window.addLoopDrawWorker([&](auto graphicsContext, auto& quit) {
         draw(graphicsContext, quit);
     });
-    context->getWindow()->addLoopEventWorker([&](auto const& e, auto& quit) {
+    window.addLoopEventWorker([&](auto const& e, auto& quit) {
         playerController->handleKeyPress(e);
         playerController->handleMouseEvent(e);
     });
 }
 
-void ClientApplication::draw(const std::shared_ptr<GraphicsContext>& graphicsContext, bool& quit) {
+void ClientApplication::draw(GraphicsContext& graphicsContext, bool& quit) {
+    auto& context = Application::getContext();
+    auto& entityPool = context.getEntityPool();
+    auto& projectilePool = context.getProjectilePool();
+    auto& areaOfEffectPool = context.getAreaOfEffectPool();
+
     switch(clientStateMachine->getCurrentState()->GetType()) {
         case ClientStateMachine::Loading:
             break;
 
         case ClientStateMachine::GameLoop:
-            projectilePool->draw(graphicsContext);
-            areaOfEffectPool->draw(graphicsContext);
-            entityPool->drawEntities(graphicsContext);
+            projectilePool.draw(graphicsContext);
+            areaOfEffectPool.draw(graphicsContext);
+            entityPool.drawEntities(graphicsContext);
+            playerController->draw(graphicsContext);
             break;
 
         default:
@@ -78,6 +84,13 @@ void ClientApplication::draw(const std::shared_ptr<GraphicsContext>& graphicsCon
 }
 
 void ClientApplication::update(uint32_t timeSinceLastFrame, bool& quit) {
+    auto& context = Application::getContext();
+    auto& grid = context.getGrid();
+    auto& entityPool = context.getEntityPool();
+    auto& projectilePool = context.getProjectilePool();
+    auto& areaOfEffectPool = context.getAreaOfEffectPool();
+    auto& turnController = context.getTurnController();
+
     client->update(timeSinceLastFrame);
     
     switch(clientStateMachine->getCurrentState()->GetType()) {
@@ -85,10 +98,11 @@ void ClientApplication::update(uint32_t timeSinceLastFrame, bool& quit) {
             break;
 
         case ClientStateMachine::GameLoop:
-            turnController->update(timeSinceLastFrame);
-            entityPool->updateEntities(timeSinceLastFrame, quit);
-            projectilePool->update(timeSinceLastFrame);
-            areaOfEffectPool->update(timeSinceLastFrame);
+            turnController.update(timeSinceLastFrame, quit);
+            entityPool.updateEntities(timeSinceLastFrame, quit);
+            playerController->update(timeSinceLastFrame);
+            projectilePool.update(timeSinceLastFrame);
+            areaOfEffectPool.update(timeSinceLastFrame);
             break;
 
         default:

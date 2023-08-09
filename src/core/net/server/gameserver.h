@@ -16,8 +16,8 @@ private:
     yojimbo::Address address;
     GameConnectionConfig connectionConfig;
 
-    std::shared_ptr<ServerMessagesReceiver> receiver;
-    std::shared_ptr<ServerMessagesTransmitter> transmitter;
+    ServerMessagesReceiver* receiver;
+    ServerMessagesTransmitter* transmitter;
 
     void processMessages(void);
     void processMessage(int clientIndex, yojimbo::Message* message);
@@ -27,8 +27,8 @@ public:
 
     GameServer(const yojimbo::Address& address);
 
-    void setReceiver(const std::shared_ptr<ServerMessagesReceiver>& receiver);
-    void setTransmitter(const std::shared_ptr<ServerMessagesTransmitter>& transmitter);
+    void setReceiver(ServerMessagesReceiver* receiver);
+    void setTransmitter(ServerMessagesTransmitter* transmitter);
 
     void update(uint32_t timeSinceLastFrame);
 

@@ -1,6 +1,6 @@
 #include "projectilepool.h"
 
-ProjectilePool::ProjectilePool(const std::shared_ptr<AreaOfEffectPool>& areaOfEffectPool) :
+ProjectilePool::ProjectilePool(AreaOfEffectPool& areaOfEffectPool) :
     areaOfEffectPool(areaOfEffectPool)
 {
     loadProjectileDefinitions();
@@ -25,6 +25,17 @@ void ProjectilePool::loadProjectileDefinitions(void) {
         definition.textureId = data["textureId"].get<uint32_t>();
         definition.multiplier = data["multiplier"].get<float>();
         definition.speed = data["speed"].get<float>();
+        if(data.contains("effects")) {
+            auto const& effects = data["effects"].get<std::vector<json>>();
+
+            for(auto const& effect : effects) {
+                if(effect.contains("freeze")) {
+                    auto duration = effect["freeze"].get<int>();
+
+                    definition.effects.push_back(Effect("freeze", duration));
+                }
+            }
+        }
 
         std::cout << "Loaded projectile definition \"" << definition.name << "\"" << std::endl;
 
@@ -34,10 +45,10 @@ void ProjectilePool::loadProjectileDefinitions(void) {
     game_assert(!projectileDefinitions.empty());
 }
 
-void ProjectilePool::add(const std::shared_ptr<Projectile>& projectile, const std::shared_ptr<Entity>& owner) {
+void ProjectilePool::add(std::unique_ptr<Projectile> projectile, Entity* owner) {
     game_assert(projectile != nullptr);
     game_assert(owner != nullptr);
-    projectiles[owner].push_back(projectile);
+    projectiles[owner].push_back(std::move(projectile));
 }
 
 Projectile::Blueprint ProjectilePool::create(const std::string& name) {
@@ -45,20 +56,21 @@ Projectile::Blueprint ProjectilePool::create(const std::string& name) {
     auto const& definition = projectileDefinitions[name];
     auto const& aoe = definition.aoe;
     Projectile::Blueprint blueprint(
-        Projectile::Stats { definition.multiplier, definition.speed },
+        Projectile::Stats { definition.multiplier, definition.speed, definition.effects },
         name,
         definition.textureId,
-        [&, aoe](auto grid, auto entity, auto turnNumber) { // TODO: Don't add this if there's no aoe
-            areaOfEffectPool->add(aoe, turnNumber, entity->getPosition());
+        [&, aoe](auto grid, auto ownerId, auto target, auto turnNumber) { // TODO: Don't add this if there's no aoe
+            if(aoe != "") {
+                areaOfEffectPool.add(aoe, ownerId, turnNumber, target);
+            }
         }
     );
 
     return blueprint;
 }
 
-void ProjectilePool::draw(const std::shared_ptr<GraphicsContext>& graphicsContext) {
-    game_assert(graphicsContext != nullptr);
-    for (auto [owner, projectilesForOwner] : projectiles) {
+void ProjectilePool::draw(GraphicsContext& graphicsContext) {
+    for (auto& [owner, projectilesForOwner] : projectiles) {
         for(auto const& projectile : projectilesForOwner) {
             projectile->draw(graphicsContext);
         }
@@ -66,34 +78,48 @@ void ProjectilePool::draw(const std::shared_ptr<GraphicsContext>& graphicsContex
 }
 
 void ProjectilePool::update(uint32_t timeSinceLastFrame) {
-    for(auto [owner, projectilesForOwner] : projectiles) {
-        for(auto const& projectile : projectilesForOwner) {
-            projectile->update(timeSinceLastFrame);
-
-            if(projectile->hasReachedTarget()) {
-                projectilesForDeletion[owner].push_back(projectile);
-            }
-        }
-    }
-
-    for(auto [owner, projectilesForOwner] : projectilesForDeletion) {
-        for(auto const& projectile : projectilesForOwner) {
-            projectiles[owner].erase(std::find(projectiles[owner].begin(), projectiles[owner].end(), projectile));
+    for(auto [owner, projectilesForOwnerIds] : projectilesForDeletion) {
+        for(auto const& projectileId : projectilesForOwnerIds) {
+            projectiles[owner].erase(projectiles[owner].begin() + projectileId);
         }
     }
     
     projectilesForDeletion.clear();
+
+    for(auto& [owner, projectilesForOwner] : projectiles) {
+        for(int i = 0; i < projectilesForOwner.size(); i++) {
+            projectilesForOwner[i]->update(timeSinceLastFrame);
+
+            if(projectilesForOwner[i]->hasReachedTarget()) {
+                projectilesForDeletion[owner].push_back(i);
+            }
+        }
+    }
 }
 
-const std::vector<std::shared_ptr<Projectile>>& ProjectilePool::getProjectilesForOwner(const std::shared_ptr<Entity>& owner) const {
+std::vector<Projectile*> ProjectilePool::getProjectilesForOwner(Entity* owner) {
     game_assert(owner != nullptr);
-    static const std::vector<std::shared_ptr<Projectile>> empty;
+    std::vector<Projectile*> vProjectiles;
 
-    auto const& projectilesForOwner = projectiles.find(owner);
+    auto projectilesForOwner = projectiles.find(owner);
+
+    if(projectilesForOwner == projectiles.end()) {
+        return vProjectiles;
+    }
     
-    if(projectilesForOwner != projectiles.end()) {
-        return projectilesForOwner->second;
+    for(auto& projectile : projectilesForOwner->second) {
+        vProjectiles.push_back(projectile.get());
     }
 
-    return empty;
+    return vProjectiles;
+}
+
+int ProjectilePool::getNumProjectilesForOwner(Entity* owner) {
+    auto projectilesForOwner = projectiles.find(owner);
+
+    if(projectilesForOwner == projectiles.end()) {
+        return 0;
+    }
+
+    return projectilesForOwner->second.size();
 }

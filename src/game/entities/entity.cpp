@@ -3,25 +3,29 @@
 
 Entity::Entity(
     uint32_t id,
+    EventPublisher<EntityEventData>& publisher,
     const std::string& name,
     const EntityBaseStats& stats
 ) :
     id(id),
+    publisher(publisher),
     name(name),
     stats(stats),
     currentStats(stats),
+    grid(Application::getContext().getGrid()),
     position({ 0, 0 }),
     timeSinceLastMoved(0),
-    selected(false)
+    selected(false),
+    frozenForNumTurns(0)
 {
-    grid = Application::getContext()->getGrid();
-    healthBar = std::make_shared<HealthBar>(stats.totalHP);
+    healthBar = std::make_unique<HealthBar>(stats.totalHP);
 }
 
 Entity::Entity(
+    EventPublisher<EntityEventData>& publisher,
     const std::string& name,
     const EntityBaseStats& stats
-) : Entity(getNewId(), name, stats)
+) : Entity(getNewId(), publisher, name, stats)
 { }
 
 void Entity::setTextureId(uint32_t textureId) {
@@ -45,10 +49,10 @@ Entity::Colour Entity::getColour(void) const {
     return colour;
 }
 
-void Entity::draw(const std::shared_ptr<GraphicsContext>& graphicsContext) {
-    game_assert(graphicsContext != nullptr);
+void Entity::draw(GraphicsContext& graphicsContext) {
+    auto& gridRenderer = graphicsContext.getGridRenderer();
 
-    graphicsContext->getGridRenderer()->draw(
+    gridRenderer.draw(
         graphicsContext,
         textureId,
         { colour.r, colour.g, colour.b },
@@ -57,23 +61,34 @@ void Entity::draw(const std::shared_ptr<GraphicsContext>& graphicsContext) {
     );
 
     if(selected) {
-        graphicsContext->getGridRenderer()->draw(graphicsContext, selectedTextureId, position);
+        gridRenderer.draw(graphicsContext, selectedTextureId, position);
     }
 
-    for(auto [_, weapon] : weapons) {
+    for(auto& [_, weapon] : weapons) {
         weapon->draw(graphicsContext);
+    }
+
+    if(frozenForNumTurns > 0) {
+        auto const &realPosition = gridRenderer.getTilePosition(position.x, position.y) + gridRenderer.getCamera().getPosition();
+        auto const &size = gridRenderer.getTileSize();
+
+        SDL_Rect frozen = { realPosition.x, realPosition.y, size, size };
+
+        SDL_SetRenderDrawBlendMode(graphicsContext.getRenderer(), SDL_BLENDMODE_BLEND);
+        SDL_SetRenderDrawColor(graphicsContext.getRenderer(), 0x00, 0xFF, 0xFF, 0x7F);
+        SDL_RenderFillRect(graphicsContext.getRenderer(), &frozen);
     }
 
     healthBar->draw(graphicsContext, position, currentStats.totalHP);
 }
 
 void Entity::update(uint32_t timeSinceLastFrame, bool& quit) {
-    for(auto [_, weapon] : weapons) {
+    for(auto& [_, weapon] : weapons) {
         weapon->update(timeSinceLastFrame);
     }
 
-    if(behaviourStrategy != nullptr) {
-        behaviourStrategy->onUpdate(timeSinceLastFrame, quit);
+    if(frozenForNumTurns > 0) {
+        return;
     }
     
     if(getMovesLeft() == 0) {
@@ -102,14 +117,6 @@ bool Entity::isSelected(void) const {
     return selected;
 }
 
-std::shared_ptr<BehaviourStrategy> Entity::getBehaviourStrategy(void) {
-    return behaviourStrategy;
-}
-
-void Entity::setBehaviourStrategy(const std::shared_ptr<BehaviourStrategy>& behaviourStrategy) {
-    this->behaviourStrategy = behaviourStrategy;
-}
-
 EntityBaseStats Entity::getBaseStats(void) const {
     return stats;
 }
@@ -119,7 +126,7 @@ EntityCurrentStats Entity::getCurrentStats(void) const {
 }
 
 const float Entity::getSpeed(void) {
-    return 1000.0f / (MOVES_PER_SECOND * getCurrentStats().movesPerTurn);
+    return 2000.0f / (MOVES_PER_SECOND * getCurrentStats().movesPerTurn);
 }
 
 int Entity::getCurrentHP(void) const {
@@ -134,43 +141,49 @@ void Entity::takeDamage(int amount) {
     currentStats.totalHP -= amount;
 }
 
-void Entity::attack(const std::shared_ptr<Entity>& target, const std::shared_ptr<Weapon>& weapon) {
-    auto targetName = target->getName();
-
-    weapon->use(position, target);
+void Entity::attack(const glm::ivec2& target, uint32_t weaponId) {
+    weapons[weaponId]->use(position, target);
 }
 
-std::map<uint32_t, std::shared_ptr<Weapon>> Entity::getWeapons(void) const {
-    return weapons;
+std::vector<Weapon*> Entity::getWeapons(void) const {
+    std::vector<Weapon*> vWeapons;
+    
+    for(auto& [_, weapon] : weapons) {
+        if(weapon != nullptr) {
+            vWeapons.push_back(weapon.get());
+        }
+    }
+
+    return vWeapons;
 }
 
-std::shared_ptr<Weapon> Entity::getWeapon(uint32_t weaponId) {
-    game_assert(weapons.contains(weaponId));
-    return weapons[weaponId];
+Weapon* Entity::getWeapon(uint32_t weaponId) {
+    return weapons[weaponId].get();
 }
 
 bool Entity::hasWeapon(uint32_t weaponId) {
     return weapons.contains(weaponId);
 }
 
-std::shared_ptr<Weapon> Entity::addWeapon(const std::shared_ptr<Weapon>& weapon) {
-    weapons[weapon->getId()] = weapon;
-    return weapon;
+Weapon* Entity::addWeapon(std::unique_ptr<Weapon> weapon) {
+    auto id = weapon->getId();
+    weapons[id] = std::move(weapon);
+    return weapons[id].get();
 }
 
-void Entity::removeWeapon(const std::string& name) {
-    for(auto [weaponId, weapon] : weapons) {
-        if(weapon->getName() == name) {
-            weapons.erase(weaponId);
-        }
-    }
+void Entity::removeWeapon(uint32_t weaponId) {
+    weapons.erase(weaponId);
 }
 
-void Entity::setCurrentWeapon(const std::shared_ptr<Weapon>& weapon) {
-    currentWeapon = weapon;
+void Entity::removeAllWeapons(void) {
+    weapons.clear();
 }
 
-std::shared_ptr<Weapon> Entity::getCurrentWeapon(void) {
+void Entity::setCurrentWeapon(uint32_t weaponId) {
+    currentWeapon = weapons[weaponId].get();
+}
+
+Weapon* Entity::getCurrentWeapon(void) {
     return currentWeapon;
 }
 
@@ -202,8 +215,9 @@ void Entity::setPosition(const glm::ivec2& position) {
     this->position = position;
 }
 
-bool Entity::findPath(const glm::ivec2& target, int stopShortSteps) {
-    auto path = grid->findPath(getPosition(), target);
+int Entity::findPath(const glm::ivec2& target, int stopShortSteps) {
+    auto startTime = SDL_GetTicks();
+    auto path = grid.findPath(getPosition(), target);
 
     if(path.empty()) {
         return false;
@@ -219,14 +233,33 @@ bool Entity::findPath(const glm::ivec2& target, int stopShortSteps) {
     }
 
     this->path = path;
-    return !path.empty();
+
+    // std::cout 
+    //     << "[" 
+    //     << getName() 
+    //     << "#" 
+    //     << getId() 
+    //     << "]: Finding path time ("
+    //     << position.x
+    //     << ", "
+    //     << position.y
+    //     << ") -> ("
+    //     << target.x
+    //     << ", "
+    //     << target.y
+    //     << "): "
+    //     << (SDL_GetTicks() - startTime) 
+    //     << "ms" 
+    //     << std::endl;
+
+    return path.size();
 }
 
 bool Entity::hasPath(void) {
     return !path.empty();
 }
 
-bool Entity::isNeighbour(const std::shared_ptr<Entity>& entity) const {
+bool Entity::isNeighbour(Entity* entity) const {
     return glm::distance(glm::vec2(getPosition()), glm::vec2(entity->getPosition())) < 2;
 }
 
@@ -239,7 +272,11 @@ void Entity::setMovesLeft(int movesLeft) {
 }
 
 bool Entity::isTurnInProgress(void) const {
-    return getMovesLeft() > 0 || !currentWeapon->hasFinished();
+    return (currentWeapon != nullptr && !currentWeapon->hasFinished()) || getMovesLeft() > 0;
+}
+
+bool Entity::hasAnimationsInProgress(void) {
+    return currentWeapon != nullptr && currentWeapon->isAnimationInProgress();
 }
 
 void Entity::useMoves(int numMoves) {
@@ -251,30 +288,27 @@ void Entity::useMoves(int numMoves) {
 }
 
 void Entity::nextTurn(void) {
-    currentStats.movesLeft = stats.movesPerTurn;
-    path.clear();
-    
-    for(auto [_, weapon] : weapons) {
-        weapon->reset();
-    }
-
-    if(behaviourStrategy != nullptr) {
-        behaviourStrategy->onNextTurn();
-    }
-}
-
-bool Entity::endTurnCondition(void) {
-    return behaviourStrategy == nullptr ? false : behaviourStrategy->endTurnCondition();
-}
-
-void Entity::reset(void) {
     currentStats.movesLeft = 0;
-    currentStats.movesPerTurn = stats.movesPerTurn;
-    currentStats.totalHP = stats.totalHP;
     path.clear();
 
-    for(auto [_, weapon] : weapons) {
-        weapon->reset();
+    for(auto& [_, weapon] : weapons) {
+        if(weapon != nullptr) {
+            weapon->setUsesLeft(0);
+        }
+    }
+
+    if(frozenForNumTurns > 0) {
+        frozenForNumTurns--;
+        publisher.publish({ this, "Freeze" });
+    }
+}
+
+void Entity::endTurn(void) {
+    currentStats.movesLeft = 0;
+    path.clear();
+
+    for(auto& [_, weapon] : weapons) {
+        weapon->setUsesLeft(0);
     }
 }
 
@@ -284,4 +318,12 @@ void Entity::setParticipantId(int participantId) {
 
 int Entity::getParticipantId(void) const {
     return participantId;
+}
+
+int Entity::getFrozenFor(void) const {
+    return frozenForNumTurns > 0;
+}
+
+void Entity::setFrozenFor(int numTurns) {
+    frozenForNumTurns = numTurns;
 }

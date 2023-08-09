@@ -13,6 +13,16 @@ Grid::Grid(int width, int height, const std::vector<std::vector<Tile>>& data) :
     }
 }
 
+void Grid::nextTurn(void) {
+    for(auto y = 0; y < getHeight(); y++) {
+        for(auto x = 0; x < getWidth(); x++) {
+            if(data[y][x].turnsFrozenFor > 0) {
+                data[y][x].turnsFrozenFor--;
+            }
+        }
+    }
+}
+
 int Grid::getWidth(void) const {
     return width;
 }
@@ -26,17 +36,30 @@ void Grid::setTile(int x, int y, const Tile& tile) {
     data[y][x] = tile;
 }
 
+void Grid::setTileWalkable(int x, int y, bool isWalkable) {
+    game_assert(x < getWidth() && y < getHeight());
+    data[y][x].isWalkable = isWalkable;
+}
+
+void Grid::setTileFrozenFor(int x, int y, int turnsFrozenFor) {
+    game_assert(x < getWidth() && y < getHeight());
+    data[y][x].turnsFrozenFor = turnsFrozenFor;
+}
+
 const std::vector<std::vector<Tile>>& Grid::getData(void) const {
     return data;
 }
 
 const Tile& Grid::getTileAt(int x, int y) const {
+    game_assert(x >= 0 && y >= 0);
     game_assert(x < getWidth() && y < getHeight());
     return data[y][x];
 }
 
 std::vector<glm::ivec2> Grid::getTilesInCircle(int x, int y, float radius) {
-    game_assert(x < getWidth() && y < getHeight());
+    if(!isTileInBounds(x, y)) {
+        return std::vector<glm::ivec2>();
+    }
 
     int squareHalfSize = std::floor(radius);
     int upperX = std::max(x + squareHalfSize + 1, x);
@@ -49,7 +72,9 @@ std::vector<glm::ivec2> Grid::getTilesInCircle(int x, int y, float radius) {
 
     for(int i = lowerX; i < upperX; i++) {
         for(int j = lowerY; j < upperY; j++) {
-            square.push_back(glm::vec2(i, j));
+            if(isTileInBounds(i, j)) {
+                square.push_back(glm::vec2(i, j));
+            }
         }
     }
 
@@ -62,6 +87,20 @@ std::vector<glm::ivec2> Grid::getTilesInCircle(int x, int y, float radius) {
     }
 
     return tilePositions;
+}
+
+std::vector<glm::ivec2> Grid::getTilesInSquare(int x, int y, int w, int h) {
+    game_assert(x < getWidth() && y < getHeight());
+
+    std::vector<glm::ivec2> tiles;
+
+    for(int i = x; i <= x + w; i++) {
+        for(int j = y; j <= y + h; j++) {
+            tiles.push_back(glm::vec2(i, j));
+        }
+    }
+
+    return tiles;
 }
 
 bool Grid::isTileInRange(int x, int y, const glm::vec2& position, float distance) {
@@ -81,6 +120,77 @@ bool Grid::isTileInRange(int x, int y, const glm::vec2& position, float distance
     }
 
     return false;
+}
+
+bool Grid::isTileInBounds(int x, int y) {
+    return x >= 0 && y >= 0 && x < getWidth() && y < getHeight();
+}
+
+bool Grid::hasIntersection(const glm::vec2& p1, const glm::vec2& p2) {
+    // Offset so we get the center of the tile
+    auto op1 = p1 + glm::vec2(.5f, .5f);
+    auto op2 = p2 + glm::vec2(.5f, .5f);
+
+    int xMin = std::max(0, (int) std::floor(std::min(op1.x, op2.x)));
+    int xMax = std::min(getWidth(), (int) std::ceil(std::max(op1.x, op2.x)));
+    int yMin = std::max(0, (int) std::floor(std::min(op1.y, op2.y)));
+    int yMax = std::min(getHeight(), (int) std::ceil(std::max(op1.y, op2.y)));
+
+    for(int x = xMin; x < xMax; x++) {
+        for(int y = yMin; y < yMax; y++) {
+            if(!data[y][x].isWalkable && hasTileIntersection(op1, op2, x, y)) {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+bool Grid::hasTileIntersection(const glm::vec2& p1, const glm::vec2& p2, int x, int y) {
+    std::vector<glm::vec2> corners = {
+        glm::vec2(x, y),
+        glm::vec2(x, y + 1),
+        glm::vec2(x + 1, y),
+        glm::vec2(x + 1, y + 1)
+    };
+
+    if(!hasPointsOnDifferentSides(p1, p2, corners)) {
+        return false;
+    }
+    else if(p1.x > corners[3].x && p2.x > corners[3].x) {
+        return false;
+    }
+    else if(p1.x < corners[0].x && p2.x < corners[0].x) {
+        return false;
+    }
+    else if(p1.y > corners[3].y && p2.y > corners[3].y) {
+        return false;
+    }
+    else if(p1.y < corners[0].y && p2.y < corners[0].y) {
+        return false;
+    }
+    
+    return true;
+}
+
+bool Grid::hasPointsOnDifferentSides(const glm::vec2& p1, const glm::vec2& p2, const std::vector<glm::vec2>& corners) {
+    game_assert(corners.size() == 4);
+
+    float p = pointOnLineSide(p1, p2, corners[0]);
+
+    for(int i = 1; i < 4; i++) {
+        p *= pointOnLineSide(p1, p2, corners[i]);
+        if(p < 0) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+float Grid::pointOnLineSide(const glm::vec2& p1, const glm::vec2& p2, const glm::vec2& point) {
+    return ((p2.y - p1.y) * point.x) + ((p1.x - p2.x) * point.y) + (p2.x * p1.y - p1.x * p2.y); 
 }
 
 std::deque<glm::ivec2> Grid::findPath(const glm::ivec2& source, const glm::ivec2& destination) {
@@ -196,7 +306,9 @@ bool Grid::isNodeInBounds(const glm::ivec2& node) const {
 }
 
 bool Grid::isNodeWalkable(const glm::ivec2& node) const {
-    return getTileAt(node.x, node.y).isWalkable;
+    auto tile = getTileAt(node.x, node.y);
+
+    return tile.isWalkable && tile.turnsFrozenFor <= 0;
 }
 
 std::deque<glm::ivec2> Grid::buildPath(

@@ -5,17 +5,14 @@
 #include "game/net/server/gameservermessagestransmitter.h"
 #include "game/entities/behaviour/chaseandattackstrategy.h"
 #include "game/application/application.h"
+#include "game/application/stdoutsubscriber.h"
 
 class ServerApplication {
 private:
-    std::shared_ptr<GameServer> server;
-    std::shared_ptr<GameServerMessagesTransmitter> transmitter;
-    std::shared_ptr<GameServerMessagesReceiver> receiver;
-
-    std::shared_ptr<EntityPool> entityPool;
-    std::shared_ptr<ProjectilePool> projectilePool;
-    std::shared_ptr<AreaOfEffectPool> areaOfEffectPool;
-    std::shared_ptr<TurnController> turnController;
+    std::unique_ptr<GameServer> server;
+    std::unique_ptr<GameServerMessagesTransmitter> transmitter;
+    std::unique_ptr<GameServerMessagesReceiver> receiver;
+    StdOutSubscriber stdoutSubscriber;
     
     std::map<int, int> participantToClientIndex;
 
@@ -36,5 +33,5 @@ public:
     // Temp
     void loadGame(void);
     // Temp
-    std::shared_ptr<Entity> addPlayer(glm::ivec2 position);
+    Entity* addPlayer(glm::ivec2 position, bool hasFreezeGun);
 };

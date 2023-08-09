@@ -3,10 +3,10 @@
 StateMachine::StateMachine()
 { }
 
-void StateMachine::setState(const std::shared_ptr<State>& state) {
-    currentState = state;
+void StateMachine::setState(std::unique_ptr<State> state) {
+    currentState = std::move(state);
 }
 
-std::shared_ptr<State> StateMachine::getCurrentState(void) {
-    return currentState;
+State* StateMachine::getCurrentState(void) {
+    return currentState.get();
 }

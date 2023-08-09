@@ -6,6 +6,7 @@ include_directories(../)
 add_library(
     ${PROJECT_NAME}
     effects/statuseffect.cpp
+    effects/effect.h
     entities/entity.cpp 
     entities/entitystats.h
     entities/entitypool.cpp 
@@ -27,6 +28,7 @@ add_library(
     weapons/areaofeffectpool.cpp
     weapons/weaponcontroller.cpp
     application/turncontroller.cpp
+    application/stdoutsubscriber.cpp
     net/client/gameclientmessagesreceiver.cpp
     net/client/gameclientmessagestransmitter.cpp
     net/server/gameservermessagesreceiver.cpp

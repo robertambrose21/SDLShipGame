@@ -7,10 +7,12 @@
 #include "projectile.h"
 #include "game/entities/entity.h"
 #include "areaofeffectpool.h"
+#include "game/effects/effect.h"
+#include "core/event/eventpublisher.h"
 
 using json = nlohmann::json;
 
-class ProjectilePool {
+class ProjectilePool : public EventPublisher<ProjectileEventData> {
 private:
     typedef struct _projectileDefinition {
         std::string filename;
@@ -19,25 +21,27 @@ private:
         uint32_t textureId;
         float multiplier;
         float speed;
+        std::vector<Effect> effects;
     } ProjectileDefinition;
 
     std::map<std::string, ProjectileDefinition> projectileDefinitions;
 
-    std::map<std::shared_ptr<Entity>, std::vector<std::shared_ptr<Projectile>>> projectiles;
-    std::map<std::shared_ptr<Entity>, std::vector<std::shared_ptr<Projectile>>> projectilesForDeletion;
+    std::map<Entity*, std::vector<std::unique_ptr<Projectile>>> projectiles;
+    std::map<Entity*, std::vector<int>> projectilesForDeletion;
 
-    std::shared_ptr<AreaOfEffectPool> areaOfEffectPool;
+    AreaOfEffectPool& areaOfEffectPool;
 
     void loadProjectileDefinitions(void);
 
 public:
-    ProjectilePool(const std::shared_ptr<AreaOfEffectPool>& areaOfEffectPool);
+    ProjectilePool(AreaOfEffectPool& areaOfEffectPool);
 
-    void add(const std::shared_ptr<Projectile>& projectile, const std::shared_ptr<Entity>& owner);
+    void add(std::unique_ptr<Projectile> projectile, Entity* owner);
     Projectile::Blueprint create(const std::string& name);
 
-    void draw(const std::shared_ptr<GraphicsContext>& graphicsContext);
+    void draw(GraphicsContext& graphicsContext);
     void update(uint32_t timeSinceLastFrame);
 
-    const std::vector<std::shared_ptr<Projectile>>& getProjectilesForOwner(const std::shared_ptr<Entity>& owner) const;
+    std::vector<Projectile*> getProjectilesForOwner(Entity* owner);
+    int getNumProjectilesForOwner(Entity* owner);
 };

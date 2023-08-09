@@ -7,14 +7,19 @@
 #include "graphics/gridrenderer.h"
 #include "graphics/healthbar.h"
 #include "game/weapons/weapon.h"
-#include "behaviour/behaviourstrategy.h"
 #include "core/util/gameassert.h"
 #include "entitystats.h"
 #include "game/effects/statuseffect.h"
+#include "core/event/eventpublisher.h"
 
 // TODO: Fix with modules?
 class Weapon;
-class BehaviourStrategy;
+class Entity;
+
+struct EntityEventData {
+    Entity* entity;
+    std::string type;
+};
 
 class Entity {
 public:
@@ -44,10 +49,9 @@ private:
 
     bool selected;
 
-    std::shared_ptr<Grid> grid;
-    std::shared_ptr<HealthBar> healthBar;
-
-    std::shared_ptr<BehaviourStrategy> behaviourStrategy;
+    Grid& grid;
+    EventPublisher<EntityEventData>& publisher;
+    std::unique_ptr<HealthBar> healthBar;
 
     glm::ivec2 position;
     std::deque<glm::ivec2> path;
@@ -57,31 +61,36 @@ private:
     EntityCurrentStats currentStats;
     std::set<StatusEffect> statusEffects;
 
-    std::map<uint32_t, std::shared_ptr<Weapon>> weapons;
-    std::shared_ptr<Weapon> currentWeapon;
+    std::map<uint32_t, std::unique_ptr<Weapon>> weapons;
+    Weapon* currentWeapon;
 
     std::string name;
 
     int participantId;
+
+    int frozenForNumTurns;
 
 public:
     const uint32_t MOVES_PER_SECOND = 5;
 
     Entity(
         uint32_t id,
+        EventPublisher<EntityEventData>& publisher,
         const std::string& name,
         const EntityBaseStats& stats
     );
 
     Entity(
+        EventPublisher<EntityEventData>& publisher,
         const std::string& name,
         const EntityBaseStats& stats
     );
 
-    static std::shared_ptr<Entity> filterByTile(
+    // TODO: Should these be in EntityPool?
+    static Entity* filterByTile(
         int x, 
         int y, 
-        const std::set<std::shared_ptr<Entity>>& entities
+        const std::set<Entity*>& entities
     ) {
         for(auto const& entity : entities) {
             if(entity->isOnTile(x, y)) {
@@ -92,18 +101,37 @@ public:
         return nullptr;
     }
 
-    static std::shared_ptr<Entity> filterByTile(
+    static Entity* filterByTile(
         int x, 
         int y, 
-        const std::map<uint32_t, std::shared_ptr<Entity>>& entities
+        const std::vector<Entity*>& entities,
+        int excludedParticipantId = -1
     ) {
-        for(auto [entityId, entity] : entities) {
-            if(entity->isOnTile(x, y)) {
+        for(auto entity : entities) {
+            if(entity->isOnTile(x, y) && entity->getParticipantId() != excludedParticipantId) {
                 return entity;
             }
         }
 
         return nullptr;
+    }
+
+    static std::vector<Entity*> filterByTiles(
+        const std::vector<glm::ivec2>& tiles,
+        const std::vector<Entity*>& entities,
+        int excludedParticipantId = -1
+    ) {
+        std::vector<Entity*> filteredEntities;
+
+        for(auto entity : entities) {
+            for(auto const& tile : tiles) {
+                if(entity->isOnTile(tile.x, tile.y) && entity->getParticipantId() != excludedParticipantId) {
+                    filteredEntities.push_back(entity);
+                }
+            }
+        }
+
+        return filteredEntities;
     }
 
     void update(uint32_t timeSinceLastFrame, bool& quit);
@@ -115,13 +143,10 @@ public:
     void setColour(const Colour& colour);
     Colour getColour(void) const;
 
-    void draw(const std::shared_ptr<GraphicsContext>& graphicsContext);
+    void draw(GraphicsContext& graphicsContext);
 
     void setSelected(bool selected);
     bool isSelected(void) const;
-
-    std::shared_ptr<BehaviourStrategy> getBehaviourStrategy(void);
-    void setBehaviourStrategy(const std::shared_ptr<BehaviourStrategy>& behaviourStrategy);
 
     EntityBaseStats getBaseStats(void) const;
     EntityCurrentStats getCurrentStats(void) const;
@@ -129,15 +154,16 @@ public:
     int getCurrentHP(void) const;
     void setCurrentHP(int hp);
     void takeDamage(int amount);
-    void attack(const std::shared_ptr<Entity>& target, const std::shared_ptr<Weapon>& weapon);
+    void attack(const glm::ivec2& target, uint32_t weaponId);
 
-    std::map<uint32_t, std::shared_ptr<Weapon>> getWeapons(void) const;
-    std::shared_ptr<Weapon> getWeapon(uint32_t weaponId);
+    std::vector<Weapon*> getWeapons(void) const;
+    Weapon* getWeapon(uint32_t weaponId);
     bool hasWeapon(uint32_t weaponId);
-    std::shared_ptr<Weapon> addWeapon(const std::shared_ptr<Weapon>& weapon);
-    void removeWeapon(const std::string& name);
-    void setCurrentWeapon(const std::shared_ptr<Weapon>& weapon);
-    std::shared_ptr<Weapon> getCurrentWeapon(void);
+    Weapon* addWeapon(std::unique_ptr<Weapon> weapon);
+    void removeWeapon(uint32_t weaponId);
+    void removeAllWeapons(void);
+    void setCurrentWeapon(uint32_t weaponId);
+    Weapon* getCurrentWeapon(void);
 
     uint32_t getId(void) const;
     void setId(uint32_t id);
@@ -148,19 +174,22 @@ public:
     bool isOnTile(int x, int y);
 
     void setPosition(const glm::ivec2& position);
-    bool findPath(const glm::ivec2& target, int stopShortSteps = 0);
-    bool isNeighbour(const std::shared_ptr<Entity>& entity) const;
+    int findPath(const glm::ivec2& target, int stopShortSteps = 0);
+    bool isNeighbour(Entity* entity) const;
     bool hasPath(void);
 
     int getMovesLeft(void) const;
     void setMovesLeft(int movesLeft);
     bool isTurnInProgress(void) const;
+    bool hasAnimationsInProgress(void);
     void useMoves(int numMoves);
 
     void setParticipantId(int participantId);
     int getParticipantId(void) const;
 
-    void reset(void);
     void nextTurn(void);
-    bool endTurnCondition(void);
+    void endTurn(void);
+
+    int getFrozenFor(void) const;
+    void setFrozenFor(int numTurns);
 };

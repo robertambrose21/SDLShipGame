@@ -11,12 +11,13 @@
 #include "game/application/turncontroller.h"
 #include "game/weapons/weaponcontroller.h"
 #include "game/net/messages.h"
+#include "core/event/eventpublisher.h"
 
 using json = nlohmann::json;
 
 struct GameStateUpdate;
 
-class EntityPool {
+class EntityPool : public EventPublisher<EntityEventData> {
 private:
     typedef struct _entityDefinition {
         std::string filename;
@@ -29,33 +30,33 @@ private:
 
     std::map<std::string, EntityDefinition> entityDefinitions;
 
-    std::set<std::shared_ptr<Entity>> entitiesForDeletion;
-    std::map<uint32_t, std::shared_ptr<Entity>> entities;
+    std::set<uint32_t> entitiesForDeletion;
+    std::map<uint32_t, std::unique_ptr<Entity>> entities;
 
     std::vector<GameStateUpdate> pendingUpdates;
 
-    std::shared_ptr<TurnController> turnController;
-    std::shared_ptr<WeaponController> weaponController;
+    TurnController& turnController;
+    WeaponController& weaponController;
 
-    void updateEntity(const std::shared_ptr<Entity>& entity, uint32_t timeSinceLastFrame, bool& quit);
+    void updateEntity(Entity* entity, uint32_t timeSinceLastFrame, bool& quit);
     void loadEntityDefinitions(void);
     void synchronize(void);
 
 public:
     EntityPool(
-        const std::shared_ptr<TurnController>& turnController,
-        const std::shared_ptr<WeaponController>& weaponController
+        TurnController& turnController,
+        WeaponController& weaponController
     );
 
     void updateEntities(uint32_t timeSinceLastFrame, bool& quit);
-    void drawEntities(const std::shared_ptr<GraphicsContext>& graphicsContext);
+    void drawEntities(GraphicsContext& graphicsContext);
 
     void addGameStateUpdate(const GameStateUpdate& update);
 
-    std::shared_ptr<Entity> addEntity(const std::shared_ptr<Entity>& entity);
-    std::shared_ptr<Entity> addEntity(const std::string& name);
-    std::shared_ptr<Entity> addEntity(const std::string& name, uint32_t id);
-    const std::map<uint32_t, std::shared_ptr<Entity>>& getEntities(void) const;
-    std::shared_ptr<Entity> getEntity(uint32_t id);
+    Entity* addEntity(std::unique_ptr<Entity> entity);
+    Entity* addEntity(const std::string& name);
+    Entity* addEntity(const std::string& name, uint32_t id);
+    std::vector<Entity*> getEntities(void);
+    Entity* getEntity(uint32_t id);
     bool hasEntity(uint32_t id);
 };

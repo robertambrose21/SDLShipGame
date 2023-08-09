@@ -16,6 +16,8 @@ enum class GameMessageType {
     SET_PARTICIPANT_ACK,
     PASS_PARTICIPANT_TURN,
     LOAD_MAP,
+    ACTIONS_ROLL,
+    ACTIONS_ROLL_RESPONSE,
     COUNT
 };
 
@@ -62,22 +64,24 @@ public:
     YOJIMBO_VIRTUAL_SERIALIZE_FUNCTIONS();
 };
 
-class AttackEntityMessage : public yojimbo::Message {
+class AttackMessage : public yojimbo::Message {
 public:
     uint32_t entityId;
-    uint32_t targetId;
+    int x, y;
     uint32_t weaponId;
 
-    AttackEntityMessage() :
+    AttackMessage() :
         entityId(0),
-        targetId(0),
+        x(0),
+        y(0),
         weaponId(0)
     { }
 
     template <typename Stream>
     bool Serialize(Stream& stream) {
         serialize_varint32(stream, entityId);
-        serialize_varint32(stream, targetId);
+        serialize_int(stream, x, 0, 512);
+        serialize_int(stream, y, 0, 512);
         serialize_varint32(stream, weaponId);
         return true;
     }
@@ -103,7 +107,8 @@ public:
             serialize_string(stream, entity.name, sizeof(entity.name));
             serialize_bits(stream, entity.participantId, 16);
             serialize_bits(stream, entity.totalHP, 16);
-            serialize_bits(stream, entity.currentHP, 16);
+            // TODO: This screws up if currentHP goes negative
+            serialize_int(stream, entity.currentHP, -256, 256);
             serialize_bits(stream, entity.x, 16);
             serialize_bits(stream, entity.y, 16);
             serialize_bits(stream, entity.movesPerTurn, 16);
@@ -222,6 +227,7 @@ public:
         serialize_int(stream, mapBlock.width, 0, 256);
         serialize_int(stream, mapBlock.height, 0, 256);
         serialize_int(stream, mapBlock.sequence, 0, 256);
+        serialize_int(stream, mapBlock.numSequences, 0, 256);
         serialize_int(stream, mapBlock.totalSize, 0, UINT16_MAX);
         serialize_int(stream, mapBlock.blockSize, 0, MaxMapBlockSize);
 
@@ -234,14 +240,63 @@ public:
     YOJIMBO_VIRTUAL_SERIALIZE_FUNCTIONS();
 };
 
+class ActionsRollMessage : public yojimbo::Message {
+public:
+    int participantId;
+
+    ActionsRollMessage() :
+        participantId(0)
+    { }
+
+    template <typename Stream>
+    bool Serialize(Stream& stream) {
+        serialize_int(stream, participantId, 0, 64);
+
+        return true;
+    }
+
+    YOJIMBO_VIRTUAL_SERIALIZE_FUNCTIONS();
+};
+
+class ActionsRollResponseMessage : public yojimbo::Message {
+public:
+    int participantId;
+    int numDice;
+    DiceActionResult dice[64];
+
+    ActionsRollResponseMessage() :
+        participantId(0),
+        numDice(0)
+    { }
+
+    template <typename Stream>
+    bool Serialize(Stream& stream) {
+        serialize_int(stream, participantId, 0, 64);
+        serialize_int(stream, numDice, 1, 64);
+        for(int i = 0; i < numDice; i++) {
+            serialize_int(stream, dice[i].rollNumber, 1, 6);
+
+            for(int j = 0; j < 6; j++) {
+                serialize_int(stream, dice[i].actions[j], 0, 255);
+            }
+        }
+
+        return true;
+    }
+
+    YOJIMBO_VIRTUAL_SERIALIZE_FUNCTIONS();
+};
+
 YOJIMBO_MESSAGE_FACTORY_START(GameMessageFactory, (int)GameMessageType::COUNT);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::FIND_PATH, FindPathMessage);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::SELECT_ENTITY, SelectEntityMessage);
-YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::ATTACK_ENTITY, AttackEntityMessage);
+YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::ATTACK_ENTITY, AttackMessage);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::GAME_STATE_UPDATE, GameStateUpdateMessage);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::TEST_MESSAGE, GameTestMessage);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::SET_PARTICIPANT, SetParticipantMessage);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::SET_PARTICIPANT_ACK, SetParticipantAckMessage);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::PASS_PARTICIPANT_TURN, PassParticipantTurnMessage);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::LOAD_MAP, LoadMapMessage);
+YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::ACTIONS_ROLL, ActionsRollMessage);
+YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::ACTIONS_ROLL_RESPONSE, ActionsRollResponseMessage);
 YOJIMBO_MESSAGE_FACTORY_FINISH();

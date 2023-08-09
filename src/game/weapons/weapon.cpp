@@ -1,8 +1,9 @@
 #include "weapon.h"
 
 Weapon::Weapon(
-    const std::shared_ptr<Entity>& owner,
-    const std::shared_ptr<Grid>& grid,
+    Entity* owner,
+    Grid& grid,
+    EventPublisher<WeaponEventData>& publisher,
     uint32_t id,
     const std::string& name, 
     const Stats& stats
@@ -10,48 +11,42 @@ Weapon::Weapon(
     id(id),
     owner(owner),
     grid(grid),
+    publisher(publisher),
     name(name),
     stats(stats),
-    usesLeft(stats.uses)
+    usesLeft(0)
 {
     game_assert(owner != nullptr);
-    game_assert(grid != nullptr);
 }
 
 Weapon::Weapon(
-    const std::shared_ptr<Entity>& owner,
-    const std::shared_ptr<Grid>& grid, 
+    Entity* owner,
+    Grid& grid,
+    EventPublisher<WeaponEventData>& publisher,
     const std::string& name, 
     const Stats& stats
 ) :
-    Weapon(owner, grid, getNewId(), name, stats)
+    Weapon(owner, grid, publisher, getNewId(), name, stats)
 { }
 
-void Weapon::use(const glm::ivec2& position, const std::shared_ptr<Entity>& target) {
-    if(usesLeft > 0) {
-        onUse(position, target);
-        usesLeft--;
-
-        std::cout
-        << "["
-        << owner->getName()
-        << "] attacked the [" 
-        << target->getName()
-        << "] for [" 
-        << getStats().damage 
-        << "] damage with ["
-        << getName()
-        << "], ["
-        << target->getName()
-        << "] now has [" 
-        << (target == nullptr ? 0 : target->getCurrentHP() - getStats().damage)
-        << "] hp" 
-        << std::endl;
+void Weapon::use(const glm::ivec2& position, const glm::ivec2& target) {
+    if(usesLeft <= 0) {
+        return;
     }
+
+    if(!onUse(position, target)) {
+        return;
+    }
+    
+    usesLeft--;
 }
 
 bool Weapon::hasFinished(void) {
     return usesLeft <= 0;
+}
+
+bool Weapon::isAnimationInProgress(void) {
+    return false;
 }
 
 void Weapon::setFinished(void) {
@@ -86,6 +81,6 @@ std::string Weapon::getName(void) const {
     return name;
 }
 
-std::shared_ptr<Entity> Weapon::getOwner(void) {
+Entity* Weapon::getOwner(void) {
     return owner;
 }

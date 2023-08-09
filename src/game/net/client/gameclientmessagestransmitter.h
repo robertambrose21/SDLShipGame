@@ -6,20 +6,21 @@
 
 class GameClientMessagesTransmitter {
 private:
-    std::shared_ptr<GameClient> client;
+    GameClient& client;
 
 public:
-    GameClientMessagesTransmitter(const std::shared_ptr<GameClient>& client);
+    GameClientMessagesTransmitter(GameClient& client);
 
+    void sendActionsRollMessage(int participantId);
     void sendFindPathMessage(
         uint32_t entityId, 
         const glm::ivec2& position,
         int shortStopSteps
     );
     void sendSelectEntityMessage(uint32_t entityId);
-    void sendAttackEntityMessage(
+    void sendAttackMessage(
         uint32_t entityId, 
-        uint32_t targetId, 
+        const glm::ivec2& target, 
         uint32_t weaponId
     );
     void sendPassParticipantTurnMessage(int participantId);

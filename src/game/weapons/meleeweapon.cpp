@@ -1,30 +1,39 @@
 #include "meleeweapon.h"
 
 MeleeWeapon::MeleeWeapon(
-    const std::shared_ptr<Entity>& owner, 
-    const std::shared_ptr<Grid>& grid,
+    Entity* owner, 
+    Grid& grid,
+    EventPublisher<WeaponEventData>& publisher,
     uint32_t id,
     const std::string& name, 
     const Stats& stats
 ) :
-    Weapon(owner, grid, id, name, stats)
+    Weapon(owner, grid, publisher, id, name, stats)
 { }
 
 MeleeWeapon::MeleeWeapon(
-    const std::shared_ptr<Entity>& owner, 
-    const std::shared_ptr<Grid>& grid, 
+    Entity* owner, 
+    Grid& grid, 
+    EventPublisher<WeaponEventData>& publisher,
     const std::string& name, 
     const Stats& stats
 ) :
-    Weapon(owner, grid, name, stats)
+    Weapon(owner, grid, publisher, name, stats)
 { }
 
-void MeleeWeapon::onUse(const glm::ivec2& position, const std::shared_ptr<Entity>& target) {
-    game_assert(target != nullptr);
-    target->takeDamage(stats.damage);
+bool MeleeWeapon::onUse(const glm::ivec2& position, const glm::ivec2& target) {
+    auto entities = Application::getContext().getEntityPool().getEntities();
+    auto entity = Entity::filterByTile(target.x, target.y, entities, owner->getParticipantId());
+    
+    if(entity != nullptr) {
+        entity->takeDamage(stats.damage);
+        publisher.publish({ owner, entity, this });
+    }
+
+    return true;
 }
 
-void MeleeWeapon::draw(const std::shared_ptr<GraphicsContext>& graphicsContext) {
+void MeleeWeapon::draw(GraphicsContext& graphicsContext) {
     // no-op
 }
 

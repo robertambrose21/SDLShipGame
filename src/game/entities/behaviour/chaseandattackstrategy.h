@@ -10,17 +10,17 @@ class GameServerMessagesTransmitter;
 
 class ChaseAndAttackStrategy : public BehaviourStrategy {
 private:
-    std::shared_ptr<GameServerMessagesTransmitter> transmitter;
+    GameServerMessagesTransmitter* transmitter;
 
-    std::shared_ptr<EntityPool> entityPool;
-    std::shared_ptr<Entity> target;
+    std::map<TurnController::Action, int> presetActions;
 
     bool canPassTurn;
 
-    std::shared_ptr<Entity> findClosestTarget(void);
+    Entity* findClosestTarget(Entity* attacker);
+    Weapon* getBestInRangeWeapon(Entity* attacker, const glm::ivec2& target);
 
 public:
-    ChaseAndAttackStrategy(const std::shared_ptr<Entity>& owner);
+    ChaseAndAttackStrategy(int participantId);
 
     void onUpdate(uint32_t timeSinceLastFrame, bool& quit);
     void onNextTurn(void);

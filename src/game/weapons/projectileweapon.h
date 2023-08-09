@@ -8,13 +8,14 @@
 class ProjectileWeapon : public Weapon {
 private:
     Projectile::Blueprint projectileBlueprint;
-    
-    void onUse(const glm::ivec2& position, const std::shared_ptr<Entity>& target);
+
+    bool onUse(const glm::ivec2& position, const glm::ivec2& target);
 
 public:
     ProjectileWeapon(
-        const std::shared_ptr<Entity>& owner,
-        const std::shared_ptr<Grid>& grid,
+        Entity* owner,
+        Grid& grid,
+        EventPublisher<WeaponEventData>& publisher,
         uint32_t id,
         const std::string& name, 
         const Stats& stats, 
@@ -22,17 +23,20 @@ public:
     );
 
     ProjectileWeapon(
-        const std::shared_ptr<Entity>& owner,
-        const std::shared_ptr<Grid>& grid, 
+        Entity* owner,
+        Grid& grid,
+        EventPublisher<WeaponEventData>& publisher,
         const std::string& name, 
         const Stats& stats, 
         const Projectile::Blueprint& projectileBlueprint
     );
     
-    void draw(const std::shared_ptr<GraphicsContext>& graphicsContext);
+    void draw(GraphicsContext& graphicsContext);
     void update(uint32_t timeSinceLastFrame);
-    bool hasFinished(void);
+    bool isAnimationInProgress(void);
     Type getType(void) const;
+
+    bool isInRange(const glm::ivec2& target);
 
     void setProjectileBlueprint(const Projectile::Blueprint& projectileBlueprint);
     Projectile::Blueprint getProjectileBluePrint(void) const;

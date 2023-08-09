@@ -24,29 +24,31 @@ public:
         { }
     } Colour;
 
-private:
     struct sdl_deleter {
-        void operator()(SDL_Texture *p) const { }
+        void operator()(SDL_Texture *p) const {
+            SDL_DestroyTexture(p);
+        }
     };
 
-    std::shared_ptr<SDL_Texture> texture;
+private:
+    std::unique_ptr<SDL_Texture, sdl_deleter> texture;
     std::string id;
     Colour colour;
     uint8_t alpha;
 
 public:
     Texture();
-    Texture(const std::shared_ptr<SDL_Texture>& texture, const std::string& id);
+    Texture(std::unique_ptr<SDL_Texture, sdl_deleter> texture, const std::string& id);
 
     std::string getId(void) const;
     void draw(
-        const std::shared_ptr<SDL_Renderer>& renderer,
+        SDL_Renderer* renderer,
         const SDL_Rect* srcRect = NULL,
         const SDL_Rect* dstRect = NULL
     );
 
     void draw(
-        const std::shared_ptr<SDL_Renderer>& renderer,
+        SDL_Renderer* renderer,
         const Colour& colour,
         uint8_t alpha,
         const SDL_Rect* srcRect = NULL,
@@ -62,11 +64,9 @@ public:
 class TextureLoader {
 private:
     struct sdl_deleter {
-        void operator()(SDL_Window *p) const    { }
-        void operator()(SDL_Renderer *p) const  { }
-        void operator()(SDL_Texture *p) const   { }
-        void operator()(SDL_Surface *p) const   { }
-        void operator()(SDL_RWops *p) const     { }
+        void operator()(SDL_Texture *p) const { /*SDL_DestroyTexture(p);*/ }
+        void operator()(SDL_Surface *p) const { /*SDL_FreeSurface(p);*/ }
+        void operator()(SDL_RWops *p) const   { /*SDL_FreeRW(p);*/ }
     };
 
     typedef struct _textureData {
@@ -76,14 +76,15 @@ private:
     } TextureData;
 
     std::map<uint32_t, TextureData> availableTextures;
-    std::map<std::string, std::shared_ptr<Texture>> loadedTextures;
-    std::shared_ptr<SDL_Renderer> renderer;
+    std::map<std::string, std::unique_ptr<Texture>> loadedTextures;
+    SDL_Renderer* renderer;
 
 public:
-    TextureLoader(const std::shared_ptr<SDL_Renderer>& renderer);
+    TextureLoader();
+    TextureLoader(SDL_Renderer* renderer);
 
-    std::shared_ptr<Texture> loadTexture(uint32_t id);
-    std::shared_ptr<Texture> loadTexture(const std::string& path);
+    Texture* loadTexture(uint32_t id);
+    Texture* loadTexture(const std::string& path);
 
     class TextureLoaderException : public std::exception {
     private:

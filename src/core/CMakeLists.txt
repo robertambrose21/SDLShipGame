@@ -18,8 +18,12 @@ add_library(
     net/yojimboimport.h
     util/idgenerator.h
     util/gameassert.h
+    util/randomrolls.h
     state/state.h
     state/statemachine.cpp
+    event/event.h
+    event/eventpublisher.h
+    event/eventsubscriber.h
 )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX CXX_STANDARD 20)
