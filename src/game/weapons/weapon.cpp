@@ -45,6 +45,10 @@ bool Weapon::hasFinished(void) {
     return usesLeft <= 0;
 }
 
+bool Weapon::isAnimationInProgress(void) {
+    return false;
+}
+
 void Weapon::setFinished(void) {
     usesLeft = 0;
 }

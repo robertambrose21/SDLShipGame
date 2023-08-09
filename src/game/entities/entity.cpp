@@ -234,23 +234,23 @@ int Entity::findPath(const glm::ivec2& target, int stopShortSteps) {
 
     this->path = path;
 
-    std::cout 
-        << "[" 
-        << getName() 
-        << "#" 
-        << getId() 
-        << "]: Finding path time ("
-        << position.x
-        << ", "
-        << position.y
-        << ") -> ("
-        << target.x
-        << ", "
-        << target.y
-        << "): "
-        << (SDL_GetTicks() - startTime) 
-        << "ms" 
-        << std::endl;
+    // std::cout 
+    //     << "[" 
+    //     << getName() 
+    //     << "#" 
+    //     << getId() 
+    //     << "]: Finding path time ("
+    //     << position.x
+    //     << ", "
+    //     << position.y
+    //     << ") -> ("
+    //     << target.x
+    //     << ", "
+    //     << target.y
+    //     << "): "
+    //     << (SDL_GetTicks() - startTime) 
+    //     << "ms" 
+    //     << std::endl;
 
     return path.size();
 }
@@ -273,6 +273,10 @@ void Entity::setMovesLeft(int movesLeft) {
 
 bool Entity::isTurnInProgress(void) const {
     return (currentWeapon != nullptr && !currentWeapon->hasFinished()) || getMovesLeft() > 0;
+}
+
+bool Entity::hasAnimationsInProgress(void) {
+    return currentWeapon != nullptr && currentWeapon->isAnimationInProgress();
 }
 
 void Entity::useMoves(int numMoves) {
@@ -299,15 +303,8 @@ void Entity::nextTurn(void) {
     }
 }
 
-// TODO: Maybe irrelevant now?
-bool Entity::endTurnCondition(void) {
-    return false;
-}
-
-void Entity::reset(void) {
+void Entity::endTurn(void) {
     currentStats.movesLeft = 0;
-    currentStats.movesPerTurn = stats.movesPerTurn;
-    currentStats.totalHP = stats.totalHP;
     path.clear();
 
     for(auto& [_, weapon] : weapons) {

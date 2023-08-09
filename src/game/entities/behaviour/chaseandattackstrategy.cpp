@@ -20,7 +20,7 @@ void ChaseAndAttackStrategy::onUpdate(uint32_t timeSinceLastFrame, bool& quit) {
             continue;
         }
 
-        if(entity->isNeighbour(target)) {
+        if(target != nullptr && entity->isNeighbour(target)) {
             if(turnController.performAttackAction(entity, entity->getCurrentWeapon(), target->getPosition())) {
                 transmitter->sendAttack(0, entity->getId(), target->getPosition(), entity->getCurrentWeapon()->getId());
             };
@@ -38,7 +38,7 @@ void ChaseAndAttackStrategy::onUpdate(uint32_t timeSinceLastFrame, bool& quit) {
             isPassable = isPassable && 
                 participant->actions[TurnController::Action::Move] <= 0 && entity->getMovesLeft() <= 0;
         }
-        else if(turnController.performMoveAction(entity, target->getPosition(), 1)) {
+        else if(target != nullptr && turnController.performMoveAction(entity, target->getPosition(), 1)) {
             transmitter->sendFindPath(0, entity->getId(), target->getPosition(), 1);
             isPassable = false;
         }

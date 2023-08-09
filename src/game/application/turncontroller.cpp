@@ -18,6 +18,11 @@ void TurnController::update(uint32_t timeSinceLastFrame, bool& quit) {
     }
 
     if(canProgressToNextTurn(currentParticipant)) {
+        for(auto const& entity : participants[currentParticipant]->entities) {
+            entity->endTurn();
+        }
+        participants[currentParticipant]->actions.clear();
+
         nextParticipantTurn((currentParticipant + 1) % participants.size());
     }
 }
@@ -82,13 +87,7 @@ std::vector<TurnController::Participant*> TurnController::getParticipants(void) 
 void TurnController::reset(void) {
     for(auto& [participantId, participant] : participants) {
         for(auto entity : participant->entities) {
-            // Why is this different for participant 0???
-            if(participantId > 0) {
-                entity->reset();
-            }
-            else {
-                entity->nextTurn();
-            }
+            entity->nextTurn();
         }
     }
 }
@@ -257,11 +256,13 @@ bool TurnController::canProgressToNextTurn(int participantId) {
     }
 
     bool haveEntitiesTurnsFinished = true;
+    bool haveEntitiesAnimationsFinished = true;
     for(auto entity : participant->entities) {
         haveEntitiesTurnsFinished = haveEntitiesTurnsFinished && !entity->isTurnInProgress();
+        haveEntitiesAnimationsFinished = haveEntitiesAnimationsFinished && !entity->hasAnimationsInProgress();
     }
 
-    if(!haveEntitiesTurnsFinished) {
+    if(!haveEntitiesAnimationsFinished) {
         return false;
     }
 
@@ -271,5 +272,5 @@ bool TurnController::canProgressToNextTurn(int participantId) {
         haveActionsCompleted = haveActionsCompleted && numActionsLeft == 0;
     }
 
-    return haveActionsCompleted || participant->passNextTurn;
+    return (haveEntitiesTurnsFinished && haveActionsCompleted) || participant->passNextTurn;
 }

@@ -59,10 +59,8 @@ Projectile::Blueprint ProjectileWeapon::getProjectileBluePrint(void) const {
     return projectileBlueprint;
 }
 
-bool ProjectileWeapon::hasFinished(void) {
-    auto activeProjectiles = Application::getContext().getProjectilePool().getNumProjectilesForOwner(owner);
-
-    return Weapon::hasFinished() && activeProjectiles == 0;
+bool ProjectileWeapon::isAnimationInProgress(void) {
+    return Application::getContext().getProjectilePool().getNumProjectilesForOwner(owner) > 0;
 }
 
 Weapon::Type ProjectileWeapon::getType(void) const {

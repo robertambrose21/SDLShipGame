@@ -71,6 +71,7 @@ public:
     virtual void draw(GraphicsContext& graphicsContext) = 0;
     virtual void update(uint32_t timeSinceLastFrame) = 0;
     virtual bool hasFinished(void);
+    virtual bool isAnimationInProgress(void);
     virtual Type getType(void) const = 0;
 
     Stats getStats(void) const;

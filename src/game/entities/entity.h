@@ -181,14 +181,14 @@ public:
     int getMovesLeft(void) const;
     void setMovesLeft(int movesLeft);
     bool isTurnInProgress(void) const;
+    bool hasAnimationsInProgress(void);
     void useMoves(int numMoves);
 
     void setParticipantId(int participantId);
     int getParticipantId(void) const;
 
-    void reset(void);
     void nextTurn(void);
-    bool endTurnCondition(void);
+    void endTurn(void);
 
     int getFrozenFor(void) const;
     void setFrozenFor(int numTurns);

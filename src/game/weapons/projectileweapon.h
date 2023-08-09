@@ -33,7 +33,7 @@ public:
     
     void draw(GraphicsContext& graphicsContext);
     void update(uint32_t timeSinceLastFrame);
-    bool hasFinished(void);
+    bool isAnimationInProgress(void);
     Type getType(void) const;
 
     bool isInRange(const glm::ivec2& target);
