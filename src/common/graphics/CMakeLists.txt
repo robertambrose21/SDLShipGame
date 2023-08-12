@@ -1,0 +1,25 @@
+cmake_minimum_required(VERSION 3.12.0)
+project(CommonGraphicsLib VERSION 0.1.0)
+
+include_directories(../)
+
+add_library(
+    ${PROJECT_NAME}
+    window.cpp 
+    textureloader.cpp 
+    gridrenderer.cpp
+    graphicscontext.cpp
+    sdlimport.h
+    healthbar.cpp
+    ui/dice.cpp
+    ui/button.cpp
+    ui/panel.cpp
+    ui/playerpanel.cpp
+    ui/text.cpp
+    ui/textpanel.cpp
+    ui/actionbutton.cpp
+    camera.cpp
+)
+
+set_target_properties(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX CXX_STANDARD 20)
+target_link_libraries(CommonGraphicsLib ${SDL2_LIBRARIES} ${SDL2_IMAGE_LIBRARIES} ${SDL2TTF_LIBRARY})
