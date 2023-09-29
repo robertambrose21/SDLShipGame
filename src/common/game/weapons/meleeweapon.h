@@ -25,7 +25,7 @@ public:
         const Stats& stats
     );
 
-    void draw(GraphicsContext& graphicsContext);
+    // void draw(GraphicsContext& graphicsContext);
     void update(uint32_t timeSinceLastFrame);
     Type getType(void) const;
 };

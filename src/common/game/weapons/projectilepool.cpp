@@ -69,14 +69,6 @@ Projectile::Blueprint ProjectilePool::create(const std::string& name) {
     return blueprint;
 }
 
-void ProjectilePool::draw(GraphicsContext& graphicsContext) {
-    for (auto& [owner, projectilesForOwner] : projectiles) {
-        for(auto const& projectile : projectilesForOwner) {
-            projectile->draw(graphicsContext);
-        }
-    }
-}
-
 void ProjectilePool::update(uint32_t timeSinceLastFrame) {
     for(auto [owner, projectilesForOwnerIds] : projectilesForDeletion) {
         for(auto const& projectileId : projectilesForOwnerIds) {
@@ -109,6 +101,18 @@ std::vector<Projectile*> ProjectilePool::getProjectilesForOwner(Entity* owner) {
     
     for(auto& projectile : projectilesForOwner->second) {
         vProjectiles.push_back(projectile.get());
+    }
+
+    return vProjectiles;
+}
+
+std::vector<Projectile*> ProjectilePool::getAllProjectiles(void) {
+    std::vector<Projectile*> vProjectiles;
+
+    for (auto& [owner, projectilesForOwner] : projectiles) {
+        for(auto const& projectile : projectilesForOwner) {
+            vProjectiles.push_back(projectile.get());
+        }
     }
 
     return vProjectiles;

@@ -59,7 +59,8 @@ private:
 public:
     PlayerController(
         GameClientMessagesTransmitter& clientMessagesTransmitter,
-        ApplicationContext& context
+        ApplicationContext& context,
+        GraphicsContext& graphicsContext
     );
 
     void update(uint32_t timeSinceLastFrame);

@@ -7,13 +7,13 @@
 #include "game/weapons/areaofeffectpool.h"
 #include "game/weapons/weaponcontroller.h"
 #include "turncontroller.h"
-// #include "core/net/server/servermessagestransmitter.h"
 #include "core/net/servermessagestransmitter.h"
 #include "core/util/gameassert.h"
 
 class ApplicationContext {
 private:
-    Window& window;
+    // Window& window;
+    Grid& grid;
     EntityPool& entityPool;
     WeaponController& weaponController;
     ProjectilePool& projectilePool;
@@ -23,7 +23,8 @@ private:
 
 public:
     ApplicationContext(
-        Window& window,
+        // Window& window,
+        Grid& grid,
         EntityPool& entityPool,
         WeaponController& weaponController,
         ProjectilePool& projectilePool,
@@ -32,8 +33,6 @@ public:
     );
 
     Grid& getGrid(void);
-    GraphicsContext& getGraphicsContext(void);
-    Window& getWindow(void);
     EntityPool& getEntityPool(void);
     WeaponController& getWeaponController(void);
     ProjectilePool& getProjectilePool(void);

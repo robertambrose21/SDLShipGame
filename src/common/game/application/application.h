@@ -1,6 +1,7 @@
 #pragma once
 
-// #include "graphics/window.h"
+#include <chrono>
+
 #include "applicationcontext.h"
 #include "game/weapons/projectilepool.h"
 #include "game/weapons/areaofeffectpool.h"
@@ -12,9 +13,13 @@
 
 class WeaponController;
 
+template<class T>
+class Tester {
+
+};
+
 class Application {
 private:
-    std::unique_ptr<Window> window;
     std::unique_ptr<Grid> grid;
     std::unique_ptr<EntityPool> entityPool;
     std::unique_ptr<WeaponController> weaponController;
@@ -23,9 +28,13 @@ private:
     std::unique_ptr<TurnController> turnController;
 
     std::unique_ptr<ApplicationContext> context;
+
+    std::vector<std::function<void(uint32_t, bool&)>> logicWorkers;
     
     Application();
     ~Application();
+
+    int64_t getCurrentTimeInMilliseconds(void);
 
 public:
     static Application& instance() {
@@ -39,7 +48,12 @@ public:
     static ApplicationContext& getContext(void) {
         return *instance().context;
     }
+
+    static void addLogicWorker(std::function<void(uint32_t, bool&)> func) {
+        instance().logicWorkers.push_back(func);
+    }
     
-    void initialise(const Window::Headless& headless);
+    void initialise(void);
     void run(void);
+    void loop(void);
 };

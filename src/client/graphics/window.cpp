@@ -13,13 +13,7 @@ Window::~Window() {
     SDL_Quit();
 }
 
-bool Window::initialiseWindow(const Headless& headless) {
-    this->headless = headless;
-
-    if(headless == Headless::YES) {
-        return true;
-    }
-
+bool Window::initialiseWindow(void) {
     if(SDL_Init(SDL_INIT_VIDEO) < 0) {
         std::cout << "SDL could not be initialized: " << SDL_GetError() << std::endl;
         return false;
@@ -63,49 +57,30 @@ bool Window::initialiseWindow(const Headless& headless) {
     return true;
 }
 
-// TODO: Consider moving loop logic out of the graphics module
-void Window::loop(void) {
-    bool quit = false;
+
+void Window::update(uint32_t timeSinceLastFrame, bool& quit) {
     SDL_Event e;
 
-    uint32_t currentTime = SDL_GetTicks();
-    uint32_t timeSinceLastFrame = 0;
-
-    while(!quit) {
-        timeSinceLastFrame = SDL_GetTicks() - currentTime;
-        currentTime = SDL_GetTicks();
-
-        while(SDL_PollEvent(&e) != 0) {
-            if(e.type == SDL_QUIT) {
-                quit = true;
-            }
-
-            for(auto const& worker : eventWorkers) {
-                worker(e, quit);
-            }
+    while(SDL_PollEvent(&e) != 0) {
+        if(e.type == SDL_QUIT) {
+            quit = true;
         }
 
-        for(auto const& worker : logicWorkers) {
-            worker(timeSinceLastFrame, quit);
-        }
-
-        if(headless == Headless::NO) {
-            SDL_RenderClear(renderer.get());
-
-            gridRenderer->draw(*graphicsContext);
-
-            for(auto const& worker : drawWorkers) {
-                worker(*graphicsContext, quit);
-            }
-
-            SDL_SetRenderDrawColor(renderer.get(), 0x00, 0x00, 0x00, 0xFF);
-            SDL_RenderPresent(renderer.get());
+        for(auto const& worker : eventWorkers) {
+            worker(e, quit);
         }
     }
-}
 
-void Window::addLoopLogicWorker(std::function<void(uint32_t, bool&)> worker) {
-    logicWorkers.push_back(worker);
+    SDL_RenderClear(renderer.get());
+
+    gridRenderer->draw(*graphicsContext);
+
+    for(auto const& worker : drawWorkers) {
+        worker(*graphicsContext, quit);
+    }
+
+    SDL_SetRenderDrawColor(renderer.get(), 0x00, 0x00, 0x00, 0xFF);
+    SDL_RenderPresent(renderer.get());
 }
 
 void Window::addLoopDrawWorker(std::function<void(GraphicsContext&, bool&)> worker) {

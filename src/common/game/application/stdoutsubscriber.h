@@ -1,10 +1,13 @@
 #pragma once
 
 #include <iostream>
+#include <ctime>
+#include <iomanip>
 
 #include "turncontroller.h"
 #include "core/event/eventsubscriber.h"
 #include "game/weapons/areaofeffect.h"
+#include "game/weapons/projectile.h"
 
 class StdOutSubscriber : 
     public EventSubscriber<TurnControllerEventData>,

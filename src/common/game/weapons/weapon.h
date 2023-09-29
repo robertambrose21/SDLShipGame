@@ -5,11 +5,10 @@
 #include <memory>
 
 #include "game/entities/entity.h"
-#include "projectile.h"
 #include "core/event/eventpublisher.h"
+#include "core/grid/grid.h"
 
 class Entity;
-class Projectile;
 class Weapon;
 
 struct WeaponEventData {
@@ -68,7 +67,6 @@ public:
     void setFinished(void);
     virtual bool isInRange(const glm::ivec2& position);
 
-    virtual void draw(GraphicsContext& graphicsContext) = 0;
     virtual void update(uint32_t timeSinceLastFrame) = 0;
     virtual bool hasFinished(void);
     virtual bool isAnimationInProgress(void);

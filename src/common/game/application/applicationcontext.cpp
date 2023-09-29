@@ -1,24 +1,20 @@
 #include "applicationcontext.h"
 
 ApplicationContext::ApplicationContext(
-    Window& window,
+    Grid& grid,
     EntityPool& entityPool,
     WeaponController& weaponController,
     ProjectilePool& projectilePool,
     AreaOfEffectPool& areaOfEffectPool,
     TurnController& turnController
 ) :
-    window(window),
+    grid(grid),
     entityPool(entityPool),
     weaponController(weaponController),
     projectilePool(projectilePool),
     areaOfEffectPool(areaOfEffectPool),
     turnController(turnController)
 { }
-
-Window& ApplicationContext::getWindow(void) {
-    return window;
-}
 
 EntityPool& ApplicationContext::getEntityPool(void) {
     return entityPool;
@@ -40,13 +36,8 @@ TurnController& ApplicationContext::getTurnController(void) {
     return turnController;
 }
 
-// TODO: Grid probably shouldn't come from the renderer?
 Grid& ApplicationContext::getGrid(void) {
-    return getWindow().getGridRenderer().getGrid();
-}
-
-GraphicsContext& ApplicationContext::getGraphicsContext(void) {
-    return getWindow().getGraphicsContext();
+    return grid;
 }
 
 void ApplicationContext::setServerMessagesTransmitter(ServerMessagesTransmitter* transmitter) {

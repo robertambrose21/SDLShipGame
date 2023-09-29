@@ -1,11 +1,11 @@
 #include "dice.h"
 
 Dice::Dice(
-    int face//,
-    // GameClientMessagesTransmitter& clientMessagesTransmitter
+    int face,
+    GameClientMessagesTransmitter& clientMessagesTransmitter
 ) :
     face(face),
-    // clientMessagesTransmitter(clientMessagesTransmitter),
+    clientMessagesTransmitter(clientMessagesTransmitter),
     rolling(false),
     turnController(Application::getContext().getTurnController())
 {
@@ -66,7 +66,7 @@ void Dice::roll(int participantId) {
     actionsFromServer.clear();
     actions.clear();
     
-    // clientMessagesTransmitter.sendActionsRollMessage(participantId);
+    clientMessagesTransmitter.sendActionsRollMessage(participantId);
 
     rolling = true;
     std::thread t(&Dice::rollFunc, this, 3);

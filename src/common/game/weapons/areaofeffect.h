@@ -1,7 +1,7 @@
 #pragma once
 
 #include "core/glmimport.h"
-#include "graphics/gridrenderer.h"
+// #include "graphics/gridrenderer.h"
 #include "game/entities/entity.h"
 #include "core/event/eventpublisher.h"
 
@@ -45,11 +45,16 @@ public:
         const Stats& stats
     );
 
-    void draw(GraphicsContext& graphicsContext);
+    // void draw(GraphicsContext& graphicsContext);
     void update(uint32_t timeSinceLastFrame);
     void apply(void);
     void onNextTurn(int currentParticipant, int turnNumber);
 
     int getOwnerId(void) const;
     Stats getStats(void) const;
+
+    std::vector<glm::ivec2> getEffectedTilePositions(void);
+
+    uint32_t getTextureId(void) const;
+    glm::ivec2 getPosition(void) const;
 };

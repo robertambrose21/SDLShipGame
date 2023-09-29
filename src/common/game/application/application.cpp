@@ -2,7 +2,6 @@
 
 Application::Application() {
     grid = std::make_unique<Grid>(25, 25);
-    window = std::make_unique<Window>(1920, 1080, *grid);
     turnController = std::make_unique<TurnController>(*grid);
     areaOfEffectPool = std::make_unique<AreaOfEffectPool>(*turnController, *grid);
     projectilePool = std::make_unique<ProjectilePool>(*areaOfEffectPool);
@@ -10,7 +9,7 @@ Application::Application() {
     entityPool = std::make_unique<EntityPool>(*turnController, *weaponController);
 
     context = std::make_unique<ApplicationContext>(
-        *window, 
+        *grid,
         *entityPool,
         *weaponController,
         *projectilePool, 
@@ -22,13 +21,30 @@ Application::Application() {
 Application::~Application()
 { }
 
-void Application::initialise(const Window::Headless& headless) {
-    window->initialiseWindow(headless);
-
-    window->setGridTileTexture(1, 4);
-    window->setGridTileTexture(2, 5);
-}
+void Application::initialise(void)
+{ }
 
 void Application::run(void) {
-    window->loop();
+    loop();
+}
+
+void Application::loop(void) {
+    int64_t currentTime = getCurrentTimeInMilliseconds();
+    int64_t timeSinceLastFrame = 0;
+    bool quit = false;
+
+    while(!quit) {
+        timeSinceLastFrame = getCurrentTimeInMilliseconds() - currentTime;
+        currentTime = getCurrentTimeInMilliseconds();
+
+        for(auto const& worker : logicWorkers) {
+            worker(timeSinceLastFrame, quit);
+        }
+    }
+}
+
+int64_t Application::getCurrentTimeInMilliseconds(void) {
+    auto currentTime = std::chrono::system_clock::now();
+    auto milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime.time_since_epoch());
+    return milliseconds.count();
 }

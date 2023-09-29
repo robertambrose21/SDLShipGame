@@ -32,16 +32,24 @@ bool ProjectileWeapon::onUse(const glm::ivec2& position, const glm::ivec2& targe
     auto& projectilePool = Application::getContext().getProjectilePool();
 
     projectilePool.add(
-        Projectile::create(grid, projectilePool, owner->getParticipantId(), projectileBlueprint, position, target, stats.damage),
+        Projectile::create(
+            grid, 
+            projectilePool, 
+            owner->getParticipantId(), 
+            projectileBlueprint, 
+            position, 
+            target, 
+            stats.damage
+        ), 
         owner
     );
 
     return true;
 }
 
-void ProjectileWeapon::draw(GraphicsContext& graphicsContext) {
-    // no-op
-}
+// void ProjectileWeapon::draw(GraphicsContext& graphicsContext) {
+//     // no-op
+// }
 
 void ProjectileWeapon::update(uint32_t timeSinceLastFrame) {
     // no-op

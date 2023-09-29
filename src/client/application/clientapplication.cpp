@@ -13,12 +13,19 @@ void ClientApplication::initialise(void) {
         return;
     }
 
+    auto& application = Application::instance();
+
     auto& context = Application::getContext();
     auto& grid = context.getGrid();
     auto& entityPool = context.getEntityPool();
     auto& projectilePool = context.getProjectilePool();
     auto& areaOfEffectPool = context.getAreaOfEffectPool();
     auto& turnController = context.getTurnController();
+
+    weaponDrawStrategy = std::make_unique<WeaponDrawStrategy>();
+    entityDrawStrategy = std::make_unique<EntityDrawStrategy>(weaponDrawStrategy.get());
+    projectileDrawStrategy = std::make_unique<ProjectileDrawStrategy>();
+    areaOfEffectDrawStrategy = std::make_unique<AreaOfEffectDrawStrategy>();
 
     clientStateMachine = std::make_unique<ClientStateMachine>();
     clientStateMachine->setState(std::make_unique<ClientLoadingState>());
@@ -34,9 +41,13 @@ void ClientApplication::initialise(void) {
         clientStateMachine->setState(std::make_unique<ClientGameLoopState>());
     });
 
-    Application::instance().initialise(Window::Headless::NO);
+    application.initialise();
 
-    auto& window = context.getWindow();
+    window = std::make_unique<Window>(1920, 1080, grid);
+    window->initialiseWindow();
+
+    window->setGridTileTexture(1, 4);
+    window->setGridTileTexture(2, 5);
     
     for(auto i = 0; i < grid.getWidth(); i++) {
         for(auto j = 0; j < grid.getHeight(); j++) {
@@ -45,42 +56,57 @@ void ClientApplication::initialise(void) {
     }
 
     playerController = std::make_unique<PlayerController>(
-        *clientMessagesTransmitter, context
+        *clientMessagesTransmitter, context, window->getGraphicsContext()
     );
     clientMessagesReceiver->setPlayerController(playerController.get());
 
-    window.addLoopLogicWorker([&](auto const& timeSinceLastFrame, auto& quit) {
-        update(timeSinceLastFrame, quit);
-    });
-    window.addLoopDrawWorker([&](auto graphicsContext, auto& quit) {
+    window->addLoopDrawWorker([&](auto graphicsContext, auto& quit) {
         draw(graphicsContext, quit);
     });
-    window.addLoopEventWorker([&](auto const& e, auto& quit) {
+    window->addLoopEventWorker([&](auto const& e, auto& quit) {
         playerController->handleKeyPress(e);
         playerController->handleMouseEvent(e);
+    });
+
+    application.addLogicWorker([&](auto const& timeSinceLastFrame, auto& quit) {
+        update(timeSinceLastFrame, quit);
+        window->update(timeSinceLastFrame, quit);
     });
 }
 
 void ClientApplication::draw(GraphicsContext& graphicsContext, bool& quit) {
-    auto& context = Application::getContext();
-    auto& entityPool = context.getEntityPool();
-    auto& projectilePool = context.getProjectilePool();
-    auto& areaOfEffectPool = context.getAreaOfEffectPool();
-
     switch(clientStateMachine->getCurrentState()->GetType()) {
         case ClientStateMachine::Loading:
             break;
 
         case ClientStateMachine::GameLoop:
-            projectilePool.draw(graphicsContext);
-            areaOfEffectPool.draw(graphicsContext);
-            entityPool.drawEntities(graphicsContext);
-            playerController->draw(graphicsContext);
+            drawGameLoop(graphicsContext);
             break;
 
         default:
             break;
     }
+}
+
+void ClientApplication::drawGameLoop(GraphicsContext& graphicsContext) {
+    auto& context = Application::getContext();
+    auto& entityPool = context.getEntityPool();
+    auto& projectilePool = context.getProjectilePool();
+    auto& areaOfEffectPool = context.getAreaOfEffectPool();
+
+    for(auto aoe : areaOfEffectPool.getAoeEffects()) {
+        areaOfEffectDrawStrategy->draw(aoe, graphicsContext);
+    }
+
+    for(auto entity : entityPool.getEntities()) {
+        entityDrawStrategy->draw(entity, graphicsContext);
+    }
+
+    for(auto projectile : projectilePool.getAllProjectiles()) {
+        projectileDrawStrategy->draw(projectile, graphicsContext);
+    }
+
+    playerController->draw(graphicsContext);
 }
 
 void ClientApplication::update(uint32_t timeSinceLastFrame, bool& quit) {

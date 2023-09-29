@@ -67,12 +67,6 @@ void EntityPool::updateEntity(Entity* entity, uint32_t timeSinceLastFrame, bool&
     entity->update(timeSinceLastFrame, quit);
 }
 
-void EntityPool::drawEntities(GraphicsContext& graphicsContext) {
-    for(auto& [entityId, entity] : entities) {
-        entity->draw(graphicsContext);
-    }
-}
-
 void EntityPool::synchronize() {
     if(pendingUpdates.empty()) {
         return;

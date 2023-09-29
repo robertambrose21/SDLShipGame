@@ -23,12 +23,6 @@ AreaOfEffect::AreaOfEffect(
     apply();
 }
 
-void AreaOfEffect::draw(GraphicsContext& graphicsContext) {
-    for(auto const& position : effectedTilePositions) {
-        graphicsContext.getGridRenderer().draw(graphicsContext, textureId, position);
-    }
-}
-
 void AreaOfEffect::update(uint32_t timeSinceLastFrame) {
     //
 }
@@ -57,4 +51,16 @@ int AreaOfEffect::getOwnerId(void) const {
 
 AreaOfEffect::Stats AreaOfEffect::getStats(void) const {
     return stats;
+}
+
+uint32_t AreaOfEffect::getTextureId(void) const {
+    return textureId;
+}
+
+glm::ivec2 AreaOfEffect::getPosition(void) const {
+    return position;
+}
+
+std::vector<glm::ivec2> AreaOfEffect::getEffectedTilePositions(void) {
+    return effectedTilePositions;
 }

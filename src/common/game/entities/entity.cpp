@@ -17,9 +17,7 @@ Entity::Entity(
     timeSinceLastMoved(0),
     selected(false),
     frozenForNumTurns(0)
-{
-    healthBar = std::make_unique<HealthBar>(stats.totalHP);
-}
+{ }
 
 Entity::Entity(
     EventPublisher<EntityEventData>& publisher,
@@ -36,6 +34,10 @@ uint32_t Entity::getTextureId(void) const {
     return textureId;
 }
 
+uint32_t Entity::getSelectedTextureId(void) const {
+    return selectedTextureId;
+}
+
 void Entity::setSelectedTextureId(uint32_t selectedTextureId) {
     game_assert(textureId != selectedTextureId);
     this->selectedTextureId = selectedTextureId;
@@ -47,39 +49,6 @@ void Entity::setColour(const Colour& colour) {
 
 Entity::Colour Entity::getColour(void) const {
     return colour;
-}
-
-void Entity::draw(GraphicsContext& graphicsContext) {
-    auto& gridRenderer = graphicsContext.getGridRenderer();
-
-    gridRenderer.draw(
-        graphicsContext,
-        textureId,
-        { colour.r, colour.g, colour.b },
-        colour.a,
-        position
-    );
-
-    if(selected) {
-        gridRenderer.draw(graphicsContext, selectedTextureId, position);
-    }
-
-    for(auto& [_, weapon] : weapons) {
-        weapon->draw(graphicsContext);
-    }
-
-    if(frozenForNumTurns > 0) {
-        auto const &realPosition = gridRenderer.getTilePosition(position.x, position.y) + gridRenderer.getCamera().getPosition();
-        auto const &size = gridRenderer.getTileSize();
-
-        SDL_Rect frozen = { realPosition.x, realPosition.y, size, size };
-
-        SDL_SetRenderDrawBlendMode(graphicsContext.getRenderer(), SDL_BLENDMODE_BLEND);
-        SDL_SetRenderDrawColor(graphicsContext.getRenderer(), 0x00, 0xFF, 0xFF, 0x7F);
-        SDL_RenderFillRect(graphicsContext.getRenderer(), &frozen);
-    }
-
-    healthBar->draw(graphicsContext, position, currentStats.totalHP);
 }
 
 void Entity::update(uint32_t timeSinceLastFrame, bool& quit) {
@@ -216,7 +185,6 @@ void Entity::setPosition(const glm::ivec2& position) {
 }
 
 int Entity::findPath(const glm::ivec2& target, int stopShortSteps) {
-    auto startTime = SDL_GetTicks();
     auto path = grid.findPath(getPosition(), target);
 
     if(path.empty()) {
@@ -233,24 +201,6 @@ int Entity::findPath(const glm::ivec2& target, int stopShortSteps) {
     }
 
     this->path = path;
-
-    // std::cout 
-    //     << "[" 
-    //     << getName() 
-    //     << "#" 
-    //     << getId() 
-    //     << "]: Finding path time ("
-    //     << position.x
-    //     << ", "
-    //     << position.y
-    //     << ") -> ("
-    //     << target.x
-    //     << ", "
-    //     << target.y
-    //     << "): "
-    //     << (SDL_GetTicks() - startTime) 
-    //     << "ms" 
-    //     << std::endl;
 
     return path.size();
 }

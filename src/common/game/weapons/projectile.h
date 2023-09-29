@@ -5,7 +5,7 @@
 #include <vector>
 
 #include "core/glmimport.h"
-#include "graphics/gridrenderer.h"
+// #include "graphics/gridrenderer.h"
 #include "game/entities/entity.h"
 #include "game/effects/effect.h"
 #include "core/event/eventpublisher.h"
@@ -109,11 +109,14 @@ public:
         );
     }
 
-    void draw(GraphicsContext& graphicsContext);
+    // void draw(GraphicsContext& graphicsContext);
     void update(uint32_t timeSinceLastFrame);
 
     bool hasReachedTarget(void);
 
     int getOwnerId(void) const;
     Stats getStats(void) const;
+
+    uint32_t getTextureId(void) const;
+    glm::ivec2 getPosition(void) const;
 };

@@ -17,6 +17,7 @@ Projectile::Projectile(
     textureId(textureId),
     ownerId(ownerId),
     startPosition(startPosition),
+    position(startPosition),
     target(target),
     stats(stats),
     weaponBaseDamage(weaponBaseDamage),
@@ -24,10 +25,6 @@ Projectile::Projectile(
     timeSinceLive(0.0f)
 {
     distanceToTarget = glm::distance(glm::vec2(target), glm::vec2(startPosition));
-}
-
-void Projectile::draw(GraphicsContext& graphicsContext) {
-    graphicsContext.getGridRenderer().draw(graphicsContext, textureId, position);
 }
 
 void Projectile::update(uint32_t timeSinceLastFrame) {
@@ -97,4 +94,12 @@ void Projectile::doHit(const glm::ivec2& position) {
 
 float Projectile::calculateStep(void) const {
     return ((timeSinceLive / 1000.0f) * stats.speed) / distanceToTarget;
+}
+
+uint32_t Projectile::getTextureId(void) const {
+    return textureId;
+}
+
+glm::ivec2 Projectile::getPosition(void) const {
+    return position;
 }

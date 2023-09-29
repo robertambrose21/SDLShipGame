@@ -49,7 +49,6 @@ public:
     );
 
     void updateEntities(uint32_t timeSinceLastFrame, bool& quit);
-    void drawEntities(GraphicsContext& graphicsContext);
 
     void addGameStateUpdate(const GameStateUpdate& update);
 

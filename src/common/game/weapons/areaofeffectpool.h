@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <map>
+#include <fstream>
 
 #include "core/json.hpp"
 #include "areaofeffect.h"
@@ -39,6 +40,8 @@ public:
 
     void add(const std::string& name, int ownerId, int turnNumber, const glm::ivec2& position);
 
-    void draw(GraphicsContext& graphicsContext);
+    // void draw(GraphicsContext& graphicsContext);
     void update(uint32_t timeSinceLastFrame);
+
+    std::vector<AreaOfEffect*> getAoeEffects(void);
 };

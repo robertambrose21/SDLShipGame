@@ -4,13 +4,12 @@
 
 #include "core/glmimport.h"
 #include "core/util/idgenerator.h"
-#include "graphics/gridrenderer.h"
-#include "graphics/healthbar.h"
 #include "game/weapons/weapon.h"
 #include "core/util/gameassert.h"
 #include "entitystats.h"
 #include "game/effects/statuseffect.h"
 #include "core/event/eventpublisher.h"
+#include "core/grid/grid.h"
 
 // TODO: Fix with modules?
 class Weapon;
@@ -51,7 +50,6 @@ private:
 
     Grid& grid;
     EventPublisher<EntityEventData>& publisher;
-    std::unique_ptr<HealthBar> healthBar;
 
     glm::ivec2 position;
     std::deque<glm::ivec2> path;
@@ -139,11 +137,10 @@ public:
     void setTextureId(uint32_t textureId);
     void setSelectedTextureId(uint32_t selectedTexture);
     uint32_t getTextureId(void) const;
+    uint32_t getSelectedTextureId(void) const;
 
     void setColour(const Colour& colour);
     Colour getColour(void) const;
-
-    void draw(GraphicsContext& graphicsContext);
 
     void setSelected(bool selected);
     bool isSelected(void) const;

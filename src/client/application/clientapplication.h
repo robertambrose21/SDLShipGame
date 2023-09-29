@@ -6,6 +6,10 @@
 #include "game/application/application.h"
 #include "clientstatemachine.h"
 #include "clientstates.h"
+#include "graphics/drawstrategies/entitydrawstrategy.h"
+#include "graphics/drawstrategies/weapondrawstrategy.h"
+#include "graphics/drawstrategies/projectiledrawstrategy.h"
+#include "graphics/drawstrategies/areaofeffectdrawstrategy.h"
 
 class ClientApplication {
 private:
@@ -13,8 +17,16 @@ private:
     std::unique_ptr<GameClientMessagesTransmitter> clientMessagesTransmitter;
     std::unique_ptr<GameClientMessagesReceiver> clientMessagesReceiver;
     std::unique_ptr<GameClient> client;
+    std::unique_ptr<Window> window;
 
     std::unique_ptr<ClientStateMachine> clientStateMachine;
+
+    std::unique_ptr<EntityDrawStrategy> entityDrawStrategy;
+    std::unique_ptr<WeaponDrawStrategy> weaponDrawStrategy;
+    std::unique_ptr<ProjectileDrawStrategy> projectileDrawStrategy;
+    std::unique_ptr<AreaOfEffectDrawStrategy> areaOfEffectDrawStrategy;
+
+    void drawGameLoop(GraphicsContext& graphicsContext);
 
 public:
     ClientApplication();

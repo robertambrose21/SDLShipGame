@@ -57,11 +57,11 @@ void AreaOfEffectPool::add(const std::string& name, int ownerId, int turnNumber,
     );
 }
 
-void AreaOfEffectPool::draw(GraphicsContext& graphicsContext) {
-    for(auto&& [_, aoe] : aoeObjects) {
-        aoe->draw(graphicsContext);
-    }
-}
+// void AreaOfEffectPool::draw(GraphicsContext& graphicsContext) {
+//     for(auto&& [_, aoe] : aoeObjects) {
+//         aoe->draw(graphicsContext);
+//     }
+// }
 
 void AreaOfEffectPool::update(uint32_t timeSinceLastFrame) {
     for(auto const& index : aoeObjectsForDeletion) {
@@ -79,4 +79,14 @@ void AreaOfEffectPool::update(uint32_t timeSinceLastFrame) {
             aoeObjectsForDeletion.push_back(i);
         }
     }
+}
+
+std::vector<AreaOfEffect*> AreaOfEffectPool::getAoeEffects(void) {
+    std::vector<AreaOfEffect*> aoes;
+
+    for(auto&& [_, aoe] : aoeObjects) {
+        aoes.push_back(aoe.get());
+    }
+
+    return aoes;
 }

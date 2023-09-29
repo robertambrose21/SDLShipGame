@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.12.0)
-project(CommonGraphicsLib VERSION 0.1.0)
+project(GraphicsLib VERSION 0.1.0)
 
 include_directories(../)
 
@@ -10,7 +10,6 @@ add_library(
     gridrenderer.cpp
     graphicscontext.cpp
     sdlimport.h
-    healthbar.cpp
     ui/dice.cpp
     ui/button.cpp
     ui/panel.cpp
@@ -19,7 +18,12 @@ add_library(
     ui/textpanel.cpp
     ui/actionbutton.cpp
     camera.cpp
+    drawstrategies/drawstrategy.h
+    drawstrategies/entitydrawstrategy.cpp
+    drawstrategies/weapondrawstrategy.cpp
+    drawstrategies/projectiledrawstrategy.cpp
+    drawstrategies/areaofeffectdrawstrategy.cpp
 )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX CXX_STANDARD 20)
-target_link_libraries(CommonGraphicsLib ${SDL2_LIBRARIES} ${SDL2_IMAGE_LIBRARIES} ${SDL2TTF_LIBRARY})
+target_link_libraries(GraphicsLib ${SDL2_LIBRARIES} ${SDL2_IMAGE_LIBRARIES} ${SDL2TTF_LIBRARY})

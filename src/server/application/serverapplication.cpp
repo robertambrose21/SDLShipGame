@@ -13,7 +13,9 @@ void ServerApplication::initialise(void) {
         return;
     }
 
-    Application::instance().initialise(Window::Headless::YES);
+    auto& application = Application::instance();
+
+    application.initialise();
 
     auto& context = Application::getContext();
     auto& entityPool = context.getEntityPool();
@@ -41,7 +43,7 @@ void ServerApplication::initialise(void) {
     server->setTransmitter(transmitter.get());
     context.setServerMessagesTransmitter(transmitter.get());
 
-    context.getWindow().addLoopLogicWorker([&](auto const& timeSinceLastFrame, auto& quit) {
+    application.addLogicWorker([&](auto const& timeSinceLastFrame, auto& quit) {
         server->update(timeSinceLastFrame);
         turnController.update(timeSinceLastFrame, quit);
         entityPool.updateEntities(timeSinceLastFrame, quit);

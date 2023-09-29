@@ -17,8 +17,6 @@ private:
         void operator()(SDL_Renderer *p) const { SDL_DestroyRenderer(p); }
     };
 
-    bool headless;
-
     int width;
     int height;
 
@@ -29,23 +27,16 @@ private:
     TextureLoader textureLoader;
     std::unique_ptr<GridRenderer> gridRenderer;
 
-    std::vector<std::function<void(uint32_t, bool&)>> logicWorkers;
     std::vector<std::function<void(GraphicsContext&, bool&)>> drawWorkers;
     std::vector<std::function<void(const SDL_Event&, bool&)>> eventWorkers;
     
 public:
-    enum Headless {
-        YES,
-        NO
-    };
-
     Window(int width, int height, Grid& grid);
     ~Window();
  
-    bool initialiseWindow(const Headless& headless);
-    void loop(void);
+    bool initialiseWindow(void);
+    void update(uint32_t timeSinceLastFrame, bool& quit);
 
-    void addLoopLogicWorker(std::function<void(uint32_t, bool&)> worker);
     void addLoopDrawWorker(std::function<void(GraphicsContext&, bool&)> worker);
     void addLoopEventWorker(std::function<void(const SDL_Event&, bool&)> worker);
     

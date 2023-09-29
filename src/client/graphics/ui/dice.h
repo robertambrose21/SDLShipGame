@@ -14,7 +14,7 @@
 #include "actionbutton.h"
 #include "game/application/application.h"
 #include "game/application/turncontroller.h"
-// #include "game/net/client/gameclientmessagestransmitter.h"
+#include "application/net/gameclientmessagestransmitter.h"
 
 class Dice {
 private:
@@ -25,15 +25,15 @@ private:
     std::map<int, std::vector<std::unique_ptr<ActionButton>>> actions;
 
     TurnController& turnController;
-    // GameClientMessagesTransmitter& clientMessagesTransmitter;
+    GameClientMessagesTransmitter& clientMessagesTransmitter;
 
     std::mutex mtx;
     void rollFunc(int seconds);
 
 public:  
     Dice(
-        int face//,
-        // GameClientMessagesTransmitter& clientMessagesTransmitter
+        int face,
+        GameClientMessagesTransmitter& clientMessagesTransmitter
     );
 
     void draw(GraphicsContext& graphicsContext);

@@ -2,18 +2,19 @@
 
 PlayerController::PlayerController(
     GameClientMessagesTransmitter& clientMessagesTransmitter,
-    ApplicationContext& context
+    ApplicationContext& context,
+    GraphicsContext& graphicsContext
 ) :
     clientMessagesTransmitter(clientMessagesTransmitter),
-    gridRenderer(context.getGraphicsContext().getGridRenderer()),
+    gridRenderer(graphicsContext.getGridRenderer()),
     turnController(context.getTurnController()),
     entityPool(context.getEntityPool()),
-    camera(context.getGraphicsContext().getGridRenderer().getCamera()),
+    camera(graphicsContext.getGridRenderer().getCamera()),
     isLeftShiftPressed(false),
     isCurrentWeaponInRange(true),
     cameraVector(glm::ivec2(0, 0))
 {
-    dice = std::make_unique<Dice>(3);//, clientMessagesTransmitter);
+    dice = std::make_unique<Dice>(3, clientMessagesTransmitter);
     playerPanel = std::make_unique<PlayerPanel>(1920, 1080);
     
     turnController.subscribe(playerPanel.get());
