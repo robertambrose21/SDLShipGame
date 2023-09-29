@@ -109,7 +109,6 @@ public:
         );
     }
 
-    // void draw(GraphicsContext& graphicsContext);
     void update(uint32_t timeSinceLastFrame);
 
     bool hasReachedTarget(void);

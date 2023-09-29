@@ -45,7 +45,6 @@ public:
         const Stats& stats
     );
 
-    // void draw(GraphicsContext& graphicsContext);
     void update(uint32_t timeSinceLastFrame);
     void apply(void);
     void onNextTurn(int currentParticipant, int turnNumber);
