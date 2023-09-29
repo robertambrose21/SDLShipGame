@@ -4,7 +4,6 @@
 #include "game/entities/entity.h"
 #include "game/entities/entitypool.h"
 #include "game/application/application.h"
-// #include "game/net/server/gameservermessagestransmitter.h"
 #include "application/net/gameservermessagestransmitter.h"
 
 class GameServerMessagesTransmitter;

@@ -5,7 +5,6 @@
 #include <vector>
 
 #include "core/glmimport.h"
-// #include "graphics/gridrenderer.h"
 #include "game/entities/entity.h"
 #include "game/effects/effect.h"
 #include "core/event/eventpublisher.h"

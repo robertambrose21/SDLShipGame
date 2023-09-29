@@ -1,7 +1,6 @@
 #pragma once
 
 #include "core/glmimport.h"
-// #include "graphics/gridrenderer.h"
 #include "game/entities/entity.h"
 #include "core/event/eventpublisher.h"
 
