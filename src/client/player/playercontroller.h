@@ -63,7 +63,7 @@ public:
         GraphicsContext& graphicsContext
     );
 
-    void update(uint32_t timeSinceLastFrame);
+    void update(int64_t timeSinceLastFrame);
     void draw(GraphicsContext& graphicsContext);
 
     void handleKeyPress(const SDL_Event& event);

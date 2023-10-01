@@ -67,7 +67,7 @@ public:
     void setFinished(void);
     virtual bool isInRange(const glm::ivec2& position);
 
-    virtual void update(uint32_t timeSinceLastFrame) = 0;
+    virtual void update(int64_t timeSinceLastFrame) = 0;
     virtual bool hasFinished(void);
     virtual bool isAnimationInProgress(void);
     virtual Type getType(void) const = 0;

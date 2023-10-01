@@ -22,7 +22,7 @@ private:
 public:
     ChaseAndAttackStrategy(int participantId);
 
-    void onUpdate(uint32_t timeSinceLastFrame, bool& quit);
+    void onUpdate(int64_t timeSinceLastFrame, bool& quit);
     void onNextTurn(void);
     bool endTurnCondition(void);
 };

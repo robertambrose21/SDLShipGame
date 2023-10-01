@@ -23,7 +23,7 @@ AreaOfEffect::AreaOfEffect(
     apply();
 }
 
-void AreaOfEffect::update(uint32_t timeSinceLastFrame) {
+void AreaOfEffect::update(int64_t timeSinceLastFrame) {
     //
 }
 

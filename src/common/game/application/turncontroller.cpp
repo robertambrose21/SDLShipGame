@@ -6,7 +6,7 @@ TurnController::TurnController(Grid& grid) :
     currentParticipant(0)
 { }
 
-void TurnController::update(uint32_t timeSinceLastFrame, bool& quit) {
+void TurnController::update(int64_t timeSinceLastFrame, bool& quit) {
     if(participants.size() <= 0) {
         return;
     }

@@ -33,7 +33,7 @@ public:
     ~ClientApplication();
 
     void draw(GraphicsContext& graphicsContext, bool& quit);
-    void update(uint32_t timeSinceLastFrame, bool& quit);
+    void update(int64_t timeSinceLastFrame, bool& quit);
     void initialise(void);
     void run(void);
 };

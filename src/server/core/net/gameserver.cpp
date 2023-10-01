@@ -34,7 +34,7 @@ void GameServer::setTransmitter(ServerMessagesTransmitter* transmitter) {
     this->transmitter = transmitter;
 }
 
-void GameServer::update(uint32_t timeSinceLastFrame) {
+void GameServer::update(int64_t timeSinceLastFrame) {
     server.AdvanceTime(server.GetTime() + ((double) timeSinceLastFrame) / 1000.0f);
     server.ReceivePackets();
 

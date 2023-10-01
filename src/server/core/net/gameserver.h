@@ -30,7 +30,7 @@ public:
     void setReceiver(ServerMessagesReceiver* receiver);
     void setTransmitter(ServerMessagesTransmitter* transmitter);
 
-    void update(uint32_t timeSinceLastFrame);
+    void update(int64_t timeSinceLastFrame);
 
     void clientConnected(int clientIndex);
     void clientDisconnected(int clientIndex);

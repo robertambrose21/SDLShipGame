@@ -57,7 +57,7 @@ void AreaOfEffectPool::add(const std::string& name, int ownerId, int turnNumber,
     );
 }
 
-void AreaOfEffectPool::update(uint32_t timeSinceLastFrame) {
+void AreaOfEffectPool::update(int64_t timeSinceLastFrame) {
     for(auto const& index : aoeObjectsForDeletion) {
         aoeObjects.erase(aoeObjects.begin() + index);
     }

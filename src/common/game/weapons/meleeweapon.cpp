@@ -33,7 +33,7 @@ bool MeleeWeapon::onUse(const glm::ivec2& position, const glm::ivec2& target) {
     return true;
 }
 
-void MeleeWeapon::update(uint32_t timeSinceLastFrame) {
+void MeleeWeapon::update(int64_t timeSinceLastFrame) {
     // no-op
 }
 

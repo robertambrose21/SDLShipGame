@@ -109,7 +109,7 @@ void ClientApplication::drawGameLoop(GraphicsContext& graphicsContext) {
     playerController->draw(graphicsContext);
 }
 
-void ClientApplication::update(uint32_t timeSinceLastFrame, bool& quit) {
+void ClientApplication::update(int64_t timeSinceLastFrame, bool& quit) {
     auto& context = Application::getContext();
     auto& grid = context.getGrid();
     auto& entityPool = context.getEntityPool();

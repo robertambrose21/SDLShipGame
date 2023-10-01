@@ -132,7 +132,7 @@ public:
         return filteredEntities;
     }
 
-    void update(uint32_t timeSinceLastFrame, bool& quit);
+    void update(int64_t timeSinceLastFrame, bool& quit);
 
     void setTextureId(uint32_t textureId);
     void setSelectedTextureId(uint32_t selectedTexture);

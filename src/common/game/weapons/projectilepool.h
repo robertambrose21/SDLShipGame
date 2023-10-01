@@ -39,7 +39,7 @@ public:
     void add(std::unique_ptr<Projectile> projectile, Entity* owner);
     Projectile::Blueprint create(const std::string& name);
 
-    void update(uint32_t timeSinceLastFrame);
+    void update(int64_t timeSinceLastFrame);
 
     std::vector<Projectile*> getProjectilesForOwner(Entity* owner);
     std::vector<Projectile*> getAllProjectiles(void);

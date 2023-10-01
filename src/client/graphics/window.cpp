@@ -58,7 +58,7 @@ bool Window::initialiseWindow(void) {
 }
 
 
-void Window::update(uint32_t timeSinceLastFrame, bool& quit) {
+void Window::update(int64_t timeSinceLastFrame, bool& quit) {
     SDL_Event e;
 
     while(SDL_PollEvent(&e) != 0) {

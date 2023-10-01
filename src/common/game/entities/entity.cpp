@@ -51,7 +51,7 @@ Entity::Colour Entity::getColour(void) const {
     return colour;
 }
 
-void Entity::update(uint32_t timeSinceLastFrame, bool& quit) {
+void Entity::update(int64_t timeSinceLastFrame, bool& quit) {
     for(auto& [_, weapon] : weapons) {
         weapon->update(timeSinceLastFrame);
     }

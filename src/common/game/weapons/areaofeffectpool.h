@@ -40,7 +40,7 @@ public:
 
     void add(const std::string& name, int ownerId, int turnNumber, const glm::ivec2& position);
 
-    void update(uint32_t timeSinceLastFrame);
+    void update(int64_t timeSinceLastFrame);
 
     std::vector<AreaOfEffect*> getAoeEffects(void);
 };

@@ -35,7 +35,7 @@ public:
     ~Window();
  
     bool initialiseWindow(void);
-    void update(uint32_t timeSinceLastFrame, bool& quit);
+    void update(int64_t timeSinceLastFrame, bool& quit);
 
     void addLoopDrawWorker(std::function<void(GraphicsContext&, bool&)> worker);
     void addLoopEventWorker(std::function<void(const SDL_Event&, bool&)> worker);

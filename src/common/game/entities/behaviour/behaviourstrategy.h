@@ -14,7 +14,7 @@ public:
     BehaviourStrategy(int participantId) :
         participantId(participantId) { }
 
-    virtual void onUpdate(uint32_t timeSinceLastFrame, bool& quit) = 0;
+    virtual void onUpdate(int64_t timeSinceLastFrame, bool& quit) = 0;
     virtual void onNextTurn(void) = 0;
     virtual bool endTurnCondition(void) = 0;
 };

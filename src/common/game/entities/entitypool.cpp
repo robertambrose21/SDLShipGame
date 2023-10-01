@@ -39,7 +39,7 @@ void EntityPool::loadEntityDefinitions(void) {
     game_assert(!entityDefinitions.empty());
 }
 
-void EntityPool::updateEntities(uint32_t timeSinceLastFrame, bool& quit) {
+void EntityPool::updateEntities(int64_t timeSinceLastFrame, bool& quit) {
     synchronize();
 
     for(auto const& entityId : entitiesForDeletion) {
@@ -58,7 +58,7 @@ void EntityPool::updateEntities(uint32_t timeSinceLastFrame, bool& quit) {
     }
 }
 
-void EntityPool::updateEntity(Entity* entity, uint32_t timeSinceLastFrame, bool& quit) {
+void EntityPool::updateEntity(Entity* entity, int64_t timeSinceLastFrame, bool& quit) {
     if(entity->getCurrentHP() <= 0) {
         entitiesForDeletion.insert(entity->getId());
         return;

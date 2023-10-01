@@ -1,7 +1,6 @@
 #pragma once
 
-#include <chrono>
-
+#include "core/util/timing.h"
 #include "applicationcontext.h"
 #include "game/weapons/projectilepool.h"
 #include "game/weapons/areaofeffectpool.h"
@@ -29,12 +28,12 @@ private:
 
     std::unique_ptr<ApplicationContext> context;
 
-    std::vector<std::function<void(uint32_t, bool&)>> logicWorkers;
+    std::vector<std::function<void(int64_t, bool&)>> logicWorkers;
     
     Application();
     ~Application();
 
-    int64_t getCurrentTimeInMilliseconds(void);
+    // int64_t getCurrentTimeInMilliseconds(void);
 
 public:
     static Application& instance() {

@@ -38,7 +38,7 @@ private:
     TurnController& turnController;
     WeaponController& weaponController;
 
-    void updateEntity(Entity* entity, uint32_t timeSinceLastFrame, bool& quit);
+    void updateEntity(Entity* entity, int64_t timeSinceLastFrame, bool& quit);
     void loadEntityDefinitions(void);
     void synchronize(void);
 
@@ -48,7 +48,7 @@ public:
         WeaponController& weaponController
     );
 
-    void updateEntities(uint32_t timeSinceLastFrame, bool& quit);
+    void updateEntities(int64_t timeSinceLastFrame, bool& quit);
 
     void addGameStateUpdate(const GameStateUpdate& update);
 

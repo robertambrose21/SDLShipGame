@@ -47,7 +47,7 @@ bool ProjectileWeapon::onUse(const glm::ivec2& position, const glm::ivec2& targe
     return true;
 }
 
-void ProjectileWeapon::update(uint32_t timeSinceLastFrame) {
+void ProjectileWeapon::update(int64_t timeSinceLastFrame) {
     // no-op
 }
 

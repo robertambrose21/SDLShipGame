@@ -53,7 +53,7 @@ private:
 public:
     TurnController(Grid& grid);
 
-    void update(uint32_t timeSinceLastFrame, bool& quit);
+    void update(int64_t timeSinceLastFrame, bool& quit);
 
     Participant* addParticipant(
         int id,

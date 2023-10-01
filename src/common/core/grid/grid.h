@@ -10,6 +10,7 @@
 #include <algorithm>
 
 #include "core/util/gameassert.h"
+#include "core/util/timing.h"
 
 typedef struct _tile {
     int id;

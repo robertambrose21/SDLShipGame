@@ -24,7 +24,7 @@ PlayerController::PlayerController(
     context.getAreaOfEffectPool().subscribe(playerPanel.get());
 }
 
-void PlayerController::update(uint32_t timeSinceLastFrame) {
+void PlayerController::update(int64_t timeSinceLastFrame) {
     camera.move(cameraVector * (int) timeSinceLastFrame);
 
     setHoverTiles();

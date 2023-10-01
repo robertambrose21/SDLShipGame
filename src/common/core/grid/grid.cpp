@@ -212,6 +212,8 @@ std::deque<glm::ivec2> Grid::findPath(const glm::ivec2& source, const glm::ivec2
         return std::deque<glm::ivec2>();
     }
 
+    auto startTime = getCurrentTimeInMilliseconds();
+
     auto cameFrom = std::map<glm::ivec2, glm::ivec2>();
     auto open = std::set<glm::ivec2>();
     open.insert(source);
@@ -226,7 +228,12 @@ std::deque<glm::ivec2> Grid::findPath(const glm::ivec2& source, const glm::ivec2
         auto const& currentNode = getLowestFScoreNode(open, fScore);
 
         if(currentNode == destination) {
-            return buildPath(cameFrom, currentNode);
+            auto path = buildPath(cameFrom, currentNode);
+            auto timeTaken = getCurrentTimeInMilliseconds() - startTime;
+
+            std::cout << "Path time taken: " << timeTaken << std::endl;
+
+            return path;
         }
 
         open.erase(currentNode);

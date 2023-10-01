@@ -27,7 +27,7 @@ Projectile::Projectile(
     distanceToTarget = glm::distance(glm::vec2(target), glm::vec2(startPosition));
 }
 
-void Projectile::update(uint32_t timeSinceLastFrame) {
+void Projectile::update(int64_t timeSinceLastFrame) {
     timeSinceLive += timeSinceLastFrame;
 
     step = std::min(1.0f, calculateStep());

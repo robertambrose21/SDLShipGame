@@ -69,7 +69,7 @@ Projectile::Blueprint ProjectilePool::create(const std::string& name) {
     return blueprint;
 }
 
-void ProjectilePool::update(uint32_t timeSinceLastFrame) {
+void ProjectilePool::update(int64_t timeSinceLastFrame) {
     for(auto [owner, projectilesForOwnerIds] : projectilesForDeletion) {
         for(auto const& projectileId : projectilesForOwnerIds) {
             projectiles[owner].erase(projectiles[owner].begin() + projectileId);

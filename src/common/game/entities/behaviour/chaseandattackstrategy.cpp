@@ -7,7 +7,7 @@ ChaseAndAttackStrategy::ChaseAndAttackStrategy(int participantId) :
     transmitter = (GameServerMessagesTransmitter*) Application::getContext().getServerMessagesTransmitter();
 }
 
-void ChaseAndAttackStrategy::onUpdate(uint32_t timeSinceLastFrame, bool& quit) {
+void ChaseAndAttackStrategy::onUpdate(int64_t timeSinceLastFrame, bool& quit) {
     auto& turnController = Application::getContext().getTurnController();
     auto participant = turnController.getParticipant(participantId);
     auto isPassable = true;

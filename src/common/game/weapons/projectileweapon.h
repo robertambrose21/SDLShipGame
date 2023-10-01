@@ -31,7 +31,7 @@ public:
         const Projectile::Blueprint& projectileBlueprint
     );
     
-    void update(uint32_t timeSinceLastFrame);
+    void update(int64_t timeSinceLastFrame);
     bool isAnimationInProgress(void);
     Type getType(void) const;
 

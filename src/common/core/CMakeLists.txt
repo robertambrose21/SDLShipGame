@@ -13,6 +13,7 @@ add_library(
     util/idgenerator.h
     util/gameassert.h
     util/randomrolls.h
+    util/timing.h
     state/state.h
     state/statemachine.cpp
     event/event.h
