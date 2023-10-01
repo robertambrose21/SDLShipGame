@@ -301,8 +301,8 @@ void PlayerController::setHoverTiles(void) {
     auto& grid = gridRenderer.getGrid();
 
     isCurrentWeaponInRange = weapon->isInRange(glm::vec2(x, y));
-    p1 = (entity->getPosition() * 32) + glm::ivec2(16, 16);
-    p2 = (glm::ivec2(x, y) * 32) + glm::ivec2(16, 16);
+    p1 = (entity->getPosition() * 32) + glm::ivec2(16, 16) + camera.getPosition();
+    p2 = (glm::ivec2(x, y) * 32) + glm::ivec2(16, 16) + camera.getPosition();
 
     if(weapon->getName() == "Grenade Launcher") {
         hoverTiles = gridRenderer.getGrid().getTilesInCircle(x, y, 2);
