@@ -24,6 +24,8 @@ private:
     int height;
 
     std::vector<std::vector<Tile>> data;
+    std::vector<Tile> walkableTiles;
+    bool isWalkableTilesDirty;
 
     // Path finding
     int getManhattanDistance(const glm::ivec2& source, const glm::ivec2& destination) const;
@@ -69,7 +71,9 @@ public:
     // Where x are the tiles checked and o are unchecked tiles
     bool hasIntersection(const glm::vec2& p1, const glm::vec2& p2);
 
+    void setData(const std::vector<std::vector<Tile>>& data);
     const std::vector<std::vector<Tile>>& getData(void) const;
+    std::vector<Tile> getWalkableTiles(void);
     // TODO: Throw exception if x/y are out of bounds
     const Tile& getTileAt(int x, int y) const;
     std::vector<glm::ivec2> getTilesInCircle(int x, int y, float radius);

@@ -20,7 +20,9 @@ void GridRenderer::draw(GraphicsContext& graphicsContext) {
 
     for(auto y = 0; y < height; y++) {
         for(auto x = 0; x < width; x++) {
-            draw(graphicsContext, tileTextures[data[y][x].id], { x, y });
+            if(data[y][x].isWalkable) {
+                draw(graphicsContext, tileTextures[data[y][x].id], { x, y });
+            }
         }
     }
 }

@@ -188,7 +188,7 @@ int Entity::findPath(const glm::ivec2& target, int stopShortSteps) {
     auto path = grid.findPath(getPosition(), target);
 
     if(path.empty()) {
-        return false;
+        return 0;
     }
 
     // Remove the initial path node which is just the entities current position

@@ -192,8 +192,7 @@ bool TurnController::performMoveAction(
     }
     
     if(entity->getMovesLeft() > 0) {
-        entity->findPath(position, shortStopSteps);
-        return true;
+        return entity->findPath(position, shortStopSteps) != 0;
     }
 
     return false;

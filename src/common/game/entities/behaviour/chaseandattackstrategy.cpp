@@ -26,7 +26,7 @@ void ChaseAndAttackStrategy::onUpdate(int64_t timeSinceLastFrame, bool& quit) {
                 isPassable = false;
             }
         }
-        else if(bWeapon != nullptr && target != nullptr && 
+        else if(bWeapon != nullptr && target != nullptr && bWeapon->isInRange(target->getPosition()) &&
                 turnController.performAttackAction(entity, bWeapon, target->getPosition())) {
             transmitter->sendAttack(0, entity->getId(), target->getPosition(), bWeapon->getId());
             isPassable = false;

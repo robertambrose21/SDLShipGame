@@ -158,23 +158,59 @@ void ServerApplication::loadMap(void) {
     auto& context = Application::getContext();
     auto& grid = context.getGrid();
 
+    // for(auto i = 0; i < grid.getWidth(); i++) {
+    //     for(auto j = 0; j < grid.getHeight(); j++) {
+    //         if(i == 10 && j != 12) {
+    //             grid.setTile(i, j, { 2, false });
+    //         }
+    //         else {
+    //             grid.setTile(i, j, { 1, true });
+    //         }
+    //     }
+    // }
+
     for(auto i = 0; i < grid.getWidth(); i++) {
         for(auto j = 0; j < grid.getHeight(); j++) {
-            if(i == 10 && j != 12) {
-                grid.setTile(i, j, { 2, false });
-            }
-            else {
-                grid.setTile(i, j, { 1, true });
-            }
+            grid.setTile(i, j, { 2, false });
         }
+    }
+
+    int maxTunnels = 5000;
+    int maxTunnelLength = 22;
+    int stepsLeft = 0;
+    int x = 0, y = 0;
+    int direction = 0;
+
+    while(maxTunnels > 0) {
+        if(stepsLeft == 0) {
+            direction = randomRange(0, 3);
+            stepsLeft = randomRange(1, maxTunnelLength);
+            maxTunnels--;
+        }
+
+        if(direction == 0 && x < grid.getWidth() - 1) {
+            x++;
+        }
+        else if(direction == 1 && x > 0) {
+            x--;
+        }
+        else if(direction == 2 && y < grid.getHeight() - 1) {
+            y++;
+        }
+        else if(direction == 3 && y > 0) {
+            y--;
+        }
+
+        grid.setTile(x, y, { 1, true });
+        stepsLeft--;
     }
 }
 
 void ServerApplication::loadGame(void) {
     auto& context = Application::getContext();
 
-    auto player = addPlayer(glm::ivec2(0, 0), false);
-    auto player2 = addPlayer(glm::ivec2(2, 1), true);
+    auto player = addPlayer(false);
+    auto player2 = addPlayer(true);
 
     auto numEnemies = randomRange(8, 12);
     std::vector<Entity*> enemies;
@@ -182,8 +218,16 @@ void ServerApplication::loadGame(void) {
     for(int i = 0; i < numEnemies; i++) {
         Entity* enemy;
         auto entityType = randomRange(0, 10);
-        auto x = randomRange(0, 9);
-        auto y = randomRange(context.getGrid().getHeight() - 6, context.getGrid().getHeight() - 1);
+        auto isWalkable = 1000;
+        int x = 0;
+        int y = 0;
+
+        while(isWalkable > 0) {
+            x = randomRange(0, 9);
+            y = randomRange(context.getGrid().getHeight() - 6, context.getGrid().getHeight() - 1);
+            auto tile = context.getGrid().getTileAt(x, y);
+            isWalkable = tile.isWalkable ? 0 : isWalkable - 1;
+        }
 
         if(entityType > 2) {
             enemy = context.getEntityPool().addEntity("Space Worm");
@@ -210,19 +254,30 @@ void ServerApplication::loadGame(void) {
     context.getTurnController().reset();
 }
 
-Entity* ServerApplication::addPlayer(glm::ivec2 position, bool hasFreezeGun) {
+Entity* ServerApplication::addPlayer(bool hasFreezeGun) {
     auto& context = Application::getContext();
     Entity* player;
 
+    auto isWalkable = 1000;
+    int x = 0;
+    int y = 0;
+
+    while(isWalkable > 0) {
+        x = randomRange(0, 5);
+        y = randomRange(0, 5);
+        auto tile = context.getGrid().getTileAt(x, y);
+        isWalkable = tile.isWalkable ? 0 : isWalkable - 1;
+    }
+
     if(hasFreezeGun) {
         player = context.getEntityPool().addEntity("Player FreezeGun");
-        player->setPosition(position);
+        player->setPosition(glm::ivec2(x, y));
         auto freezeGun = player->addWeapon(context.getWeaponController().createWeapon("Freeze Gun", player));
         player->setCurrentWeapon(freezeGun->getId());
     }
     else {
         player = context.getEntityPool().addEntity("Player");
-        player->setPosition(position);
+        player->setPosition(glm::ivec2(x, y));
         auto grenadeLauncher = player->addWeapon(context.getWeaponController().createWeapon("Grenade Launcher", player));
         player->setCurrentWeapon(grenadeLauncher->getId());
     }

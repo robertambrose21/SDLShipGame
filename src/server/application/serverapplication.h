@@ -33,5 +33,5 @@ public:
     // Temp
     void loadGame(void);
     // Temp
-    Entity* addPlayer(glm::ivec2 position, bool hasFreezeGun);
+    Entity* addPlayer(bool hasFreezeGun);
 };
