@@ -175,8 +175,8 @@ void ServerApplication::loadMap(void) {
         }
     }
 
-    int maxTunnels = 5000;
-    int maxTunnelLength = 22;
+    int maxTunnels = 250;
+    int maxTunnelLength = 8;
     int stepsLeft = 0;
     int x = 0, y = 0;
     int direction = 0;

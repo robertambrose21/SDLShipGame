@@ -1,7 +1,7 @@
 #include "application.h"
 
 Application::Application() {
-    grid = std::make_unique<Grid>(250, 250);
+    grid = std::make_unique<Grid>(25, 25); // TODO: This should be defined by the server
     turnController = std::make_unique<TurnController>(*grid);
     areaOfEffectPool = std::make_unique<AreaOfEffectPool>(*turnController, *grid);
     projectilePool = std::make_unique<ProjectilePool>(*areaOfEffectPool);

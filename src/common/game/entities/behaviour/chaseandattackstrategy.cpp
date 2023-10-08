@@ -35,7 +35,9 @@ void ChaseAndAttackStrategy::onUpdate(int64_t timeSinceLastFrame, bool& quit) {
             isPassable = isPassable && 
                 participant->actions[TurnController::Action::Move] <= 0 && entity->getMovesLeft() <= 0;
         }
-        else if(target != nullptr && turnController.performMoveAction(entity, target->getPosition(), 1)) {
+        else if(target != nullptr && 
+                    glm::distance(glm::vec2(entity->getPosition()), glm::vec2(target->getPosition())) <= entity->getAggroRange() && 
+                    turnController.performMoveAction(entity, target->getPosition(), 1)) {
             transmitter->sendFindPath(0, entity->getId(), target->getPosition(), 1);
             isPassable = false;
         }

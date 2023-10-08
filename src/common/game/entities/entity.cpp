@@ -210,6 +210,7 @@ bool Entity::hasPath(void) {
 }
 
 bool Entity::isNeighbour(Entity* entity) const {
+    // TODO: This could be moe efficient
     return glm::distance(glm::vec2(getPosition()), glm::vec2(entity->getPosition())) < 2;
 }
 
@@ -219,6 +220,10 @@ int Entity::getMovesLeft(void) const {
 
 void Entity::setMovesLeft(int movesLeft) {
     currentStats.movesLeft = movesLeft;
+}
+
+int Entity::getAggroRange(void) const {
+    return 20; // temp hardcoded for now
 }
 
 bool Entity::isTurnInProgress(void) const {
