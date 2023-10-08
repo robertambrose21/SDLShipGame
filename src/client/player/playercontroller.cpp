@@ -6,6 +6,7 @@ PlayerController::PlayerController(
     GraphicsContext& graphicsContext
 ) :
     clientMessagesTransmitter(clientMessagesTransmitter),
+    graphicsContext(graphicsContext),
     gridRenderer(graphicsContext.getGridRenderer()),
     turnController(context.getTurnController()),
     entityPool(context.getEntityPool()),
@@ -25,14 +26,25 @@ PlayerController::PlayerController(
 }
 
 void PlayerController::update(int64_t timeSinceLastFrame) {
-    camera.move(cameraVector * (int) timeSinceLastFrame);
-
     setHoverTiles();
 
     for(auto entity : selectedEntities) {
         if(entity == nullptr || entity->getCurrentHP() <= 0) {
-            selectedEntities.erase(std::remove(selectedEntities.begin(), selectedEntities.end(), entity), selectedEntities.end());
+            selectedEntities.erase(
+                std::remove(selectedEntities.begin(), selectedEntities.end(), entity), selectedEntities.end());
         }
+    }
+
+    if(selectedEntities.size() == 1) {
+        auto windowWidth = graphicsContext.getWindowWidth();
+        auto windowHeight = graphicsContext.getWindowHeight();
+        auto position = selectedEntities[0]->getPosition();
+        
+        camera.setPosition(gridRenderer.getTilePosition(-position.x, -position.y) +
+            glm::ivec2(windowWidth / 2, windowHeight / 2));
+    }
+    else {
+        camera.move(cameraVector * (int) timeSinceLastFrame);
     }
 }
 

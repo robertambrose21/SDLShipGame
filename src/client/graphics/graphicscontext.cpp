@@ -3,11 +3,15 @@
 GraphicsContext::GraphicsContext(
     SDL_Renderer* renderer,
     TextureLoader& textureLoader,
-    GridRenderer& gridRenderer
+    GridRenderer& gridRenderer,
+    int windowWidth,
+    int windowHeight
 ) :
     renderer(renderer),
     textureLoader(textureLoader),
-    gridRenderer(gridRenderer)
+    gridRenderer(gridRenderer),
+    windowWidth(windowWidth),
+    windowHeight(windowHeight)
 {
     game_assert(renderer != nullptr);
 }
@@ -22,4 +26,12 @@ TextureLoader& GraphicsContext::getTextureLoader(void) {
 
 GridRenderer& GraphicsContext::getGridRenderer(void) {
     return gridRenderer;
+}
+
+int GraphicsContext::getWindowWidth(void) const {
+    return windowWidth;
+}
+
+int GraphicsContext::getWindowHeight(void) const {
+    return windowHeight;
 }

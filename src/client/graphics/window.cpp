@@ -52,7 +52,7 @@ bool Window::initialiseWindow(void) {
     }
     
     textureLoader = TextureLoader(renderer.get());
-    graphicsContext = std::make_unique<GraphicsContext>(renderer.get(), textureLoader, *gridRenderer);
+    graphicsContext = std::make_unique<GraphicsContext>(renderer.get(), textureLoader, *gridRenderer, width, height);
 
     return true;
 }

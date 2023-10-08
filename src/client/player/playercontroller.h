@@ -37,6 +37,7 @@ private:
     GridRenderer& gridRenderer;
     TurnController& turnController;
     EntityPool& entityPool;
+    GraphicsContext& graphicsContext;
 
     std::unique_ptr<Dice> dice;
     bool isLeftShiftPressed;
