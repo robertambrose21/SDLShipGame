@@ -6,9 +6,12 @@
 #include "game/entities/behaviour/chaseandattackstrategy.h"
 #include "game/application/application.h"
 #include "game/application/stdoutsubscriber.h"
+#include "serverturncontroller.h"
 
 class ServerApplication {
 private:
+    std::unique_ptr<Application> application;
+
     std::unique_ptr<GameServerMessagesTransmitter> transmitter;
     std::unique_ptr<GameServer> server;
     std::unique_ptr<GameServerMessagesReceiver> receiver;

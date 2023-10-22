@@ -17,13 +17,13 @@ private:
     int tileSize;
 
     std::map<int, uint32_t> tileTextures;
-    Grid& grid;
+    Grid* grid;
 
     // TODO: Why on earth is the camera on the GridRenderer???? Move this!
     std::unique_ptr<Camera> camera;
 
 public:
-    GridRenderer(Grid& grid, int windowHeight);
+    GridRenderer(Grid* grid, int windowHeight);
 
     void setTileTexture(int tileId, uint32_t textureId);
     void draw(GraphicsContext& graphicsContext);
@@ -36,7 +36,7 @@ public:
         const glm::ivec2& position
     );
 
-    Grid& getGrid(void);
+    Grid* getGrid(void);
     Camera& getCamera(void);
 
     glm::ivec2 getTilePosition(int x, int y) const;

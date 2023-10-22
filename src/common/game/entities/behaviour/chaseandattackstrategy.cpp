@@ -1,15 +1,16 @@
 #include "chaseandattackstrategy.h"
 
-ChaseAndAttackStrategy::ChaseAndAttackStrategy(int participantId) :
+ChaseAndAttackStrategy::ChaseAndAttackStrategy(ApplicationContext& context, int participantId) :
     BehaviourStrategy(participantId),
+    context(context),
     canPassTurn(false)
 {
-    transmitter = (GameServerMessagesTransmitter*) Application::getContext().getServerMessagesTransmitter();
+    transmitter = (GameServerMessagesTransmitter*) context.getServerMessagesTransmitter();
 }
 
 void ChaseAndAttackStrategy::onUpdate(int64_t timeSinceLastFrame, bool& quit) {
-    auto& turnController = Application::getContext().getTurnController();
-    auto participant = turnController.getParticipant(participantId);
+    auto turnController = context.getTurnController();
+    auto participant = turnController->getParticipant(participantId);
     auto isPassable = true;
 
     for(auto entity : participant->entities) {
@@ -21,13 +22,13 @@ void ChaseAndAttackStrategy::onUpdate(int64_t timeSinceLastFrame, bool& quit) {
         }
 
         if(target != nullptr && entity->isNeighbour(target)) {
-            if(turnController.performAttackAction(entity, entity->getCurrentWeapon(), target->getPosition())) {
+            if(turnController->performAttackAction(entity, entity->getCurrentWeapon(), target->getPosition())) {
                 transmitter->sendAttack(0, entity->getId(), target->getPosition(), entity->getCurrentWeapon()->getId());
                 isPassable = false;
             }
         }
         else if(bWeapon != nullptr && target != nullptr && bWeapon->isInRange(target->getPosition()) &&
-                turnController.performAttackAction(entity, bWeapon, target->getPosition())) {
+                turnController->performAttackAction(entity, bWeapon, target->getPosition())) {
             transmitter->sendAttack(0, entity->getId(), target->getPosition(), bWeapon->getId());
             isPassable = false;
         }
@@ -37,7 +38,7 @@ void ChaseAndAttackStrategy::onUpdate(int64_t timeSinceLastFrame, bool& quit) {
         }
         else if(target != nullptr && 
                     glm::distance(glm::vec2(entity->getPosition()), glm::vec2(target->getPosition())) <= entity->getAggroRange() && 
-                    turnController.performMoveAction(entity, target->getPosition(), 1)) {
+                    turnController->performMoveAction(entity, target->getPosition(), 1)) {
             transmitter->sendFindPath(0, entity->getId(), target->getPosition(), 1);
             isPassable = false;
         }
@@ -80,7 +81,7 @@ void ChaseAndAttackStrategy::onNextTurn(void) {
         serializedActions.push_back(dice);
     }
 
-    Application::getContext().getTurnController().setActions(participantId, actions);
+    context.getTurnController()->setActions(participantId, actions);
     transmitter->sendActionsRollResponse(0, participantId, serializedActions);
 
     canPassTurn = false;
@@ -94,7 +95,7 @@ Entity* ChaseAndAttackStrategy::findClosestTarget(Entity* attacker) {
     Entity* closestEntity = nullptr;
     auto shortestDistance = std::numeric_limits<float>::max();
     
-    for(auto entity : Application::getContext().getEntityPool().getEntities()) {
+    for(auto entity : context.getEntityPool()->getEntities()) {
         if(entity->getParticipantId() == participantId) {
             continue;
         }

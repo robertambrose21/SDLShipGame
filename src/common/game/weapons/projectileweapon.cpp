@@ -2,26 +2,31 @@
 
 ProjectileWeapon::ProjectileWeapon(
     Entity* owner,
-    Grid& grid,
+    Grid* grid,
+    EntityPool* entityPool,
+    ProjectilePool* projectilePool,
     EventPublisher<WeaponEventData>& publisher,
     uint32_t id,
     const std::string& name, 
     const Stats& stats,
     const Projectile::Blueprint& projectileBlueprint
 ) :
-    Weapon(owner, grid, publisher, id, name, stats),
+    Weapon(owner, grid, entityPool, publisher, id, name, stats),
+    projectilePool(projectilePool),
     projectileBlueprint(projectileBlueprint)
 { }
 
 ProjectileWeapon::ProjectileWeapon(
     Entity* owner,
-    Grid& grid,
+    Grid* grid,
+    EntityPool* entityPool,
+    ProjectilePool* projectilePool,
     EventPublisher<WeaponEventData>& publisher,
     const std::string& name, 
     const Stats& stats,
     const Projectile::Blueprint& projectileBlueprint
 ) :
-    ProjectileWeapon(owner, grid, publisher, getNewId(), name, stats, projectileBlueprint)
+    ProjectileWeapon(owner, grid, entityPool, projectilePool, publisher, getNewId(), name, stats, projectileBlueprint)
 { }
 
 bool ProjectileWeapon::onUse(const glm::ivec2& position, const glm::ivec2& target) {
@@ -29,12 +34,11 @@ bool ProjectileWeapon::onUse(const glm::ivec2& position, const glm::ivec2& targe
         return false;
     }
 
-    auto& projectilePool = Application::getContext().getProjectilePool();
-
-    projectilePool.add(
+    projectilePool->add(
         Projectile::create(
-            grid, 
-            projectilePool, 
+            grid,
+            entityPool,
+            *projectilePool, 
             owner->getParticipantId(), 
             projectileBlueprint, 
             position, 
@@ -52,7 +56,7 @@ void ProjectileWeapon::update(int64_t timeSinceLastFrame) {
 }
 
 bool ProjectileWeapon::isInRange(const glm::ivec2& target) {
-    return Weapon::isInRange(target) && !grid.hasIntersection(owner->getPosition(), target);
+    return Weapon::isInRange(target) && !grid->hasIntersection(owner->getPosition(), target);
 }
 
 void ProjectileWeapon::setProjectileBlueprint(const Projectile::Blueprint& projectileBlueprint) {
@@ -64,7 +68,7 @@ Projectile::Blueprint ProjectileWeapon::getProjectileBluePrint(void) const {
 }
 
 bool ProjectileWeapon::isAnimationInProgress(void) {
-    return Application::getContext().getProjectilePool().getNumProjectilesForOwner(owner) > 0;
+    return projectilePool->getNumProjectilesForOwner(owner) > 0;
 }
 
 Weapon::Type ProjectileWeapon::getType(void) const {

@@ -1,13 +1,12 @@
 #include "entitypool.h"
 
-EntityPool::EntityPool(
-    TurnController& turnController,
-    WeaponController& weaponController
-) :
-    turnController(turnController),
-    weaponController(weaponController)
-{
+EntityPool::EntityPool() {
     loadEntityDefinitions();
+}
+
+void EntityPool::initialise(ApplicationContext& context) {
+    this->context = &context;
+    initialised = true;
 }
 
 void EntityPool::loadEntityDefinitions(void) {
@@ -40,12 +39,14 @@ void EntityPool::loadEntityDefinitions(void) {
 }
 
 void EntityPool::updateEntities(int64_t timeSinceLastFrame, bool& quit) {
+    game_assert(initialised);
+
     synchronize();
 
     for(auto const& entityId : entitiesForDeletion) {
         auto entity = getEntity(entityId);
         publish({ entity, "Death" });
-        auto& participantEntities = turnController.getParticipant(entity->getParticipantId())->entities;
+        auto& participantEntities = context->getTurnController()->getParticipant(entity->getParticipantId())->entities;
         participantEntities.erase(
             std::remove(participantEntities.begin(), participantEntities.end(), entity), participantEntities.end());
         entities.erase(entityId);
@@ -59,6 +60,8 @@ void EntityPool::updateEntities(int64_t timeSinceLastFrame, bool& quit) {
 }
 
 void EntityPool::updateEntity(Entity* entity, int64_t timeSinceLastFrame, bool& quit) {
+    game_assert(initialised);
+
     if(entity->getCurrentHP() <= 0) {
         entitiesForDeletion.insert(entity->getId());
         return;
@@ -68,6 +71,8 @@ void EntityPool::updateEntity(Entity* entity, int64_t timeSinceLastFrame, bool& 
 }
 
 void EntityPool::synchronize() {
+    game_assert(initialised);
+
     if(pendingUpdates.empty()) {
         return;
     }
@@ -82,7 +87,7 @@ void EntityPool::synchronize() {
 
             if(!entities.contains(entityUpdate.id)) {
                 auto const& entity = addEntity(entityUpdate.name, entityUpdate.id);
-                turnController.addEntityToParticipant(entityUpdate.participantId, entity);   
+                context->getTurnController()->addEntityToParticipant(entityUpdate.participantId, entity);   
             }
 
             auto& existing = entities[entityUpdate.id];
@@ -92,7 +97,8 @@ void EntityPool::synchronize() {
                 auto const& weaponUpdate = entityUpdate.weaponUpdates[j];
                 
                 if(!existing->hasWeapon(weaponUpdate.id)) {
-                    existing->addWeapon(weaponController.createWeapon(weaponUpdate.id, weaponUpdate.name, existing.get()));
+                    existing->addWeapon(
+                        context->getWeaponController()->createWeapon(weaponUpdate.id, weaponUpdate.name, existing.get()));
                 }
             }
 
@@ -124,10 +130,12 @@ void EntityPool::synchronize() {
 }
 
 void EntityPool::addGameStateUpdate(const GameStateUpdate& update) {
+    game_assert(initialised);
     pendingUpdates.push_back(update);
 }
 
 Entity* EntityPool::addEntity(std::unique_ptr<Entity> entity) {
+    game_assert(initialised);
     game_assert(!entities.contains(entity->getId()));
 
     auto id = entity->getId();
@@ -136,10 +144,12 @@ Entity* EntityPool::addEntity(std::unique_ptr<Entity> entity) {
 }
 
 Entity* EntityPool::addEntity(const std::string& name, uint32_t id) {
+    game_assert(initialised);
     game_assert(entityDefinitions.contains(name));
 
     auto definition = entityDefinitions[name];
     auto entity = std::make_unique<Entity>(
+        context->getGrid(),
         id,
         *this,
         definition.name,
@@ -161,10 +171,12 @@ Entity* EntityPool::addEntity(const std::string& name, uint32_t id) {
 }
 
 Entity* EntityPool::addEntity(const std::string& name) {
+    game_assert(initialised);
     return addEntity(name, getNewId());
 }
 
 std::vector<Entity*> EntityPool::getEntities(void) {
+    game_assert(initialised);
     std::vector<Entity*> vEntities;
     
     for(auto& [_, entity] : entities) {
@@ -177,10 +189,12 @@ std::vector<Entity*> EntityPool::getEntities(void) {
 }
 
 Entity* EntityPool::getEntity(uint32_t id) {
+    game_assert(initialised);
     game_assert(entities.contains(id));
     return entities[id].get();
 }
 
 bool EntityPool::hasEntity(uint32_t id) {
+    game_assert(initialised);
     return entities.contains(id);
 }

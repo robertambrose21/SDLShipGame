@@ -1,19 +1,21 @@
 #include "areaofeffectpool.h"
 
-AreaOfEffectPool::AreaOfEffectPool(
-    TurnController& turnController, 
-    Grid& grid
-) :
-    turnController(turnController),
-    grid(grid)
+AreaOfEffectPool::AreaOfEffectPool() : 
+    initialised(false)
 {
     loadAoeDefinitions();
+}
 
-    turnController.addOnNextTurnFunction([&](auto const& currentParticipant, auto const& turnNumber) {
+void AreaOfEffectPool::initialise(ApplicationContext& context) {
+    this->context = &context;
+
+    context.getTurnController()->addOnNextTurnFunction([&](auto const& currentParticipant, auto const& turnNumber) {
         for(auto&& [_, aoe]  : aoeObjects) {
             aoe->onNextTurn(currentParticipant, turnNumber);
         }
     });
+
+    initialised = true;
 }
 
 void AreaOfEffectPool::loadAoeDefinitions(void) {
@@ -40,12 +42,15 @@ void AreaOfEffectPool::loadAoeDefinitions(void) {
 }
 
 void AreaOfEffectPool::add(const std::string& name, int ownerId, int turnNumber, const glm::ivec2& position) {
+    game_assert(initialised);
     game_assert(aoeDefinitions.contains(name));
+
     auto const& definition = aoeDefinitions[name];
     aoeObjects.push_back(
-        std::make_pair(turnController.getTurnNumber(),
+        std::make_pair(context->getTurnController()->getTurnNumber(),
             std::make_unique<AreaOfEffect>(
-                grid,
+                context->getGrid(),
+                context->getEntityPool(),
                 *this,
                 definition.textureId,
                 ownerId,
@@ -58,6 +63,8 @@ void AreaOfEffectPool::add(const std::string& name, int ownerId, int turnNumber,
 }
 
 void AreaOfEffectPool::update(int64_t timeSinceLastFrame) {
+    game_assert(initialised);
+
     for(auto const& index : aoeObjectsForDeletion) {
         aoeObjects.erase(aoeObjects.begin() + index);
     }
@@ -69,13 +76,15 @@ void AreaOfEffectPool::update(int64_t timeSinceLastFrame) {
 
         areaOfEffect->update(timeSinceLastFrame);
 
-        if(turnController.getTurnNumber() - startTurn >= areaOfEffect->getStats().turns) {
+        if(context->getTurnController()->getTurnNumber() - startTurn >= areaOfEffect->getStats().turns) {
             aoeObjectsForDeletion.push_back(i);
         }
     }
 }
 
 std::vector<AreaOfEffect*> AreaOfEffectPool::getAoeEffects(void) {
+    game_assert(initialised);
+
     std::vector<AreaOfEffect*> aoes;
 
     for(auto&& [_, aoe] : aoeObjects) {

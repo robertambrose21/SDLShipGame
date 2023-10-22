@@ -6,13 +6,17 @@
 #include "game/application/application.h"
 #include "clientstatemachine.h"
 #include "clientstates.h"
+#include "graphics/window.h"
 #include "graphics/drawstrategies/entitydrawstrategy.h"
 #include "graphics/drawstrategies/weapondrawstrategy.h"
 #include "graphics/drawstrategies/projectiledrawstrategy.h"
 #include "graphics/drawstrategies/areaofeffectdrawstrategy.h"
+#include "clientturncontroller.h"
 
 class ClientApplication {
 private:
+    std::unique_ptr<Application> application;
+
     std::unique_ptr<PlayerController> playerController;
     std::unique_ptr<GameClientMessagesTransmitter> clientMessagesTransmitter;
     std::unique_ptr<GameClientMessagesReceiver> clientMessagesReceiver;

@@ -1,6 +1,6 @@
 #include "gridrenderer.h"
 
-GridRenderer::GridRenderer(Grid& grid, int windowHeight) :
+GridRenderer::GridRenderer(Grid* grid, int windowHeight) :
     grid(grid),
     windowHeight(windowHeight),
     tileSize(32)
@@ -14,9 +14,9 @@ void GridRenderer::setTileTexture(int tileId, uint32_t textureId) {
 }
 
 void GridRenderer::draw(GraphicsContext& graphicsContext) {
-    auto const& data = grid.getData();
-    auto const& width = grid.getWidth();
-    auto const& height = grid.getHeight();
+    auto const& data = grid->getData();
+    auto const& width = grid->getWidth();
+    auto const& height = grid->getHeight();
 
     for(auto y = 0; y < height; y++) {
         for(auto x = 0; x < width; x++) {
@@ -38,7 +38,7 @@ void GridRenderer::draw(
     SDL_Rect dst = { realPosition.x, realPosition.y, getTileSize(), getTileSize() };
     graphicsContext.getTextureLoader().loadTexture(textureId)->draw(renderer, NULL, &dst);
 
-    if(grid.getTileAt(position.x, position.y).turnsFrozenFor > 0) {
+    if(grid->getTileAt(position.x, position.y).turnsFrozenFor > 0) {
         SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
         SDL_SetRenderDrawColor(renderer, 0x00, 0xFF, 0xFF, 0x7F);
         SDL_RenderFillRect(renderer, &dst);
@@ -75,6 +75,6 @@ int GridRenderer::getTileSize(void) const {
     return tileSize;
 }
 
-Grid& GridRenderer::getGrid(void) {
+Grid* GridRenderer::getGrid(void) {
     return grid;
 }

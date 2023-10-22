@@ -1,12 +1,15 @@
 #include "weaponcontroller.h"
 #include "projectileweapon.h"
 
-WeaponController::WeaponController(Grid& grid, ProjectilePool& projectilePool) :
-    grid(grid),
-    projectilePool(projectilePool)
-{
+WeaponController::WeaponController() {
    loadWeaponDefinitions();
 }
+
+void WeaponController::initialise(ApplicationContext& context) {
+    this->context = &context;
+    initialised = true;
+}
+
 
 void WeaponController::loadWeaponDefinitions(void) {
     std::string directory = "../assets/data/weapons";
@@ -40,24 +43,29 @@ std::unique_ptr<Weapon> WeaponController::createWeapon(
     const std::string& name, 
     Entity* owner
 ) {
+    game_assert(initialised);
     game_assert(weaponDefinitions.contains(name));
+
     auto definition = weaponDefinitions[name];
 
     if(definition.weaponClass == "Projectile") {
         return std::make_unique<ProjectileWeapon>(
             owner,
-            grid,
+            context->getGrid(),
+            context->getEntityPool(),
+            context->getProjectilePool(),
             *this,
             id,
             definition.name,
             Weapon::Stats { definition.damage, definition.range, definition.uses },
-            projectilePool.create(definition.projectile)
+            context->getProjectilePool()->create(definition.projectile)
         );
     }
     else if(definition.weaponClass == "Melee") {
         return std::make_unique<MeleeWeapon>(
             owner,
-            grid,
+            context->getGrid(),
+            context->getEntityPool(),
             *this,
             id,
             definition.name,
@@ -69,5 +77,6 @@ std::unique_ptr<Weapon> WeaponController::createWeapon(
 }
 
 std::unique_ptr<Weapon> WeaponController::createWeapon(const std::string& name, Entity* owner) {
+    game_assert(initialised);
     return createWeapon(getNewId(), name, owner);
 }

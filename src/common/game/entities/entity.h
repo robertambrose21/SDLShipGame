@@ -48,7 +48,7 @@ private:
 
     bool selected;
 
-    Grid& grid;
+    Grid* grid;
     EventPublisher<EntityEventData>& publisher;
 
     glm::ivec2 position;
@@ -72,6 +72,7 @@ public:
     const uint32_t MOVES_PER_SECOND = 5;
 
     Entity(
+        Grid* grid,
         uint32_t id,
         EventPublisher<EntityEventData>& publisher,
         const std::string& name,
@@ -79,6 +80,7 @@ public:
     );
 
     Entity(
+        Grid* grid,
         EventPublisher<EntityEventData>& publisher,
         const std::string& name,
         const EntityBaseStats& stats

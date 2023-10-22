@@ -2,12 +2,13 @@
 
 Dice::Dice(
     int face,
-    GameClientMessagesTransmitter& clientMessagesTransmitter
+    GameClientMessagesTransmitter& clientMessagesTransmitter,
+    TurnController* turnController
 ) :
     face(face),
     clientMessagesTransmitter(clientMessagesTransmitter),
-    rolling(false),
-    turnController(Application::getContext().getTurnController())
+    turnController(turnController),
+    rolling(false)
 {
     game_assert(face >= 1 && face <= 6);
 }
@@ -125,7 +126,16 @@ void Dice::rollFunc(int seconds) {
         }
     }
 
-    turnController.setActions(0, 
+    // std::cout 
+    //     << "Actions: ["
+    //     << "MOVE/"
+    //     << numMoveActions
+    //     << " ATTACK/"
+    //     << numAttackActions
+    //     << "]"
+    //     << std::endl;
+
+    turnController->setActions(0, 
         {
             { TurnController::Action::Move, numMoveActions },
             { TurnController::Action::Attack, numAttackActions }

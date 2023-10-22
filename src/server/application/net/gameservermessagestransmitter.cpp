@@ -2,11 +2,12 @@
 
 GameServerMessagesTransmitter::GameServerMessagesTransmitter(
     GameServer& server,
+    TurnController* turnController,
     std::function<void(int)> onClientConnectFunc
 ) :
     server(server),
     onClientConnectFunc(onClientConnectFunc),
-    turnController(Application::getContext().getTurnController())
+    turnController(turnController)
 { }
 
 void GameServerMessagesTransmitter::onClientConnected(int clientIndex) {
@@ -20,7 +21,7 @@ void GameServerMessagesTransmitter::sendSetParticipant(
     SetParticipantMessage* message = (SetParticipantMessage*) server.createMessage(clientIndex, GameMessageType::SET_PARTICIPANT);
 
     message->participantId = participant->id;
-    message->numParticipantsToSet = turnController.getParticipants().size();
+    message->numParticipantsToSet = turnController->getParticipants().size();
     message->isPlayer = participant->isPlayer;
 
     server.sendMessage(clientIndex, message);
@@ -74,7 +75,11 @@ void GameServerMessagesTransmitter::sendAttack(
     server.sendMessage(clientIndex, message);
 }
 
-void GameServerMessagesTransmitter::sendActionsRollResponse(int clientIndex, int participantId, const std::vector<DiceActionResult>& dice) {
+void GameServerMessagesTransmitter::sendActionsRollResponse(
+    int clientIndex, 
+    int participantId, 
+    const std::vector<DiceActionResult>& dice
+) {  
     ActionsRollResponseMessage* message = 
         (ActionsRollResponseMessage*) server.createMessage(clientIndex, GameMessageType::ACTIONS_ROLL_RESPONSE);
 
@@ -83,6 +88,15 @@ void GameServerMessagesTransmitter::sendActionsRollResponse(int clientIndex, int
     for(int i = 0; i < dice.size(); i++) {
         message->dice[i] = dice[i];
     }
+
+    server.sendMessage(clientIndex, message);
+}
+
+void GameServerMessagesTransmitter::sendNextTurn(int clientIndex, int participantId, int turnNumber) {
+    NextTurnMessage* message = (NextTurnMessage*) server.createMessage(clientIndex, GameMessageType::NEXT_TURN);
+
+    message->participantId = participantId;
+    message->turnNumber = turnNumber;
 
     server.sendMessage(clientIndex, message);
 }

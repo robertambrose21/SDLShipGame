@@ -18,6 +18,7 @@ enum class GameMessageType {
     LOAD_MAP,
     ACTIONS_ROLL,
     ACTIONS_ROLL_RESPONSE,
+    NEXT_TURN,
     COUNT
 };
 
@@ -287,6 +288,27 @@ public:
     YOJIMBO_VIRTUAL_SERIALIZE_FUNCTIONS();
 };
 
+class NextTurnMessage : public yojimbo::Message {
+public:
+    int participantId;
+    int turnNumber;
+
+    NextTurnMessage() :
+        participantId(0),
+        turnNumber(0) 
+    { }
+
+    template <typename Stream>
+    bool Serialize(Stream& stream) {
+        serialize_int(stream, participantId, 0, 64);
+        serialize_int(stream, turnNumber, 0, UINT16_MAX); // Max turn number??
+
+        return true;
+    }
+
+    YOJIMBO_VIRTUAL_SERIALIZE_FUNCTIONS();
+};
+
 YOJIMBO_MESSAGE_FACTORY_START(GameMessageFactory, (int)GameMessageType::COUNT);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::FIND_PATH, FindPathMessage);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::SELECT_ENTITY, SelectEntityMessage);
@@ -299,4 +321,5 @@ YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::PASS_PARTICIPANT_TURN, PassPa
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::LOAD_MAP, LoadMapMessage);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::ACTIONS_ROLL, ActionsRollMessage);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::ACTIONS_ROLL_RESPONSE, ActionsRollResponseMessage);
+YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::NEXT_TURN, NextTurnMessage);
 YOJIMBO_MESSAGE_FACTORY_FINISH();

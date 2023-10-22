@@ -12,11 +12,13 @@
 #include "game/weapons/weaponcontroller.h"
 #include "game/net/messages.h"
 #include "core/event/eventpublisher.h"
+#include "game/application/applicationcontext.h"
 
 using json = nlohmann::json;
 
 struct GameStateUpdate;
 
+// TODO: game_assert intialisation stuff
 class EntityPool : public EventPublisher<EntityEventData> {
 private:
     typedef struct _entityDefinition {
@@ -35,18 +37,17 @@ private:
 
     std::vector<GameStateUpdate> pendingUpdates;
 
-    TurnController& turnController;
-    WeaponController& weaponController;
+    ApplicationContext* context;
+    bool initialised;
 
     void updateEntity(Entity* entity, int64_t timeSinceLastFrame, bool& quit);
     void loadEntityDefinitions(void);
     void synchronize(void);
 
 public:
-    EntityPool(
-        TurnController& turnController,
-        WeaponController& weaponController
-    );
+    EntityPool();
+
+    void initialise(ApplicationContext& context);
 
     void updateEntities(int64_t timeSinceLastFrame, bool& quit);
 

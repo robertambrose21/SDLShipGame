@@ -31,14 +31,14 @@ public:
         Stats stats;
         std::string name;
         uint32_t textureId;
-        std::function<void(Grid&, int, const glm::ivec2&, int)> onHitCallback;
+        std::function<void(Grid*, int, const glm::ivec2&, int)> onHitCallback;
 
         _blueprint(
             const Stats& stats,
             const std::string& name,
             uint32_t textureId,
-            std::function<void(Grid&, int, const glm::ivec2&, int)> onHitCallback =
-                [](Grid&, int, const glm::ivec2&, int){ }
+            std::function<void(Grid*, int, const glm::ivec2&, int)> onHitCallback =
+                [](Grid*, int, const glm::ivec2&, int){ }
         ) :
             stats(stats),
             name(name),
@@ -50,7 +50,8 @@ public:
 private:
     Stats stats;
 
-    Grid& grid;
+    Grid* grid;
+    EntityPool* entityPool;
     EventPublisher<ProjectileEventData>& publisher;
     uint32_t textureId;
 
@@ -67,14 +68,15 @@ private:
     int weaponBaseDamage;
 
     // TODO: position not entity for target
-    std::function<void(Grid&, int, const glm::ivec2&, int)> onHitCallback;
+    std::function<void(Grid*, int, const glm::ivec2&, int)> onHitCallback;
 
     float calculateStep(void) const;
     void doHit(const glm::ivec2& position);
 
 public:
     Projectile(
-        Grid& grid,
+        Grid* grid,
+        EntityPool* entityPool,
         EventPublisher<ProjectileEventData>& publisher,
         uint32_t textureId,
         int ownerId,
@@ -82,12 +84,13 @@ public:
         const glm::ivec2& target,
         const Stats& stats,
         int weaponBaseDamage,
-        std::function<void(Grid&, int, const glm::ivec2&, int)> onHitCallback = 
-            [](Grid&, int, const glm::ivec2&, int){ }
+        std::function<void(Grid*, int, const glm::ivec2&, int)> onHitCallback = 
+            [](Grid*, int, const glm::ivec2&, int){ }
     );
 
     static std::unique_ptr<Projectile> create(
-        Grid& grid,
+        Grid* grid,
+        EntityPool* entityPool,
         EventPublisher<ProjectileEventData>& publisher,
         int ownerId,
         const Blueprint& blueprint, 
@@ -97,6 +100,7 @@ public:
     ) {
         return std::make_unique<Projectile>(
             grid,
+            entityPool,
             publisher,
             blueprint.textureId,
             ownerId,

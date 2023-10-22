@@ -2,7 +2,8 @@
 #include "game/application/application.h"
 
 AreaOfEffect::AreaOfEffect(
-    Grid& grid,
+    Grid* grid,
+    EntityPool* entityPool,
     EventPublisher<AreaOfEffectEventData>& publisher,
     uint32_t textureId,
     int ownerId,
@@ -11,6 +12,7 @@ AreaOfEffect::AreaOfEffect(
     const Stats& stats
 ) :
     grid(grid),
+    entityPool(entityPool),
     publisher(publisher),
     textureId(textureId),
     ownerId(ownerId),
@@ -18,7 +20,7 @@ AreaOfEffect::AreaOfEffect(
     position(position),
     stats(stats)
 {
-    effectedTilePositions = grid.getTilesInCircle(position.x, position.y, stats.radius);
+    effectedTilePositions = grid->getTilesInCircle(position.x, position.y, stats.radius);
 
     apply();
 }
@@ -28,7 +30,7 @@ void AreaOfEffect::update(int64_t timeSinceLastFrame) {
 }
 
 void AreaOfEffect::apply(void) {
-    auto entities = Application::getContext().getEntityPool().getEntities();
+    auto entities = entityPool->getEntities();
     auto effectedEntities = Entity::filterByTiles(effectedTilePositions, entities, ownerId);
 
     for(auto const& entity : effectedEntities) {

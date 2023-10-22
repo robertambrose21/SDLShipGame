@@ -1,6 +1,6 @@
 #include "window.h"
 
-Window::Window(int width, int height, Grid& grid) :
+Window::Window(int width, int height, Grid* grid) :
     width(width),
     height(height)
 {

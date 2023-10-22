@@ -21,7 +21,8 @@ public:
     } Stats;
 
 private:
-    Grid& grid;
+    Grid* grid;
+    EntityPool* entityPool;
     EventPublisher<AreaOfEffectEventData>& publisher;
 
     uint32_t textureId;
@@ -35,7 +36,8 @@ private:
 
 public:
     AreaOfEffect(
-        Grid& grid,
+        Grid* grid,
+        EntityPool* entityPool,
         EventPublisher<AreaOfEffectEventData>& publisher,
         uint32_t textureId,
         int ownerId,

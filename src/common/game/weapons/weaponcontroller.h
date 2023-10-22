@@ -5,6 +5,7 @@
 #include "core/json.hpp"
 #include "projectilepool.h"
 #include "core/event/eventpublisher.h"
+#include "game/application/applicationcontext.h"
 
 using json = nlohmann::json;
 
@@ -24,11 +25,13 @@ private:
 
     std::map<std::string, WeaponDefinition> weaponDefinitions;
 
-    Grid& grid;
-    ProjectilePool& projectilePool;
+    ApplicationContext* context;
+    bool initialised;
 
 public:
-    WeaponController(Grid& grid, ProjectilePool& projectilePool);
+    WeaponController();
+
+    void initialise(ApplicationContext& context);
 
     std::unique_ptr<Weapon> createWeapon(const std::string& name, Entity* owner);
     std::unique_ptr<Weapon> createWeapon(uint32_t id, const std::string& name, Entity* owner);

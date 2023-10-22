@@ -8,6 +8,7 @@
 #include "areaofeffect.h"
 #include "game/application/turncontroller.h"
 #include "core/event/eventpublisher.h"
+#include "game/application/applicationcontext.h"
 
 using json = nlohmann::json;
 
@@ -27,16 +28,15 @@ private:
     std::vector<std::pair<int, std::unique_ptr<AreaOfEffect>>> aoeObjects;
     std::vector<int> aoeObjectsForDeletion;
 
-    TurnController& turnController;
-    Grid& grid;
+    ApplicationContext* context;
+    bool initialised;
 
     void loadAoeDefinitions(void);
 
 public:
-    AreaOfEffectPool(
-        TurnController& turnController, 
-        Grid& grid
-    );
+    AreaOfEffectPool();
+
+    void initialise(ApplicationContext& context);
 
     void add(const std::string& name, int ownerId, int turnNumber, const glm::ivec2& position);
 

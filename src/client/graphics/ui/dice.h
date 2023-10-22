@@ -24,7 +24,7 @@ private:
 
     std::map<int, std::vector<std::unique_ptr<ActionButton>>> actions;
 
-    TurnController& turnController;
+    TurnController* turnController;
     GameClientMessagesTransmitter& clientMessagesTransmitter;
 
     std::mutex mtx;
@@ -33,7 +33,8 @@ private:
 public:  
     Dice(
         int face,
-        GameClientMessagesTransmitter& clientMessagesTransmitter
+        GameClientMessagesTransmitter& clientMessagesTransmitter,
+        TurnController* turnController
     );
 
     void draw(GraphicsContext& graphicsContext);

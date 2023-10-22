@@ -10,6 +10,7 @@
 #include "core/util/randomrolls.h"
 #include "core/event/eventpublisher.h"
 #include "game/entities/behaviour/behaviourstrategy.h"
+#include "game/application/applicationcontext.h"
 
 struct TurnControllerEventData {
     int turnNumber;
@@ -37,8 +38,9 @@ public:
         std::unique_ptr<BehaviourStrategy> behaviourStrategy;
     } Participant;
 
-private:
-    Grid& grid;
+protected:
+    ApplicationContext* context;
+    bool initialised;
 
     int turnNumber;
     int currentParticipant;
@@ -47,13 +49,15 @@ private:
     std::vector<std::function<void(int, int)>> onNextTurnWorkers;
     std::function<void()> onAllParticipantsSet;
 
-    bool canProgressToNextTurn(int participantId);
     void nextParticipantTurn(int id);
 
-public:
-    TurnController(Grid& grid);
+    virtual bool canProgressToNextTurn(int participantId) = 0;
 
-    void update(int64_t timeSinceLastFrame, bool& quit);
+public:
+    TurnController();
+
+    void initialise(ApplicationContext& context);
+    virtual void update(int64_t timeSinceLastFrame, bool& quit);
 
     Participant* addParticipant(
         int id,

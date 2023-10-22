@@ -9,7 +9,7 @@
 class GameServerMessagesTransmitter : public ServerMessagesTransmitter {
 private:
     GameServer& server;
-    TurnController& turnController;
+    TurnController* turnController;
 
     std::function<void(int)> onClientConnectFunc;
 
@@ -17,7 +17,8 @@ private:
 
 public:
     GameServerMessagesTransmitter(
-        GameServer& server, 
+        GameServer& server,
+        TurnController* turnController,
         std::function<void(int)> onClientConnectFunc = [](int) { }
     );
 
@@ -37,4 +38,5 @@ public:
         uint32_t weaponId
     );
     void sendActionsRollResponse(int clientIndex, int participantId, const std::vector<DiceActionResult>& dice);
+    void sendNextTurn(int clientIndex, int participantId, int turnNumber);
 };

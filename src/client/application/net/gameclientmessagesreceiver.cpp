@@ -1,5 +1,6 @@
 #include "gameclientmessagesreceiver.h"
 
+// Handle with events?
 GameClientMessagesReceiver::GameClientMessagesReceiver(ApplicationContext& context) :
     context(context)
 { }
@@ -73,6 +74,12 @@ void GameClientMessagesReceiver::receiveMessage(yojimbo::Message* message) {
             break;
         }
 
+        case (int) GameMessageType::NEXT_TURN: {
+            NextTurnMessage* nextTurnMessage = (NextTurnMessage*) message;
+            receiveNextTurn(nextTurnMessage->participantId, nextTurnMessage->turnNumber);
+            break;
+        }
+
         default:
             break;
     }
@@ -81,8 +88,9 @@ void GameClientMessagesReceiver::receiveMessage(yojimbo::Message* message) {
 void GameClientMessagesReceiver::receiveGameStateUpdate(const GameStateUpdate& update) {
     // std::cout << "Got game state update " << update.currentParticipant << std::endl;
 
-    context.getTurnController().setCurrentParticipant(update.currentParticipant);
-    context.getEntityPool().addGameStateUpdate(update);
+    // v only if the participant is different
+    // context.getTurnController()->setCurrentParticipant(update.currentParticipant);
+    context.getEntityPool()->addGameStateUpdate(update);
 }
 
 void GameClientMessagesReceiver::receiveTestMessage(int data) {
@@ -94,15 +102,15 @@ void GameClientMessagesReceiver::receiveSetParticipant(
     int numParticipantsToSet,
     bool isPlayer
 ) {
-    auto& turnController = context.getTurnController();
-    auto const& participant = turnController.addParticipant(participantId, isPlayer, { }, nullptr, false);
+    auto turnController = context.getTurnController();
+    auto const& participant = turnController->addParticipant(participantId, isPlayer, { }, nullptr, false);
 
     if(isPlayer) {
         playerController->setParticipant(participant);
     }
 
-    if(numParticipantsToSet == turnController.getParticipants().size()) {
-        turnController.allParticipantsSet();
+    if(numParticipantsToSet == turnController->getParticipants().size()) {
+        turnController->allParticipantsSet();
     }
 
     transmitter->sendSetParticipantAckMessage(participantId);
@@ -110,7 +118,7 @@ void GameClientMessagesReceiver::receiveSetParticipant(
 
 void GameClientMessagesReceiver::receiveLoadMap(const MapBlock& block) {
     // TODO: Sequencing
-    auto& grid = context.getGrid();
+    auto grid = context.getGrid();
     auto offset = block.sequence * MaxMapBlockSize;
 
     for(int i = 0; i < block.blockSize; i++) {
@@ -118,7 +126,7 @@ void GameClientMessagesReceiver::receiveLoadMap(const MapBlock& block) {
         auto y = (i + offset) % block.width;
         auto id = block.data[i];
 
-        grid.setTile(x, y, { id, id == 1 });
+        grid->setTile(x, y, { id, id == 1 });
     }
 
     std::cout 
@@ -135,13 +143,13 @@ void GameClientMessagesReceiver::receiveFindPath(
     const glm::ivec2& position,
     int shortStopSteps
 ) {
-    if(!context.getEntityPool().hasEntity(entityId)) {
+    if(!context.getEntityPool()->hasEntity(entityId)) {
         return;
     }
 
-    auto const& entity = context.getEntityPool().getEntity(entityId);
+    auto const& entity = context.getEntityPool()->getEntity(entityId);
 
-    context.getTurnController().performMoveAction(entity, position, shortStopSteps);
+    context.getTurnController()->performMoveAction(entity, position, shortStopSteps);
 }
 
 void GameClientMessagesReceiver::receiveAttackEntity(
@@ -150,17 +158,17 @@ void GameClientMessagesReceiver::receiveAttackEntity(
     int y,
     uint32_t weaponId
 ) {
-    auto& entityPool = context.getEntityPool();
+    auto entityPool = context.getEntityPool();
 
-    if(!entityPool.hasEntity(entityId)) {
+    if(!entityPool->hasEntity(entityId)) {
         return;
     }
 
-    auto const& entity = entityPool.getEntity(entityId);
+    auto const& entity = entityPool->getEntity(entityId);
 
     for(auto weapon : entity->getWeapons()) {
         if(weapon->getId() == weaponId) {
-            context.getTurnController().performAttackAction(entity, weapon, glm::ivec2(x, y));
+            context.getTurnController()->performAttackAction(entity, weapon, glm::ivec2(x, y));
         }
     }
 }
@@ -188,6 +196,10 @@ void GameClientMessagesReceiver::receiveActionsRollResponse(int participantId, i
             }
         }
 
-        context.getTurnController().setActions(participantId, vActions);
+        context.getTurnController()->setActions(participantId, vActions);
     }
+}
+
+void GameClientMessagesReceiver::receiveNextTurn(int participantId, int turnNumber) {
+    dynamic_cast<ClientTurnController*>(context.getTurnController())->receiveSetNextTurnFlag(participantId, turnNumber);
 }

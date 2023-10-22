@@ -2,27 +2,29 @@
 
 MeleeWeapon::MeleeWeapon(
     Entity* owner, 
-    Grid& grid,
+    Grid* grid,
+    EntityPool* entityPool,
     EventPublisher<WeaponEventData>& publisher,
     uint32_t id,
     const std::string& name, 
     const Stats& stats
 ) :
-    Weapon(owner, grid, publisher, id, name, stats)
+    Weapon(owner, grid, entityPool, publisher, id, name, stats)
 { }
 
 MeleeWeapon::MeleeWeapon(
     Entity* owner, 
-    Grid& grid, 
+    Grid* grid, 
+    EntityPool* entityPool,
     EventPublisher<WeaponEventData>& publisher,
     const std::string& name, 
     const Stats& stats
 ) :
-    Weapon(owner, grid, publisher, name, stats)
+    Weapon(owner, grid, entityPool, publisher, name, stats)
 { }
 
 bool MeleeWeapon::onUse(const glm::ivec2& position, const glm::ivec2& target) {
-    auto entities = Application::getContext().getEntityPool().getEntities();
+    auto entities = entityPool->getEntities();
     auto entity = Entity::filterByTile(target.x, target.y, entities, owner->getParticipantId());
     
     if(entity != nullptr) {

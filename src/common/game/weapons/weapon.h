@@ -10,6 +10,7 @@
 
 class Entity;
 class Weapon;
+class EntityPool;
 
 struct WeaponEventData {
     Entity* owner;
@@ -39,7 +40,8 @@ protected:
 
     int usesLeft;
 
-    Grid& grid;
+    Grid* grid;
+    EntityPool* entityPool;
     EventPublisher<WeaponEventData>& publisher;
 
     virtual bool onUse(const glm::ivec2& position, const glm::ivec2& target) = 0;
@@ -47,7 +49,8 @@ protected:
 public:
     Weapon(
         Entity* owner,
-        Grid& grid,
+        Grid* grid,
+        EntityPool* entityPool,
         EventPublisher<WeaponEventData>& publisher,
         uint32_t id,
         const std::string& name, 
@@ -56,7 +59,8 @@ public:
 
     Weapon(
         Entity* owner,
-        Grid& grid,
+        Grid* grid,
+        EntityPool* entityPool,
         EventPublisher<WeaponEventData>& publisher,
         const std::string& name, 
         const Stats& stats

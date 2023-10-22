@@ -9,6 +9,7 @@
 #include "areaofeffectpool.h"
 #include "game/effects/effect.h"
 #include "core/event/eventpublisher.h"
+#include "game/application/applicationcontext.h"
 
 using json = nlohmann::json;
 
@@ -29,13 +30,15 @@ private:
     std::map<Entity*, std::vector<std::unique_ptr<Projectile>>> projectiles;
     std::map<Entity*, std::vector<int>> projectilesForDeletion;
 
-    AreaOfEffectPool& areaOfEffectPool;
+    ApplicationContext* context;
+    bool initialised;
 
     void loadProjectileDefinitions(void);
 
 public:
-    ProjectilePool(AreaOfEffectPool& areaOfEffectPool);
+    ProjectilePool();
 
+    void initialise(ApplicationContext& context);
     void add(std::unique_ptr<Projectile> projectile, Entity* owner);
     Projectile::Blueprint create(const std::string& name);
 

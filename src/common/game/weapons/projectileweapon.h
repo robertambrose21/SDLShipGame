@@ -4,9 +4,11 @@
 #include "projectile.h"
 #include "areaofeffect.h"
 #include "game/application/application.h"
+#include "projectilepool.h"
 
 class ProjectileWeapon : public Weapon {
 private:
+    ProjectilePool* projectilePool;
     Projectile::Blueprint projectileBlueprint;
 
     bool onUse(const glm::ivec2& position, const glm::ivec2& target);
@@ -14,7 +16,9 @@ private:
 public:
     ProjectileWeapon(
         Entity* owner,
-        Grid& grid,
+        Grid* grid,
+        EntityPool* entityPool,
+        ProjectilePool* projectilePool,
         EventPublisher<WeaponEventData>& publisher,
         uint32_t id,
         const std::string& name, 
@@ -24,7 +28,9 @@ public:
 
     ProjectileWeapon(
         Entity* owner,
-        Grid& grid,
+        Grid* grid,
+        EntityPool* entityPool,
+        ProjectilePool* projectilePool,
         EventPublisher<WeaponEventData>& publisher,
         const std::string& name, 
         const Stats& stats, 

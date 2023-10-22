@@ -2,6 +2,7 @@
 #include "game/application/application.h"
 
 Entity::Entity(
+    Grid* grid,
     uint32_t id,
     EventPublisher<EntityEventData>& publisher,
     const std::string& name,
@@ -12,7 +13,7 @@ Entity::Entity(
     name(name),
     stats(stats),
     currentStats(stats),
-    grid(Application::getContext().getGrid()),
+    grid(grid),
     position({ 0, 0 }),
     timeSinceLastMoved(0),
     selected(false),
@@ -20,10 +21,11 @@ Entity::Entity(
 { }
 
 Entity::Entity(
+    Grid* grid,
     EventPublisher<EntityEventData>& publisher,
     const std::string& name,
     const EntityBaseStats& stats
-) : Entity(getNewId(), publisher, name, stats)
+) : Entity(grid, getNewId(), publisher, name, stats)
 { }
 
 void Entity::setTextureId(uint32_t textureId) {
@@ -185,7 +187,7 @@ void Entity::setPosition(const glm::ivec2& position) {
 }
 
 int Entity::findPath(const glm::ivec2& target, int stopShortSteps) {
-    auto path = grid.findPath(getPosition(), target);
+    auto path = grid->findPath(getPosition(), target);
 
     if(path.empty()) {
         return 0;
@@ -237,8 +239,9 @@ bool Entity::hasAnimationsInProgress(void) {
 void Entity::useMoves(int numMoves) {
     currentStats.movesLeft -= numMoves;
     
-    if(currentStats.movesLeft < 0) {
+    if(currentStats.movesLeft <= 0) {
         currentStats.movesLeft = 0;
+        path.clear();
     }
 }
 

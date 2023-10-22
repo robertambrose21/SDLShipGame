@@ -1,9 +1,12 @@
 #include "projectilepool.h"
 
-ProjectilePool::ProjectilePool(AreaOfEffectPool& areaOfEffectPool) :
-    areaOfEffectPool(areaOfEffectPool)
-{
+ProjectilePool::ProjectilePool() {
     loadProjectileDefinitions();
+}
+
+void ProjectilePool::initialise(ApplicationContext& context) {
+    this->context = &context;
+    initialised = true;
 }
 
 void ProjectilePool::loadProjectileDefinitions(void) {
@@ -46,13 +49,16 @@ void ProjectilePool::loadProjectileDefinitions(void) {
 }
 
 void ProjectilePool::add(std::unique_ptr<Projectile> projectile, Entity* owner) {
+    game_assert(initialised);
     game_assert(projectile != nullptr);
     game_assert(owner != nullptr);
     projectiles[owner].push_back(std::move(projectile));
 }
 
 Projectile::Blueprint ProjectilePool::create(const std::string& name) {
+    game_assert(initialised);
     game_assert(projectileDefinitions.contains(name));
+
     auto const& definition = projectileDefinitions[name];
     auto const& aoe = definition.aoe;
     Projectile::Blueprint blueprint(
@@ -61,7 +67,7 @@ Projectile::Blueprint ProjectilePool::create(const std::string& name) {
         definition.textureId,
         [&, aoe](auto grid, auto ownerId, auto target, auto turnNumber) { // TODO: Don't add this if there's no aoe
             if(aoe != "") {
-                areaOfEffectPool.add(aoe, ownerId, turnNumber, target);
+                context->getAreaOfEffectPool()->add(aoe, ownerId, turnNumber, target);
             }
         }
     );
@@ -70,6 +76,8 @@ Projectile::Blueprint ProjectilePool::create(const std::string& name) {
 }
 
 void ProjectilePool::update(int64_t timeSinceLastFrame) {
+    game_assert(initialised);
+
     for(auto [owner, projectilesForOwnerIds] : projectilesForDeletion) {
         for(auto const& projectileId : projectilesForOwnerIds) {
             projectiles[owner].erase(projectiles[owner].begin() + projectileId);
@@ -90,7 +98,9 @@ void ProjectilePool::update(int64_t timeSinceLastFrame) {
 }
 
 std::vector<Projectile*> ProjectilePool::getProjectilesForOwner(Entity* owner) {
+    game_assert(initialised);
     game_assert(owner != nullptr);
+
     std::vector<Projectile*> vProjectiles;
 
     auto projectilesForOwner = projectiles.find(owner);
@@ -107,6 +117,8 @@ std::vector<Projectile*> ProjectilePool::getProjectilesForOwner(Entity* owner) {
 }
 
 std::vector<Projectile*> ProjectilePool::getAllProjectiles(void) {
+    game_assert(initialised);
+
     std::vector<Projectile*> vProjectiles;
 
     for (auto& [owner, projectilesForOwner] : projectiles) {
@@ -119,6 +131,8 @@ std::vector<Projectile*> ProjectilePool::getAllProjectiles(void) {
 }
 
 int ProjectilePool::getNumProjectilesForOwner(Entity* owner) {
+    game_assert(initialised);
+
     auto projectilesForOwner = projectiles.find(owner);
 
     if(projectilesForOwner == projectiles.end()) {

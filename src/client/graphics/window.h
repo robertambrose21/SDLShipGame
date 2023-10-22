@@ -31,7 +31,7 @@ private:
     std::vector<std::function<void(const SDL_Event&, bool&)>> eventWorkers;
     
 public:
-    Window(int width, int height, Grid& grid);
+    Window(int width, int height, Grid* grid);
     ~Window();
  
     bool initialiseWindow(void);

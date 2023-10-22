@@ -10,6 +10,7 @@ class GameServerMessagesTransmitter;
 
 class ChaseAndAttackStrategy : public BehaviourStrategy {
 private:
+    ApplicationContext& context;
     GameServerMessagesTransmitter* transmitter;
 
     std::map<TurnController::Action, int> presetActions;
@@ -20,7 +21,7 @@ private:
     Weapon* getBestInRangeWeapon(Entity* attacker, const glm::ivec2& target);
 
 public:
-    ChaseAndAttackStrategy(int participantId);
+    ChaseAndAttackStrategy(ApplicationContext& context, int participantId);
 
     void onUpdate(int64_t timeSinceLastFrame, bool& quit);
     void onNextTurn(void);

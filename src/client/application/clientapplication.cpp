@@ -13,14 +13,22 @@ void ClientApplication::initialise(void) {
         return;
     }
 
-    auto& application = Application::instance();
+    application = std::make_unique<Application>(
+        std::make_unique<Grid>(25, 25), // TODO: This should be defined by the server
+        std::make_unique<EntityPool>(),
+        std::make_unique<WeaponController>(),
+        std::make_unique<ProjectilePool>(),
+        std::make_unique<AreaOfEffectPool>(),
+        std::make_unique<ClientTurnController>()
+    );
 
-    auto& context = Application::getContext();
-    auto& grid = context.getGrid();
-    auto& entityPool = context.getEntityPool();
-    auto& projectilePool = context.getProjectilePool();
-    auto& areaOfEffectPool = context.getAreaOfEffectPool();
-    auto& turnController = context.getTurnController();
+    auto& context = application->getContext();
+
+    context.getTurnController()->initialise(application->getContext());
+    context.getAreaOfEffectPool()->initialise(application->getContext());
+    context.getProjectilePool()->initialise(application->getContext());
+    context.getWeaponController()->initialise(application->getContext());
+    context.getEntityPool()->initialise(application->getContext());
 
     weaponDrawStrategy = std::make_unique<WeaponDrawStrategy>();
     entityDrawStrategy = std::make_unique<EntityDrawStrategy>(weaponDrawStrategy.get());
@@ -30,18 +38,18 @@ void ClientApplication::initialise(void) {
     clientStateMachine = std::make_unique<ClientStateMachine>();
     clientStateMachine->setState(std::make_unique<ClientLoadingState>());
 
-    clientMessagesReceiver = std::make_unique<GameClientMessagesReceiver>(context);
+    clientMessagesReceiver = std::make_unique<GameClientMessagesReceiver>(application->getContext());
 
     client = std::make_unique<GameClient>(*clientMessagesReceiver, yojimbo::Address("127.0.0.1", 8081));
     clientMessagesTransmitter = std::make_unique<GameClientMessagesTransmitter>(*client);
 
     clientMessagesReceiver->setTransmitter(clientMessagesTransmitter.get());
 
-    turnController.setOnAllParticipantsSetFunction([&]() {
+    context.getTurnController()->setOnAllParticipantsSetFunction([&]() {
         clientStateMachine->setState(std::make_unique<ClientGameLoopState>());
     });
 
-    application.initialise();
+    auto grid = context.getGrid();
 
     window = std::make_unique<Window>(1920, 1080, grid);
     window->initialiseWindow();
@@ -49,14 +57,14 @@ void ClientApplication::initialise(void) {
     window->setGridTileTexture(1, 4);
     window->setGridTileTexture(2, 5);
     
-    for(auto i = 0; i < grid.getWidth(); i++) {
-        for(auto j = 0; j < grid.getHeight(); j++) {
-            grid.setTile(i, j, { 1, true });
+    for(auto i = 0; i < grid->getWidth(); i++) {
+        for(auto j = 0; j < grid->getHeight(); j++) {
+            grid->setTile(i, j, { 1, true });
         }
     }
 
     playerController = std::make_unique<PlayerController>(
-        *clientMessagesTransmitter, context, window->getGraphicsContext()
+        *clientMessagesTransmitter, application->getContext(), window->getGraphicsContext()
     );
     clientMessagesReceiver->setPlayerController(playerController.get());
 
@@ -68,7 +76,7 @@ void ClientApplication::initialise(void) {
         playerController->handleMouseEvent(e);
     });
 
-    application.addLogicWorker([&](auto const& timeSinceLastFrame, auto& quit) {
+    application->addLogicWorker([&](ApplicationContext& c, auto const& timeSinceLastFrame, auto& quit) {
         update(timeSinceLastFrame, quit);
         window->update(timeSinceLastFrame, quit);
     });
@@ -89,20 +97,20 @@ void ClientApplication::draw(GraphicsContext& graphicsContext, bool& quit) {
 }
 
 void ClientApplication::drawGameLoop(GraphicsContext& graphicsContext) {
-    auto& context = Application::getContext();
-    auto& entityPool = context.getEntityPool();
-    auto& projectilePool = context.getProjectilePool();
-    auto& areaOfEffectPool = context.getAreaOfEffectPool();
+    auto& context = application->getContext();
+    auto entityPool = context.getEntityPool();
+    auto projectilePool = context.getProjectilePool();
+    auto areaOfEffectPool = context.getAreaOfEffectPool();
 
-    for(auto aoe : areaOfEffectPool.getAoeEffects()) {
+    for(auto aoe : areaOfEffectPool->getAoeEffects()) {
         areaOfEffectDrawStrategy->draw(aoe, graphicsContext);
     }
 
-    for(auto entity : entityPool.getEntities()) {
+    for(auto entity : entityPool->getEntities()) {
         entityDrawStrategy->draw(entity, graphicsContext);
     }
 
-    for(auto projectile : projectilePool.getAllProjectiles()) {
+    for(auto projectile : projectilePool->getAllProjectiles()) {
         projectileDrawStrategy->draw(projectile, graphicsContext);
     }
 
@@ -110,12 +118,12 @@ void ClientApplication::drawGameLoop(GraphicsContext& graphicsContext) {
 }
 
 void ClientApplication::update(int64_t timeSinceLastFrame, bool& quit) {
-    auto& context = Application::getContext();
-    auto& grid = context.getGrid();
-    auto& entityPool = context.getEntityPool();
-    auto& projectilePool = context.getProjectilePool();
-    auto& areaOfEffectPool = context.getAreaOfEffectPool();
-    auto& turnController = context.getTurnController();
+    auto& context = application->getContext();
+    auto grid = context.getGrid();
+    auto entityPool = context.getEntityPool();
+    auto projectilePool = context.getProjectilePool();
+    auto areaOfEffectPool = context.getAreaOfEffectPool();
+    auto turnController = context.getTurnController();
 
     client->update(timeSinceLastFrame);
     
@@ -124,11 +132,11 @@ void ClientApplication::update(int64_t timeSinceLastFrame, bool& quit) {
             break;
 
         case ClientStateMachine::GameLoop:
-            turnController.update(timeSinceLastFrame, quit);
-            entityPool.updateEntities(timeSinceLastFrame, quit);
+            turnController->update(timeSinceLastFrame, quit);
+            entityPool->updateEntities(timeSinceLastFrame, quit);
             playerController->update(timeSinceLastFrame);
-            projectilePool.update(timeSinceLastFrame);
-            areaOfEffectPool.update(timeSinceLastFrame);
+            projectilePool->update(timeSinceLastFrame);
+            areaOfEffectPool->update(timeSinceLastFrame);
             break;
 
         default:
@@ -137,5 +145,5 @@ void ClientApplication::update(int64_t timeSinceLastFrame, bool& quit) {
 }
 
 void ClientApplication::run(void) {
-    Application::instance().run();
+    application->run();
 }

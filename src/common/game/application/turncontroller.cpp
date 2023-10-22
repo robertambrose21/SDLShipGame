@@ -1,20 +1,21 @@
 #include "turncontroller.h"
 
-TurnController::TurnController(Grid& grid) :
-    grid(grid),
+TurnController::TurnController() :
+    initialised(false),
     turnNumber(0),
     currentParticipant(0)
 { }
 
+void TurnController::initialise(ApplicationContext& context) {
+    this->context = &context;
+    initialised = true;
+}
+
 void TurnController::update(int64_t timeSinceLastFrame, bool& quit) {
+    game_assert(initialised);
+
     if(participants.size() <= 0) {
         return;
-    }
-
-    auto& bs = participants[currentParticipant]->behaviourStrategy;
-
-    if(bs != nullptr) {
-        bs->onUpdate(timeSinceLastFrame, quit);
     }
 
     if(canProgressToNextTurn(currentParticipant)) {
@@ -34,6 +35,8 @@ TurnController::Participant* TurnController::addParticipant(
     std::unique_ptr<BehaviourStrategy> behaviourStrategy,
     bool isReady
 ) {
+    game_assert(initialised);
+
     Participant participant;
     participant.id = id;
     participant.isReady = isReady;
@@ -54,6 +57,7 @@ TurnController::Participant* TurnController::addParticipant(
 }
 
 void TurnController::addEntityToParticipant(int participantId, Entity* entity) {
+    game_assert(initialised);
     game_assert(entity != nullptr);
 
     if(!participants.contains(participantId)) {
@@ -68,11 +72,14 @@ void TurnController::addEntityToParticipant(int participantId, Entity* entity) {
 }
 
 TurnController::Participant* TurnController::getParticipant(int id) {
+    game_assert(initialised);
     game_assert(participants.contains(id));
     return participants[id].get();
 }
 
 std::vector<TurnController::Participant*> TurnController::getParticipants(void) {
+    game_assert(initialised);
+
     std::vector<Participant*> vParticipants;
     
     for(auto& [_, participant] : participants) {
@@ -85,6 +92,8 @@ std::vector<TurnController::Participant*> TurnController::getParticipants(void) 
 }
 
 void TurnController::reset(void) {
+    game_assert(initialised);
+
     for(auto& [participantId, participant] : participants) {
         for(auto entity : participant->entities) {
             entity->nextTurn();
@@ -94,6 +103,8 @@ void TurnController::reset(void) {
 
 // TODO: This is doing way too much - offload to some helper classes/functions
 void TurnController::nextParticipantTurn(int id) {
+    game_assert(initialised);
+
     if(id == currentParticipant) {
         return;
     }
@@ -106,7 +117,7 @@ void TurnController::nextParticipantTurn(int id) {
     // TODO: Offload to some kind of global turn controller
     if(currentParticipant == 0) {
         turnNumber++;
-        grid.nextTurn();
+        context->getGrid()->nextTurn();
         publish({ turnNumber, currentParticipant });
     }
 
@@ -138,20 +149,27 @@ void TurnController::nextParticipantTurn(int id) {
 }
 
 void TurnController::passParticipant(int id) {
+    game_assert(initialised);
     game_assert(participants.contains(id));
     participants[id]->passNextTurn = true;
+
+    // std::cout << "Passing participant " << id << std::endl;
 }
 
 void TurnController::setCurrentParticipant(int id) {
+    game_assert(initialised);
     game_assert(participants.contains(id));
     nextParticipantTurn(id);
 }
 
 int TurnController::getCurrentParticipant(void) const {
+    game_assert(initialised);
     return currentParticipant;
 }
 
 void TurnController::setActions(int participantId, const std::map<Action, int>& actions) {
+    game_assert(initialised);
+
     if(participants[participantId]->hasRolledForActions) {
         return;
     }
@@ -161,6 +179,8 @@ void TurnController::setActions(int participantId, const std::map<Action, int>& 
 }
 
 std::map<TurnController::Action, int> TurnController::rollActions(int participantId) {
+    game_assert(initialised);
+
     auto rollNumber = randomD6();
     auto actions = std::map<Action, int>();
 
@@ -169,6 +189,15 @@ std::map<TurnController::Action, int> TurnController::rollActions(int participan
 
         actions[(Action) action]++;
     }
+
+    // std::cout 
+    //     << "Actions: ["
+    //     << "MOVE/"
+    //     << actions[Action::Move]
+    //     << " ATTACK/"
+    //     << actions[Action::Attack]
+    //     << "]"
+    //     << std::endl;
 
     setActions(participantId, std::move(actions));
 
@@ -180,19 +209,49 @@ bool TurnController::performMoveAction(
     const glm::ivec2& position,
     int shortStopSteps
 ) {
-    auto numMoveActions = participants[currentParticipant]->actions[Action::Move];
+    game_assert(initialised);
 
     if(entity == nullptr) {
         return false;
     }
 
+    auto participantId = entity->getParticipantId();
+
+    if(participantId != currentParticipant) {
+        return false;
+    }
+
+    auto numMoveActions = participants[participantId]->actions[Action::Move];
+
     if(numMoveActions > 0 && entity->getMovesLeft() <= 0) {
-        participants[currentParticipant]->actions[Action::Move]--;
+        participants[participantId]->actions[Action::Move]--;
         entity->setMovesLeft(entity->getCurrentStats().movesPerTurn);
     }
     
     if(entity->getMovesLeft() > 0) {
-        return entity->findPath(position, shortStopSteps) != 0;
+        bool success = entity->findPath(position, shortStopSteps) != 0;
+
+        // if(success) {
+        //     std::cout
+        //         << "Participant #"
+        //         << participantId
+        //         << ", "
+        //         << entity->getName() 
+        //         << "#"
+        //         << entity->getId()
+        //         << " moving from ("
+        //         << entity->getPosition().x << ", " << entity->getPosition().y
+        //         << ") to ("
+        //         << position.x << ", " << position.y
+        //         << ") and now has "
+        //         << participants[participantId]->actions[Action::Move]
+        //         << "/"
+        //         << entity->getMovesLeft()
+        //         << " moves/steps left"
+        //         << std::endl;
+        // }
+
+        return success;
     }
 
     return false;
@@ -203,32 +262,63 @@ bool TurnController::performAttackAction(
     Weapon* weapon,
     const glm::ivec2& target
 ) {
-    auto numAttackActions = participants[currentParticipant]->actions[Action::Attack];
+    game_assert(initialised);
 
     if(weapon == nullptr || entity == nullptr) {
         return false;
     }
 
+    auto participantId = entity->getParticipantId();
+
+    if(participantId != currentParticipant) {
+        return false;
+    }
+
+    auto numAttackActions = participants[participantId]->actions[Action::Attack];
+
     if(numAttackActions > 0 && weapon->getUsesLeft() <= 0) {
-        participants[currentParticipant]->actions[Action::Attack]--;
+        participants[participantId]->actions[Action::Attack]--;
         weapon->reset();
     }
 
     int usesLeft = weapon->getUsesLeft();
     entity->attack(target, weapon->getId());
 
+    // if(usesLeft > 0) {
+    //     std::cout
+    //         << "Participant #"
+    //         << participantId
+    //         << ", "
+    //         << entity->getName() 
+    //         << "#"
+    //         << entity->getId()
+    //         << " attacked target ("
+    //         << target.x
+    //         << ", "
+    //         << target.y
+    //         << ") and now has "
+    //         << participants[participantId]->actions[Action::Attack]
+    //         << "/"
+    //         << weapon->getUsesLeft()
+    //         << " attack/weapon uses left"
+    //         << std::endl;
+    // }
+
     return usesLeft > 0;
 }
 
 void TurnController::addOnNextTurnFunction(std::function<void(int, int)> onNextTurnFunc) {
+    game_assert(initialised);
     onNextTurnWorkers.push_back(onNextTurnFunc);
 }
 
 void TurnController::setOnAllParticipantsSetFunction(std::function<void()> onAllParticipantsSet) {
+    game_assert(initialised);
     this->onAllParticipantsSet = onAllParticipantsSet;
 }
 
 void TurnController::allParticipantsSet(void) {
+    game_assert(initialised);
     onAllParticipantsSet();
     for(auto& [_, participant] : participants) {
         participant->isReady = true;
@@ -236,40 +326,6 @@ void TurnController::allParticipantsSet(void) {
 }
 
 int TurnController::getTurnNumber(void) const {
+    game_assert(initialised);
     return turnNumber;
-}
-
-bool TurnController::canProgressToNextTurn(int participantId) {
-    auto& participant = participants[participantId];
-
-    if(!participant->isReady) {
-        return false;
-    }
-
-    if(participant->entities.empty()) {
-        return false;
-    }
-
-    if(participant->behaviourStrategy != nullptr && participant->behaviourStrategy->endTurnCondition()) {
-        return true;
-    }
-
-    bool haveEntitiesTurnsFinished = true;
-    bool haveEntitiesAnimationsFinished = true;
-    for(auto entity : participant->entities) {
-        haveEntitiesTurnsFinished = haveEntitiesTurnsFinished && !entity->isTurnInProgress();
-        haveEntitiesAnimationsFinished = haveEntitiesAnimationsFinished && !entity->hasAnimationsInProgress();
-    }
-
-    if(!haveEntitiesAnimationsFinished) {
-        return false;
-    }
-
-    bool haveActionsCompleted = participant->hasRolledForActions;
-
-    for(auto [_, numActionsLeft] : participant->actions) {
-        haveActionsCompleted = haveActionsCompleted && numActionsLeft == 0;
-    }
-
-    return (haveEntitiesTurnsFinished && haveActionsCompleted) || participant->passNextTurn;
 }

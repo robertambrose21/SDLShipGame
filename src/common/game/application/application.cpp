@@ -1,28 +1,37 @@
 #include "application.h"
 
-Application::Application() {
-    grid = std::make_unique<Grid>(25, 25); // TODO: This should be defined by the server
-    turnController = std::make_unique<TurnController>(*grid);
-    areaOfEffectPool = std::make_unique<AreaOfEffectPool>(*turnController, *grid);
-    projectilePool = std::make_unique<ProjectilePool>(*areaOfEffectPool);
-    weaponController = std::make_unique<WeaponController>(*grid, *projectilePool);
-    entityPool = std::make_unique<EntityPool>(*turnController, *weaponController);
-
+Application::Application(
+    std::unique_ptr<Grid> grid,
+    std::unique_ptr<EntityPool> entityPool,
+    std::unique_ptr<WeaponController> weaponController,
+    std::unique_ptr<ProjectilePool> projectilePool,
+    std::unique_ptr<AreaOfEffectPool> areaOfEffectPool,
+    std::unique_ptr<TurnController> turnController
+) :
+    grid(std::move(grid)),
+    entityPool(std::move(entityPool)),
+    weaponController(std::move(weaponController)),
+    projectilePool(std::move(projectilePool)),
+    areaOfEffectPool(std::move(areaOfEffectPool)),
+    turnController(std::move(turnController))
+{
     context = std::make_unique<ApplicationContext>(
-        *grid,
-        *entityPool,
-        *weaponController,
-        *projectilePool, 
-        *areaOfEffectPool, 
-        *turnController
+        this->grid.get(),
+        this->entityPool.get(),
+        this->weaponController.get(),
+        this->projectilePool.get(), 
+        this->areaOfEffectPool.get(), 
+        this->turnController.get()
     );
 }
 
-Application::~Application()
-{ }
+ApplicationContext& Application::getContext(void) {
+    return *context;
+}
 
-void Application::initialise(void)
-{ }
+void Application::addLogicWorker(std::function<void(ApplicationContext&, int64_t, bool&)> func) {
+    logicWorkers.push_back(func);
+}
 
 void Application::run(void) {
     loop();
@@ -38,7 +47,7 @@ void Application::loop(void) {
         currentTime = getCurrentTimeInMilliseconds();
 
         for(auto const& worker : logicWorkers) {
-            worker(timeSinceLastFrame, quit);
+            worker(getContext(), timeSinceLastFrame, quit);
         }
     }
 }

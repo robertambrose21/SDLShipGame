@@ -10,7 +10,8 @@ private:
 public:
     MeleeWeapon(
         Entity* owner, 
-        Grid& grid,
+        Grid* grid,
+        EntityPool* entityPool,
         EventPublisher<WeaponEventData>& publisher,
         uint32_t id,
         const std::string& name, 
@@ -19,7 +20,8 @@ public:
 
     MeleeWeapon(
         Entity* owner, 
-        Grid& grid,
+        Grid* grid,
+        EntityPool* entityPool,
         EventPublisher<WeaponEventData>& publisher,
         const std::string& name, 
         const Stats& stats

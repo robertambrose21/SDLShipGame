@@ -83,7 +83,7 @@ yojimbo::Message* GameServer::createMessage(int clientIndex, const GameMessageTy
 
 // TODO: Choose the channel
 void GameServer::sendMessage(int clientIndex, yojimbo::Message* message) {
-    std::cout << "Sending message: \"" << typeid(*message).name() << "\"" << std::endl;
+    // std::cout << "Sending message: \"" << typeid(*message).name() << "\"" << std::endl;
     server.SendMessage(clientIndex, (int) GameChannel::RELIABLE, message);
 }
 

@@ -35,8 +35,8 @@ private:
 
     std::vector<Entity*> selectedEntities;
     GridRenderer& gridRenderer;
-    TurnController& turnController;
-    EntityPool& entityPool;
+    TurnController* turnController;
+    EntityPool* entityPool;
     GraphicsContext& graphicsContext;
 
     std::unique_ptr<Dice> dice;

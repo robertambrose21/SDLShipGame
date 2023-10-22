@@ -15,25 +15,25 @@ PlayerController::PlayerController(
     isCurrentWeaponInRange(true),
     cameraVector(glm::ivec2(0, 0))
 {
-    dice = std::make_unique<Dice>(3, clientMessagesTransmitter);
+    dice = std::make_unique<Dice>(3, clientMessagesTransmitter, context.getTurnController());
     playerPanel = std::make_unique<PlayerPanel>(1920, 1080);
     
-    turnController.subscribe(playerPanel.get());
-    entityPool.subscribe(playerPanel.get());
-    context.getWeaponController().subscribe(playerPanel.get());
-    context.getProjectilePool().subscribe(playerPanel.get());
-    context.getAreaOfEffectPool().subscribe(playerPanel.get());
+    turnController->subscribe(playerPanel.get());
+    entityPool->subscribe(playerPanel.get());
+    context.getWeaponController()->subscribe(playerPanel.get());
+    context.getProjectilePool()->subscribe(playerPanel.get());
+    context.getAreaOfEffectPool()->subscribe(playerPanel.get());
 }
 
 void PlayerController::update(int64_t timeSinceLastFrame) {
-    setHoverTiles();
-
     for(auto entity : selectedEntities) {
         if(entity == nullptr || entity->getCurrentHP() <= 0) {
             selectedEntities.erase(
                 std::remove(selectedEntities.begin(), selectedEntities.end(), entity), selectedEntities.end());
         }
     }
+
+    setHoverTiles();
 
     if(selectedEntities.size() == 1) {
         auto windowWidth = graphicsContext.getWindowWidth();
@@ -80,7 +80,7 @@ void PlayerController::handleKeyPress(const SDL_Event& event) {
         switch(event.key.keysym.sym) {
             case SDLK_p: {
                 clientMessagesTransmitter.sendPassParticipantTurnMessage(participant->id);
-                Application::getContext().getTurnController().passParticipant(participant->id);
+                turnController->passParticipant(participant->id);
                 break;
             }
 
@@ -199,7 +199,7 @@ void PlayerController::handleMouseDown(const SDL_Event& event) {
         }
 
         case SDL_BUTTON_RIGHT: {
-            auto const& target = Entity::filterByTile(x, y, entityPool.getEntities());
+            auto const& target = Entity::filterByTile(x, y, entityPool->getEntities());
 
             if(target != nullptr || isLeftShiftPressed) {
                 attack(position);
@@ -214,7 +214,7 @@ void PlayerController::handleMouseDown(const SDL_Event& event) {
 }
 
 void PlayerController::handleMouseUp(const SDL_Event& event) {
-    auto& grid = gridRenderer.getGrid();
+    auto grid = gridRenderer.getGrid();
 
     switch(event.button.button) {
         case SDL_BUTTON_LEFT: {
@@ -233,7 +233,7 @@ void PlayerController::handleMouseUp(const SDL_Event& event) {
                 auto [x, y] = gridRenderer.getTileIndices(start);
                 auto [sizeX, sizeY] = gridRenderer.getTileIndices(end - start);
 
-                auto tiles = gridRenderer.getGrid().getTilesInSquare(x, y, sizeX, sizeY);
+                auto tiles = gridRenderer.getGrid()->getTilesInSquare(x, y, sizeX, sizeY);
                 
                 toggleSelection(Entity::filterByTiles(tiles, participant->entities));
             }
@@ -271,7 +271,7 @@ void PlayerController::deselectAll(void) {
 void PlayerController::move(const glm::ivec2& position) {
     for(auto const& entity : selectedEntities) {
         clientMessagesTransmitter.sendFindPathMessage(entity->getId(), position, 0);
-        if(turnController.performMoveAction(entity, position)) {
+        if(turnController->performMoveAction(entity, position)) {
             dice->clickAction(0);
         }
     }
@@ -287,7 +287,7 @@ void PlayerController::attack(const glm::ivec2& target) {
             weapon->getId()
         );
         
-        if(turnController.performAttackAction(entity, weapon, target)) {
+        if(turnController->performAttackAction(entity, weapon, target)) {
             dice->clickAction(1);
         }
     }
@@ -310,20 +310,20 @@ void PlayerController::setHoverTiles(void) {
     SDL_GetMouseState(&mousePosition.x, &mousePosition.y);
     auto [x, y] = gridRenderer.getTileIndices(mousePosition - camera.getPosition());
 
-    auto& grid = gridRenderer.getGrid();
+    auto grid = gridRenderer.getGrid();
 
     isCurrentWeaponInRange = weapon->isInRange(glm::vec2(x, y));
     p1 = (entity->getPosition() * 32) + glm::ivec2(16, 16) + camera.getPosition();
     p2 = (glm::ivec2(x, y) * 32) + glm::ivec2(16, 16) + camera.getPosition();
 
     if(weapon->getName() == "Grenade Launcher") {
-        hoverTiles = gridRenderer.getGrid().getTilesInCircle(x, y, 2);
+        hoverTiles = gridRenderer.getGrid()->getTilesInCircle(x, y, 2);
     }
     else if(weapon->getName()== "Freeze Gun") {
         glm::ivec2 dir = entity->getPosition() - glm::ivec2(x, y);
         auto perp = glm::normalize(glm::vec2(dir.y, -dir.x));
-        auto pX = std::min(grid.getWidth() - 1, (int) std::round(perp.x));
-        auto pY = std::min(grid.getHeight() - 1, (int) std::round(perp.y));
+        auto pX = std::min(grid->getWidth() - 1, (int) std::round(perp.x));
+        auto pY = std::min(grid->getHeight() - 1, (int) std::round(perp.y));
 
         hoverTiles = {
             glm::ivec2(x, y),
