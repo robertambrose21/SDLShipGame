@@ -254,7 +254,7 @@ std::deque<glm::ivec2> Grid::findPath(const glm::ivec2& source, const glm::ivec2
             auto path = buildPath(cameFrom, currentNode);
             auto timeTaken = getCurrentTimeInMilliseconds() - startTime;
 
-            std::cout << "Path time taken: " << timeTaken << std::endl;
+            // std::cout << "Path time taken: " << timeTaken << std::endl;
 
             return path;
         }

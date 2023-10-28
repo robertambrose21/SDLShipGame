@@ -73,6 +73,11 @@ void Entity::update(int64_t timeSinceLastFrame, bool& quit) {
     timeSinceLastMoved += timeSinceLastFrame;
 
     if(timeSinceLastMoved > getSpeed()) {
+        // std::cout
+        //     << "(" << path.front().x << ", " << path.front().y << ") "
+        //     << getMovesLeft()
+        //     << std::endl;
+
         setPosition(path.front());
         path.pop_front();
         timeSinceLastMoved = 0;

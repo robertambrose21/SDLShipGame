@@ -104,7 +104,7 @@ void Dice::rollFunc(int seconds) {
         if(buttonTypeId == 0) {
             auto moveButton = std::make_unique<ActionButton>(14, glm::ivec2{900, (i * 70) + 50}, glm::ivec2{64, 64}, 1);
             moveButton->onClick([]{
-                std::cout << "Move clicked" << std::endl;
+                // std::cout << "Move clicked" << std::endl;
             });
             actions[buttonTypeId].push_back(std::move(moveButton));
             numMoveActions++;
@@ -112,7 +112,7 @@ void Dice::rollFunc(int seconds) {
         else if(buttonTypeId == 1) {
             auto shootButton = std::make_unique<ActionButton>(15, glm::ivec2{900, (i * 70) + 50}, glm::ivec2{64, 64}, 2);
             shootButton->onClick([]{
-                std::cout << "Shoot clicked" << std::endl;
+                // std::cout << "Shoot clicked" << std::endl;
             });
             actions[buttonTypeId].push_back(std::move(shootButton));
             numAttackActions++;
@@ -120,20 +120,20 @@ void Dice::rollFunc(int seconds) {
         else if(buttonTypeId == 2) {
             auto freezeButton = std::make_unique<ActionButton>(16, glm::ivec2{900, (i * 70) + 50}, glm::ivec2{64, 64}, 1);
             freezeButton->onClick([]{
-                std::cout << "Freeze clicked" << std::endl;
+                // std::cout << "Freeze clicked" << std::endl;
             });
             actions[buttonTypeId].push_back(std::move(freezeButton));
         }
     }
 
-    // std::cout 
-    //     << "Actions: ["
-    //     << "MOVE/"
-    //     << numMoveActions
-    //     << " ATTACK/"
-    //     << numAttackActions
-    //     << "]"
-    //     << std::endl;
+    std::cout 
+        << "Actions: ["
+        << "MOVE/"
+        << numMoveActions
+        << " ATTACK/"
+        << numAttackActions
+        << "]"
+        << std::endl;
 
     turnController->setActions(0, 
         {

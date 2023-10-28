@@ -29,6 +29,8 @@ void ChaseAndAttackStrategy::onUpdate(int64_t timeSinceLastFrame, bool& quit) {
         }
         else if(bWeapon != nullptr && target != nullptr && bWeapon->isInRange(target->getPosition()) &&
                 turnController->performAttackAction(entity, bWeapon, target->getPosition())) {
+            // TODO: Temporary hack for actions getting sent too fast - need to implement some sort of queueing system
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
             transmitter->sendAttack(0, entity->getId(), target->getPosition(), bWeapon->getId());
             isPassable = false;
         }

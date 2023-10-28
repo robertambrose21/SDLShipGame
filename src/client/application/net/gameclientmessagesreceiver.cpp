@@ -87,9 +87,6 @@ void GameClientMessagesReceiver::receiveMessage(yojimbo::Message* message) {
 
 void GameClientMessagesReceiver::receiveGameStateUpdate(const GameStateUpdate& update) {
     // std::cout << "Got game state update " << update.currentParticipant << std::endl;
-
-    // v only if the participant is different
-    // context.getTurnController()->setCurrentParticipant(update.currentParticipant);
     context.getEntityPool()->addGameStateUpdate(update);
 }
 

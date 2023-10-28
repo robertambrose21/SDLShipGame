@@ -153,7 +153,7 @@ void TurnController::passParticipant(int id) {
     game_assert(participants.contains(id));
     participants[id]->passNextTurn = true;
 
-    // std::cout << "Passing participant " << id << std::endl;
+    std::cout << "Passing participant " << id << std::endl;
 }
 
 void TurnController::setCurrentParticipant(int id) {
@@ -190,14 +190,14 @@ std::map<TurnController::Action, int> TurnController::rollActions(int participan
         actions[(Action) action]++;
     }
 
-    // std::cout 
-    //     << "Actions: ["
-    //     << "MOVE/"
-    //     << actions[Action::Move]
-    //     << " ATTACK/"
-    //     << actions[Action::Attack]
-    //     << "]"
-    //     << std::endl;
+    std::cout 
+        << "Actions: ["
+        << "MOVE/"
+        << actions[Action::Move]
+        << " ATTACK/"
+        << actions[Action::Attack]
+        << "]"
+        << std::endl;
 
     setActions(participantId, std::move(actions));
 
@@ -284,7 +284,7 @@ bool TurnController::performAttackAction(
     int usesLeft = weapon->getUsesLeft();
     entity->attack(target, weapon->getId());
 
-    // if(usesLeft > 0) {
+    // if(usesLeft != weapon->getUsesLeft()) {
     //     std::cout
     //         << "Participant #"
     //         << participantId
@@ -296,7 +296,9 @@ bool TurnController::performAttackAction(
     //         << target.x
     //         << ", "
     //         << target.y
-    //         << ") and now has "
+    //         << ") with a "
+    //         << weapon->getName()
+    //         << " and now has "
     //         << participants[participantId]->actions[Action::Attack]
     //         << "/"
     //         << weapon->getUsesLeft()

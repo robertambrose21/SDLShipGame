@@ -6,6 +6,8 @@
 #include "game/application/application.h"
 #include "application/net/gameservermessagestransmitter.h"
 
+#include <thread>
+
 class GameServerMessagesTransmitter;
 
 class ChaseAndAttackStrategy : public BehaviourStrategy {
