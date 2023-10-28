@@ -30,6 +30,16 @@ void EntityPool::loadEntityDefinitions(void) {
         definition.b = colourData["b"].get<uint8_t>();
         definition.a = colourData["a"].get<uint8_t>();
 
+        // Temp
+        std::vector<LootTableItem> lootTableItems = {
+            { { 1 }, 20 },
+            { { 2, 3, 4, 5 }, 100 },
+            { { 7 }, 70 },
+            { { 8 }, 40 },
+            { { 9 }, 50 }
+        };
+        definition.lootTable = LootTable(lootTableItems);
+
         std::cout << "Loaded entity definition \"" << definition.name << "\"" << std::endl;
 
         entityDefinitions[definition.name] = definition;
@@ -44,12 +54,7 @@ void EntityPool::updateEntities(int64_t timeSinceLastFrame, bool& quit) {
     synchronize();
 
     for(auto const& entityId : entitiesForDeletion) {
-        auto entity = getEntity(entityId);
-        publish({ entity, "Death" });
-        auto& participantEntities = context->getTurnController()->getParticipant(entity->getParticipantId())->entities;
-        participantEntities.erase(
-            std::remove(participantEntities.begin(), participantEntities.end(), entity), participantEntities.end());
-        entities.erase(entityId);
+        killEntity(entityId);
     }
     
     entitiesForDeletion.clear();
@@ -70,6 +75,28 @@ void EntityPool::updateEntity(Entity* entity, int64_t timeSinceLastFrame, bool& 
     entity->update(timeSinceLastFrame, quit);
 }
 
+void EntityPool::killEntity(uint32_t entityId) {
+    auto entity = getEntity(entityId);
+
+    auto& participantEntities = context->getTurnController()->getParticipant(entity->getParticipantId())->entities;
+    participantEntities.erase(
+        std::remove(participantEntities.begin(), participantEntities.end(), entity), participantEntities.end());
+
+    auto itemsDropped = entityDefinitions[entity->getName()].lootTable.generateItems();
+    std::cout << entity->getName() << "#" << entityId << " dropped [";
+
+    for(int i = 0; i < itemsDropped.size(); i++) {
+        std::cout << itemsDropped[i] << ((i == itemsDropped.size() - 1) ? "]" : ", ");
+    }
+
+    std::cout << std::endl;
+
+    publish({ entity, "Death" });
+
+    entities.erase(entityId);
+}
+
+// TODO: Doing too much, break this up
 void EntityPool::synchronize() {
     game_assert(initialised);
 

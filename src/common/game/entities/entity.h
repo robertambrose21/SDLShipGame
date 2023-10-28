@@ -163,7 +163,7 @@ public:
     void removeAllWeapons(void);
     void setCurrentWeapon(uint32_t weaponId);
     Weapon* getCurrentWeapon(void);
-
+    
     uint32_t getId(void) const;
     void setId(uint32_t id);
     std::string getName(void) const;

@@ -13,6 +13,7 @@
 #include "game/net/messages.h"
 #include "core/event/eventpublisher.h"
 #include "game/application/applicationcontext.h"
+#include "game/items/loottable.h"
 
 using json = nlohmann::json;
 
@@ -28,6 +29,7 @@ private:
         uint8_t r, g, b, a;
         int movesPerTurn;
         int hp;
+        LootTable lootTable;
     } EntityDefinition;
 
     std::map<std::string, EntityDefinition> entityDefinitions;
@@ -43,6 +45,7 @@ private:
     void updateEntity(Entity* entity, int64_t timeSinceLastFrame, bool& quit);
     void loadEntityDefinitions(void);
     void synchronize(void);
+    void killEntity(uint32_t entityId);
 
 public:
     EntityPool();

@@ -13,6 +13,8 @@ add_library(
     entities/entitypool.cpp 
     entities/behaviour/behaviourstrategy.h
     entities/behaviour/chaseandattackstrategy.cpp
+    items/item.cpp
+    items/loottable.cpp
     weapons/weapon.cpp 
     weapons/projectile.cpp 
     weapons/projectileweapon.cpp 
