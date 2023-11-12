@@ -15,6 +15,7 @@ add_library(
     entities/behaviour/chaseandattackstrategy.cpp
     items/item.cpp
     items/loottable.cpp
+    items/itemcontroller.cpp
     weapons/weapon.cpp 
     weapons/projectile.cpp 
     weapons/projectileweapon.cpp 

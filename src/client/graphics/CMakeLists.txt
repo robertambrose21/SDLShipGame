@@ -23,6 +23,7 @@ add_library(
     drawstrategies/weapondrawstrategy.cpp
     drawstrategies/projectiledrawstrategy.cpp
     drawstrategies/areaofeffectdrawstrategy.cpp
+    drawstrategies/itemdrawstrategy.cpp
 )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX CXX_STANDARD 20)

@@ -23,6 +23,7 @@ void ChaseAndAttackStrategy::onUpdate(int64_t timeSinceLastFrame, bool& quit) {
 
         if(target != nullptr && entity->isNeighbour(target)) {
             if(turnController->performAttackAction(entity, entity->getCurrentWeapon(), target->getPosition())) {
+                std::this_thread::sleep_for(std::chrono::milliseconds(100));
                 transmitter->sendAttack(0, entity->getId(), target->getPosition(), entity->getCurrentWeapon()->getId());
                 isPassable = false;
             }
@@ -41,6 +42,7 @@ void ChaseAndAttackStrategy::onUpdate(int64_t timeSinceLastFrame, bool& quit) {
         else if(target != nullptr && 
                     glm::distance(glm::vec2(entity->getPosition()), glm::vec2(target->getPosition())) <= entity->getAggroRange() && 
                     turnController->performMoveAction(entity, target->getPosition(), 1)) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
             transmitter->sendFindPath(0, entity->getId(), target->getPosition(), 1);
             isPassable = false;
         }

@@ -32,6 +32,7 @@ private:
     );
     void receiveActionsRollResponse(int participantId, int numDice, DiceActionResult dice[64]);
     void receiveNextTurn(int participantId, int turnNumber);
+    void receiveSpawnItems(const glm::ivec2& position, int numItems, ItemUpdate items[64]);
 
 public:
     GameClientMessagesReceiver(ApplicationContext& context);

@@ -106,3 +106,8 @@ struct DiceActionResult {
         memset(this, 0, sizeof(DiceActionResult));
     }
 };
+
+struct ItemUpdate {
+    char name[64];
+    uint32_t id;
+};

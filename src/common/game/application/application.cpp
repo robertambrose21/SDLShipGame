@@ -6,14 +6,16 @@ Application::Application(
     std::unique_ptr<WeaponController> weaponController,
     std::unique_ptr<ProjectilePool> projectilePool,
     std::unique_ptr<AreaOfEffectPool> areaOfEffectPool,
-    std::unique_ptr<TurnController> turnController
+    std::unique_ptr<TurnController> turnController,
+    std::unique_ptr<ItemController> itemController
 ) :
     grid(std::move(grid)),
     entityPool(std::move(entityPool)),
     weaponController(std::move(weaponController)),
     projectilePool(std::move(projectilePool)),
     areaOfEffectPool(std::move(areaOfEffectPool)),
-    turnController(std::move(turnController))
+    turnController(std::move(turnController)),
+    itemController(std::move(itemController))
 {
     context = std::make_unique<ApplicationContext>(
         this->grid.get(),
@@ -21,7 +23,8 @@ Application::Application(
         this->weaponController.get(),
         this->projectilePool.get(), 
         this->areaOfEffectPool.get(), 
-        this->turnController.get()
+        this->turnController.get(),
+        this->itemController.get()
     );
 }
 

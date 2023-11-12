@@ -6,7 +6,10 @@
 #include "game/application/turncontroller.h"
 #include "game/application/application.h"
 
-class GameServerMessagesTransmitter : public ServerMessagesTransmitter {
+class GameServerMessagesTransmitter : 
+    public ServerMessagesTransmitter, 
+    public EventSubscriber<ItemEventData>
+{
 private:
     GameServer& server;
     TurnController* turnController;
@@ -21,6 +24,8 @@ public:
         TurnController* turnController,
         std::function<void(int)> onClientConnectFunc = [](int) { }
     );
+
+    void onPublish(const Event<ItemEventData>& event);
 
     void sendSetParticipant(int clientIndex, TurnController::Participant* participant);
     void sendGameStateUpdate(int clientIndex, const GameStateUpdate& update);

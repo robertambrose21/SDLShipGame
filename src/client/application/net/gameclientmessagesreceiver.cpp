@@ -80,7 +80,14 @@ void GameClientMessagesReceiver::receiveMessage(yojimbo::Message* message) {
             break;
         }
 
+        case (int) GameMessageType::SPAWN_ITEMS: {
+            SpawnItemsMessage* spawnItemsMessage = (SpawnItemsMessage*) message;
+            receiveSpawnItems(glm::ivec2(spawnItemsMessage->x, spawnItemsMessage->y), spawnItemsMessage->numItems, spawnItemsMessage->items);
+            break;
+        }
+
         default:
+            std::cout << "Received unhandled message: " << message << std::endl;
             break;
     }
 }
@@ -199,4 +206,10 @@ void GameClientMessagesReceiver::receiveActionsRollResponse(int participantId, i
 
 void GameClientMessagesReceiver::receiveNextTurn(int participantId, int turnNumber) {
     dynamic_cast<ClientTurnController*>(context.getTurnController())->receiveSetNextTurnFlag(participantId, turnNumber);
+}
+
+void GameClientMessagesReceiver::receiveSpawnItems(const glm::ivec2& position, int numItems, ItemUpdate items[64]) {
+    for(int i = 0; i < numItems; i++) {
+        context.getItemController()->addItem(items[i].name, position, items[i].id, false);
+    }
 }

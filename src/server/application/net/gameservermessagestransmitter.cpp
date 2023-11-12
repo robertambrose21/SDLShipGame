@@ -14,6 +14,34 @@ void GameServerMessagesTransmitter::onClientConnected(int clientIndex) {
     onClientConnectFunc(clientIndex);
 }
 
+void GameServerMessagesTransmitter::onPublish(const Event<ItemEventData>& event) {
+    if(event.data.type != ItemEventData::SPAWN) {
+        return;
+    }
+
+    std::map<glm::ivec2, std::vector<Item*>> itemGroups;
+
+    for(auto item : event.data.items) {
+        itemGroups[item->getPosition()].push_back(item);
+    }
+    
+    // TODO: handle client index (send to all?) and items > 64
+    for(auto [position, items] : itemGroups) {
+        SpawnItemsMessage* message = (SpawnItemsMessage*) server.createMessage(0, GameMessageType::SPAWN_ITEMS);
+
+        message->x = position.x;
+        message->y = position.y;
+        message->numItems = items.size();
+
+        for(int i = 0; i < items.size(); i++) {
+            message->items[i].id = items[i]->getId();
+            strcpy(message->items[i].name, items[i]->getName().data());
+        }
+
+        server.sendMessage(0, message);
+    }
+}
+
 void GameServerMessagesTransmitter::sendSetParticipant(
     int clientIndex, 
     TurnController::Participant* participant

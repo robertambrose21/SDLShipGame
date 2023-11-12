@@ -11,6 +11,7 @@
 #include "graphics/drawstrategies/weapondrawstrategy.h"
 #include "graphics/drawstrategies/projectiledrawstrategy.h"
 #include "graphics/drawstrategies/areaofeffectdrawstrategy.h"
+#include "graphics/drawstrategies/itemdrawstrategy.h"
 #include "clientturncontroller.h"
 
 class ClientApplication {
@@ -29,6 +30,7 @@ private:
     std::unique_ptr<WeaponDrawStrategy> weaponDrawStrategy;
     std::unique_ptr<ProjectileDrawStrategy> projectileDrawStrategy;
     std::unique_ptr<AreaOfEffectDrawStrategy> areaOfEffectDrawStrategy;
+    std::unique_ptr<ItemDrawStrategy> itemDrawStrategy;
 
     void drawGameLoop(GraphicsContext& graphicsContext);
 

@@ -30,14 +30,22 @@ void EntityPool::loadEntityDefinitions(void) {
         definition.b = colourData["b"].get<uint8_t>();
         definition.a = colourData["a"].get<uint8_t>();
 
-        // Temp
-        std::vector<LootTableItem> lootTableItems = {
-            { { 1 }, 20 },
-            { { 2, 3, 4, 5 }, 100 },
-            { { 7 }, 70 },
-            { { 8 }, 40 },
-            { { 9 }, 50 }
-        };
+        std::vector<LootTableItem> lootTableItems;
+
+        auto const& lootTableData = data["lootTable"].get<std::vector<json>>();
+        for(auto const& lootTableItemsData : lootTableData) {
+            LootTableItem lootTableItem;
+
+            auto const& itemsData = lootTableItemsData["items"].get<std::vector<json>>();
+            for(auto const& itemData : itemsData) {
+                lootTableItem.items.push_back(itemData["name"].get<std::string>());
+            }
+
+            lootTableItem.percentChance = lootTableItemsData["chance"].get<uint8_t>();
+
+            lootTableItems.push_back(lootTableItem);
+        }
+
         definition.lootTable = LootTable(lootTableItems);
 
         std::cout << "Loaded entity definition \"" << definition.name << "\"" << std::endl;
@@ -82,14 +90,18 @@ void EntityPool::killEntity(uint32_t entityId) {
     participantEntities.erase(
         std::remove(participantEntities.begin(), participantEntities.end(), entity), participantEntities.end());
 
-    auto itemsDropped = entityDefinitions[entity->getName()].lootTable.generateItems();
-    std::cout << entity->getName() << "#" << entityId << " dropped [";
+    // auto itemsDropped = entityDefinitions[entity->getName()].lootTable.generateItems();
+    // context->getItemController()->addItems(itemsDropped, entity->getPosition());
 
-    for(int i = 0; i < itemsDropped.size(); i++) {
-        std::cout << itemsDropped[i] << ((i == itemsDropped.size() - 1) ? "]" : ", ");
-    }
+    // if(!itemsDropped.empty()) {
+    //     std::cout << entity->getName() << "#" << entityId << " dropped [";
 
-    std::cout << std::endl;
+    //     for(int i = 0; i < itemsDropped.size(); i++) {
+    //         std::cout << itemsDropped[i] << ((i == itemsDropped.size() - 1) ? "]" : ", ");
+    //     }
+
+    //     std::cout << std::endl;
+    // }
 
     publish({ entity, "Death" });
 
@@ -224,4 +236,8 @@ Entity* EntityPool::getEntity(uint32_t id) {
 bool EntityPool::hasEntity(uint32_t id) {
     game_assert(initialised);
     return entities.contains(id);
+}
+
+LootTable EntityPool::getLootTable(const std::string& entityName) {
+    return entityDefinitions[entityName].lootTable;
 }

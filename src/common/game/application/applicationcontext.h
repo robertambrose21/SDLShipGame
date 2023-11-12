@@ -10,6 +10,7 @@ class WeaponController;
 class ProjectilePool;
 class AreaOfEffectPool;
 class TurnController;
+class ItemController;
 
 class ApplicationContext {
 private:
@@ -19,6 +20,7 @@ private:
     ProjectilePool* projectilePool;
     AreaOfEffectPool* areaOfEffectPool;
     TurnController* turnController;
+    ItemController* itemController;
     ServerMessagesTransmitter* transmitter;
 
 public:
@@ -28,7 +30,8 @@ public:
         WeaponController* weaponController,
         ProjectilePool* projectilePool,
         AreaOfEffectPool* areaOfEffectPool,
-        TurnController* turnController
+        TurnController* turnController,
+        ItemController* itemController
     );
 
     Grid* getGrid(void);
@@ -37,6 +40,7 @@ public:
     ProjectilePool* getProjectilePool(void);
     AreaOfEffectPool* getAreaOfEffectPool(void);
     TurnController* getTurnController(void);
+    ItemController* getItemController(void);
 
     void setServerMessagesTransmitter(ServerMessagesTransmitter* transmitter);
     ServerMessagesTransmitter* getServerMessagesTransmitter(void);

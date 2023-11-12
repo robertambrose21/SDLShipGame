@@ -19,7 +19,8 @@ void ClientApplication::initialise(void) {
         std::make_unique<WeaponController>(),
         std::make_unique<ProjectilePool>(),
         std::make_unique<AreaOfEffectPool>(),
-        std::make_unique<ClientTurnController>()
+        std::make_unique<ClientTurnController>(),
+        std::make_unique<ItemController>()
     );
 
     auto& context = application->getContext();
@@ -29,11 +30,13 @@ void ClientApplication::initialise(void) {
     context.getProjectilePool()->initialise(application->getContext());
     context.getWeaponController()->initialise(application->getContext());
     context.getEntityPool()->initialise(application->getContext());
+    context.getItemController()->initialise(application->getContext());
 
     weaponDrawStrategy = std::make_unique<WeaponDrawStrategy>();
     entityDrawStrategy = std::make_unique<EntityDrawStrategy>(weaponDrawStrategy.get());
     projectileDrawStrategy = std::make_unique<ProjectileDrawStrategy>();
     areaOfEffectDrawStrategy = std::make_unique<AreaOfEffectDrawStrategy>();
+    itemDrawStrategy = std::make_unique<ItemDrawStrategy>();
 
     clientStateMachine = std::make_unique<ClientStateMachine>();
     clientStateMachine->setState(std::make_unique<ClientLoadingState>());
@@ -101,6 +104,11 @@ void ClientApplication::drawGameLoop(GraphicsContext& graphicsContext) {
     auto entityPool = context.getEntityPool();
     auto projectilePool = context.getProjectilePool();
     auto areaOfEffectPool = context.getAreaOfEffectPool();
+    auto itemController = context.getItemController();
+
+    for(auto& [_, item] : itemController->getItems()) {
+        itemDrawStrategy->draw(item.get(), graphicsContext);
+    }
 
     for(auto aoe : areaOfEffectPool->getAoeEffects()) {
         areaOfEffectDrawStrategy->draw(aoe, graphicsContext);

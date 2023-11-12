@@ -10,6 +10,7 @@
 #include "entitystats.h"
 #include "game/application/turncontroller.h"
 #include "game/weapons/weaponcontroller.h"
+#include "game/items/itemcontroller.h"
 #include "game/net/messages.h"
 #include "core/event/eventpublisher.h"
 #include "game/application/applicationcontext.h"
@@ -19,7 +20,6 @@ using json = nlohmann::json;
 
 struct GameStateUpdate;
 
-// TODO: game_assert intialisation stuff
 class EntityPool : public EventPublisher<EntityEventData> {
 private:
     typedef struct _entityDefinition {
@@ -62,4 +62,6 @@ public:
     std::vector<Entity*> getEntities(void);
     Entity* getEntity(uint32_t id);
     bool hasEntity(uint32_t id);
+
+    LootTable getLootTable(const std::string& entityName);
 };

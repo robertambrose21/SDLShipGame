@@ -22,6 +22,7 @@ struct EntityEventData {
 
 class Entity {
 public:
+    // TODO: Move this out of entity class
     typedef struct _colour {
         uint8_t r, g, b, a;
 

@@ -19,7 +19,8 @@ void ServerApplication::initialise(void) {
         std::make_unique<WeaponController>(),
         std::make_unique<ProjectilePool>(),
         std::make_unique<AreaOfEffectPool>(),
-        std::make_unique<ServerTurnController>()
+        std::make_unique<ServerTurnController>(),
+        std::make_unique<ItemController>()
     );
 
     auto& context = application->getContext();
@@ -29,6 +30,7 @@ void ServerApplication::initialise(void) {
     context.getProjectilePool()->initialise(application->getContext());
     context.getWeaponController()->initialise(application->getContext());
     context.getEntityPool()->initialise(application->getContext());
+    context.getItemController()->initialise(application->getContext());
 
     context.getTurnController()->subscribe(&stdoutSubscriber);
     context.getEntityPool()->subscribe(&stdoutSubscriber);
@@ -53,6 +55,8 @@ void ServerApplication::initialise(void) {
     server->setReceiver(receiver.get());
     server->setTransmitter(transmitter.get());
     context.setServerMessagesTransmitter(transmitter.get());
+    context.getItemController()->subscribe(transmitter.get());
+    context.getEntityPool()->subscribe(context.getItemController());
 
     application->addLogicWorker([&](ApplicationContext& c, auto const& timeSinceLastFrame, auto& quit) {
         server->update(timeSinceLastFrame);
@@ -60,15 +64,6 @@ void ServerApplication::initialise(void) {
         c.getEntityPool()->updateEntities(timeSinceLastFrame, quit);
         c.getProjectilePool()->update(timeSinceLastFrame);
         c.getAreaOfEffectPool()->update(timeSinceLastFrame);
-
-        static int64_t timer = -30000;
-
-        if(timer >= 1000) {
-            sendGameStateUpdatesToClients();
-            timer = 0;
-        }
-
-        timer += timeSinceLastFrame;
     });
 
     // TODO: This somehow makes the game state messages get received first rather than the set participant ones.
