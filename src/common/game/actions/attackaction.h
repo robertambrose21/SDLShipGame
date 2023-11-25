@@ -20,6 +20,7 @@ public:
         const glm::ivec2& target
     );
 
+    bool passesPrecondition(void);
     Weapon* getWeapon(void);
     Type getType(void);
 };

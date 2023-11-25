@@ -6,12 +6,20 @@ ClientTurnController::ClientTurnController() :
 { }
 
 bool ClientTurnController::canProgressToNextTurn(int participantId) {
-    if(receivedValidNextTurnFlag) {
-        receivedValidNextTurnFlag = false;
-        return true;
+    if(!receivedValidNextTurnFlag) {
+        return false;
     }
 
-    return false;
+    auto& participant = participants[participantId];
+
+    for(auto entity : participant->entities) {
+        if(entity->hasAnimationsInProgress() || !entity->getActionsChain().empty()) {
+            return false;
+        }
+    }
+
+    receivedValidNextTurnFlag = false;
+    return true;
 }
 
 void ClientTurnController::receiveSetNextTurnFlag(int participantId, int turnNumber) {

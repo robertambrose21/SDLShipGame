@@ -18,6 +18,10 @@ Weapon* AttackAction::getWeapon(void) {
     return weapon;
 }
 
+bool AttackAction::passesPrecondition(void) {
+    return weapon->isInRange(target);
+}
+
 bool AttackAction::onValidate(void) {
     if(weapon == nullptr) {
         return false;

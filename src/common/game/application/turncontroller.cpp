@@ -177,25 +177,24 @@ void TurnController::executeActions(int participantId) {
     }
 }
 
-// TODO: iterative approach
 void TurnController::executeEntityActions(Entity* entity) {
-    if(entity->getActionsChain().empty()) {
-        return;
+    bool moreActionsToProcess = !entity->getActionsChain().empty();
+
+    while(moreActionsToProcess) {
+        auto& action = entity->getActionsChain().front();
+
+        if(action->isFinished()) {
+            entity->popAction();
+            moreActionsToProcess = !entity->getActionsChain().empty();
+        }
+        else if(action->passesPrecondition() && !action->isExecuted()) {
+            action->execute(context);
+            moreActionsToProcess = false;
+        }
+        else {
+            moreActionsToProcess = false;
+        }
     }
-
-    auto& action = entity->getActionsChain().front();
-
-    if(action->isFinished()) {
-        entity->popAction();
-        executeEntityActions(entity);
-        return;
-    }
-
-    if(action->isExecuted()) {
-        return;
-    }
-
-    action->execute(context);
 }
 
 bool TurnController::queueAction(std::unique_ptr<Action> action) {

@@ -8,10 +8,16 @@ MoveAction::MoveAction(
     Action(entity),
     position(position),
     shortStopSteps(shortStopSteps)
-{ }
+{
+    game_assert(shortStopSteps >= 0);
+}
 
 Action::Type MoveAction::getType(void) {
     return Action::Type::Move;
+}
+
+bool MoveAction::passesPrecondition(void) {
+    return true;
 }
 
 bool MoveAction::onValidate(void) {
@@ -33,11 +39,10 @@ bool MoveAction::onValidate(void) {
 
 void MoveAction::onExecute(ApplicationContext* context) {
     entity->setPath(getPath());
-    path.clear();
 }
 
 bool MoveAction::hasFinished(void) {
-    return entity->getMovesLeft() <= 0 || path.empty();
+    return entity->getMovesLeft() <= 0 || entity->getPosition() == path[path.size() - shortStopSteps - 1];
 }
 
 std::deque<glm::ivec2> MoveAction::getPath(bool recalculate) {

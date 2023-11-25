@@ -26,5 +26,6 @@ public:
         int shortStopSteps = 0
     );
 
+    bool passesPrecondition(void);
     Type getType(void);
 };

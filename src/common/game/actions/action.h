@@ -26,6 +26,7 @@ public:
     bool isFinished(void);
     void execute(ApplicationContext* context);
 
+    virtual bool passesPrecondition(void) = 0;
     virtual Type getType(void) = 0;
 
     Entity* getEntity(void);

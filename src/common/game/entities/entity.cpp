@@ -241,7 +241,7 @@ bool Entity::hasPath(void) {
 }
 
 bool Entity::isNeighbour(Entity* entity) const {
-    // TODO: This could be moe efficient
+    // TODO: This could be more efficient
     return glm::distance(glm::vec2(getPosition()), glm::vec2(entity->getPosition())) < 2;
 }
 
