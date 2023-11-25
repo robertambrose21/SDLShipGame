@@ -31,29 +31,24 @@ bool ServerTurnController::canProgressToNextTurn(int participantId) {
         return false;
     }
 
+    bool haveEntitiesTurnsFinished = true;
+    bool haveEntitiesActionsFinished = true;
+    for(auto entity : participant->entities) {
+        haveEntitiesTurnsFinished = haveEntitiesTurnsFinished && !entity->isTurnInProgress();
+        haveEntitiesActionsFinished = haveEntitiesActionsFinished && !entity->hasAnimationsInProgress() 
+            && entity->getActionsChain().empty();
+    }
+
+    if(!haveEntitiesActionsFinished) {
+        return false;
+    }
+
     if(participant->behaviourStrategy != nullptr && participant->behaviourStrategy->endTurnCondition()) {
         transmitter->sendNextTurn(0, currentParticipant, turnNumber);
         return true;
     }
 
-    bool haveEntitiesTurnsFinished = true;
-    bool haveEntitiesAnimationsFinished = true;
-    for(auto entity : participant->entities) {
-        haveEntitiesTurnsFinished = haveEntitiesTurnsFinished && !entity->isTurnInProgress();
-        haveEntitiesAnimationsFinished = haveEntitiesAnimationsFinished && !entity->hasAnimationsInProgress();
-    }
-
-    if(!haveEntitiesAnimationsFinished) {
-        return false;
-    }
-
-    bool haveActionsCompleted = participant->hasRolledForActions;
-
-    for(auto [_, numActionsLeft] : participant->actions) {
-        haveActionsCompleted = haveActionsCompleted && numActionsLeft == 0;
-    }
-
-    auto nextTurn = (haveEntitiesTurnsFinished && haveActionsCompleted) || participant->passNextTurn;
+    auto nextTurn = haveEntitiesTurnsFinished || participant->passNextTurn;
 
     if(nextTurn) {
         transmitter->sendNextTurn(0, currentParticipant, turnNumber);

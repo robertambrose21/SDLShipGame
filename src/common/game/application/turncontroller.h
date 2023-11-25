@@ -2,8 +2,10 @@
 
 #include <set>
 #include <vector>
+#include <deque>
 #include <map>
 #include <functional>
+#include <ranges>
 
 #include "game/entities/entity.h"
 #include "core/util/gameassert.h"
@@ -11,6 +13,7 @@
 #include "core/event/eventpublisher.h"
 #include "game/entities/behaviour/behaviourstrategy.h"
 #include "game/application/applicationcontext.h"
+#include "game/actions/action.h"
 
 struct TurnControllerEventData {
     int turnNumber;
@@ -19,13 +22,6 @@ struct TurnControllerEventData {
 
 class TurnController : public EventPublisher<TurnControllerEventData> {
 public:
-    enum Action {
-        Move = 0,
-        Attack,
-        // Freeze,
-        Count
-    };
-
     // TODO: Consider making entities a map rather than a set
     typedef struct _participant {
         int id;
@@ -33,7 +29,7 @@ public:
         bool isPlayer;
         std::vector<Entity*> entities;
         bool passNextTurn;
-        std::map<Action, int> actions;
+        std::map<Action::Type, int> availableActions;
         bool hasRolledForActions;
         std::unique_ptr<BehaviourStrategy> behaviourStrategy;
     } Participant;
@@ -50,6 +46,7 @@ protected:
     std::function<void()> onAllParticipantsSet;
 
     void nextParticipantTurn(int id);
+    void executeEntityActions(Entity* entity);
 
     virtual bool canProgressToNextTurn(int participantId) = 0;
 
@@ -76,18 +73,11 @@ public:
     void setCurrentParticipant(int id);
     int getCurrentParticipant(void) const;
 
-    void setActions(int participantId, const std::map<Action, int>& actions);
-    std::map<Action, int> rollActions(int participantId);
-    bool performMoveAction(
-        Entity* entity, 
-        const glm::ivec2& position,
-        int shortStopSteps = 0
-    );
-    bool performAttackAction(
-        Entity* entity, 
-        Weapon* weapon,
-        const glm::ivec2& target
-    );
+    bool queueAction(std::unique_ptr<Action> action);
+    void executeActions(int participantId);
+
+    void setAvailableActions(int participantId, const std::map<Action::Type, int>& actions);
+    std::map<Action::Type, int> rollActions(int participantId);
 
     void addOnNextTurnFunction(std::function<void(int, int)> onNextTurnFunc);
     void setOnAllParticipantsSetFunction(std::function<void()> onAllParticipantsSet);

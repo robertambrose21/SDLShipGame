@@ -76,7 +76,7 @@ void GameServerMessagesReceiver::receiveFindPathMessage(
 
     for(auto const& entity : entities) {
         if(entity->getId() == entityId) {
-            context.getTurnController()->performMoveAction(entity, position);
+            context.getTurnController()->queueAction(std::make_unique<MoveAction>(entity, position));
         }
     }
 }
@@ -108,13 +108,13 @@ void GameServerMessagesReceiver::receieveAttackMessage(
 
     auto const& entity = context.getEntityPool()->getEntity(entityId);
 
-    if(entity->getParticipantId() != 0) {
+    if(entity->getParticipantId() != 0) { // TODO: Why is this here??
         return;
     }
 
     for(auto weapon : entity->getWeapons()) {
         if(weapon->getId() == weaponId) {
-            context.getTurnController()->performAttackAction(entity, weapon, glm::ivec2(x, y));
+            context.getTurnController()->queueAction(std::make_unique<AttackAction>(entity, weapon, glm::ivec2(x, y)));
         }
     }
 }

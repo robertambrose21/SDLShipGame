@@ -191,6 +191,7 @@ void Entity::setPosition(const glm::ivec2& position) {
     this->position = position;
 }
 
+// TODO: use calculatePath
 int Entity::findPath(const glm::ivec2& target, int stopShortSteps) {
     auto path = grid->findPath(getPosition(), target);
 
@@ -212,6 +213,29 @@ int Entity::findPath(const glm::ivec2& target, int stopShortSteps) {
     return path.size();
 }
 
+std::deque<glm::ivec2> Entity::calculatePath(const glm::ivec2& target, int stopShortSteps) {
+    auto path = grid->findPath(getPosition(), target);
+
+    if(path.empty()) {
+        return path;
+    }
+
+    // Remove the initial path node which is just the entities current position
+    path.pop_front(); 
+
+    if(path.size() >= stopShortSteps) {
+        for(auto i = 0; i < stopShortSteps; i++) {
+            path.pop_back();
+        }
+    }
+
+    return path;
+}
+
+void Entity::setPath(const std::deque<glm::ivec2>& path) {
+    this->path = path;
+}
+
 bool Entity::hasPath(void) {
     return !path.empty();
 }
@@ -230,7 +254,7 @@ void Entity::setMovesLeft(int movesLeft) {
 }
 
 int Entity::getAggroRange(void) const {
-    return 20; // temp hardcoded for now
+    return 200; // temp hardcoded for now
 }
 
 bool Entity::isTurnInProgress(void) const {
@@ -251,12 +275,12 @@ void Entity::useMoves(int numMoves) {
 }
 
 void Entity::nextTurn(void) {
-    currentStats.movesLeft = 0;
+    currentStats.movesLeft = currentStats.movesPerTurn;
     path.clear();
 
     for(auto& [_, weapon] : weapons) {
         if(weapon != nullptr) {
-            weapon->setUsesLeft(0);
+            weapon->reset();
         }
     }
 
@@ -273,6 +297,24 @@ void Entity::endTurn(void) {
     for(auto& [_, weapon] : weapons) {
         weapon->setUsesLeft(0);
     }
+}
+
+bool Entity::queueAction(std::unique_ptr<Action> action) {
+    if(!action->validate()) {
+        return false;
+    }
+    
+    actionsChain.push_back(std::move(action));
+
+    return true;
+}
+
+const std::deque<std::unique_ptr<Action>>& Entity::getActionsChain(void) const {
+    return actionsChain;
+}
+
+void Entity::popAction(void) {
+    actionsChain.pop_front();
 }
 
 void Entity::setParticipantId(int participantId) {

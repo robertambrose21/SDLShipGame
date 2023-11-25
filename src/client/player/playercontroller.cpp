@@ -271,7 +271,7 @@ void PlayerController::deselectAll(void) {
 void PlayerController::move(const glm::ivec2& position) {
     for(auto const& entity : selectedEntities) {
         clientMessagesTransmitter.sendFindPathMessage(entity->getId(), position, 0);
-        if(turnController->performMoveAction(entity, position)) {
+        if(turnController->queueAction(std::make_unique<MoveAction>(entity, position))) {
             dice->clickAction(0);
         }
     }
@@ -287,7 +287,7 @@ void PlayerController::attack(const glm::ivec2& target) {
             weapon->getId()
         );
         
-        if(turnController->performAttackAction(entity, weapon, target)) {
+        if(turnController->queueAction(std::make_unique<AttackAction>(entity, weapon, target))) {
             dice->clickAction(1);
         }
     }

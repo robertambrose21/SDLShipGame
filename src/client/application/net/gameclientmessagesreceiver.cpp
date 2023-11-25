@@ -152,8 +152,8 @@ void GameClientMessagesReceiver::receiveFindPath(
     }
 
     auto const& entity = context.getEntityPool()->getEntity(entityId);
-
-    context.getTurnController()->performMoveAction(entity, position, shortStopSteps);
+    
+    context.getTurnController()->queueAction(std::make_unique<MoveAction>(entity, position, shortStopSteps));
 }
 
 void GameClientMessagesReceiver::receiveAttackEntity(
@@ -172,7 +172,8 @@ void GameClientMessagesReceiver::receiveAttackEntity(
 
     for(auto weapon : entity->getWeapons()) {
         if(weapon->getId() == weaponId) {
-            context.getTurnController()->performAttackAction(entity, weapon, glm::ivec2(x, y));
+            context.getTurnController()->queueAction(
+                std::make_unique<AttackAction>(entity, weapon, glm::ivec2(x, y)));
         }
     }
 }
@@ -189,18 +190,18 @@ void GameClientMessagesReceiver::receiveActionsRollResponse(int participantId, i
         playerController->getDice().setActionsFromServer(vActions);
     }
     else {
-        std::map<TurnController::Action, int> vActions = {
-            { TurnController::Action::Move, 0 },
-            { TurnController::Action::Attack, 0 }
+        std::map<Action::Type, int> vActions = {
+            { Action::Type::Move, 0 },
+            { Action::Type::Attack, 0 }
         };
 
         for(int i = 0; i < numDice; i++) {
             for(int j = 0; j < dice[i].rollNumber; j++) {
-                vActions[(TurnController::Action) dice[i].actions[j]]++;
+                vActions[(Action::Type) dice[i].actions[j]]++;
             }
         }
 
-        context.getTurnController()->setActions(participantId, vActions);
+        context.getTurnController()->setAvailableActions(participantId, vActions);
     }
 }
 

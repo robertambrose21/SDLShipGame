@@ -1,0 +1,61 @@
+#include "moveaction.h"
+
+MoveAction::MoveAction(
+    Entity* entity, 
+    const glm::ivec2& position,
+    int shortStopSteps
+) : 
+    Action(entity),
+    position(position),
+    shortStopSteps(shortStopSteps)
+{ }
+
+Action::Type MoveAction::getType(void) {
+    return Action::Type::Move;
+}
+
+bool MoveAction::onValidate(void) {
+    if(entity->getMovesLeft() <= 0) {
+        return false;
+    }
+
+    if(getPath().empty()) {
+        return false;
+    }
+
+
+    if(!hasAvailableMoves()) {
+        return false;
+    }
+
+    return true;
+}
+
+void MoveAction::onExecute(ApplicationContext* context) {
+    entity->setPath(getPath());
+    path.clear();
+}
+
+bool MoveAction::hasFinished(void) {
+    return entity->getMovesLeft() <= 0 || path.empty();
+}
+
+std::deque<glm::ivec2> MoveAction::getPath(bool recalculate) {
+    if(recalculate || path.empty()) {
+        path = entity->calculatePath(position, shortStopSteps);
+    }
+
+    return path;
+}
+
+bool MoveAction::hasAvailableMoves(void) {
+    int numMoves = 0;
+
+    for(auto& action : entity->getActionsChain()) {
+        if(action->getType() == Action::Type::Move) {
+            numMoves += dynamic_cast<MoveAction*>(action.get())->getPath().size();
+        }
+    }
+
+    return entity->getMovesLeft() >= numMoves;
+}

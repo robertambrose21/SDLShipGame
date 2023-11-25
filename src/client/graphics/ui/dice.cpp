@@ -135,10 +135,10 @@ void Dice::rollFunc(int seconds) {
         << "]"
         << std::endl;
 
-    turnController->setActions(0, 
+    turnController->setAvailableActions(0, 
         {
-            { TurnController::Action::Move, numMoveActions },
-            { TurnController::Action::Attack, numAttackActions }
+            { Action::Type::Move, numMoveActions },
+            { Action::Type::Attack, numAttackActions }
         }
     );
 

@@ -8,6 +8,7 @@
 #include "core/net/gameadapter.h"
 #include "player/playercontroller.h"
 #include "application/clientturncontroller.h"
+#include "game/actions/attackaction.h"
 
 class GameClientMessagesReceiver : public ClientMessagesReceiver {
 private:

@@ -9,46 +9,59 @@ ChaseAndAttackStrategy::ChaseAndAttackStrategy(ApplicationContext& context, int 
 }
 
 void ChaseAndAttackStrategy::onUpdate(int64_t timeSinceLastFrame, bool& quit) {
+    if(canPassTurn) {
+        return;
+    }
+
     auto turnController = context.getTurnController();
     auto participant = turnController->getParticipant(participantId);
-    auto isPassable = true;
+    auto entitiesPassed = 0;
 
     for(auto entity : participant->entities) {
-        auto target = findClosestTarget(entity);
-        auto bWeapon = target == nullptr ? nullptr : getBestInRangeWeapon(entity, target->getPosition());
-
-        if(entity->getFrozenFor() > 0) {
-            continue;
-        }
-
-        if(target != nullptr && entity->isNeighbour(target)) {
-            if(turnController->performAttackAction(entity, entity->getCurrentWeapon(), target->getPosition())) {
-                std::this_thread::sleep_for(std::chrono::milliseconds(100));
-                transmitter->sendAttack(0, entity->getId(), target->getPosition(), entity->getCurrentWeapon()->getId());
-                isPassable = false;
-            }
-        }
-        else if(bWeapon != nullptr && target != nullptr && bWeapon->isInRange(target->getPosition()) &&
-                turnController->performAttackAction(entity, bWeapon, target->getPosition())) {
-            // TODO: Temporary hack for actions getting sent too fast - need to implement some sort of queueing system
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));
-            transmitter->sendAttack(0, entity->getId(), target->getPosition(), bWeapon->getId());
-            isPassable = false;
-        }
-        else if(entity->hasPath()) {
-            isPassable = isPassable && 
-                participant->actions[TurnController::Action::Move] <= 0 && entity->getMovesLeft() <= 0;
-        }
-        else if(target != nullptr && 
-                    glm::distance(glm::vec2(entity->getPosition()), glm::vec2(target->getPosition())) <= entity->getAggroRange() && 
-                    turnController->performMoveAction(entity, target->getPosition(), 1)) {
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));
-            transmitter->sendFindPath(0, entity->getId(), target->getPosition(), 1);
-            isPassable = false;
+        if(doTurnForEntity(entity)) {
+            entitiesPassed++;
         }
     }
 
-    canPassTurn = isPassable;
+    canPassTurn = entitiesPassed == participant->entities.size();
+}
+
+bool ChaseAndAttackStrategy::doTurnForEntity(Entity* entity) {
+    if(!entity->isTurnInProgress()) {
+        return true;
+    }
+
+    if(entity->getFrozenFor() > 0) {
+        return true;
+    }
+
+    auto target = findClosestTarget(entity);
+
+    if(target == nullptr) {
+        return true;
+    }
+
+    auto bWeapon = getBestInRangeWeapon(entity, target->getPosition());
+
+    if(entity->isNeighbour(target) && context.getTurnController()->queueAction(
+            std::move(std::make_unique<AttackAction>(entity, entity->getCurrentWeapon(), target->getPosition())))) {
+        transmitter->sendAttack(0, entity->getId(), target->getPosition(), entity->getCurrentWeapon()->getId());
+    }
+    else if(bWeapon != nullptr && bWeapon->isInRange(target->getPosition()) && 
+            context.getTurnController()->queueAction(std::make_unique<AttackAction>(entity, bWeapon, target->getPosition()))) {
+        transmitter->sendAttack(0, entity->getId(), target->getPosition(), bWeapon->getId());
+    }
+    else if(!entity->hasPath()) {
+        if(glm::distance(glm::vec2(entity->getPosition()), glm::vec2(target->getPosition())) <= entity->getAggroRange() &&
+                context.getTurnController()->queueAction(std::make_unique<MoveAction>(entity, target->getPosition(), 1))) {
+            transmitter->sendFindPath(0, entity->getId(), target->getPosition(), 1);
+        }
+        else {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 Weapon* ChaseAndAttackStrategy::getBestInRangeWeapon(
@@ -67,7 +80,7 @@ Weapon* ChaseAndAttackStrategy::getBestInRangeWeapon(
 }
 
 void ChaseAndAttackStrategy::onNextTurn(void) {
-    std::map<TurnController::Action, int> actions;
+    std::map<Action::Type, int> actions;
     std::vector<DiceActionResult> serializedActions;
 
     for(int i = 0; i < 3; i++) {
@@ -76,16 +89,16 @@ void ChaseAndAttackStrategy::onNextTurn(void) {
         dice.rollNumber = randomD6();
         
         for(int j = 0; j < dice.rollNumber; j++) {
-            auto action = randomRange(0, TurnController::Action::Count - 1);
+            auto action = randomRange(0, Action::Type::Count - 1);
             
             dice.actions[j] = action;
-            actions[(TurnController::Action) action]++;
+            actions[(Action::Type) action]++;
         }
 
         serializedActions.push_back(dice);
     }
 
-    context.getTurnController()->setActions(participantId, actions);
+    context.getTurnController()->setAvailableActions(participantId, actions);
     transmitter->sendActionsRollResponse(0, participantId, serializedActions);
 
     canPassTurn = false;
