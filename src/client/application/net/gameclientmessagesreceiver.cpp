@@ -64,16 +64,6 @@ void GameClientMessagesReceiver::receiveMessage(yojimbo::Message* message) {
             break;
         }
 
-        case (int) GameMessageType::ACTIONS_ROLL_RESPONSE: {
-            ActionsRollResponseMessage* actionsRollResponseMessage = (ActionsRollResponseMessage*) message;
-            receiveActionsRollResponse(
-                actionsRollResponseMessage->participantId,
-                actionsRollResponseMessage->numDice,
-                actionsRollResponseMessage->dice
-            );
-            break;
-        }
-
         case (int) GameMessageType::NEXT_TURN: {
             NextTurnMessage* nextTurnMessage = (NextTurnMessage*) message;
             receiveNextTurn(nextTurnMessage->participantId, nextTurnMessage->turnNumber);
@@ -175,33 +165,6 @@ void GameClientMessagesReceiver::receiveAttackEntity(
             context.getTurnController()->queueAction(
                 std::make_unique<AttackAction>(entity, weapon, glm::ivec2(x, y)));
         }
-    }
-}
-
-void GameClientMessagesReceiver::receiveActionsRollResponse(int participantId, int numDice, DiceActionResult dice[64]) {
-    if(participantId == 0) {
-        std::vector<int> vActions;
-        for(int i = 0; i < numDice; i++) {
-            for(int j = 0; j < dice[i].rollNumber; j++) {
-                vActions.push_back(dice[i].actions[j]);
-            }
-        }
-
-        playerController->getDice().setActionsFromServer(vActions);
-    }
-    else {
-        std::map<Action::Type, int> vActions = {
-            { Action::Type::Move, 0 },
-            { Action::Type::Attack, 0 }
-        };
-
-        for(int i = 0; i < numDice; i++) {
-            for(int j = 0; j < dice[i].rollNumber; j++) {
-                vActions[(Action::Type) dice[i].actions[j]]++;
-            }
-        }
-
-        context.getTurnController()->setAvailableActions(participantId, vActions);
     }
 }
 

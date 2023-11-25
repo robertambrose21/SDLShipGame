@@ -24,7 +24,6 @@ void TurnController::update(int64_t timeSinceLastFrame, bool& quit) {
         for(auto const& entity : participants[currentParticipant]->entities) {
             entity->endTurn();
         }
-        participants[currentParticipant]->availableActions.clear();
 
         nextParticipantTurn((currentParticipant + 1) % participants.size());
     }
@@ -45,8 +44,6 @@ TurnController::Participant* TurnController::addParticipant(
     participant.entities = entities;
     participant.isPlayer = isPlayer;
     participant.passNextTurn = false;
-    participant.availableActions = { };
-    participant.hasRolledForActions = false;
     participant.behaviourStrategy = std::move(behaviourStrategy);
 
     for(auto const& entity : entities) {
@@ -112,7 +109,6 @@ void TurnController::nextParticipantTurn(int id) {
     }
 
     participants[currentParticipant]->passNextTurn = false;
-    participants[currentParticipant]->hasRolledForActions = false;
 
     currentParticipant = id;
 
@@ -200,43 +196,6 @@ void TurnController::executeEntityActions(Entity* entity) {
 bool TurnController::queueAction(std::unique_ptr<Action> action) {
     game_assert(initialised);
     return action->getEntity()->queueAction(std::move(action));
-}
-
-void TurnController::setAvailableActions(int participantId, const std::map<Action::Type, int>& actions) {
-    game_assert(initialised);
-
-    if(participants[participantId]->hasRolledForActions) {
-        return;
-    }
-
-    participants[participantId]->availableActions = actions;
-    participants[participantId]->hasRolledForActions = true;
-}
-
-std::map<Action::Type, int> TurnController::rollActions(int participantId) {
-    game_assert(initialised);
-
-    auto rollNumber = randomD6();
-    auto actions = std::map<Action::Type, int>();
-
-    for(int i = 0; i < rollNumber; i++) {
-        auto action = randomRange(0, Action::Count - 1);
-
-        actions[(Action::Type) action]++;
-    }
-
-    std::cout 
-        << "Actions: ["
-        << "MOVE/"
-        << actions[Action::Type::Move]
-        << " ATTACK/"
-        << actions[Action::Type::Attack]
-        << "]"
-        << std::endl;
-
-    setAvailableActions(participantId, std::move(actions));
-
-    return participants[participantId]->availableActions;
 }
 
 void TurnController::addOnNextTurnFunction(std::function<void(int, int)> onNextTurnFunc) {

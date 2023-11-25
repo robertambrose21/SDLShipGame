@@ -18,8 +18,6 @@ private:
     ApplicationContext& context;
     GameServerMessagesTransmitter* transmitter;
 
-    std::map<Action::Type, int> presetActions;
-
     bool canPassTurn;
 
     Entity* findClosestTarget(Entity* attacker);

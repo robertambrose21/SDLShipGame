@@ -49,7 +49,7 @@ void PlayerController::update(int64_t timeSinceLastFrame) {
 }
 
 void PlayerController::draw(GraphicsContext& graphicsContext) {
-    dice->draw(graphicsContext);
+    // dice->draw(graphicsContext);
     playerPanel->draw(graphicsContext.getRenderer());
 
     if(selection.isActive) {
@@ -81,13 +81,6 @@ void PlayerController::handleKeyPress(const SDL_Event& event) {
             case SDLK_p: {
                 clientMessagesTransmitter.sendPassParticipantTurnMessage(participant->id);
                 turnController->passParticipant(participant->id);
-                break;
-            }
-
-            case SDLK_d: {
-                if(!participant->hasRolledForActions) {
-                    dice->roll(participant->id);
-                }
                 break;
             }
 

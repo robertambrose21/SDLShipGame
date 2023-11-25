@@ -80,27 +80,6 @@ Weapon* ChaseAndAttackStrategy::getBestInRangeWeapon(
 }
 
 void ChaseAndAttackStrategy::onNextTurn(void) {
-    std::map<Action::Type, int> actions;
-    std::vector<DiceActionResult> serializedActions;
-
-    for(int i = 0; i < 3; i++) {
-        DiceActionResult dice;
-
-        dice.rollNumber = randomD6();
-        
-        for(int j = 0; j < dice.rollNumber; j++) {
-            auto action = randomRange(0, Action::Type::Count - 1);
-            
-            dice.actions[j] = action;
-            actions[(Action::Type) action]++;
-        }
-
-        serializedActions.push_back(dice);
-    }
-
-    context.getTurnController()->setAvailableActions(participantId, actions);
-    transmitter->sendActionsRollResponse(0, participantId, serializedActions);
-
     canPassTurn = false;
 }
 

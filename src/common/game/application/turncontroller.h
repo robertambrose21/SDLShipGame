@@ -29,8 +29,6 @@ public:
         bool isPlayer;
         std::vector<Entity*> entities;
         bool passNextTurn;
-        std::map<Action::Type, int> availableActions;
-        bool hasRolledForActions;
         std::unique_ptr<BehaviourStrategy> behaviourStrategy;
     } Participant;
 
@@ -75,9 +73,6 @@ public:
 
     bool queueAction(std::unique_ptr<Action> action);
     void executeActions(int participantId);
-
-    void setAvailableActions(int participantId, const std::map<Action::Type, int>& actions);
-    std::map<Action::Type, int> rollActions(int participantId);
 
     void addOnNextTurnFunction(std::function<void(int, int)> onNextTurnFunc);
     void setOnAllParticipantsSetFunction(std::function<void()> onAllParticipantsSet);

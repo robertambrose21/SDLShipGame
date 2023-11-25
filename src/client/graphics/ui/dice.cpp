@@ -126,21 +126,12 @@ void Dice::rollFunc(int seconds) {
         }
     }
 
-    std::cout 
-        << "Actions: ["
-        << "MOVE/"
-        << numMoveActions
-        << " ATTACK/"
-        << numAttackActions
-        << "]"
-        << std::endl;
-
-    turnController->setAvailableActions(0, 
-        {
-            { Action::Type::Move, numMoveActions },
-            { Action::Type::Attack, numAttackActions }
-        }
-    );
+    // turnController->setAvailableActions(0, 
+    //     {
+    //         { Action::Type::Move, numMoveActions },
+    //         { Action::Type::Attack, numAttackActions }
+    //     }
+    // );
 
     mtx.unlock();
 
