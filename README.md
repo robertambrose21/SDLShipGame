@@ -7,3 +7,4 @@
   - Copy the **CMakeLists.txt.yojimbo** file in the **resources** directory into the **yojimbo** directory
   - Rename **CMakeLists.txt.yojimbo** to **CMakeLists.txt**
 - Install [SDL2](https://lazyfoo.net/tutorials/SDL/01_hello_SDL/linux/index.php) and [SDL2_image](https://lazyfoo.net/tutorials/SDL/01_hello_SDL/linux/index.php)
+test
