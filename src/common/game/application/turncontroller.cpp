@@ -3,7 +3,7 @@
 TurnController::TurnController() :
     initialised(false),
     turnNumber(0),
-    currentParticipant(0)
+    currentParticipantId(0)
 { }
 
 void TurnController::initialise(ApplicationContext& context) {
@@ -18,14 +18,12 @@ void TurnController::update(int64_t timeSinceLastFrame, bool& quit) {
         return;
     }
 
-    executeActions(currentParticipant);
+    additionalUpdate(timeSinceLastFrame, quit);
+    executeActions(currentParticipantId);
 
-    if(canProgressToNextTurn(currentParticipant)) {
-        for(auto const& entity : participants[currentParticipant]->entities) {
-            entity->endTurn();
-        }
-
-        nextParticipantTurn((currentParticipant + 1) % participants.size());
+    if(canProgressToNextTurn(currentParticipantId)) {
+        endCurrentParticipantTurn();
+        nextParticipantTurn();
     }
 }
 
@@ -100,31 +98,34 @@ void TurnController::reset(void) {
     }
 }
 
-// TODO: This is doing way too much - offload to some helper classes/functions
-void TurnController::nextParticipantTurn(int id) {
-    game_assert(initialised);
+void TurnController::endCurrentParticipantTurn(void) {
+    auto& participant = participants[currentParticipantId];
 
-    if(id == currentParticipant) {
-        return;
+    for(auto const& entity : participant->entities) {
+        entity->endTurn();
     }
 
-    participants[currentParticipant]->passNextTurn = false;
+    participant->passNextTurn = false;
+}
 
-    currentParticipant = id;
+void TurnController::nextParticipantTurn(void) {
+    game_assert(initialised);
 
-    // TODO: Offload to some kind of global turn controller
-    // TODO: Internal vs "displayable" turn number
-    // if(currentParticipant == 0) {
-        turnNumber++;
-        context->getGrid()->nextTurn();
-        publish({ turnNumber, currentParticipant });
-    // }
+    currentParticipantId = (currentParticipantId + 1) % participants.size();
 
-    auto& entities = participants[currentParticipant]->entities;
+    removeInactiveEntities(participants[currentParticipantId]->entities);
 
+    for(auto const& onNextTurnFunc : onNextTurnWorkers) {
+        onNextTurnFunc(currentParticipantId, turnNumber);
+    }
+
+    incrementTurn();
+}
+
+void TurnController::removeInactiveEntities(std::vector<Entity*> entities) {
     std::set<Entity*> entitiesForDeletion;
 
-    for(auto const& entity : participants[currentParticipant]->entities) {
+    for(auto const& entity : entities) {
         entity->nextTurn();
 
         if(entity->getCurrentHP() <= 0) {
@@ -137,39 +138,33 @@ void TurnController::nextParticipantTurn(int id) {
     }
     
     entitiesForDeletion.clear();
+}
 
-    if(participants[currentParticipant]->behaviourStrategy != nullptr) {
-        participants[currentParticipant]->behaviourStrategy->onNextTurn();
-    }
-
-    for(auto const& onNextTurnFunc : onNextTurnWorkers) {
-        onNextTurnFunc(currentParticipant, turnNumber);
-    }
+void TurnController::incrementTurn(void) {
+    turnNumber++;
+    context->getGrid()->nextTurn();
+    publish({ turnNumber, currentParticipantId });
 }
 
 void TurnController::passParticipant(int id) {
-    game_assert(initialised);
     game_assert(participants.contains(id));
-    participants[id]->passNextTurn = true;
 
-    // std::cout << "Passing participant " << id << std::endl;
+    participants[id]->passNextTurn = true;
 }
 
 void TurnController::setCurrentParticipant(int id) {
-    game_assert(initialised);
-    game_assert(participants.contains(id));
-    nextParticipantTurn(id);
+    throw std::runtime_error("not implemented");
 }
 
 int TurnController::getCurrentParticipant(void) const {
     game_assert(initialised);
-    return currentParticipant;
+    return currentParticipantId;
 }
 
 void TurnController::executeActions(int participantId) {
     game_assert(initialised);
 
-    for(auto entity : participants[currentParticipant]->entities) {
+    for(auto entity : participants[currentParticipantId]->entities) {
         executeEntityActions(entity);
     }
 }
@@ -195,24 +190,20 @@ void TurnController::executeEntityActions(Entity* entity) {
 }
 
 bool TurnController::queueAction(std::unique_ptr<Action> action) {
-    game_assert(initialised);
     bool skipValidation = turnNumber != action->getTurnNumber();
 
     return action->getEntity()->queueAction(std::move(action), skipValidation);
 }
 
 void TurnController::addOnNextTurnFunction(std::function<void(int, int)> onNextTurnFunc) {
-    game_assert(initialised);
     onNextTurnWorkers.push_back(onNextTurnFunc);
 }
 
 void TurnController::setOnAllParticipantsSetFunction(std::function<void()> onAllParticipantsSet) {
-    game_assert(initialised);
     this->onAllParticipantsSet = onAllParticipantsSet;
 }
 
 void TurnController::allParticipantsSet(void) {
-    game_assert(initialised);
     onAllParticipantsSet();
     for(auto& [_, participant] : participants) {
         participant->isReady = true;
@@ -220,6 +211,5 @@ void TurnController::allParticipantsSet(void) {
 }
 
 int TurnController::getTurnNumber(void) const {
-    game_assert(initialised);
     return turnNumber;
 }

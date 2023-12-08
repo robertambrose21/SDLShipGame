@@ -48,7 +48,7 @@ public:
 
     void update(int64_t timeSinceLastFrame);
     void apply(void);
-    void onNextTurn(int currentParticipant, int turnNumber);
+    void onNextTurn(int currentParticipantId, int turnNumber);
 
     int getOwnerId(void) const;
     Stats getStats(void) const;

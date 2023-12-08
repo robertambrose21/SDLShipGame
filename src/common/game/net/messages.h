@@ -55,14 +55,14 @@ struct EntityStateUpdate {
 struct GameStateUpdate {
     int numEntities;
     EntityStateUpdate entities[MaxEntities];
-    int currentParticipant;
+    int currentParticipantId;
 
     GameStateUpdate() {
         memset(this, 0, sizeof(GameStateUpdate));
     }
 
     static GameStateUpdate serialize(
-        int currentParticipant, 
+        int currentParticipantId, 
         const std::vector<Entity*>& entities
     ) {
         GameStateUpdate update;
@@ -73,7 +73,7 @@ struct GameStateUpdate {
             update.entities[index++] = EntityStateUpdate::serialize(entity);
         }
 
-        update.currentParticipant = currentParticipant;
+        update.currentParticipantId = currentParticipantId;
 
         return update;
     }

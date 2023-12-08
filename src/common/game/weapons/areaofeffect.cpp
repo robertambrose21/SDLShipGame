@@ -39,8 +39,8 @@ void AreaOfEffect::apply(void) {
     }
 }
 
-void AreaOfEffect::onNextTurn(int currentParticipant, int turnNumber) {
-    if(currentParticipant != ownerId) {
+void AreaOfEffect::onNextTurn(int currentParticipantId, int turnNumber) {
+    if(currentParticipantId != ownerId) {
         return;
     }
 

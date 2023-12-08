@@ -2,20 +2,22 @@
 
 ServerTurnController::ServerTurnController() :
     TurnController()
-{ }
+{
+    addOnNextTurnFunction([&](auto const& currentParticipantId, auto const& turnNumber) {
+        auto& behaviourStrategy = participants[currentParticipantId]->behaviourStrategy;
 
-void ServerTurnController::update(int64_t timeSinceLastFrame, bool& quit) {
-    if(participants.size() <= 0) { // TODO: Calling this twice, fix this somehow
-        return;
-    }
-    
-    auto& bs = participants[currentParticipant]->behaviourStrategy;
+        if(behaviourStrategy != nullptr) {
+            behaviourStrategy->onNextTurn();
+        }
+    });
+}
 
-    if(bs != nullptr) {
-        bs->onUpdate(timeSinceLastFrame, quit);
+void ServerTurnController::additionalUpdate(int64_t timeSinceLastFrame, bool& quit) {
+    auto& behaviourStrategy = participants[currentParticipantId]->behaviourStrategy;
+
+    if(behaviourStrategy != nullptr) {
+        behaviourStrategy->onUpdate(timeSinceLastFrame, quit);
     }
-    
-    TurnController::update(timeSinceLastFrame, quit);
 }
 
 bool ServerTurnController::canProgressToNextTurn(int participantId) {
@@ -44,14 +46,14 @@ bool ServerTurnController::canProgressToNextTurn(int participantId) {
     }
 
     if(participant->behaviourStrategy != nullptr && participant->behaviourStrategy->endTurnCondition()) {
-        transmitter->sendNextTurn(0, currentParticipant, turnNumber);
+        transmitter->sendNextTurn(0, currentParticipantId, turnNumber);
         return true;
     }
 
     auto nextTurn = haveEntitiesTurnsFinished || participant->passNextTurn;
 
     if(nextTurn) {
-        transmitter->sendNextTurn(0, currentParticipant, turnNumber);
+        transmitter->sendNextTurn(0, currentParticipantId, turnNumber);
     }
 
     return nextTurn;

@@ -9,9 +9,9 @@ AreaOfEffectPool::AreaOfEffectPool() :
 void AreaOfEffectPool::initialise(ApplicationContext& context) {
     this->context = &context;
 
-    context.getTurnController()->addOnNextTurnFunction([&](auto const& currentParticipant, auto const& turnNumber) {
+    context.getTurnController()->addOnNextTurnFunction([&](auto const& currentParticipantId, auto const& turnNumber) {
         for(auto&& [_, aoe]  : aoeObjects) {
-            aoe->onNextTurn(currentParticipant, turnNumber);
+            aoe->onNextTurn(currentParticipantId, turnNumber);
         }
     });
 

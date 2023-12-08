@@ -85,7 +85,7 @@ void GameClientMessagesReceiver::receiveMessage(yojimbo::Message* message) {
 }
 
 void GameClientMessagesReceiver::receiveGameStateUpdate(const GameStateUpdate& update) {
-    // std::cout << "Got game state update " << update.currentParticipant << std::endl;
+    // std::cout << "Got game state update " << update.currentParticipantId << std::endl;
     context.getEntityPool()->addGameStateUpdate(update);
 }
 

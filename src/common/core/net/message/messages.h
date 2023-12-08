@@ -137,7 +137,7 @@ public:
             }
         }
         
-        serialize_int(stream, gameStateUpdate.currentParticipant, 0, 64);
+        serialize_int(stream, gameStateUpdate.currentParticipantId, 0, 64);
 
         return true;
     }

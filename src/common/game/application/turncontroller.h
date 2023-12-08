@@ -37,22 +37,26 @@ protected:
     bool initialised;
 
     int turnNumber;
-    int currentParticipant;
+    int currentParticipantId;
 
     std::map<int, std::unique_ptr<Participant>> participants;
     std::vector<std::function<void(int, int)>> onNextTurnWorkers;
     std::function<void()> onAllParticipantsSet;
 
-    void nextParticipantTurn(int id);
+    void endCurrentParticipantTurn(void);
+    void nextParticipantTurn(void);
     void executeEntityActions(Entity* entity);
+    void removeInactiveEntities(std::vector<Entity*> entities);
+    void incrementTurn(void);
 
     virtual bool canProgressToNextTurn(int participantId) = 0;
+    virtual void additionalUpdate(int64_t timeSinceLastFrame, bool& quit) = 0;
 
 public:
     TurnController();
 
     void initialise(ApplicationContext& context);
-    virtual void update(int64_t timeSinceLastFrame, bool& quit);
+    void update(int64_t timeSinceLastFrame, bool& quit);
 
     Participant* addParticipant(
         int id,
