@@ -48,7 +48,8 @@ void GameClientMessagesReceiver::receiveMessage(yojimbo::Message* message) {
             receiveFindPath(
                 findPathMessage->entityId,
                 { findPathMessage->x, findPathMessage->y },
-                findPathMessage->shortStopSteps
+                findPathMessage->shortStopSteps,
+                findPathMessage->turnNumber
             );
             break;
         }
@@ -59,7 +60,8 @@ void GameClientMessagesReceiver::receiveMessage(yojimbo::Message* message) {
                 attackMessage->entityId,
                 attackMessage->x,
                 attackMessage->y,
-                attackMessage->weaponId
+                attackMessage->weaponId,
+                attackMessage->turnNumber
             );
             break;
         }
@@ -135,7 +137,8 @@ void GameClientMessagesReceiver::receiveLoadMap(const MapBlock& block) {
 void GameClientMessagesReceiver::receiveFindPath(
     uint32_t entityId, 
     const glm::ivec2& position,
-    int shortStopSteps
+    int shortStopSteps,
+    int turnNumber
 ) {
     if(!context.getEntityPool()->hasEntity(entityId)) {
         return;
@@ -143,14 +146,15 @@ void GameClientMessagesReceiver::receiveFindPath(
 
     auto const& entity = context.getEntityPool()->getEntity(entityId);
     
-    context.getTurnController()->queueAction(std::make_unique<MoveAction>(entity, position, shortStopSteps));
+    context.getTurnController()->queueAction(std::make_unique<MoveAction>(turnNumber, entity, position, shortStopSteps));
 }
 
 void GameClientMessagesReceiver::receiveAttackEntity(
     uint32_t entityId, 
     int x,
     int y,
-    uint32_t weaponId
+    uint32_t weaponId,
+    int turnNumber
 ) {
     auto entityPool = context.getEntityPool();
 
@@ -162,8 +166,7 @@ void GameClientMessagesReceiver::receiveAttackEntity(
 
     for(auto weapon : entity->getWeapons()) {
         if(weapon->getId() == weaponId) {
-            context.getTurnController()->queueAction(
-                std::make_unique<AttackAction>(entity, weapon, glm::ivec2(x, y)));
+            context.getTurnController()->queueAction(std::make_unique<AttackAction>(turnNumber, entity, weapon, glm::ivec2(x, y)));
         }
     }
 }

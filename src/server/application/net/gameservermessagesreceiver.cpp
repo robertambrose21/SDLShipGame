@@ -67,11 +67,12 @@ void GameServerMessagesReceiver::receiveFindPathMessage(
     }
 
     // TODO: Get real participant
-    auto const& entities = context.getTurnController()->getParticipant(0)->entities;
+    auto turnController = context.getTurnController();
+    auto const& entities = turnController->getParticipant(0)->entities;
 
     for(auto const& entity : entities) {
         if(entity->getId() == entityId) {
-            context.getTurnController()->queueAction(std::make_unique<MoveAction>(entity, position));
+            turnController->queueAction(std::make_unique<MoveAction>(turnController->getTurnNumber(), entity, position));
         }
     }
 }
@@ -109,7 +110,8 @@ void GameServerMessagesReceiver::receieveAttackMessage(
 
     for(auto weapon : entity->getWeapons()) {
         if(weapon->getId() == weaponId) {
-            context.getTurnController()->queueAction(std::make_unique<AttackAction>(entity, weapon, glm::ivec2(x, y)));
+            context.getTurnController()->queueAction(std::make_unique<AttackAction>(
+                context.getTurnController()->getTurnNumber(), entity, weapon, glm::ivec2(x, y)));
         }
     }
 }

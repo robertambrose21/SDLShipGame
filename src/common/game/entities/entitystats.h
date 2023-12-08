@@ -17,6 +17,6 @@ typedef struct _entityCurrentStats : EntityBaseStats {
     _entityCurrentStats(const EntityBaseStats& baseStats) :
         EntityBaseStats(baseStats),
         currentHP(baseStats.totalHP),
-        movesLeft(0)
+        movesLeft(baseStats.movesPerTurn)
     { }
 } EntityCurrentStats;

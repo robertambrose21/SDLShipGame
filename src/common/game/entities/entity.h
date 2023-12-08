@@ -64,7 +64,9 @@ private:
     std::map<uint32_t, std::unique_ptr<Weapon>> weapons;
     Weapon* currentWeapon;
 
-    std::deque<std::unique_ptr<Action>> actionsChain;
+    std::map<int, std::deque<std::unique_ptr<Action>>> actionsChain;
+    std::map<int, std::deque<Action*>> externalActionsChain;
+    bool externalActionsChainNeedsRecalculating;
 
     std::string name;
 
@@ -190,9 +192,9 @@ public:
     bool hasAnimationsInProgress(void);
     void useMoves(int numMoves);
 
-    bool queueAction(std::unique_ptr<Action> action);
-    const std::deque<std::unique_ptr<Action>>& getActionsChain(void) const;
-    void popAction(void);
+    bool queueAction(std::unique_ptr<Action> action, bool skipValidation = false);
+    std::deque<Action*>& getActionsChain(int turnNumber);
+    void popAction(int currentTurnNumber);
 
     void setParticipantId(int participantId);
     int getParticipantId(void) const;

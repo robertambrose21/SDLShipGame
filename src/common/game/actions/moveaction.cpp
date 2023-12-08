@@ -1,11 +1,12 @@
 #include "moveaction.h"
 
 MoveAction::MoveAction(
+    int turnNumber,
     Entity* entity, 
     const glm::ivec2& position,
     int shortStopSteps
 ) : 
-    Action(entity),
+    Action(turnNumber, entity),
     position(position),
     shortStopSteps(shortStopSteps)
 {
@@ -56,9 +57,9 @@ std::deque<glm::ivec2> MoveAction::getPath(bool recalculate) {
 bool MoveAction::hasAvailableMoves(void) {
     int numMoves = 0;
 
-    for(auto& action : entity->getActionsChain()) {
+    for(auto& action : entity->getActionsChain(turnNumber)) {
         if(action->getType() == Action::Type::Move) {
-            numMoves += dynamic_cast<MoveAction*>(action.get())->getPath().size();
+            numMoves += dynamic_cast<MoveAction*>(action)->getPath().size();
         }
     }
 

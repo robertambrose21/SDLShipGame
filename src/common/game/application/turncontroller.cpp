@@ -113,11 +113,12 @@ void TurnController::nextParticipantTurn(int id) {
     currentParticipant = id;
 
     // TODO: Offload to some kind of global turn controller
-    if(currentParticipant == 0) {
+    // TODO: Internal vs "displayable" turn number
+    // if(currentParticipant == 0) {
         turnNumber++;
         context->getGrid()->nextTurn();
         publish({ turnNumber, currentParticipant });
-    }
+    // }
 
     auto& entities = participants[currentParticipant]->entities;
 
@@ -174,14 +175,14 @@ void TurnController::executeActions(int participantId) {
 }
 
 void TurnController::executeEntityActions(Entity* entity) {
-    bool moreActionsToProcess = !entity->getActionsChain().empty();
+    bool moreActionsToProcess = !entity->getActionsChain(turnNumber).empty();
 
     while(moreActionsToProcess) {
-        auto& action = entity->getActionsChain().front();
+        auto& action = entity->getActionsChain(turnNumber).front();
 
         if(action->isFinished()) {
-            entity->popAction();
-            moreActionsToProcess = !entity->getActionsChain().empty();
+            entity->popAction(turnNumber);
+            moreActionsToProcess = !entity->getActionsChain(turnNumber).empty();
         }
         else if(action->passesPrecondition() && !action->isExecuted()) {
             action->execute(context);
@@ -195,7 +196,9 @@ void TurnController::executeEntityActions(Entity* entity) {
 
 bool TurnController::queueAction(std::unique_ptr<Action> action) {
     game_assert(initialised);
-    return action->getEntity()->queueAction(std::move(action));
+    bool skipValidation = turnNumber != action->getTurnNumber();
+
+    return action->getEntity()->queueAction(std::move(action), skipValidation);
 }
 
 void TurnController::addOnNextTurnFunction(std::function<void(int, int)> onNextTurnFunc) {

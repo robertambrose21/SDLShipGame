@@ -21,6 +21,7 @@ private:
 
 public:
     MoveAction(
+        int turnNumber,
         Entity* entity, 
         const glm::ivec2& position,
         int shortStopSteps = 0

@@ -43,17 +43,21 @@ bool ChaseAndAttackStrategy::doTurnForEntity(Entity* entity) {
 
     auto bWeapon = getBestInRangeWeapon(entity, target->getPosition());
 
+    // TODO: This is super gross - server turn controller should override queueAction to also send an attack
     if(entity->isNeighbour(target) && context.getTurnController()->queueAction(
-            std::move(std::make_unique<AttackAction>(entity, entity->getCurrentWeapon(), target->getPosition())))) {
+            std::move(std::make_unique<AttackAction>(
+                context.getTurnController()->getTurnNumber(), entity, entity->getCurrentWeapon(), target->getPosition())))) {
         transmitter->sendAttack(0, entity->getId(), target->getPosition(), entity->getCurrentWeapon()->getId());
     }
     else if(bWeapon != nullptr && bWeapon->isInRange(target->getPosition()) && 
-            context.getTurnController()->queueAction(std::make_unique<AttackAction>(entity, bWeapon, target->getPosition()))) {
+            context.getTurnController()->queueAction(std::make_unique<AttackAction>(
+                context.getTurnController()->getTurnNumber(), entity, bWeapon, target->getPosition()))) {
         transmitter->sendAttack(0, entity->getId(), target->getPosition(), bWeapon->getId());
     }
     else if(!entity->hasPath()) {
         if(glm::distance(glm::vec2(entity->getPosition()), glm::vec2(target->getPosition())) <= entity->getAggroRange() &&
-                context.getTurnController()->queueAction(std::make_unique<MoveAction>(entity, target->getPosition(), 1))) {
+                context.getTurnController()->queueAction(std::make_unique<MoveAction>(
+                    context.getTurnController()->getTurnNumber(), entity, target->getPosition(), 1))) {
             transmitter->sendFindPath(0, entity->getId(), target->getPosition(), 1);
         }
         else {

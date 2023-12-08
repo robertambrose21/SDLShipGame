@@ -83,6 +83,7 @@ void GameServerMessagesTransmitter::sendFindPath(
     message->x = position.x;
     message->y = position.y;
     message->shortStopSteps = shortStopSteps;
+    message->turnNumber = turnController->getTurnNumber();
 
     server.sendMessage(clientIndex, message);
 }
@@ -99,6 +100,7 @@ void GameServerMessagesTransmitter::sendAttack(
     message->x = target.x;
     message->y = target.y;
     message->weaponId = weaponId;
+    message->turnNumber = turnController->getTurnNumber();
 
     server.sendMessage(clientIndex, message);
 }

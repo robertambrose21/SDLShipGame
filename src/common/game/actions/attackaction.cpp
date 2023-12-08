@@ -1,11 +1,12 @@
 #include "attackaction.h"
 
 AttackAction::AttackAction(
+    int turnNumber,
     Entity* entity,
     Weapon* weapon,
     const glm::ivec2& target
 ) :
-    Action(entity),
+    Action(turnNumber, entity),
     weapon(weapon),
     target(target)
 { }
@@ -45,12 +46,12 @@ bool AttackAction::hasFinished(void) {
 int AttackAction::numAttacksInChain(void) {
     int numAttacks = 0;
 
-    for(auto& action : entity->getActionsChain()) {
+    for(auto& action : entity->getActionsChain(turnNumber)) {
         if(action->getType() != Action::Type::Attack) {
             continue;
         }
 
-        auto previousWeapon = dynamic_cast<AttackAction*>(action.get())->getWeapon();
+        auto previousWeapon = dynamic_cast<AttackAction*>(action)->getWeapon();
 
         if(weapon->getName() == previousWeapon->getName()) {
             numAttacks++;

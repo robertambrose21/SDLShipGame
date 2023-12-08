@@ -29,12 +29,14 @@ public:
     
     int x, y;
     int shortStopSteps;
+    int turnNumber;
 
     FindPathMessage() :
         entityId(0),
         x(0),
         y(0),
-        shortStopSteps(0)
+        shortStopSteps(0),
+        turnNumber(0)
     { }
 
     template <typename Stream>
@@ -43,6 +45,7 @@ public:
         serialize_int(stream, x, 0, 512);
         serialize_int(stream, y, 0, 512);
         serialize_int(stream, shortStopSteps, 0, 512);
+        serialize_int(stream, turnNumber, 0, 512);
         return true;
     }
 
@@ -71,12 +74,14 @@ public:
     uint32_t entityId;
     int x, y;
     uint32_t weaponId;
+    int turnNumber;
 
     AttackMessage() :
         entityId(0),
         x(0),
         y(0),
-        weaponId(0)
+        weaponId(0),
+        turnNumber(0)
     { }
 
     template <typename Stream>
@@ -85,6 +90,7 @@ public:
         serialize_int(stream, x, 0, 512);
         serialize_int(stream, y, 0, 512);
         serialize_varint32(stream, weaponId);
+        serialize_int(stream, turnNumber, 0, 512);
         return true;
     }
 
@@ -113,8 +119,6 @@ public:
             serialize_int(stream, entity.currentHP, -256, 256);
             serialize_bits(stream, entity.x, 16);
             serialize_bits(stream, entity.y, 16);
-            serialize_bits(stream, entity.movesPerTurn, 16);
-            serialize_bits(stream, entity.movesLeft, 16);
 
             // Weapons
             serialize_varint32(stream, entity.currentWeaponId);

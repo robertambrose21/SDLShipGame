@@ -14,13 +14,14 @@ public:
 protected:
     Entity* entity;
     bool _isExecuted;
+    int turnNumber;
 
     virtual bool onValidate(void) = 0;
     virtual void onExecute(ApplicationContext* context) = 0;
     virtual bool hasFinished(void) = 0;
 
 public:
-    Action(Entity* entity);
+    Action(int turnNumber, Entity* entity);
 
     bool validate(void);
     bool isFinished(void);
@@ -31,4 +32,5 @@ public:
 
     Entity* getEntity(void);
     bool isExecuted(void) const;
+    int getTurnNumber(void) const;
 };

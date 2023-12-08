@@ -17,7 +17,8 @@ Entity::Entity(
     position({ 0, 0 }),
     timeSinceLastMoved(0),
     selected(false),
-    frozenForNumTurns(0)
+    frozenForNumTurns(0),
+    externalActionsChainNeedsRecalculating(true)
 { }
 
 Entity::Entity(
@@ -299,22 +300,36 @@ void Entity::endTurn(void) {
     }
 }
 
-bool Entity::queueAction(std::unique_ptr<Action> action) {
-    if(!action->validate()) {
+bool Entity::queueAction(std::unique_ptr<Action> action, bool skipValidation) {
+    if(!skipValidation && !action->validate()) {
         return false;
     }
-    
-    actionsChain.push_back(std::move(action));
+
+    actionsChain[action->getTurnNumber()].push_back(std::move(action));
+    externalActionsChainNeedsRecalculating = true;
 
     return true;
 }
 
-const std::deque<std::unique_ptr<Action>>& Entity::getActionsChain(void) const {
-    return actionsChain;
+std::deque<Action*>& Entity::getActionsChain(int turnNumber) {
+    if(externalActionsChainNeedsRecalculating) {
+        externalActionsChain.clear();
+
+        for(auto& [t, actionChain] : actionsChain) {
+            for(auto& action : actionChain) {
+                externalActionsChain[t].push_back(action.get());
+            }
+        }
+        
+        externalActionsChainNeedsRecalculating = false;
+    }
+
+    return externalActionsChain[turnNumber];
 }
 
-void Entity::popAction(void) {
-    actionsChain.pop_front();
+void Entity::popAction(int currentTurnNumber) {
+    actionsChain[currentTurnNumber].pop_front();
+    externalActionsChainNeedsRecalculating = true;
 }
 
 void Entity::setParticipantId(int participantId) {

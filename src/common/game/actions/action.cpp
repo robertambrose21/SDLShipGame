@@ -1,6 +1,7 @@
 #include "action.h"
 
-Action::Action(Entity* entity) :
+Action::Action(int turnNumber, Entity* entity) :
+    turnNumber(turnNumber),
     entity(entity),
     _isExecuted(false)
 { }
@@ -40,4 +41,8 @@ Entity* Action::getEntity(void) {
 
 bool Action::isExecuted(void) const {
     return _isExecuted;
+}
+
+int Action::getTurnNumber(void) const {
+    return turnNumber;
 }

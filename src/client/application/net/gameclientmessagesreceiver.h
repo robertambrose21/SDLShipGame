@@ -23,13 +23,15 @@ private:
     void receiveFindPath(
         uint32_t entityId,
         const glm::ivec2& position,
-        int shortStopSteps
+        int shortStopSteps,
+        int turnNumber
     );
     void receiveAttackEntity(
         uint32_t entityId, 
         int x,
         int y,
-        uint32_t weaponId
+        uint32_t weaponId,
+        int turnNumber
     );
     void receiveNextTurn(int participantId, int turnNumber);
     void receiveSpawnItems(const glm::ivec2& position, int numItems, ItemUpdate items[64]);

@@ -39,8 +39,6 @@ struct EntityStateUpdate {
     int totalHP;
     int currentHP;
     int x, y;
-    int movesPerTurn;
-    int movesLeft;
     int participantId;
     uint32_t currentWeaponId;
     int numWeapons;

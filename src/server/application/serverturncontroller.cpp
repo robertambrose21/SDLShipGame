@@ -36,7 +36,7 @@ bool ServerTurnController::canProgressToNextTurn(int participantId) {
     for(auto entity : participant->entities) {
         haveEntitiesTurnsFinished = haveEntitiesTurnsFinished && !entity->isTurnInProgress();
         haveEntitiesActionsFinished = haveEntitiesActionsFinished && !entity->hasAnimationsInProgress() 
-            && entity->getActionsChain().empty();
+            && entity->getActionsChain(turnNumber).empty();
     }
 
     if(!haveEntitiesActionsFinished) {

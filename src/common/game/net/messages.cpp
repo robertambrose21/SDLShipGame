@@ -46,8 +46,6 @@ EntityStateUpdate EntityStateUpdate::serialize(Entity* entity) {
     entityStateUpdate.currentHP = entity->getCurrentHP();
     entityStateUpdate.x = entity->getPosition().x;
     entityStateUpdate.y = entity->getPosition().y;
-    entityStateUpdate.movesPerTurn = entity->getBaseStats().movesPerTurn;
-    entityStateUpdate.movesLeft = entity->getMovesLeft();
     entityStateUpdate.participantId = entity->getParticipantId();
     entityStateUpdate.currentWeaponId = entity->getCurrentWeapon()->getId();
     entityStateUpdate.numWeapons = entity->getWeapons().size();
@@ -64,7 +62,6 @@ void EntityStateUpdate::deserialize(const EntityStateUpdate& update, Entity* exi
     game_assert(existing != nullptr);
     existing->setPosition(glm::ivec2(update.x, update.y));
     existing->setCurrentHP(update.currentHP);
-    existing->setMovesLeft(update.movesLeft);
     existing->setParticipantId(update.participantId);
 
     for(int i = 0; i < update.numWeapons; i++) {

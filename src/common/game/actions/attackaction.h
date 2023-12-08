@@ -15,6 +15,7 @@ private:
 
 public:
     AttackAction(
+        int turnNumber,
         Entity* entity,
         Weapon* weapon,
         const glm::ivec2& target
