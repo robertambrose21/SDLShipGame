@@ -3,14 +3,10 @@
 #include "core/glmimport.h"
 #include "game/entities/entity.h"
 #include "core/event/eventpublisher.h"
+#include "game/event/events.h"
 
 class EntityPool;
 class AreaOfEffect;
-
-struct AreaOfEffectEventData {
-    AreaOfEffect* aoe;
-    Entity* target;
-};
 
 class AreaOfEffect {
 public:

@@ -10,7 +10,7 @@
 #include "game/weapons/projectile.h"
 
 class StdOutSubscriber : 
-    public EventSubscriber<TurnControllerEventData>,
+    public EventSubscriber<TurnEventData>,
     public EventSubscriber<EntityEventData>,
     public EventSubscriber<WeaponEventData>,
     public EventSubscriber<ProjectileEventData>,
@@ -22,7 +22,7 @@ private:
 public:
     StdOutSubscriber();
 
-    void onPublish(const Event<TurnControllerEventData>& event);
+    void onPublish(const Event<TurnEventData>& event);
     void onPublish(const Event<EntityEventData>& event);
     void onPublish(const Event<WeaponEventData>& event);
     void onPublish(const Event<ProjectileEventData>& event);

@@ -32,6 +32,7 @@ add_library(
     actions/action.cpp
     actions/moveaction.cpp
     actions/attackaction.cpp
+    event/events.h
 )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX CXX_STANDARD 20)

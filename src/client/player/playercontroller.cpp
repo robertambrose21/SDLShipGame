@@ -18,11 +18,11 @@ PlayerController::PlayerController(
     dice = std::make_unique<Dice>(3, clientMessagesTransmitter, context.getTurnController());
     playerPanel = std::make_unique<PlayerPanel>(1920, 1080);
     
-    turnController->subscribe(playerPanel.get());
-    entityPool->subscribe(playerPanel.get());
-    context.getWeaponController()->subscribe(playerPanel.get());
-    context.getProjectilePool()->subscribe(playerPanel.get());
-    context.getAreaOfEffectPool()->subscribe(playerPanel.get());
+    turnController->subscribe<TurnEventData>(playerPanel.get());
+    entityPool->subscribe<EntityEventData>(playerPanel.get());
+    context.getWeaponController()->subscribe<WeaponEventData>(playerPanel.get());
+    context.getProjectilePool()->subscribe<ProjectileEventData>(playerPanel.get());
+    context.getAreaOfEffectPool()->subscribe<AreaOfEffectEventData>(playerPanel.get());
 }
 
 void PlayerController::update(int64_t timeSinceLastFrame) {

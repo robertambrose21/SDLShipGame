@@ -3,7 +3,7 @@
 StdOutSubscriber::StdOutSubscriber()
 { }
 
-void StdOutSubscriber::onPublish(const Event<TurnControllerEventData>& event) {
+void StdOutSubscriber::onPublish(const Event<TurnEventData>& event) {
     std::cout 
         << std::put_time(std::localtime(&event.timestamp), "[%H:%M:%S]: Turn ")
         << event.data.turnNumber

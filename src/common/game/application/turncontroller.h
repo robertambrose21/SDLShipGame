@@ -14,13 +14,10 @@
 #include "game/entities/behaviour/behaviourstrategy.h"
 #include "game/application/applicationcontext.h"
 #include "game/actions/action.h"
+#include "game/event/events.h"
 
-struct TurnControllerEventData {
-    int turnNumber;
-    int currentParticipant;
-};
 
-class TurnController : public EventPublisher<TurnControllerEventData> {
+class TurnController : public EventPublisher<TurnEventData> {
 public:
     // TODO: Consider making entities a map rather than a set
     typedef struct _participant {

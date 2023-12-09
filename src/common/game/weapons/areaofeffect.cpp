@@ -35,7 +35,7 @@ void AreaOfEffect::apply(void) {
 
     for(auto const& entity : effectedEntities) {
         entity->takeDamage(stats.damagePerTurn);
-        publisher.publish({ this, entity });
+        publisher.publish<AreaOfEffectEventData>({ this, entity });
     }
 }
 

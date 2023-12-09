@@ -10,7 +10,7 @@ void PlayerPanel::draw(SDL_Renderer* renderer) {
     panel->draw(renderer);
 }
 
-void PlayerPanel::onPublish(const Event<TurnControllerEventData>& event) {
+void PlayerPanel::onPublish(const Event<TurnEventData>& event) {
     std::ostringstream oss;
     oss << std::put_time(std::localtime(&event.timestamp), "[%H:%M:%S]: Turn ") << event.data.turnNumber;
 

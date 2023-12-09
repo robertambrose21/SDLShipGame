@@ -143,7 +143,7 @@ void TurnController::removeInactiveEntities(std::vector<Entity*> entities) {
 void TurnController::incrementTurn(void) {
     turnNumber++;
     context->getGrid()->nextTurn();
-    publish({ turnNumber, currentParticipantId });
+    publish<TurnEventData>({ turnNumber, currentParticipantId });
 }
 
 void TurnController::passParticipant(int id) {
@@ -173,7 +173,7 @@ void TurnController::executeEntityActions(Entity* entity) {
     bool moreActionsToProcess = !entity->getActionsChain(turnNumber).empty();
 
     while(moreActionsToProcess) {
-        auto& action = entity->getActionsChain(turnNumber).front();
+        auto action = entity->getActionsChain(turnNumber).front();
 
         if(action->isFinished()) {
             entity->popAction(turnNumber);

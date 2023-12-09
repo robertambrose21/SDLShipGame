@@ -32,11 +32,11 @@ void ServerApplication::initialise(void) {
     context.getEntityPool()->initialise(application->getContext());
     context.getItemController()->initialise(application->getContext());
 
-    context.getTurnController()->subscribe(&stdoutSubscriber);
-    context.getEntityPool()->subscribe(&stdoutSubscriber);
-    context.getWeaponController()->subscribe(&stdoutSubscriber);
-    context.getProjectilePool()->subscribe(&stdoutSubscriber);
-    context.getAreaOfEffectPool()->subscribe(&stdoutSubscriber);
+    context.getTurnController()->subscribe<TurnEventData>(&stdoutSubscriber);
+    context.getEntityPool()->subscribe<EntityEventData>(&stdoutSubscriber);
+    context.getWeaponController()->subscribe<WeaponEventData>(&stdoutSubscriber);
+    context.getProjectilePool()->subscribe<ProjectileEventData>(&stdoutSubscriber);
+    context.getAreaOfEffectPool()->subscribe<AreaOfEffectEventData>(&stdoutSubscriber);
 
     server = std::make_unique<GameServer>(yojimbo::Address("127.0.0.1", 8081));
 

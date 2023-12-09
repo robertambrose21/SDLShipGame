@@ -287,7 +287,7 @@ void Entity::nextTurn(void) {
 
     if(frozenForNumTurns > 0) {
         frozenForNumTurns--;
-        publisher.publish({ this, "Freeze" });
+        publisher.publish<EntityEventData>({ this, "Freeze" });
     }
 }
 

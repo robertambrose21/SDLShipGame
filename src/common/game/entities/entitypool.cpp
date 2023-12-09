@@ -103,7 +103,7 @@ void EntityPool::killEntity(uint32_t entityId) {
     //     std::cout << std::endl;
     // }
 
-    publish({ entity, "Death" });
+    publish<EntityEventData>({ entity, "Death" });
 
     entities.erase(entityId);
 }

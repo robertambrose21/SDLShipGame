@@ -91,7 +91,7 @@ void Projectile::doHit(const glm::ivec2& position) {
         }
     }
 
-    publisher.publish({ this, entity, position, damage });
+    publisher.publish<ProjectileEventData>({ this, entity, position, damage });
 }
 
 float Projectile::calculateStep(void) const {

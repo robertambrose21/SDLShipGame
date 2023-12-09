@@ -7,16 +7,10 @@
 #include "game/entities/entity.h"
 #include "core/event/eventpublisher.h"
 #include "core/grid/grid.h"
+#include "game/event/events.h"
 
 class Entity;
-class Weapon;
 class EntityPool;
-
-struct WeaponEventData {
-    Entity* owner;
-    Entity* target;
-    Weapon* weapon;
-};
 
 class Weapon {
 public:

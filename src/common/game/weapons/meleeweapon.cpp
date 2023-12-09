@@ -29,7 +29,7 @@ bool MeleeWeapon::onUse(const glm::ivec2& position, const glm::ivec2& target) {
     
     if(entity != nullptr) {
         entity->takeDamage(stats.damage);
-        publisher.publish({ owner, entity, this });
+        publisher.publish<WeaponEventData>({ owner, entity, this });
     }
 
     return true;
