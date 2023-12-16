@@ -29,6 +29,8 @@ public:
 
     virtual bool passesPrecondition(void) = 0;
     virtual Type getType(void) = 0;
+    // template<typename T>
+    // virtual void onPublish(EventPublisher<T>* publisher) = 0;
 
     Entity* getEntity(void);
     bool isExecuted(void) const;

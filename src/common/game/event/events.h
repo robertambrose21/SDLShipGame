@@ -41,3 +41,16 @@ struct WeaponEventData {
     Weapon* weapon;
 };
 
+struct MoveActionEventData {
+    int turnNumber;
+    Entity* entity;
+    glm::ivec2 position;
+    int shortStopSteps;
+};
+
+struct AttackActionEventData {
+    int turnNumber;
+    Entity* owner;
+    glm::ivec2 target;
+    Weapon* weapon;
+};

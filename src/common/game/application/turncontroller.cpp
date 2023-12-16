@@ -192,7 +192,15 @@ void TurnController::executeEntityActions(Entity* entity) {
 bool TurnController::queueAction(std::unique_ptr<Action> action) {
     bool skipValidation = turnNumber != action->getTurnNumber();
 
-    return action->getEntity()->queueAction(std::move(action), skipValidation);
+    if(!action->getEntity()->queueAction(std::move(action), skipValidation)) {
+        return false;
+    }
+
+    switch(action->getType()) {
+        case Action::Move:
+            publish<MoveActionEventData>({ });
+            break;
+    }
 }
 
 void TurnController::addOnNextTurnFunction(std::function<void(int, int)> onNextTurnFunc) {

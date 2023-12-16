@@ -17,7 +17,8 @@
 #include "game/event/events.h"
 
 
-class TurnController : public EventPublisher<TurnEventData> {
+class TurnController : public EventPublisher<TurnEventData, MoveActionEventData, AttackActionEventData>
+{
 public:
     // TODO: Consider making entities a map rather than a set
     typedef struct _participant {
