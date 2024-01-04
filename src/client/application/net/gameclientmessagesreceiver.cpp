@@ -48,7 +48,8 @@ void GameClientMessagesReceiver::receiveMessage(yojimbo::Message* message) {
             receiveFindPath(
                 findPathMessage->entityId,
                 { findPathMessage->x, findPathMessage->y },
-                findPathMessage->shortStopSteps
+                findPathMessage->shortStopSteps,
+                findPathMessage->turnNumber
             );
             break;
         }
@@ -59,17 +60,8 @@ void GameClientMessagesReceiver::receiveMessage(yojimbo::Message* message) {
                 attackMessage->entityId,
                 attackMessage->x,
                 attackMessage->y,
-                attackMessage->weaponId
-            );
-            break;
-        }
-
-        case (int) GameMessageType::ACTIONS_ROLL_RESPONSE: {
-            ActionsRollResponseMessage* actionsRollResponseMessage = (ActionsRollResponseMessage*) message;
-            receiveActionsRollResponse(
-                actionsRollResponseMessage->participantId,
-                actionsRollResponseMessage->numDice,
-                actionsRollResponseMessage->dice
+                attackMessage->weaponId,
+                attackMessage->turnNumber
             );
             break;
         }
@@ -93,7 +85,7 @@ void GameClientMessagesReceiver::receiveMessage(yojimbo::Message* message) {
 }
 
 void GameClientMessagesReceiver::receiveGameStateUpdate(const GameStateUpdate& update) {
-    // std::cout << "Got game state update " << update.currentParticipant << std::endl;
+    // std::cout << "Got game state update " << update.currentParticipantId << std::endl;
     context.getEntityPool()->addGameStateUpdate(update);
 }
 
@@ -145,22 +137,24 @@ void GameClientMessagesReceiver::receiveLoadMap(const MapBlock& block) {
 void GameClientMessagesReceiver::receiveFindPath(
     uint32_t entityId, 
     const glm::ivec2& position,
-    int shortStopSteps
+    int shortStopSteps,
+    int turnNumber
 ) {
     if(!context.getEntityPool()->hasEntity(entityId)) {
         return;
     }
 
     auto const& entity = context.getEntityPool()->getEntity(entityId);
-
-    context.getTurnController()->performMoveAction(entity, position, shortStopSteps);
+    
+    context.getTurnController()->queueAction(std::make_unique<MoveAction>(turnNumber, entity, position, shortStopSteps));
 }
 
 void GameClientMessagesReceiver::receiveAttackEntity(
     uint32_t entityId, 
     int x,
     int y,
-    uint32_t weaponId
+    uint32_t weaponId,
+    int turnNumber
 ) {
     auto entityPool = context.getEntityPool();
 
@@ -172,35 +166,8 @@ void GameClientMessagesReceiver::receiveAttackEntity(
 
     for(auto weapon : entity->getWeapons()) {
         if(weapon->getId() == weaponId) {
-            context.getTurnController()->performAttackAction(entity, weapon, glm::ivec2(x, y));
+            context.getTurnController()->queueAction(std::make_unique<AttackAction>(turnNumber, entity, weapon, glm::ivec2(x, y)));
         }
-    }
-}
-
-void GameClientMessagesReceiver::receiveActionsRollResponse(int participantId, int numDice, DiceActionResult dice[64]) {
-    if(participantId == 0) {
-        std::vector<int> vActions;
-        for(int i = 0; i < numDice; i++) {
-            for(int j = 0; j < dice[i].rollNumber; j++) {
-                vActions.push_back(dice[i].actions[j]);
-            }
-        }
-
-        playerController->getDice().setActionsFromServer(vActions);
-    }
-    else {
-        std::map<TurnController::Action, int> vActions = {
-            { TurnController::Action::Move, 0 },
-            { TurnController::Action::Attack, 0 }
-        };
-
-        for(int i = 0; i < numDice; i++) {
-            for(int j = 0; j < dice[i].rollNumber; j++) {
-                vActions[(TurnController::Action) dice[i].actions[j]]++;
-            }
-        }
-
-        context.getTurnController()->setActions(participantId, vActions);
     }
 }
 

@@ -8,16 +8,10 @@
 #include "game/entities/entity.h"
 #include "game/effects/effect.h"
 #include "core/event/eventpublisher.h"
+#include "game/event/events.h"
 
 class Entity;
 class Projectile;
-
-struct ProjectileEventData {
-    Projectile* projectile;
-    Entity* target;
-    glm::ivec2 hitPosition;
-    int damage;
-};
 
 class Projectile {
 public:

@@ -12,6 +12,7 @@
 #include "graphics/drawstrategies/projectiledrawstrategy.h"
 #include "graphics/drawstrategies/areaofeffectdrawstrategy.h"
 #include "graphics/drawstrategies/itemdrawstrategy.h"
+#include "game/application/stdoutsubscriber.h"
 #include "clientturncontroller.h"
 
 class ClientApplication {
@@ -23,6 +24,7 @@ private:
     std::unique_ptr<GameClientMessagesReceiver> clientMessagesReceiver;
     std::unique_ptr<GameClient> client;
     std::unique_ptr<Window> window;
+    StdOutSubscriber stdoutSubscriber;
 
     std::unique_ptr<ClientStateMachine> clientStateMachine;
 

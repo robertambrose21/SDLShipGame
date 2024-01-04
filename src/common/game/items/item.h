@@ -5,6 +5,7 @@
 
 #include "core/util/idgenerator.h"
 #include "core/glmimport.h"
+#include "game/event/events.h"
 
 class Item {
 private:
@@ -47,13 +48,4 @@ public:
     Colour getColour(void) const;
     void setPosition(const glm::ivec2& position);
     glm::ivec2 getPosition(void) const;
-};
-
-struct ItemEventData {
-    enum Type {
-        SPAWN
-    };
-
-    std::vector<Item*> items;
-    Type type;
 };

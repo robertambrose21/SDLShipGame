@@ -17,6 +17,7 @@
 #include "graphics/ui/button.h"
 #include "graphics/ui/playerpanel.h"
 #include "graphics/ui/textpanel.h"
+#include "game/actions/attackaction.h"
 
 class PlayerController {
 private:

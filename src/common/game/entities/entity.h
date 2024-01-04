@@ -14,6 +14,7 @@
 // TODO: Fix with modules?
 class Weapon;
 class Entity;
+class Action;
 
 struct EntityEventData {
     Entity* entity;
@@ -62,6 +63,10 @@ private:
 
     std::map<uint32_t, std::unique_ptr<Weapon>> weapons;
     Weapon* currentWeapon;
+
+    std::map<int, std::deque<std::unique_ptr<Action>>> actionsChain;
+    std::map<int, std::deque<Action*>> externalActionsChain;
+    bool externalActionsChainNeedsRecalculating;
 
     std::string name;
 
@@ -175,6 +180,8 @@ public:
 
     void setPosition(const glm::ivec2& position);
     int findPath(const glm::ivec2& target, int stopShortSteps = 0);
+    std::deque<glm::ivec2> calculatePath(const glm::ivec2& target, int stopShortSteps = 0);
+    void setPath(const std::deque<glm::ivec2>& path);
     bool isNeighbour(Entity* entity) const;
     bool hasPath(void);
 
@@ -184,6 +191,15 @@ public:
     bool isTurnInProgress(void) const;
     bool hasAnimationsInProgress(void);
     void useMoves(int numMoves);
+
+    bool queueAction(
+        std::unique_ptr<Action> action, 
+        std::function<void(Action&)> onSuccessfulQueue, 
+        bool skipValidation = false
+    );
+    std::deque<Action*>& getActionsChain(int turnNumber);
+    void recalculateActionsChain();
+    void popAction(int currentTurnNumber);
 
     void setParticipantId(int participantId);
     int getParticipantId(void) const;

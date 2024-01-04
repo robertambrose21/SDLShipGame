@@ -35,7 +35,6 @@ private:
     );
     void receivePassParticipantTurnMessage(int clientIndex, int participantId);
     void receiveSetParticipantAckMessage(int clientIndex, int participantId);
-    void receiveActionsRollMessage(int clientIndex, int participantId);
 
 public:
     GameServerMessagesReceiver(ApplicationContext& context);

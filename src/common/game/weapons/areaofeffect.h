@@ -3,14 +3,10 @@
 #include "core/glmimport.h"
 #include "game/entities/entity.h"
 #include "core/event/eventpublisher.h"
+#include "game/event/events.h"
 
 class EntityPool;
 class AreaOfEffect;
-
-struct AreaOfEffectEventData {
-    AreaOfEffect* aoe;
-    Entity* target;
-};
 
 class AreaOfEffect {
 public:
@@ -48,7 +44,7 @@ public:
 
     void update(int64_t timeSinceLastFrame);
     void apply(void);
-    void onNextTurn(int currentParticipant, int turnNumber);
+    void onNextTurn(int currentParticipantId, int turnNumber);
 
     int getOwnerId(void) const;
     Stats getStats(void) const;

@@ -2,8 +2,10 @@
 
 #include <set>
 #include <vector>
+#include <deque>
 #include <map>
 #include <functional>
+#include <ranges>
 
 #include "game/entities/entity.h"
 #include "core/util/gameassert.h"
@@ -11,30 +13,27 @@
 #include "core/event/eventpublisher.h"
 #include "game/entities/behaviour/behaviourstrategy.h"
 #include "game/application/applicationcontext.h"
+#include "game/actions/action.h"
+#include "game/event/events.h"
+#include "game/actions/moveaction.h"
+#include "game/actions/attackaction.h"
 
-struct TurnControllerEventData {
-    int turnNumber;
-    int currentParticipant;
-};
-
-class TurnController : public EventPublisher<TurnControllerEventData> {
+class TurnController : 
+    public EventPublisher<
+        TurnEventData, 
+        MoveActionEventData,
+        AttackActionEventData
+    >
+{
 public:
-    enum Action {
-        Move = 0,
-        Attack,
-        // Freeze,
-        Count
-    };
-
     // TODO: Consider making entities a map rather than a set
     typedef struct _participant {
         int id;
         bool isReady;
         bool isPlayer;
         std::vector<Entity*> entities;
+        std::vector<std::string> items;
         bool passNextTurn;
-        std::map<Action, int> actions;
-        bool hasRolledForActions;
         std::unique_ptr<BehaviourStrategy> behaviourStrategy;
     } Participant;
 
@@ -43,22 +42,34 @@ protected:
     bool initialised;
 
     int turnNumber;
-    int currentParticipant;
+    int currentParticipantId;
 
     std::map<int, std::unique_ptr<Participant>> participants;
     std::vector<std::function<void(int, int)>> onNextTurnWorkers;
     std::function<void()> onAllParticipantsSet;
 
-    void nextParticipantTurn(int id);
+    void endCurrentParticipantTurn(void);
+    void nextParticipantTurn(void);
+    void executeEntityActions(Entity* entity);
+    void removeInactiveEntities(std::vector<Entity*> entities);
+    void incrementTurn(void);
+    void publishAction(Action& action);
 
     virtual bool canProgressToNextTurn(int participantId) = 0;
+    virtual void additionalUpdate(int64_t timeSinceLastFrame, bool& quit) = 0;
 
 public:
     TurnController();
 
     void initialise(ApplicationContext& context);
-    virtual void update(int64_t timeSinceLastFrame, bool& quit);
+    void update(int64_t timeSinceLastFrame, bool& quit);
 
+    Participant* addParticipant(
+        bool isPlayer,
+        const std::vector<Entity*>& entities, 
+        std::unique_ptr<BehaviourStrategy> behaviourStrategy = nullptr,
+        bool isReady = true
+    );
     Participant* addParticipant(
         int id,
         bool isPlayer,
@@ -76,18 +87,8 @@ public:
     void setCurrentParticipant(int id);
     int getCurrentParticipant(void) const;
 
-    void setActions(int participantId, const std::map<Action, int>& actions);
-    std::map<Action, int> rollActions(int participantId);
-    bool performMoveAction(
-        Entity* entity, 
-        const glm::ivec2& position,
-        int shortStopSteps = 0
-    );
-    bool performAttackAction(
-        Entity* entity, 
-        Weapon* weapon,
-        const glm::ivec2& target
-    );
+    bool queueAction(std::unique_ptr<Action> action);
+    void executeActions(int participantId);
 
     void addOnNextTurnFunction(std::function<void(int, int)> onNextTurnFunc);
     void setOnAllParticipantsSetFunction(std::function<void()> onAllParticipantsSet);

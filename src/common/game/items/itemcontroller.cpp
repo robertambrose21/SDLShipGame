@@ -62,7 +62,7 @@ Item* ItemController::addItem(const std::string& name, const glm::ivec2& positio
     items[id] = std::move(item);
 
     if(canPublishEvent) {
-        publish({ { items[id].get() }, ItemEventData::SPAWN });
+        publish<ItemEventData>({ { items[id].get() }, ItemEventData::SPAWN });
     }
 
     return items[id].get();
@@ -77,7 +77,7 @@ std::vector<Item*> ItemController::addItems(const std::vector<std::string>& item
         addedItems.push_back(addItem(itemName, position, false));
     }
 
-    publish({ addedItems, ItemEventData::SPAWN });
+    publish<ItemEventData>({ addedItems, ItemEventData::SPAWN });
 
     return addedItems;
 }
@@ -91,7 +91,7 @@ std::vector<Item*> ItemController::addItems(const std::vector<std::pair<uint32_t
         addedItems.push_back(addItem(name, position, id, false));
     }
 
-    publish({ addedItems, ItemEventData::SPAWN });
+    publish<ItemEventData>({ addedItems, ItemEventData::SPAWN });
 
     return addedItems;
 }

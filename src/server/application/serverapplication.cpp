@@ -32,18 +32,18 @@ void ServerApplication::initialise(void) {
     context.getEntityPool()->initialise(application->getContext());
     context.getItemController()->initialise(application->getContext());
 
-    context.getTurnController()->subscribe(&stdoutSubscriber);
-    context.getEntityPool()->subscribe(&stdoutSubscriber);
-    context.getWeaponController()->subscribe(&stdoutSubscriber);
-    context.getProjectilePool()->subscribe(&stdoutSubscriber);
-    context.getAreaOfEffectPool()->subscribe(&stdoutSubscriber);
+    context.getTurnController()->subscribe<TurnEventData>(&stdoutSubscriber);
+    context.getEntityPool()->subscribe<EntityEventData>(&stdoutSubscriber);
+    context.getWeaponController()->subscribe<WeaponEventData>(&stdoutSubscriber);
+    context.getProjectilePool()->subscribe<ProjectileEventData>(&stdoutSubscriber);
+    context.getAreaOfEffectPool()->subscribe<AreaOfEffectEventData>(&stdoutSubscriber);
 
     server = std::make_unique<GameServer>(yojimbo::Address("127.0.0.1", 8081));
 
     receiver = std::make_unique<GameServerMessagesReceiver>(application->getContext());
     transmitter = std::make_unique<GameServerMessagesTransmitter>(
         *server, 
-        application->getContext().getTurnController(),
+        dynamic_cast<ServerTurnController*>(context.getTurnController()),
         [&](int clientIndex) {
             onClientConnect(clientIndex);
         }
@@ -55,8 +55,10 @@ void ServerApplication::initialise(void) {
     server->setReceiver(receiver.get());
     server->setTransmitter(transmitter.get());
     context.setServerMessagesTransmitter(transmitter.get());
-    context.getItemController()->subscribe(transmitter.get());
+    context.getItemController()->subscribe<ItemEventData>(transmitter.get());
     context.getEntityPool()->subscribe(context.getItemController());
+    context.getTurnController()->subscribe<MoveActionEventData>(transmitter.get());
+    context.getTurnController()->subscribe<AttackActionEventData>(transmitter.get());
 
     application->addLogicWorker([&](ApplicationContext& c, auto const& timeSinceLastFrame, auto& quit) {
         server->update(timeSinceLastFrame);
@@ -68,8 +70,11 @@ void ServerApplication::initialise(void) {
 
     // TODO: This somehow makes the game state messages get received first rather than the set participant ones.
     // On the client side we need to wait until participants are all set before we load the rest of the map
-    context.getTurnController()->addOnNextTurnFunction([&](auto const& currentParticipant, auto const& turnNumber) {
-        sendGameStateUpdatesToClients();
+    context.getTurnController()->addOnNextTurnFunction([&](auto const& currentParticipantId, auto const& turnNumber) {
+        // TODO: This has a synching issue currently particularly around entity movement not completing in time before
+        // an entities "moves left" is set by the update. Consider making updates just set positions/health?
+
+        // sendGameStateUpdatesToClients();
     });
 
     loadMap();
@@ -83,9 +88,13 @@ void ServerApplication::run(void) {
 void ServerApplication::onClientConnect(int clientIndex) {
     auto& context = application->getContext();
 
+    auto player = addPlayer(false);
+    auto participantId = context.getTurnController()->addParticipant(true, { player })->id;
+    context.getTurnController()->reset();
+
     // TODO: Set this up so players are assigned properly.
     // Currently participant "0" is the player
-    participantToClientIndex[0] = clientIndex;
+    dynamic_cast<ServerTurnController*>(context.getTurnController())->attachParticipantToClient(participantId, clientIndex);
 
     for(auto& participant : context.getTurnController()->getParticipants()) {
         transmitter->sendSetParticipant(clientIndex, participant);
@@ -226,7 +235,7 @@ void ServerApplication::loadMap(void) {
 void ServerApplication::loadGame(void) {
     auto& context = application->getContext();
 
-    auto player = addPlayer(false);
+    // auto player = addPlayer(false);
     // auto player2 = addPlayer(true);
 
     auto numEnemies = randomRange(8, 12);
@@ -267,8 +276,9 @@ void ServerApplication::loadGame(void) {
 
         enemies.push_back(enemy);
     }
-    context.getTurnController()->addParticipant(0, true, { player });
-    context.getTurnController()->addParticipant(1, false, enemies, std::make_unique<ChaseAndAttackStrategy>(context, 1));
+
+    // context.getTurnController()->addParticipant(true, { player });
+    context.getTurnController()->addParticipant(false, enemies, std::make_unique<ChaseAndAttackStrategy>(context));
     // context.getTurnController()->addParticipant(2, false, { enemy3 }, std::make_unique<ChaseAndAttackStrategy>(2));
     context.getTurnController()->reset();
 }

@@ -17,7 +17,8 @@ Entity::Entity(
     position({ 0, 0 }),
     timeSinceLastMoved(0),
     selected(false),
-    frozenForNumTurns(0)
+    frozenForNumTurns(0),
+    externalActionsChainNeedsRecalculating(true)
 { }
 
 Entity::Entity(
@@ -191,6 +192,7 @@ void Entity::setPosition(const glm::ivec2& position) {
     this->position = position;
 }
 
+// TODO: use calculatePath
 int Entity::findPath(const glm::ivec2& target, int stopShortSteps) {
     auto path = grid->findPath(getPosition(), target);
 
@@ -212,12 +214,35 @@ int Entity::findPath(const glm::ivec2& target, int stopShortSteps) {
     return path.size();
 }
 
+std::deque<glm::ivec2> Entity::calculatePath(const glm::ivec2& target, int stopShortSteps) {
+    auto path = grid->findPath(getPosition(), target);
+
+    if(path.empty()) {
+        return path;
+    }
+
+    // Remove the initial path node which is just the entities current position
+    path.pop_front(); 
+
+    if(path.size() >= stopShortSteps) {
+        for(auto i = 0; i < stopShortSteps; i++) {
+            path.pop_back();
+        }
+    }
+
+    return path;
+}
+
+void Entity::setPath(const std::deque<glm::ivec2>& path) {
+    this->path = path;
+}
+
 bool Entity::hasPath(void) {
     return !path.empty();
 }
 
 bool Entity::isNeighbour(Entity* entity) const {
-    // TODO: This could be moe efficient
+    // TODO: This could be more efficient
     return glm::distance(glm::vec2(getPosition()), glm::vec2(entity->getPosition())) < 2;
 }
 
@@ -251,18 +276,18 @@ void Entity::useMoves(int numMoves) {
 }
 
 void Entity::nextTurn(void) {
-    currentStats.movesLeft = 0;
+    currentStats.movesLeft = currentStats.movesPerTurn;
     path.clear();
 
     for(auto& [_, weapon] : weapons) {
         if(weapon != nullptr) {
-            weapon->setUsesLeft(0);
+            weapon->reset();
         }
     }
 
     if(frozenForNumTurns > 0) {
         frozenForNumTurns--;
-        publisher.publish({ this, "Freeze" });
+        publisher.publish<EntityEventData>({ this, "Freeze" });
     }
 }
 
@@ -273,6 +298,48 @@ void Entity::endTurn(void) {
     for(auto& [_, weapon] : weapons) {
         weapon->setUsesLeft(0);
     }
+}
+
+bool Entity::queueAction(
+    std::unique_ptr<Action> action,
+    std::function<void(Action&)> onSuccessfulQueue,
+    bool skipValidation
+) {
+    if(!skipValidation && !action->validate()) {
+        return false;
+    }
+
+    onSuccessfulQueue(*action);
+
+    actionsChain[action->getTurnNumber()].push_back(std::move(action));
+    externalActionsChainNeedsRecalculating = true;
+
+    return true;
+}
+
+std::deque<Action*>& Entity::getActionsChain(int turnNumber) {
+    if(externalActionsChainNeedsRecalculating) {
+        recalculateActionsChain();
+    }
+
+    return externalActionsChain[turnNumber];
+}
+
+void Entity::recalculateActionsChain() {
+    externalActionsChain.clear();
+
+    for (auto& [turnNumber, actionChain] : actionsChain) {
+        for (auto& action : actionChain) {
+            externalActionsChain[turnNumber].push_back(action.get());
+        }
+    }
+
+    externalActionsChainNeedsRecalculating = false;
+}
+
+void Entity::popAction(int currentTurnNumber) {
+    actionsChain[currentTurnNumber].pop_front();
+    externalActionsChainNeedsRecalculating = true;
 }
 
 void Entity::setParticipantId(int participantId) {

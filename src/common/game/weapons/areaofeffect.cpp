@@ -35,12 +35,12 @@ void AreaOfEffect::apply(void) {
 
     for(auto const& entity : effectedEntities) {
         entity->takeDamage(stats.damagePerTurn);
-        publisher.publish({ this, entity });
+        publisher.publish<AreaOfEffectEventData>({ this, entity });
     }
 }
 
-void AreaOfEffect::onNextTurn(int currentParticipant, int turnNumber) {
-    if(currentParticipant != ownerId) {
+void AreaOfEffect::onNextTurn(int currentParticipantId, int turnNumber) {
+    if(currentParticipantId != ownerId) {
         return;
     }
 

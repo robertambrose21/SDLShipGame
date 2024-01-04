@@ -5,6 +5,9 @@
 #include "game/entities/entitypool.h"
 #include "game/application/application.h"
 #include "application/net/gameservermessagestransmitter.h"
+#include "game/actions/action.h"
+#include "game/actions/moveaction.h"
+#include "game/actions/attackaction.h"
 
 #include <thread>
 
@@ -15,17 +18,16 @@ private:
     ApplicationContext& context;
     GameServerMessagesTransmitter* transmitter;
 
-    std::map<TurnController::Action, int> presetActions;
-
     bool canPassTurn;
 
-    Entity* findClosestTarget(Entity* attacker);
+    Entity* findClosestTarget(Entity* attacker, int participantId);
     Weapon* getBestInRangeWeapon(Entity* attacker, const glm::ivec2& target);
+    bool doTurnForEntity(Entity* entity, int participantId);
 
 public:
-    ChaseAndAttackStrategy(ApplicationContext& context, int participantId);
+    ChaseAndAttackStrategy(ApplicationContext& context);
 
-    void onUpdate(int64_t timeSinceLastFrame, bool& quit);
+    void onUpdate(int participantId, int64_t timeSinceLastFrame, bool& quit);
     void onNextTurn(void);
     bool endTurnCondition(void);
 };

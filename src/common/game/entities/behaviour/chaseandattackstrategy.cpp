@@ -1,54 +1,74 @@
 #include "chaseandattackstrategy.h"
 
-ChaseAndAttackStrategy::ChaseAndAttackStrategy(ApplicationContext& context, int participantId) :
-    BehaviourStrategy(participantId),
+ChaseAndAttackStrategy::ChaseAndAttackStrategy(ApplicationContext& context) :
     context(context),
-    canPassTurn(false)
+    canPassTurn(true)
 {
     transmitter = (GameServerMessagesTransmitter*) context.getServerMessagesTransmitter();
 }
 
-void ChaseAndAttackStrategy::onUpdate(int64_t timeSinceLastFrame, bool& quit) {
+void ChaseAndAttackStrategy::onUpdate(int participantId, int64_t timeSinceLastFrame, bool& quit) {
+    if(canPassTurn) {
+        return;
+    }
+
     auto turnController = context.getTurnController();
     auto participant = turnController->getParticipant(participantId);
-    auto isPassable = true;
+    auto entitiesPassed = 0;
 
     for(auto entity : participant->entities) {
-        auto target = findClosestTarget(entity);
-        auto bWeapon = target == nullptr ? nullptr : getBestInRangeWeapon(entity, target->getPosition());
-
-        if(entity->getFrozenFor() > 0) {
-            continue;
-        }
-
-        if(target != nullptr && entity->isNeighbour(target)) {
-            if(turnController->performAttackAction(entity, entity->getCurrentWeapon(), target->getPosition())) {
-                std::this_thread::sleep_for(std::chrono::milliseconds(100));
-                transmitter->sendAttack(0, entity->getId(), target->getPosition(), entity->getCurrentWeapon()->getId());
-                isPassable = false;
-            }
-        }
-        else if(bWeapon != nullptr && target != nullptr && bWeapon->isInRange(target->getPosition()) &&
-                turnController->performAttackAction(entity, bWeapon, target->getPosition())) {
-            // TODO: Temporary hack for actions getting sent too fast - need to implement some sort of queueing system
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));
-            transmitter->sendAttack(0, entity->getId(), target->getPosition(), bWeapon->getId());
-            isPassable = false;
-        }
-        else if(entity->hasPath()) {
-            isPassable = isPassable && 
-                participant->actions[TurnController::Action::Move] <= 0 && entity->getMovesLeft() <= 0;
-        }
-        else if(target != nullptr && 
-                    glm::distance(glm::vec2(entity->getPosition()), glm::vec2(target->getPosition())) <= entity->getAggroRange() && 
-                    turnController->performMoveAction(entity, target->getPosition(), 1)) {
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));
-            transmitter->sendFindPath(0, entity->getId(), target->getPosition(), 1);
-            isPassable = false;
+        if(doTurnForEntity(entity, participantId)) {
+            entitiesPassed++;
         }
     }
 
-    canPassTurn = isPassable;
+    canPassTurn = entitiesPassed == participant->entities.size();
+}
+
+bool ChaseAndAttackStrategy::doTurnForEntity(Entity* entity, int participantId) {
+    if(!entity->isTurnInProgress()) {
+        return true;
+    }
+
+    if(entity->getFrozenFor() > 0) {
+        return true;
+    }
+
+    auto target = findClosestTarget(entity, participantId);
+
+    if(target == nullptr) {
+        return true;
+    }
+
+    auto bWeapon = getBestInRangeWeapon(entity, target->getPosition());
+    auto turnController = context.getTurnController();
+    auto turnNumber = turnController->getTurnNumber();
+
+    // TODO: Change 'current weapon' to best melee weapon
+    if(entity->isNeighbour(target)) {
+        auto action = std::make_unique<AttackAction>(turnNumber, entity, entity->getCurrentWeapon(), target->getPosition());
+        
+        if(!turnController->queueAction(std::move(action))) {
+            return true;
+        }
+    }
+    else if(bWeapon != nullptr) {
+        auto action = std::make_unique<AttackAction>(turnNumber, entity, bWeapon, target->getPosition());
+
+        if(!turnController->queueAction(std::move(action))) {
+            return true;
+        }
+    }
+    else if(!entity->hasPath()) {
+        auto distanceToTarget = glm::distance(glm::vec2(entity->getPosition()), glm::vec2(target->getPosition()));
+        auto action = std::make_unique<MoveAction>(turnNumber, entity, target->getPosition(), 1);
+        
+        if(!distanceToTarget <= entity->getAggroRange() && !turnController->queueAction(std::move(action))) {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 Weapon* ChaseAndAttackStrategy::getBestInRangeWeapon(
@@ -56,9 +76,7 @@ Weapon* ChaseAndAttackStrategy::getBestInRangeWeapon(
     const glm::ivec2& target
 ) {
     for(auto weapon : attacker->getWeapons()) {
-        auto dist = glm::distance(glm::vec2(attacker->getPosition()), glm::vec2(target));
-
-        if(weapon->getType() == Weapon::Type::PROJECTILE && weapon->getStats().range >= dist) {
+        if(weapon->getType() == Weapon::Type::PROJECTILE && weapon->isInRange(target)) {
             return weapon;
         }
     }
@@ -67,27 +85,6 @@ Weapon* ChaseAndAttackStrategy::getBestInRangeWeapon(
 }
 
 void ChaseAndAttackStrategy::onNextTurn(void) {
-    std::map<TurnController::Action, int> actions;
-    std::vector<DiceActionResult> serializedActions;
-
-    for(int i = 0; i < 3; i++) {
-        DiceActionResult dice;
-
-        dice.rollNumber = randomD6();
-        
-        for(int j = 0; j < dice.rollNumber; j++) {
-            auto action = randomRange(0, TurnController::Action::Count - 1);
-            
-            dice.actions[j] = action;
-            actions[(TurnController::Action) action]++;
-        }
-
-        serializedActions.push_back(dice);
-    }
-
-    context.getTurnController()->setActions(participantId, actions);
-    transmitter->sendActionsRollResponse(0, participantId, serializedActions);
-
     canPassTurn = false;
 }
 
@@ -95,7 +92,7 @@ bool ChaseAndAttackStrategy::endTurnCondition(void) {
     return canPassTurn;
 }
 
-Entity* ChaseAndAttackStrategy::findClosestTarget(Entity* attacker) {
+Entity* ChaseAndAttackStrategy::findClosestTarget(Entity* attacker, int participantId) {
     Entity* closestEntity = nullptr;
     auto shortestDistance = std::numeric_limits<float>::max();
     

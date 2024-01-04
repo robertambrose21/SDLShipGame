@@ -18,11 +18,11 @@ PlayerController::PlayerController(
     dice = std::make_unique<Dice>(3, clientMessagesTransmitter, context.getTurnController());
     playerPanel = std::make_unique<PlayerPanel>(1920, 1080);
     
-    turnController->subscribe(playerPanel.get());
-    entityPool->subscribe(playerPanel.get());
-    context.getWeaponController()->subscribe(playerPanel.get());
-    context.getProjectilePool()->subscribe(playerPanel.get());
-    context.getAreaOfEffectPool()->subscribe(playerPanel.get());
+    turnController->subscribe<TurnEventData>(playerPanel.get());
+    entityPool->subscribe<EntityEventData>(playerPanel.get());
+    context.getWeaponController()->subscribe<WeaponEventData>(playerPanel.get());
+    context.getProjectilePool()->subscribe<ProjectileEventData>(playerPanel.get());
+    context.getAreaOfEffectPool()->subscribe<AreaOfEffectEventData>(playerPanel.get());
 }
 
 void PlayerController::update(int64_t timeSinceLastFrame) {
@@ -49,7 +49,7 @@ void PlayerController::update(int64_t timeSinceLastFrame) {
 }
 
 void PlayerController::draw(GraphicsContext& graphicsContext) {
-    dice->draw(graphicsContext);
+    // dice->draw(graphicsContext);
     playerPanel->draw(graphicsContext.getRenderer());
 
     if(selection.isActive) {
@@ -81,13 +81,6 @@ void PlayerController::handleKeyPress(const SDL_Event& event) {
             case SDLK_p: {
                 clientMessagesTransmitter.sendPassParticipantTurnMessage(participant->id);
                 turnController->passParticipant(participant->id);
-                break;
-            }
-
-            case SDLK_d: {
-                if(!participant->hasRolledForActions) {
-                    dice->roll(participant->id);
-                }
                 break;
             }
 
@@ -271,7 +264,7 @@ void PlayerController::deselectAll(void) {
 void PlayerController::move(const glm::ivec2& position) {
     for(auto const& entity : selectedEntities) {
         clientMessagesTransmitter.sendFindPathMessage(entity->getId(), position, 0);
-        if(turnController->performMoveAction(entity, position)) {
+        if(turnController->queueAction(std::make_unique<MoveAction>(turnController->getTurnNumber(), entity, position))) {
             dice->clickAction(0);
         }
     }
@@ -287,7 +280,7 @@ void PlayerController::attack(const glm::ivec2& target) {
             weapon->getId()
         );
         
-        if(turnController->performAttackAction(entity, weapon, target)) {
+        if(turnController->queueAction(std::make_unique<AttackAction>(turnController->getTurnNumber(), entity, weapon, target))) {
             dice->clickAction(1);
         }
     }

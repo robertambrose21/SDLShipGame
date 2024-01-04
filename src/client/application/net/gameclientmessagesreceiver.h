@@ -8,6 +8,7 @@
 #include "core/net/gameadapter.h"
 #include "player/playercontroller.h"
 #include "application/clientturncontroller.h"
+#include "game/actions/attackaction.h"
 
 class GameClientMessagesReceiver : public ClientMessagesReceiver {
 private:
@@ -22,15 +23,16 @@ private:
     void receiveFindPath(
         uint32_t entityId,
         const glm::ivec2& position,
-        int shortStopSteps
+        int shortStopSteps,
+        int turnNumber
     );
     void receiveAttackEntity(
         uint32_t entityId, 
         int x,
         int y,
-        uint32_t weaponId
+        uint32_t weaponId,
+        int turnNumber
     );
-    void receiveActionsRollResponse(int participantId, int numDice, DiceActionResult dice[64]);
     void receiveNextTurn(int participantId, int turnNumber);
     void receiveSpawnItems(const glm::ivec2& position, int numItems, ItemUpdate items[64]);
 

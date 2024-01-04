@@ -5,17 +5,29 @@ ClientTurnController::ClientTurnController() :
     receivedValidNextTurnFlag(false)
 { }
 
+void ClientTurnController::additionalUpdate(int64_t timeSinceLastFrame, bool& quit) {
+    // no-op
+}
+
 bool ClientTurnController::canProgressToNextTurn(int participantId) {
-    if(receivedValidNextTurnFlag) {
-        receivedValidNextTurnFlag = false;
-        return true;
+    if(!receivedValidNextTurnFlag) {
+        return false;
     }
 
-    return false;
+    auto& participant = participants[participantId];
+
+    for(auto entity : participant->entities) {
+        if(entity->hasAnimationsInProgress() || !entity->getActionsChain(turnNumber).empty()) {
+            return false;
+        }
+    }
+
+    receivedValidNextTurnFlag = false;
+    return true;
 }
 
 void ClientTurnController::receiveSetNextTurnFlag(int participantId, int turnNumber) {
-    if(this->currentParticipant == participantId && this->turnNumber == turnNumber) {
+    if(this->currentParticipantId == participantId && this->turnNumber == turnNumber) {
         receivedValidNextTurnFlag = true;
     }
     // TODO: else, handle desync?

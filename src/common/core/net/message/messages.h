@@ -29,20 +29,23 @@ public:
     
     int x, y;
     int shortStopSteps;
+    int turnNumber;
 
     FindPathMessage() :
         entityId(0),
         x(0),
         y(0),
-        shortStopSteps(0)
+        shortStopSteps(0),
+        turnNumber(0)
     { }
 
     template <typename Stream>
     bool Serialize(Stream& stream) {
-        serialize_varint32(stream, entityId);
+        serialize_uint32(stream, entityId);
         serialize_int(stream, x, 0, 512);
         serialize_int(stream, y, 0, 512);
         serialize_int(stream, shortStopSteps, 0, 512);
+        serialize_int(stream, turnNumber, 0, 512);
         return true;
     }
 
@@ -59,7 +62,7 @@ public:
 
     template <typename Stream>
     bool Serialize(Stream& stream) {
-        serialize_varint32(stream, id);
+        serialize_uint32(stream, id);
         return true;
     }
 
@@ -71,20 +74,23 @@ public:
     uint32_t entityId;
     int x, y;
     uint32_t weaponId;
+    int turnNumber;
 
     AttackMessage() :
         entityId(0),
         x(0),
         y(0),
-        weaponId(0)
+        weaponId(0),
+        turnNumber(0)
     { }
 
     template <typename Stream>
     bool Serialize(Stream& stream) {
-        serialize_varint32(stream, entityId);
+        serialize_uint32(stream, entityId);
         serialize_int(stream, x, 0, 512);
         serialize_int(stream, y, 0, 512);
-        serialize_varint32(stream, weaponId);
+        serialize_uint32(stream, weaponId);
+        serialize_int(stream, turnNumber, 0, 512);
         return true;
     }
 
@@ -105,7 +111,7 @@ public:
         for(int i = 0; i < gameStateUpdate.numEntities; i++) {
             auto& entity = gameStateUpdate.entities[i];
 
-            serialize_varint32(stream, entity.id);
+            serialize_uint32(stream, entity.id);
             serialize_string(stream, entity.name, sizeof(entity.name));
             serialize_bits(stream, entity.participantId, 16);
             serialize_bits(stream, entity.totalHP, 16);
@@ -113,16 +119,14 @@ public:
             serialize_int(stream, entity.currentHP, -256, 256);
             serialize_bits(stream, entity.x, 16);
             serialize_bits(stream, entity.y, 16);
-            serialize_bits(stream, entity.movesPerTurn, 16);
-            serialize_bits(stream, entity.movesLeft, 16);
 
             // Weapons
-            serialize_varint32(stream, entity.currentWeaponId);
+            serialize_uint32(stream, entity.currentWeaponId);
             serialize_int(stream, entity.numWeapons, 0, MaxWeapons);
             for(int j = 0; j < entity.numWeapons; j++) {
                 auto& weapon = entity.weaponUpdates[j];
 
-                serialize_varint32(stream, weapon.id);
+                serialize_uint32(stream, weapon.id);
                 serialize_string(stream, weapon.name, sizeof(weapon.name));
                 serialize_string(stream, weapon.weaponClass, sizeof(weapon.weaponClass));
                 serialize_string(stream, weapon.projectile, sizeof(weapon.projectile));
@@ -133,7 +137,7 @@ public:
             }
         }
         
-        serialize_int(stream, gameStateUpdate.currentParticipant, 0, 64);
+        serialize_int(stream, gameStateUpdate.currentParticipantId, 0, 64);
 
         return true;
     }
@@ -150,7 +154,7 @@ public:
 
     template <typename Stream>
     bool Serialize(Stream& stream) {
-        serialize_varint32(stream, data);
+        serialize_uint32(stream, data);
         return true;
     }
 
@@ -329,7 +333,7 @@ public:
         serialize_int(stream, numItems, 0, 64);
         
         for(int i = 0; i < numItems; i++) {
-            serialize_varint32(stream, items[i].id);
+            serialize_uint32(stream, items[i].id);
             serialize_string(stream, items[i].name, sizeof(items[i].name));
         }
 

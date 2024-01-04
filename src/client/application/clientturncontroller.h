@@ -8,6 +8,7 @@ private:
     bool receivedValidNextTurnFlag;
 
     bool canProgressToNextTurn(int participantId);
+    void additionalUpdate(int64_t timeSinceLastFrame, bool& quit);
 
 public:
     ClientTurnController();
