@@ -44,19 +44,26 @@ bool ChaseAndAttackStrategy::doTurnForEntity(Entity* entity, int participantId) 
     auto turnController = context.getTurnController();
     auto turnNumber = turnController->getTurnNumber();
 
+    // TODO: Change 'current weapon' to best melee weapon
     if(entity->isNeighbour(target)) {
         auto action = std::make_unique<AttackAction>(turnNumber, entity, entity->getCurrentWeapon(), target->getPosition());
-        turnController->queueAction(std::move(action));
+        
+        if(!turnController->queueAction(std::move(action))) {
+            return true;
+        }
     }
-    else if(bWeapon != nullptr && bWeapon->isInRange(target->getPosition())) {
+    else if(bWeapon != nullptr) {
         auto action = std::make_unique<AttackAction>(turnNumber, entity, bWeapon, target->getPosition());
-        turnController->queueAction(std::move(action));
+
+        if(!turnController->queueAction(std::move(action))) {
+            return true;
+        }
     }
     else if(!entity->hasPath()) {
         auto distanceToTarget = glm::distance(glm::vec2(entity->getPosition()), glm::vec2(target->getPosition()));
         auto action = std::make_unique<MoveAction>(turnNumber, entity, target->getPosition(), 1);
         
-        if(!distanceToTarget <= entity->getAggroRange() && turnController->queueAction(std::move(action))) {
+        if(!distanceToTarget <= entity->getAggroRange() && !turnController->queueAction(std::move(action))) {
             return true;
         }
     }
@@ -69,9 +76,7 @@ Weapon* ChaseAndAttackStrategy::getBestInRangeWeapon(
     const glm::ivec2& target
 ) {
     for(auto weapon : attacker->getWeapons()) {
-        auto dist = glm::distance(glm::vec2(attacker->getPosition()), glm::vec2(target));
-
-        if(weapon->getType() == Weapon::Type::PROJECTILE && weapon->getStats().range >= dist) {
+        if(weapon->getType() == Weapon::Type::PROJECTILE && weapon->isInRange(target)) {
             return weapon;
         }
     }
