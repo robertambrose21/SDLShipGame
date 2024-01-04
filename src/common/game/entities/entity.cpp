@@ -255,7 +255,7 @@ void Entity::setMovesLeft(int movesLeft) {
 }
 
 int Entity::getAggroRange(void) const {
-    return 200; // temp hardcoded for now
+    return 20; // temp hardcoded for now
 }
 
 bool Entity::isTurnInProgress(void) const {
