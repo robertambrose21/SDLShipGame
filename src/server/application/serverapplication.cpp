@@ -43,7 +43,7 @@ void ServerApplication::initialise(void) {
     receiver = std::make_unique<GameServerMessagesReceiver>(application->getContext());
     transmitter = std::make_unique<GameServerMessagesTransmitter>(
         *server, 
-        application->getContext().getTurnController(),
+        dynamic_cast<ServerTurnController*>(context.getTurnController()),
         [&](int clientIndex) {
             onClientConnect(clientIndex);
         }
@@ -55,8 +55,10 @@ void ServerApplication::initialise(void) {
     server->setReceiver(receiver.get());
     server->setTransmitter(transmitter.get());
     context.setServerMessagesTransmitter(transmitter.get());
-    context.getItemController()->subscribe(transmitter.get());
+    context.getItemController()->subscribe<ItemEventData>(transmitter.get());
     context.getEntityPool()->subscribe(context.getItemController());
+    context.getTurnController()->subscribe<MoveActionEventData>(transmitter.get());
+    context.getTurnController()->subscribe<AttackActionEventData>(transmitter.get());
 
     application->addLogicWorker([&](ApplicationContext& c, auto const& timeSinceLastFrame, auto& quit) {
         server->update(timeSinceLastFrame);
@@ -86,9 +88,13 @@ void ServerApplication::run(void) {
 void ServerApplication::onClientConnect(int clientIndex) {
     auto& context = application->getContext();
 
+    auto player = addPlayer(false);
+    auto participantId = context.getTurnController()->addParticipant(true, { player })->id;
+    context.getTurnController()->reset();
+
     // TODO: Set this up so players are assigned properly.
     // Currently participant "0" is the player
-    participantToClientIndex[0] = clientIndex;
+    dynamic_cast<ServerTurnController*>(context.getTurnController())->attachParticipantToClient(participantId, clientIndex);
 
     for(auto& participant : context.getTurnController()->getParticipants()) {
         transmitter->sendSetParticipant(clientIndex, participant);
@@ -229,7 +235,7 @@ void ServerApplication::loadMap(void) {
 void ServerApplication::loadGame(void) {
     auto& context = application->getContext();
 
-    auto player = addPlayer(false);
+    // auto player = addPlayer(false);
     // auto player2 = addPlayer(true);
 
     auto numEnemies = randomRange(8, 12);
@@ -270,8 +276,9 @@ void ServerApplication::loadGame(void) {
 
         enemies.push_back(enemy);
     }
-    context.getTurnController()->addParticipant(0, true, { player });
-    context.getTurnController()->addParticipant(1, false, enemies, std::make_unique<ChaseAndAttackStrategy>(context, 1));
+
+    // context.getTurnController()->addParticipant(true, { player });
+    context.getTurnController()->addParticipant(false, enemies, std::make_unique<ChaseAndAttackStrategy>(context));
     // context.getTurnController()->addParticipant(2, false, { enemy3 }, std::make_unique<ChaseAndAttackStrategy>(2));
     context.getTurnController()->reset();
 }

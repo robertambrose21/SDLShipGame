@@ -12,11 +12,37 @@ ServerTurnController::ServerTurnController() :
     });
 }
 
-void ServerTurnController::additionalUpdate(int64_t timeSinceLastFrame, bool& quit) {
-    auto& behaviourStrategy = participants[currentParticipantId]->behaviourStrategy;
+void ServerTurnController::attachParticipantToClient(int participantId, int clientIndex) {
+    participantToClient[participantId] = clientIndex;
+}
 
-    if(behaviourStrategy != nullptr) {
-        behaviourStrategy->onUpdate(timeSinceLastFrame, quit);
+int ServerTurnController::getAttachedClient(int participantId) const {
+    if(!participantToClient.contains(participantId)) {
+        return -1;
+    }
+
+    return participantToClient.at(participantId);
+}
+
+int ServerTurnController::getAttachedParticipantId(int clientIndex) const {
+    for(auto [participantId, clientIndexToFind] : participantToClient) {
+        if(clientIndexToFind == clientIndex) {
+            return participantId;
+        }
+    }
+
+    return -1;
+}
+
+const std::map<int, int>& ServerTurnController::getAllAttachedClients(void) const {
+    return participantToClient;
+}
+
+void ServerTurnController::additionalUpdate(int64_t timeSinceLastFrame, bool& quit) {
+    auto participant = participants.at(currentParticipantId).get();
+
+    if(participant->behaviourStrategy != nullptr) {
+        participant->behaviourStrategy->onUpdate(participant->id, timeSinceLastFrame, quit);
     }
 }
 

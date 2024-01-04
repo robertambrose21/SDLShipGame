@@ -16,8 +16,6 @@ private:
     std::unique_ptr<GameServer> server;
     std::unique_ptr<GameServerMessagesReceiver> receiver;
     StdOutSubscriber stdoutSubscriber;
-    
-    std::map<int, int> participantToClientIndex;
 
     void sendLoadMapToClient(int clientIndex);
     void sendGameStateUpdatesToClients(void);

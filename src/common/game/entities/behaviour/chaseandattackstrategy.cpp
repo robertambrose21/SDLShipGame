@@ -1,14 +1,13 @@
 #include "chaseandattackstrategy.h"
 
-ChaseAndAttackStrategy::ChaseAndAttackStrategy(ApplicationContext& context, int participantId) :
-    BehaviourStrategy(participantId),
+ChaseAndAttackStrategy::ChaseAndAttackStrategy(ApplicationContext& context) :
     context(context),
-    canPassTurn(false)
+    canPassTurn(true)
 {
     transmitter = (GameServerMessagesTransmitter*) context.getServerMessagesTransmitter();
 }
 
-void ChaseAndAttackStrategy::onUpdate(int64_t timeSinceLastFrame, bool& quit) {
+void ChaseAndAttackStrategy::onUpdate(int participantId, int64_t timeSinceLastFrame, bool& quit) {
     if(canPassTurn) {
         return;
     }
@@ -18,7 +17,7 @@ void ChaseAndAttackStrategy::onUpdate(int64_t timeSinceLastFrame, bool& quit) {
     auto entitiesPassed = 0;
 
     for(auto entity : participant->entities) {
-        if(doTurnForEntity(entity)) {
+        if(doTurnForEntity(entity, participantId)) {
             entitiesPassed++;
         }
     }
@@ -26,7 +25,7 @@ void ChaseAndAttackStrategy::onUpdate(int64_t timeSinceLastFrame, bool& quit) {
     canPassTurn = entitiesPassed == participant->entities.size();
 }
 
-bool ChaseAndAttackStrategy::doTurnForEntity(Entity* entity) {
+bool ChaseAndAttackStrategy::doTurnForEntity(Entity* entity, int participantId) {
     if(!entity->isTurnInProgress()) {
         return true;
     }
@@ -35,32 +34,29 @@ bool ChaseAndAttackStrategy::doTurnForEntity(Entity* entity) {
         return true;
     }
 
-    auto target = findClosestTarget(entity);
+    auto target = findClosestTarget(entity, participantId);
 
     if(target == nullptr) {
         return true;
     }
 
     auto bWeapon = getBestInRangeWeapon(entity, target->getPosition());
+    auto turnController = context.getTurnController();
+    auto turnNumber = turnController->getTurnNumber();
 
-    // TODO: This is super gross - server turn controller should override queueAction to also send an attack
-    if(entity->isNeighbour(target) && context.getTurnController()->queueAction(
-            std::move(std::make_unique<AttackAction>(
-                context.getTurnController()->getTurnNumber(), entity, entity->getCurrentWeapon(), target->getPosition())))) {
-        transmitter->sendAttack(0, entity->getId(), target->getPosition(), entity->getCurrentWeapon()->getId());
+    if(entity->isNeighbour(target)) {
+        auto action = std::make_unique<AttackAction>(turnNumber, entity, entity->getCurrentWeapon(), target->getPosition());
+        turnController->queueAction(std::move(action));
     }
-    else if(bWeapon != nullptr && bWeapon->isInRange(target->getPosition()) && 
-            context.getTurnController()->queueAction(std::make_unique<AttackAction>(
-                context.getTurnController()->getTurnNumber(), entity, bWeapon, target->getPosition()))) {
-        transmitter->sendAttack(0, entity->getId(), target->getPosition(), bWeapon->getId());
+    else if(bWeapon != nullptr && bWeapon->isInRange(target->getPosition())) {
+        auto action = std::make_unique<AttackAction>(turnNumber, entity, bWeapon, target->getPosition());
+        turnController->queueAction(std::move(action));
     }
     else if(!entity->hasPath()) {
-        if(glm::distance(glm::vec2(entity->getPosition()), glm::vec2(target->getPosition())) <= entity->getAggroRange() &&
-                context.getTurnController()->queueAction(std::make_unique<MoveAction>(
-                    context.getTurnController()->getTurnNumber(), entity, target->getPosition(), 1))) {
-            transmitter->sendFindPath(0, entity->getId(), target->getPosition(), 1);
-        }
-        else {
+        auto distanceToTarget = glm::distance(glm::vec2(entity->getPosition()), glm::vec2(target->getPosition()));
+        auto action = std::make_unique<MoveAction>(turnNumber, entity, target->getPosition(), 1);
+        
+        if(!distanceToTarget <= entity->getAggroRange() && turnController->queueAction(std::move(action))) {
             return true;
         }
     }
@@ -91,7 +87,7 @@ bool ChaseAndAttackStrategy::endTurnCondition(void) {
     return canPassTurn;
 }
 
-Entity* ChaseAndAttackStrategy::findClosestTarget(Entity* attacker) {
+Entity* ChaseAndAttackStrategy::findClosestTarget(Entity* attacker, int participantId) {
     Entity* closestEntity = nullptr;
     auto shortestDistance = std::numeric_limits<float>::max();
     

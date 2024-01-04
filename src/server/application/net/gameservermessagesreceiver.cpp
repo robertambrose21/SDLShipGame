@@ -1,4 +1,5 @@
 #include "gameservermessagesreceiver.h"
+#include "application/serverturncontroller.h"
 
 GameServerMessagesReceiver::GameServerMessagesReceiver(ApplicationContext& context) :
     context(context)
@@ -66,9 +67,15 @@ void GameServerMessagesReceiver::receiveFindPathMessage(
         return;
     }
 
-    // TODO: Get real participant
-    auto turnController = context.getTurnController();
-    auto const& entities = turnController->getParticipant(0)->entities;
+    auto turnController = dynamic_cast<ServerTurnController*>(context.getTurnController());
+    auto participantId = turnController->getAttachedParticipantId(clientIndex);
+
+    if(participantId == -1) {
+        std::cout << "Something went wrong: participant not found for client " << clientIndex << std::endl;
+        return;
+    }
+
+    auto const& entities = turnController->getParticipant(participantId)->entities;
 
     for(auto const& entity : entities) {
         if(entity->getId() == entityId) {
@@ -83,10 +90,6 @@ void GameServerMessagesReceiver::receiveSelectEntityMessage(int clientIndex, uin
     }
     
     auto const& entity = context.getEntityPool()->getEntity(entityId);
-
-    if(entity->getParticipantId() != 0) {
-        return;
-    }
 
     entity->setSelected(!entity->isSelected());
 }
@@ -104,10 +107,6 @@ void GameServerMessagesReceiver::receieveAttackMessage(
 
     auto const& entity = context.getEntityPool()->getEntity(entityId);
 
-    if(entity->getParticipantId() != 0) { // TODO: Why is this here??
-        return;
-    }
-
     for(auto weapon : entity->getWeapons()) {
         if(weapon->getId() == weaponId) {
             context.getTurnController()->queueAction(std::make_unique<AttackAction>(
@@ -120,12 +119,13 @@ void GameServerMessagesReceiver::receivePassParticipantTurnMessage(
     int clientIndex,
     int receivedParticipantId
 ) {
-    if(receivedParticipantId != 0) {
+    // TODO: Fix
+    if(receivedParticipantId != 1) {
         std::cout << "Could not pass participant turn, ids do not match" << std::endl;
         return;
     }
 
-    context.getTurnController()->passParticipant(clientIndex);
+    context.getTurnController()->passParticipant(receivedParticipantId);
 }
 
 void GameServerMessagesReceiver::receiveSetParticipantAckMessage(int clientIndex, int participantId) {

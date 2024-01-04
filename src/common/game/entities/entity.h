@@ -192,7 +192,11 @@ public:
     bool hasAnimationsInProgress(void);
     void useMoves(int numMoves);
 
-    bool queueAction(std::unique_ptr<Action> action, bool skipValidation = false);
+    bool queueAction(
+        std::unique_ptr<Action> action, 
+        std::function<void(Action&)> onSuccessfulQueue, 
+        bool skipValidation = false
+    );
     std::deque<Action*>& getActionsChain(int turnNumber);
     void popAction(int currentTurnNumber);
 

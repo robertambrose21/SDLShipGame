@@ -14,7 +14,8 @@ void TurnController::initialise(ApplicationContext& context) {
 void TurnController::update(int64_t timeSinceLastFrame, bool& quit) {
     game_assert(initialised);
 
-    if(participants.size() <= 0) {
+    // We need at least two participants to start a game
+    if(participants.size() < 2) {
         return;
     }
 
@@ -25,6 +26,19 @@ void TurnController::update(int64_t timeSinceLastFrame, bool& quit) {
         endCurrentParticipantTurn();
         nextParticipantTurn();
     }
+}
+
+TurnController::Participant* TurnController::addParticipant(
+    bool isPlayer,
+    const std::vector<Entity*>& entities, 
+    std::unique_ptr<BehaviourStrategy> behaviourStrategy,
+    bool isReady
+) {
+    game_assert(initialised);
+
+    static int id = 0;
+
+    return addParticipant(id++, isPlayer, entities, std::move(behaviourStrategy), isReady);
 }
 
 TurnController::Participant* TurnController::addParticipant(
@@ -192,13 +206,38 @@ void TurnController::executeEntityActions(Entity* entity) {
 bool TurnController::queueAction(std::unique_ptr<Action> action) {
     bool skipValidation = turnNumber != action->getTurnNumber();
 
-    if(!action->getEntity()->queueAction(std::move(action), skipValidation)) {
-        return false;
-    }
+    return action->getEntity()->queueAction(
+        std::move(action),
+        [&](auto& action) { publishAction(action); },
+        skipValidation
+    );
+}
 
-    switch(action->getType()) {
-        case Action::Move:
-            publish<MoveActionEventData>({ });
+void TurnController::publishAction(Action& action) {
+    switch(action.getType()) {
+        case Action::Move: {
+            auto moveAction = dynamic_cast<MoveAction&>(action);
+            publish<MoveActionEventData>({ 
+                turnNumber, 
+                moveAction.getEntity(), 
+                moveAction.getPosition(), 
+                moveAction.getShortStopSteps() 
+            });
+            break;
+        }
+
+        case Action::Attack: {
+            auto attackAction = dynamic_cast<AttackAction&>(action);
+            publish<AttackActionEventData>({
+                turnNumber,
+                attackAction.getEntity(),
+                attackAction.getTarget(),
+                attackAction.getWeapon()
+            });
+            break;
+        }
+
+        default:
             break;
     }
 }

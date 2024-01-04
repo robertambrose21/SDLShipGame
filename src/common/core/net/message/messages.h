@@ -41,7 +41,7 @@ public:
 
     template <typename Stream>
     bool Serialize(Stream& stream) {
-        serialize_varint32(stream, entityId);
+        serialize_uint32(stream, entityId);
         serialize_int(stream, x, 0, 512);
         serialize_int(stream, y, 0, 512);
         serialize_int(stream, shortStopSteps, 0, 512);
@@ -62,7 +62,7 @@ public:
 
     template <typename Stream>
     bool Serialize(Stream& stream) {
-        serialize_varint32(stream, id);
+        serialize_uint32(stream, id);
         return true;
     }
 
@@ -86,10 +86,10 @@ public:
 
     template <typename Stream>
     bool Serialize(Stream& stream) {
-        serialize_varint32(stream, entityId);
+        serialize_uint32(stream, entityId);
         serialize_int(stream, x, 0, 512);
         serialize_int(stream, y, 0, 512);
-        serialize_varint32(stream, weaponId);
+        serialize_uint32(stream, weaponId);
         serialize_int(stream, turnNumber, 0, 512);
         return true;
     }
@@ -111,7 +111,7 @@ public:
         for(int i = 0; i < gameStateUpdate.numEntities; i++) {
             auto& entity = gameStateUpdate.entities[i];
 
-            serialize_varint32(stream, entity.id);
+            serialize_uint32(stream, entity.id);
             serialize_string(stream, entity.name, sizeof(entity.name));
             serialize_bits(stream, entity.participantId, 16);
             serialize_bits(stream, entity.totalHP, 16);
@@ -121,12 +121,12 @@ public:
             serialize_bits(stream, entity.y, 16);
 
             // Weapons
-            serialize_varint32(stream, entity.currentWeaponId);
+            serialize_uint32(stream, entity.currentWeaponId);
             serialize_int(stream, entity.numWeapons, 0, MaxWeapons);
             for(int j = 0; j < entity.numWeapons; j++) {
                 auto& weapon = entity.weaponUpdates[j];
 
-                serialize_varint32(stream, weapon.id);
+                serialize_uint32(stream, weapon.id);
                 serialize_string(stream, weapon.name, sizeof(weapon.name));
                 serialize_string(stream, weapon.weaponClass, sizeof(weapon.weaponClass));
                 serialize_string(stream, weapon.projectile, sizeof(weapon.projectile));
@@ -154,7 +154,7 @@ public:
 
     template <typename Stream>
     bool Serialize(Stream& stream) {
-        serialize_varint32(stream, data);
+        serialize_uint32(stream, data);
         return true;
     }
 
@@ -333,7 +333,7 @@ public:
         serialize_int(stream, numItems, 0, 64);
         
         for(int i = 0; i < numItems; i++) {
-            serialize_varint32(stream, items[i].id);
+            serialize_uint32(stream, items[i].id);
             serialize_string(stream, items[i].name, sizeof(items[i].name));
         }
 

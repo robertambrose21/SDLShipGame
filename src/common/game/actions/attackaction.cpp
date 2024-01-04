@@ -19,6 +19,10 @@ Weapon* AttackAction::getWeapon(void) {
     return weapon;
 }
 
+glm::ivec2 AttackAction::getTarget(void) const {
+    return target;
+}
+
 bool AttackAction::passesPrecondition(void) {
     return weapon->isInRange(target);
 }

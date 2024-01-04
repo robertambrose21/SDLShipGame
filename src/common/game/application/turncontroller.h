@@ -15,9 +15,15 @@
 #include "game/application/applicationcontext.h"
 #include "game/actions/action.h"
 #include "game/event/events.h"
+#include "game/actions/moveaction.h"
+#include "game/actions/attackaction.h"
 
-
-class TurnController : public EventPublisher<TurnEventData, MoveActionEventData, AttackActionEventData>
+class TurnController : 
+    public EventPublisher<
+        TurnEventData, 
+        MoveActionEventData,
+        AttackActionEventData
+    >
 {
 public:
     // TODO: Consider making entities a map rather than a set
@@ -26,6 +32,7 @@ public:
         bool isReady;
         bool isPlayer;
         std::vector<Entity*> entities;
+        std::vector<std::string> items;
         bool passNextTurn;
         std::unique_ptr<BehaviourStrategy> behaviourStrategy;
     } Participant;
@@ -46,6 +53,7 @@ protected:
     void executeEntityActions(Entity* entity);
     void removeInactiveEntities(std::vector<Entity*> entities);
     void incrementTurn(void);
+    void publishAction(Action& action);
 
     virtual bool canProgressToNextTurn(int participantId) = 0;
     virtual void additionalUpdate(int64_t timeSinceLastFrame, bool& quit) = 0;
@@ -56,6 +64,12 @@ public:
     void initialise(ApplicationContext& context);
     void update(int64_t timeSinceLastFrame, bool& quit);
 
+    Participant* addParticipant(
+        bool isPlayer,
+        const std::vector<Entity*>& entities, 
+        std::unique_ptr<BehaviourStrategy> behaviourStrategy = nullptr,
+        bool isReady = true
+    );
     Participant* addParticipant(
         int id,
         bool isPlayer,

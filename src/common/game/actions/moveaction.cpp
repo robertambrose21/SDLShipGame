@@ -65,3 +65,11 @@ bool MoveAction::hasAvailableMoves(void) {
 
     return entity->getMovesLeft() >= numMoves;
 }
+
+glm::ivec2 MoveAction::getPosition(void) const {
+    return position;
+}
+
+int MoveAction::getShortStopSteps(void) const {
+    return shortStopSteps;
+}

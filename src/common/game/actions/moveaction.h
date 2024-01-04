@@ -29,4 +29,7 @@ public:
 
     bool passesPrecondition(void);
     Type getType(void);
+
+    glm::ivec2 getPosition(void) const;
+    int getShortStopSteps(void) const;
 };

@@ -300,10 +300,16 @@ void Entity::endTurn(void) {
     }
 }
 
-bool Entity::queueAction(std::unique_ptr<Action> action, bool skipValidation) {
+bool Entity::queueAction(
+    std::unique_ptr<Action> action,
+    std::function<void(Action&)> onSuccessfulQueue,
+    bool skipValidation
+) {
     if(!skipValidation && !action->validate()) {
         return false;
     }
+
+    onSuccessfulQueue(*action);
 
     actionsChain[action->getTurnNumber()].push_back(std::move(action));
     externalActionsChainNeedsRecalculating = true;
