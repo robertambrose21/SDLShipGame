@@ -119,8 +119,7 @@ void GameServerMessagesReceiver::receivePassParticipantTurnMessage(
     int clientIndex,
     int receivedParticipantId
 ) {
-    // TODO: Fix
-    if(receivedParticipantId != 1) {
+    if(!clientParticipantsLoaded[clientIndex].contains(receivedParticipantId)) {
         std::cout << "Could not pass participant turn, ids do not match" << std::endl;
         return;
     }
