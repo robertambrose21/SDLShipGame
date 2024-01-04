@@ -319,18 +319,22 @@ bool Entity::queueAction(
 
 std::deque<Action*>& Entity::getActionsChain(int turnNumber) {
     if(externalActionsChainNeedsRecalculating) {
-        externalActionsChain.clear();
-
-        for(auto& [t, actionChain] : actionsChain) {
-            for(auto& action : actionChain) {
-                externalActionsChain[t].push_back(action.get());
-            }
-        }
-        
-        externalActionsChainNeedsRecalculating = false;
+        recalculateActionsChain();
     }
 
     return externalActionsChain[turnNumber];
+}
+
+void Entity::recalculateActionsChain() {
+    externalActionsChain.clear();
+
+    for (auto& [turnNumber, actionChain] : actionsChain) {
+        for (auto& action : actionChain) {
+            externalActionsChain[turnNumber].push_back(action.get());
+        }
+    }
+
+    externalActionsChainNeedsRecalculating = false;
 }
 
 void Entity::popAction(int currentTurnNumber) {

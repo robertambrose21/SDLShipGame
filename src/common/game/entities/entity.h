@@ -198,6 +198,7 @@ public:
         bool skipValidation = false
     );
     std::deque<Action*>& getActionsChain(int turnNumber);
+    void recalculateActionsChain();
     void popAction(int currentTurnNumber);
 
     void setParticipantId(int participantId);
