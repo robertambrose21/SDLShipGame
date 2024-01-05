@@ -14,7 +14,8 @@ class GameServerMessagesTransmitter :
     public ServerMessagesTransmitter, 
     public EventSubscriber<ItemEventData>,
     public EventSubscriber<MoveActionEventData>,
-    public EventSubscriber<AttackActionEventData>
+    public EventSubscriber<AttackActionEventData>,
+    public EventSubscriber<TakeItemActionEventData>
 {
 private:
     GameServer& server;
@@ -34,6 +35,7 @@ public:
     void onPublish(const Event<ItemEventData>& event);
     void onPublish(const Event<MoveActionEventData>& event);
     void onPublish(const Event<AttackActionEventData>& event);
+    void onPublish(const Event<TakeItemActionEventData>& event);
 
     void sendSetParticipant(int clientIndex, TurnController::Participant* participant);
     void sendGameStateUpdate(int clientIndex, const GameStateUpdate& update);

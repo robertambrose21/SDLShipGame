@@ -11,6 +11,7 @@ private:
 
     bool canProgressToNextTurn(int participantId) override;
     void additionalUpdate(int64_t timeSinceLastFrame, bool& quit);
+    void checkForItems(void);
 
 public:
     ServerTurnController();

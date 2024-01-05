@@ -34,7 +34,18 @@ private:
         int turnNumber
     );
     void receiveNextTurn(int participantId, int turnNumber);
-    void receiveSpawnItems(const glm::ivec2& position, int numItems, ItemUpdate items[64]);
+    void receiveSpawnItems(
+        const glm::ivec2& position,
+        uint32_t ownerId,
+        int numItems,
+        ItemUpdate items[64]
+    );
+    void receiveTakeItems(
+        uint32_t entityId,
+        int numItems,
+        ItemUpdate items[64],
+        int turnNumber
+    );
 
 public:
     GameClientMessagesReceiver(ApplicationContext& context);

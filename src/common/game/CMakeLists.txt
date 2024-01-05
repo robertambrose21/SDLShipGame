@@ -32,6 +32,7 @@ add_library(
     actions/action.cpp
     actions/moveaction.cpp
     actions/attackaction.cpp
+    actions/takeitemaction.cpp
     event/events.h
 )
 

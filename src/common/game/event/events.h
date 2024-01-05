@@ -16,9 +16,11 @@ struct TurnEventData {
 
 struct ItemEventData {
     enum Type {
-        SPAWN
+        SPAWN,
+        REMOVED
     };
 
+    Entity* owner;
     std::vector<Item*> items;
     Type type;
 };
@@ -53,4 +55,10 @@ struct AttackActionEventData {
     Entity* owner;
     glm::ivec2 target;
     Weapon* weapon;
+};
+
+struct TakeItemActionEventData {
+    int turnNumber;
+    Entity* entity;
+    std::vector<Item*> items;
 };

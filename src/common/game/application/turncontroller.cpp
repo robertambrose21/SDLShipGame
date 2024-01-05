@@ -213,6 +213,7 @@ bool TurnController::queueAction(std::unique_ptr<Action> action) {
     );
 }
 
+// TODO: Gross
 void TurnController::publishAction(Action& action) {
     switch(action.getType()) {
         case Action::Move: {
@@ -233,6 +234,16 @@ void TurnController::publishAction(Action& action) {
                 attackAction.getEntity(),
                 attackAction.getTarget(),
                 attackAction.getWeapon()
+            });
+            break;
+        }
+
+        case Action::TakeItem: {
+            auto takeItemAction = dynamic_cast<TakeItemAction&>(action);
+            publish<TakeItemActionEventData>({
+                turnNumber,
+                takeItemAction.getEntity(),
+                takeItemAction.getItems()
             });
             break;
         }

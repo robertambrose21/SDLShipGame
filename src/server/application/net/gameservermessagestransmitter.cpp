@@ -26,20 +26,23 @@ void GameServerMessagesTransmitter::onPublish(const Event<ItemEventData>& event)
         itemGroups[item->getPosition()].push_back(item);
     }
     
-    // TODO: handle client index (send to all?) and items > 64
-    for(auto [position, items] : itemGroups) {
-        SpawnItemsMessage* message = (SpawnItemsMessage*) server.createMessage(0, GameMessageType::SPAWN_ITEMS);
+    for(auto [_, clientIndex] : turnController->getAllAttachedClients()) {
+        // TODO: handle items > 64
+        for(auto [position, items] : itemGroups) {
+            SpawnItemsMessage* message = (SpawnItemsMessage*) server.createMessage(0, GameMessageType::SPAWN_ITEMS);
 
-        message->x = position.x;
-        message->y = position.y;
-        message->numItems = items.size();
+            message->x = position.x;
+            message->y = position.y;
+            message->ownerId = event.data.owner->getId();
+            message->numItems = items.size();
 
-        for(int i = 0; i < items.size(); i++) {
-            message->items[i].id = items[i]->getId();
-            strcpy(message->items[i].name, items[i]->getName().data());
+            for(int i = 0; i < items.size(); i++) {
+                message->items[i].id = items[i]->getId();
+                strcpy(message->items[i].name, items[i]->getName().data());
+            }
+
+            server.sendMessage(clientIndex, message);
         }
-
-        server.sendMessage(0, message);
     }
 }
 
@@ -74,6 +77,23 @@ void GameServerMessagesTransmitter::onPublish(const Event<AttackActionEventData>
         message->y = event.data.target.y;
         message->weaponId = event.data.weapon->getId();
         message->turnNumber = event.data.turnNumber;
+
+        server.sendMessage(clientIndex, message);
+    }
+}
+
+void GameServerMessagesTransmitter::onPublish(const Event<TakeItemActionEventData>& event) {
+    for(auto [_, clientIndex] : turnController->getAllAttachedClients()) {
+        TakeItemsMessage* message = (TakeItemsMessage*) server.createMessage(clientIndex, GameMessageType::TAKE_ITEMS);
+
+        message->turnNumber = event.data.turnNumber;
+        message->entityId = event.data.entity->getId();
+        message->numItems = event.data.items.size();
+
+        for(int i = 0; i < event.data.items.size(); i++) {
+            message->items[i].id = event.data.items[i]->getId();
+            strcpy(message->items[i].name, event.data.items[i]->getName().data());
+        }
 
         server.sendMessage(clientIndex, message);
     }

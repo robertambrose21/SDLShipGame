@@ -37,6 +37,8 @@ void ServerApplication::initialise(void) {
     context.getWeaponController()->subscribe<WeaponEventData>(&stdoutSubscriber);
     context.getProjectilePool()->subscribe<ProjectileEventData>(&stdoutSubscriber);
     context.getAreaOfEffectPool()->subscribe<AreaOfEffectEventData>(&stdoutSubscriber);
+    context.getItemController()->subscribe<ItemEventData>(&stdoutSubscriber);
+    context.getTurnController()->subscribe<TakeItemActionEventData>(&stdoutSubscriber);
 
     server = std::make_unique<GameServer>(yojimbo::Address("127.0.0.1", 8081));
 
@@ -59,6 +61,7 @@ void ServerApplication::initialise(void) {
     context.getEntityPool()->subscribe(context.getItemController());
     context.getTurnController()->subscribe<MoveActionEventData>(transmitter.get());
     context.getTurnController()->subscribe<AttackActionEventData>(transmitter.get());
+    context.getTurnController()->subscribe<TakeItemActionEventData>(transmitter.get());
 
     application->addLogicWorker([&](ApplicationContext& c, auto const& timeSinceLastFrame, auto& quit) {
         server->update(timeSinceLastFrame);

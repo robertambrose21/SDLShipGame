@@ -20,6 +20,7 @@ enum class GameMessageType {
     ACTIONS_ROLL_RESPONSE,
     NEXT_TURN,
     SPAWN_ITEMS,
+    TAKE_ITEMS,
     COUNT
 };
 
@@ -317,12 +318,14 @@ public:
 class SpawnItemsMessage : public yojimbo::Message {
 public:
     int x, y;
+    uint32_t ownerId;
     int numItems;
     ItemUpdate items[64];
 
     SpawnItemsMessage() :
         x(0),
         y(0),
+        ownerId(0),
         numItems(0)
     { }
 
@@ -330,6 +333,37 @@ public:
     bool Serialize(Stream& stream) {
         serialize_bits(stream, x, 16);
         serialize_bits(stream, y, 16);
+        serialize_uint32(stream, ownerId);
+        serialize_int(stream, numItems, 0, 64);
+        
+        for(int i = 0; i < numItems; i++) {
+            serialize_uint32(stream, items[i].id);
+            serialize_string(stream, items[i].name, sizeof(items[i].name));
+        }
+
+        return true;
+    }
+
+    YOJIMBO_VIRTUAL_SERIALIZE_FUNCTIONS();
+};
+
+class TakeItemsMessage : public yojimbo::Message {
+public:
+    int turnNumber;
+    uint32_t entityId;
+    int numItems;
+    ItemUpdate items[64];
+
+    TakeItemsMessage() :
+        turnNumber(0),
+        entityId(0),
+        numItems(0)
+    { }
+
+    template <typename Stream>
+    bool Serialize(Stream& stream) {
+        serialize_int(stream, turnNumber, 0, 512);
+        serialize_uint32(stream, entityId);
         serialize_int(stream, numItems, 0, 64);
         
         for(int i = 0; i < numItems; i++) {
@@ -357,4 +391,5 @@ YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::ACTIONS_ROLL, ActionsRollMess
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::ACTIONS_ROLL_RESPONSE, ActionsRollResponseMessage);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::NEXT_TURN, NextTurnMessage);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::SPAWN_ITEMS, SpawnItemsMessage);
+YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::TAKE_ITEMS, TakeItemsMessage);
 YOJIMBO_MESSAGE_FACTORY_FINISH();

@@ -74,7 +74,23 @@ void GameClientMessagesReceiver::receiveMessage(yojimbo::Message* message) {
 
         case (int) GameMessageType::SPAWN_ITEMS: {
             SpawnItemsMessage* spawnItemsMessage = (SpawnItemsMessage*) message;
-            receiveSpawnItems(glm::ivec2(spawnItemsMessage->x, spawnItemsMessage->y), spawnItemsMessage->numItems, spawnItemsMessage->items);
+            receiveSpawnItems(
+                glm::ivec2(spawnItemsMessage->x, spawnItemsMessage->y),
+                spawnItemsMessage->ownerId,
+                spawnItemsMessage->numItems,
+                spawnItemsMessage->items
+            );
+            break;
+        }
+
+        case (int) GameMessageType::TAKE_ITEMS: {
+            TakeItemsMessage* takeItemsMessage = (TakeItemsMessage*) message;
+            receiveTakeItems(
+                takeItemsMessage->entityId,
+                takeItemsMessage->numItems,
+                takeItemsMessage->items,
+                takeItemsMessage->turnNumber
+            );
             break;
         }
 
@@ -175,8 +191,42 @@ void GameClientMessagesReceiver::receiveNextTurn(int participantId, int turnNumb
     dynamic_cast<ClientTurnController*>(context.getTurnController())->receiveSetNextTurnFlag(participantId, turnNumber);
 }
 
-void GameClientMessagesReceiver::receiveSpawnItems(const glm::ivec2& position, int numItems, ItemUpdate items[64]) {
+void GameClientMessagesReceiver::receiveSpawnItems(
+    const glm::ivec2& position, 
+    uint32_t ownerId,
+    int numItems, 
+    ItemUpdate items[64]
+) {
+    auto const& owner = context.getEntityPool()->getEntity(ownerId);
+
     for(int i = 0; i < numItems; i++) {
-        context.getItemController()->addItem(items[i].name, position, items[i].id, false);
+        context.getItemController()->addItem(items[i].name, position, items[i].id, owner, false);
     }
+}
+
+void GameClientMessagesReceiver::receiveTakeItems(
+    uint32_t entityId,
+    int numItems,
+    ItemUpdate items[64],
+    int turnNumber
+) {
+    auto entityPool = context.getEntityPool();
+
+    if(!entityPool->hasEntity(entityId)) {
+        return;
+    }
+
+    auto const& entity = entityPool->getEntity(entityId);
+
+    std::vector<Item*> itemsToTake;
+
+    for(int i = 0; i < numItems; i++) {
+        auto item = context.getItemController()->getItem(items[i].id);
+
+        if(item != nullptr) {
+            itemsToTake.push_back(item);
+        }
+    }
+
+    context.getTurnController()->queueAction(std::make_unique<TakeItemAction>(turnNumber, entity, itemsToTake));
 }

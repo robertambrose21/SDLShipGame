@@ -39,10 +39,15 @@ public:
 
     void initialise(ApplicationContext& context);
 
-    Item* addItem(const std::string& name, const glm::ivec2& position, bool canPublishEvent = true);
-    Item* addItem(const std::string& name, const glm::ivec2& position, uint32_t id, bool canPublishEvent = true);
-    std::vector<Item*> addItems(const std::vector<std::string>& itemNames, const glm::ivec2& position);
-    std::vector<Item*> addItems(const std::vector<std::pair<uint32_t, std::string>>& items, const glm::ivec2& position);
+    Item* addItem(const std::string& name, const glm::ivec2& position, Entity* owner, bool canPublishEvent = true);
+    Item* addItem(const std::string& name, const glm::ivec2& position, uint32_t id, Entity* owner, bool canPublishEvent = true);
+    std::vector<Item*> addItems(const std::vector<std::string>& itemNames, const glm::ivec2& position, Entity* owner);
+    std::vector<Item*> addItems(const std::vector<std::pair<uint32_t, std::string>>& items, const glm::ivec2& position, Entity* owner);
+
+    void removeItem(uint32_t id);
+    void removeItems(const std::vector<uint32_t>& ids);
+    std::vector<Item*> getItemsAt(const glm::ivec2& position);
+    Item* getItem(uint32_t id);
 
     std::map<uint32_t, std::unique_ptr<Item>> const& getItems(void) const;
 

@@ -3,6 +3,9 @@
 #include <iostream>
 #include <ctime>
 #include <iomanip>
+#include <format>
+#include <chrono>
+#include <string>
 
 #include "turncontroller.h"
 #include "core/event/eventsubscriber.h"
@@ -14,7 +17,9 @@ class StdOutSubscriber :
     public EventSubscriber<EntityEventData>,
     public EventSubscriber<WeaponEventData>,
     public EventSubscriber<ProjectileEventData>,
-    public EventSubscriber<AreaOfEffectEventData>
+    public EventSubscriber<AreaOfEffectEventData>,
+    public EventSubscriber<ItemEventData>,
+    public EventSubscriber<TakeItemActionEventData>
 {
 private:
     std::string getEntityIdentifier(Entity* entity);
@@ -27,4 +32,6 @@ public:
     void onPublish(const Event<WeaponEventData>& event);
     void onPublish(const Event<ProjectileEventData>& event);
     void onPublish(const Event<AreaOfEffectEventData>& event);
+    void onPublish(const Event<ItemEventData>& event);
+    void onPublish(const Event<TakeItemActionEventData>& event);
 };

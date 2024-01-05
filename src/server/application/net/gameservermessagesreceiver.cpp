@@ -128,6 +128,7 @@ void GameServerMessagesReceiver::receivePassParticipantTurnMessage(
 }
 
 void GameServerMessagesReceiver::receiveSetParticipantAckMessage(int clientIndex, int participantId) {
+    // TODO: This could be spoofed - need to check that this participant does actually belong to this client
     clientParticipantsLoaded[clientIndex].insert(participantId);
 
     // std::cout << "Got participant ACK " << participantId << std::endl;

@@ -35,11 +35,22 @@ void ItemController::loadItemDefinitions(void) {
     }
 }
 
-Item* ItemController::addItem(const std::string& name, const glm::ivec2& position, bool canPublishEvent) {
-    return addItem(name, position, getNewId(), canPublishEvent);
+Item* ItemController::addItem(
+    const std::string& name, 
+    const glm::ivec2& position, 
+    Entity* owner,
+    bool canPublishEvent
+) {
+    return addItem(name, position, getNewId(), owner, canPublishEvent);
 }
 
-Item* ItemController::addItem(const std::string& name, const glm::ivec2& position, uint32_t id, bool canPublishEvent) {
+Item* ItemController::addItem(
+    const std::string& name, 
+    const glm::ivec2& position, 
+    uint32_t id,
+    Entity* owner,
+    bool canPublishEvent
+) {
     game_assert(initialised);
     game_assert(itemDefinitions.contains(name));
     game_assert(!items.contains(id));
@@ -62,38 +73,98 @@ Item* ItemController::addItem(const std::string& name, const glm::ivec2& positio
     items[id] = std::move(item);
 
     if(canPublishEvent) {
-        publish<ItemEventData>({ { items[id].get() }, ItemEventData::SPAWN });
+        publish<ItemEventData>({
+            owner,
+            { items[id].get() }, 
+            ItemEventData::SPAWN
+        });
     }
 
     return items[id].get();
 }
 
-std::vector<Item*> ItemController::addItems(const std::vector<std::string>& itemNames, const glm::ivec2& position) {
+std::vector<Item*> ItemController::addItems(
+    const std::vector<std::string>& itemNames, 
+    const glm::ivec2& position,
+    Entity* owner
+) {
     game_assert(initialised);
 
     std::vector<Item*> addedItems;
 
     for(const auto& itemName : itemNames) {
-        addedItems.push_back(addItem(itemName, position, false));
+        addedItems.push_back(addItem(itemName, position, owner, false));
     }
 
-    publish<ItemEventData>({ addedItems, ItemEventData::SPAWN });
+    publish<ItemEventData>({ 
+        owner,
+        addedItems,
+        ItemEventData::SPAWN
+    });
 
     return addedItems;
 }
 
-std::vector<Item*> ItemController::addItems(const std::vector<std::pair<uint32_t, std::string>>& items, const glm::ivec2& position) {
+std::vector<Item*> ItemController::addItems(
+    const std::vector<std::pair<uint32_t, std::string>>& items, 
+    const glm::ivec2& position,
+    Entity* owner
+) {
     game_assert(initialised);
 
     std::vector<Item*> addedItems;
 
     for(const auto& [id, name] : items) {
-        addedItems.push_back(addItem(name, position, id, false));
+        addedItems.push_back(addItem(name, position, id, owner, false));
     }
 
-    publish<ItemEventData>({ addedItems, ItemEventData::SPAWN });
+    publish<ItemEventData>({
+        owner,
+        addedItems,
+        ItemEventData::SPAWN
+    });
 
     return addedItems;
+}
+
+void ItemController::removeItem(uint32_t id) {
+    publish<ItemEventData>({
+        nullptr, 
+        { items[id].get() }, 
+        ItemEventData::REMOVED
+    });
+    
+    items.erase(id);
+}
+
+void ItemController::removeItems(const std::vector<uint32_t>& ids) {
+    std::vector<Item*> itemsToRemove;
+
+    for(auto id : ids) {
+        itemsToRemove.push_back(items[id].get());
+    }
+
+    publish<ItemEventData>({ nullptr, itemsToRemove, ItemEventData::REMOVED });
+
+    for(auto id : ids) {
+        items.erase(id);
+    }
+}
+
+std::vector<Item*> ItemController::getItemsAt(const glm::ivec2& position) {
+    std::vector<Item*> foundItems;
+
+    for(auto& [_, item] : items) {
+        if(item->getPosition() == position) {
+            foundItems.push_back(item.get());
+        }
+    }
+
+    return foundItems;
+}
+
+Item* ItemController::getItem(uint32_t id) {
+    return items[id].get();
 }
 
 std::map<uint32_t, std::unique_ptr<Item>> const& ItemController::getItems(void) const {
@@ -106,16 +177,7 @@ void ItemController::onPublish(const Event<EntityEventData>& event) {
 
     if(itemsDropped.empty()) {
         return;
-    }
-    
-    std::cout << entity->getName() << "#" << entity->getId() << " dropped [";
+    }    
 
-    for(int i = 0; i < itemsDropped.size(); i++) {
-        std::cout << itemsDropped[i] << ((i == itemsDropped.size() - 1) ? "]" : ", ");
-    }
-
-    std::cout << std::endl;
-    
-
-    addItems(itemsDropped, entity->getPosition());
+    addItems(itemsDropped, entity->getPosition(), entity);
 }

@@ -37,6 +37,8 @@ void ClientApplication::initialise(void) {
     context.getWeaponController()->subscribe<WeaponEventData>(&stdoutSubscriber);
     context.getProjectilePool()->subscribe<ProjectileEventData>(&stdoutSubscriber);
     context.getAreaOfEffectPool()->subscribe<AreaOfEffectEventData>(&stdoutSubscriber);
+    context.getItemController()->subscribe<ItemEventData>(&stdoutSubscriber);
+    context.getTurnController()->subscribe<TakeItemActionEventData>(&stdoutSubscriber);
 
     weaponDrawStrategy = std::make_unique<WeaponDrawStrategy>();
     entityDrawStrategy = std::make_unique<EntityDrawStrategy>(weaponDrawStrategy.get());

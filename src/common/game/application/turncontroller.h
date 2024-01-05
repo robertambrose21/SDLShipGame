@@ -17,12 +17,15 @@
 #include "game/event/events.h"
 #include "game/actions/moveaction.h"
 #include "game/actions/attackaction.h"
+#include "game/actions/takeitemaction.h"
+#include "game/items/itemcontroller.h"
 
 class TurnController : 
     public EventPublisher<
         TurnEventData, 
         MoveActionEventData,
-        AttackActionEventData
+        AttackActionEventData,
+        TakeItemActionEventData
     >
 {
 public:

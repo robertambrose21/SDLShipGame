@@ -44,6 +44,8 @@ void ServerTurnController::additionalUpdate(int64_t timeSinceLastFrame, bool& qu
     if(participant->behaviourStrategy != nullptr) {
         participant->behaviourStrategy->onUpdate(participant->id, timeSinceLastFrame, quit);
     }
+
+    checkForItems();
 }
 
 bool ServerTurnController::canProgressToNextTurn(int participantId) {
@@ -83,6 +85,22 @@ bool ServerTurnController::canProgressToNextTurn(int participantId) {
     }
 
     return nextTurn;
+}
+
+void ServerTurnController::checkForItems(void) {
+    auto itemController = context->getItemController();
+
+    for(auto& [_, participant] : participants) {
+        if(!participant->isPlayer) {
+            continue;
+        }
+
+        for(auto entity : participant->entities) {
+            auto items = itemController->getItemsAt(entity->getPosition());
+
+            queueAction(std::make_unique<TakeItemAction>(turnNumber, entity, items));
+        }
+    }
 }
 
 void ServerTurnController::setTransmitter(GameServerMessagesTransmitter* transmitter) {
