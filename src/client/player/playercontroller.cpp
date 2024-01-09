@@ -23,6 +23,9 @@ PlayerController::PlayerController(
     context.getWeaponController()->subscribe<WeaponEventData>(playerPanel.get());
     context.getProjectilePool()->subscribe<ProjectileEventData>(playerPanel.get());
     context.getAreaOfEffectPool()->subscribe<AreaOfEffectEventData>(playerPanel.get());
+    context.getItemController()->subscribe<ItemEventData>(playerPanel.get());
+    context.getTurnController()->subscribe<TakeItemActionEventData>(playerPanel.get());
+    context.getTurnController()->subscribe<EngagementEventData>(playerPanel.get());
 }
 
 void PlayerController::update(int64_t timeSinceLastFrame) {
