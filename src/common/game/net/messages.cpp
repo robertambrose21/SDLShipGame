@@ -47,6 +47,7 @@ EntityStateUpdate EntityStateUpdate::serialize(Entity* entity) {
     entityStateUpdate.x = entity->getPosition().x;
     entityStateUpdate.y = entity->getPosition().y;
     entityStateUpdate.participantId = entity->getParticipantId();
+    entityStateUpdate.isEngaged = entity->isEngaged();
     entityStateUpdate.currentWeaponId = entity->getCurrentWeapon()->getId();
     entityStateUpdate.numWeapons = entity->getWeapons().size();
 
@@ -63,6 +64,12 @@ void EntityStateUpdate::deserialize(const EntityStateUpdate& update, Entity* exi
     existing->setPosition(glm::ivec2(update.x, update.y));
     existing->setCurrentHP(update.currentHP);
     existing->setParticipantId(update.participantId);
+
+    // if(update.isEngaged && !existing->isEngaged()) {
+    //     existing->engage();
+    // } else if(!update.isEngaged && existing->isEngaged()) {
+    //     existing->disengage();
+    // }
 
     for(int i = 0; i < update.numWeapons; i++) {
         auto& weaponUpdate = update.weaponUpdates[i];

@@ -64,7 +64,7 @@ void Entity::update(int64_t timeSinceLastFrame, bool& quit) {
         return;
     }
     
-    if(getMovesLeft() == 0) {
+    if(isEngaged() && getMovesLeft() == 0) {
         return;
     }
 
@@ -99,6 +99,7 @@ void Entity::engage(void) {
     }
 
     engaged = true;
+    clearAllActions();
     reset();
 }
 
@@ -108,6 +109,7 @@ void Entity::disengage(void) {
     }
 
     engaged = false;
+    clearAllActions();
     reset();
 }
 
@@ -277,7 +279,7 @@ void Entity::setMovesLeft(int movesLeft) {
 }
 
 int Entity::getAggroRange(void) const {
-    return 20; // temp hardcoded for now
+    return 10; // temp hardcoded for now
 }
 
 bool Entity::isTurnInProgress(void) const {
@@ -324,6 +326,11 @@ void Entity::endTurn(void) {
     for(auto& [_, weapon] : weapons) {
         weapon->setUsesLeft(0);
     }
+}
+
+void Entity::clearAllActions(void) {
+    actionsChain.clear();
+    externalActionsChain.clear();
 }
 
 bool Entity::queueAction(

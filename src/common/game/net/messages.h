@@ -40,6 +40,7 @@ struct EntityStateUpdate {
     int currentHP;
     int x, y;
     int participantId;
+    bool isEngaged;
     uint32_t currentWeaponId;
     int numWeapons;
     WeaponStateUpdate weaponUpdates[MaxWeapons];

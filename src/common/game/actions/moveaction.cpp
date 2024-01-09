@@ -22,6 +22,10 @@ bool MoveAction::passesPrecondition(void) {
 }
 
 bool MoveAction::onValidate(void) {
+    if(!entity->isEngaged()) {
+        return true;
+    }
+
     if(entity->getMovesLeft() <= 0) {
         return false;
     }

@@ -79,6 +79,10 @@ void TurnController::addEntityToParticipant(int participantId, Entity* entity) {
         );
     }
 
+    if(!participants[participantId]->engagements.empty()) {
+        entity->engage();
+    }
+
     participants[participantId]->entities.push_back(entity);
 }
 

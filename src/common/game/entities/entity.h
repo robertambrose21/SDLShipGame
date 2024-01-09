@@ -75,6 +75,8 @@ private:
 
     int frozenForNumTurns;
 
+    void clearAllActions(void);
+
 public:
     const uint32_t MOVES_PER_SECOND = 5;
 

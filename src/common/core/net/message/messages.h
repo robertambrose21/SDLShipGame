@@ -116,6 +116,7 @@ public:
             serialize_uint32(stream, entity.id);
             serialize_string(stream, entity.name, sizeof(entity.name));
             serialize_bits(stream, entity.participantId, 16);
+            serialize_bool(stream, entity.isEngaged);
             serialize_bits(stream, entity.totalHP, 16);
             // TODO: This screws up if currentHP goes negative
             serialize_int(stream, entity.currentHP, -256, 256);
