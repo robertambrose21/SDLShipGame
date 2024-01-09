@@ -9,6 +9,8 @@ private:
     void onExecute(ApplicationContext* context);
     bool hasFinished(void);
 
+    bool containsAny(std::vector<Item*> itemsA, std::vector<Item*> itemsB);
+
     std::vector<Item*> items;
 
 public:

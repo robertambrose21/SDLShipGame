@@ -10,6 +10,15 @@ bool TakeItemAction::onValidate(void) {
         return false;
     }
 
+    for(auto action : entity->getActionsChain(turnNumber)) {
+        if(
+            action->getType() == Action::Type::TakeItem && 
+            containsAny(items, dynamic_cast<TakeItemAction*>(action)->getItems())
+        ) {
+            return false;
+        }
+    }
+
     return true;
 }
 
@@ -31,6 +40,22 @@ void TakeItemAction::onExecute(ApplicationContext* context) {
 
 bool TakeItemAction::hasFinished(void) {
     return true;
+}
+
+bool TakeItemAction::containsAny(std::vector<Item*> itemsA, std::vector<Item*> itemsB) {
+    if(itemsA.empty() || itemsB.empty()) {
+        return false;
+    }
+
+    for(auto itemA : itemsA) {
+        for(auto itemB : itemsB) {
+            if(itemA->getId() == itemB->getId()) {
+                return true;
+            }
+        }
+    }
+
+    return false;
 }
 
 bool TakeItemAction::passesPrecondition(void) {
