@@ -17,6 +17,7 @@ Entity::Entity(
     position({ 0, 0 }),
     timeSinceLastMoved(0),
     selected(false),
+    engaged(false),
     frozenForNumTurns(0),
     externalActionsChainNeedsRecalculating(true)
 { }
@@ -74,15 +75,13 @@ void Entity::update(int64_t timeSinceLastFrame, bool& quit) {
     timeSinceLastMoved += timeSinceLastFrame;
 
     if(timeSinceLastMoved > getSpeed()) {
-        // std::cout
-        //     << "(" << path.front().x << ", " << path.front().y << ") "
-        //     << getMovesLeft()
-        //     << std::endl;
-
         setPosition(path.front());
         path.pop_front();
         timeSinceLastMoved = 0;
-        useMoves(1);
+        
+        if(isEngaged()) {
+            useMoves(1);
+        }
     }
 }
 
@@ -92,6 +91,28 @@ void Entity::setSelected(bool selected) {
 
 bool Entity::isSelected(void) const {
     return selected;
+}
+
+void Entity::engage(void) {
+    if(engaged) {
+        return;
+    }
+
+    engaged = true;
+    reset();
+}
+
+void Entity::disengage(void) {
+    if(!engaged) {
+        return;
+    }
+
+    engaged = false;
+    reset();
+}
+
+bool Entity::isEngaged(void) const {
+    return engaged;
 }
 
 EntityBaseStats Entity::getBaseStats(void) const {
@@ -119,6 +140,7 @@ void Entity::takeDamage(int amount) {
 }
 
 void Entity::attack(const glm::ivec2& target, uint32_t weaponId) {
+    // TODO: free use when not engaged
     weapons[weaponId]->use(position, target);
 }
 
@@ -276,6 +298,15 @@ void Entity::useMoves(int numMoves) {
 }
 
 void Entity::nextTurn(void) {
+    reset();
+
+    if(frozenForNumTurns > 0) {
+        frozenForNumTurns--;
+        publisher.publish<EntityEventData>({ this, "Freeze" });
+    }
+}
+
+void Entity::reset(void) {
     currentStats.movesLeft = currentStats.movesPerTurn;
     path.clear();
 
@@ -283,11 +314,6 @@ void Entity::nextTurn(void) {
         if(weapon != nullptr) {
             weapon->reset();
         }
-    }
-
-    if(frozenForNumTurns > 0) {
-        frozenForNumTurns--;
-        publisher.publish<EntityEventData>({ this, "Freeze" });
     }
 }
 

@@ -1,5 +1,6 @@
 #include "stdoutsubscriber.h"
 
+// TODO: Bad
 template<typename... Args>
 void log(time_t timestamp, std::format_string<Args...> fmt, Args&&... args) {
     std::cout 
@@ -111,6 +112,21 @@ void StdOutSubscriber::onPublish(const Event<TakeItemActionEventData>& event) {
     }
 
     log(event.timestamp, "{} picked up items: [{}]", getEntityIdentifier(event.data.entity), items);
+}
+
+void StdOutSubscriber::onPublish(const Event<EngagementEventData>& event) {
+    switch(event.data.type) {
+        case EngagementEventData::ENGAGED:
+            log(event.timestamp, "participants [{}, {}] are now engaged in combat", event.data.participantIdA, event.data.participantIdB);
+            break;
+        
+        case EngagementEventData::DISENGAGED:
+            log(event.timestamp, "participants [{}, {}] have disengaged from combat", event.data.participantIdA, event.data.participantIdB);
+            break;
+
+        default:
+            break;
+    }
 }
 
 std::string StdOutSubscriber::getEntityIdentifier(Entity* entity) {

@@ -99,6 +99,18 @@ void GameServerMessagesTransmitter::onPublish(const Event<TakeItemActionEventDat
     }
 }
 
+void GameServerMessagesTransmitter::onPublish(const Event<EngagementEventData>& event) {
+    for(auto [participantId, clientIndex] : turnController->getAllAttachedClients()) {
+        EngagementMessage* message = (EngagementMessage*) server.createMessage(clientIndex, GameMessageType::ENGAGEMENT);
+
+        message->participantIdA = event.data.participantIdA;
+        message->participantIdB = event.data.participantIdB;
+        message->type = event.data.type;
+
+        server.sendMessage(clientIndex, message);
+    }
+}
+
 void GameServerMessagesTransmitter::sendSetParticipant(
     int clientIndex, 
     TurnController::Participant* participant

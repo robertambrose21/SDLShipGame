@@ -19,7 +19,8 @@ class StdOutSubscriber :
     public EventSubscriber<ProjectileEventData>,
     public EventSubscriber<AreaOfEffectEventData>,
     public EventSubscriber<ItemEventData>,
-    public EventSubscriber<TakeItemActionEventData>
+    public EventSubscriber<TakeItemActionEventData>,
+    public EventSubscriber<EngagementEventData>
 {
 private:
     std::string getEntityIdentifier(Entity* entity);
@@ -34,4 +35,5 @@ public:
     void onPublish(const Event<AreaOfEffectEventData>& event);
     void onPublish(const Event<ItemEventData>& event);
     void onPublish(const Event<TakeItemActionEventData>& event);
+    void onPublish(const Event<EngagementEventData>& event);
 };

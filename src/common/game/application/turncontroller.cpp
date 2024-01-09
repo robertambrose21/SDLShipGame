@@ -112,6 +112,50 @@ void TurnController::reset(void) {
     }
 }
 
+void TurnController::engage(int participantIdA, int participantIdB) {
+    auto& participantA = participants[participantIdA];
+    auto& participantB = participants[participantIdB];
+
+    participantA->engagements.insert(participantIdB);
+    participantB->engagements.insert(participantIdA);
+
+    if(participantA->engagements.size() == 1) {
+        for(auto entity : participantA->entities) {
+            entity->engage();
+        }
+    }
+
+    if(participantB->engagements.size() == 1) {
+        for(auto entity : participantB->entities) {
+            entity->engage();
+        }
+    }
+
+    publish<EngagementEventData>({ participantIdA, participantIdB, EngagementEventData::Type::ENGAGED });
+}
+
+void TurnController::disengage(int participantIdA, int participantIdB) {
+    auto& participantA = participants[participantIdA];
+    auto& participantB = participants[participantIdB];
+
+    participantA->engagements.erase(participantIdB);
+    participantB->engagements.erase(participantIdA);
+
+    if(participantA->engagements.empty()) {
+        for(auto entity : participantA->entities) {
+            entity->disengage();
+        }
+    }
+
+    if(participantB->engagements.empty()) {
+        for(auto entity : participantB->entities) {
+            entity->disengage();
+        }
+    }
+
+    publish<EngagementEventData>({ participantIdA, participantIdB, EngagementEventData::Type::DISENGAGED });
+}
+
 void TurnController::endCurrentParticipantTurn(void) {
     auto& participant = participants[currentParticipantId];
 

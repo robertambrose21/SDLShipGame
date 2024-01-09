@@ -49,6 +49,7 @@ private:
     Colour colour;
 
     bool selected;
+    bool engaged;
 
     Grid* grid;
     EventPublisher<EntityEventData>& publisher;
@@ -153,6 +154,10 @@ public:
     void setSelected(bool selected);
     bool isSelected(void) const;
 
+    void engage(void);
+    void disengage(void);
+    bool isEngaged(void) const;
+
     EntityBaseStats getBaseStats(void) const;
     EntityCurrentStats getCurrentStats(void) const;
     const float getSpeed(void);
@@ -206,6 +211,7 @@ public:
 
     void nextTurn(void);
     void endTurn(void);
+    void reset(void);
 
     int getFrozenFor(void) const;
     void setFrozenFor(int numTurns);

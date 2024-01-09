@@ -21,6 +21,7 @@ enum class GameMessageType {
     NEXT_TURN,
     SPAWN_ITEMS,
     TAKE_ITEMS,
+    ENGAGEMENT,
     COUNT
 };
 
@@ -377,6 +378,29 @@ public:
     YOJIMBO_VIRTUAL_SERIALIZE_FUNCTIONS();
 };
 
+class EngagementMessage : public yojimbo::Message {
+public:
+    int participantIdA;
+    int participantIdB;
+    int type;
+
+    EngagementMessage() :
+        participantIdA(0),
+        participantIdB(0),
+        type(0)
+    { }
+
+    template <typename Stream>
+    bool Serialize(Stream& stream) {
+        serialize_int(stream, participantIdA, 0, 64);
+        serialize_int(stream, participantIdB, 0, 64);
+        serialize_int(stream, type, 0, 64);
+        return true;
+    }
+
+    YOJIMBO_VIRTUAL_SERIALIZE_FUNCTIONS();
+};
+
 YOJIMBO_MESSAGE_FACTORY_START(GameMessageFactory, (int)GameMessageType::COUNT);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::FIND_PATH, FindPathMessage);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::SELECT_ENTITY, SelectEntityMessage);
@@ -392,4 +416,5 @@ YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::ACTIONS_ROLL_RESPONSE, Action
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::NEXT_TURN, NextTurnMessage);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::SPAWN_ITEMS, SpawnItemsMessage);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::TAKE_ITEMS, TakeItemsMessage);
+YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::ENGAGEMENT, EngagementMessage);
 YOJIMBO_MESSAGE_FACTORY_FINISH();

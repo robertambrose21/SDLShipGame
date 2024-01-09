@@ -62,3 +62,14 @@ struct TakeItemActionEventData {
     Entity* entity;
     std::vector<Item*> items;
 };
+
+struct EngagementEventData {
+    enum Type {
+        ENGAGED,
+        DISENGAGED
+    };
+
+    int participantIdA;
+    int participantIdB;
+    Type type;
+};

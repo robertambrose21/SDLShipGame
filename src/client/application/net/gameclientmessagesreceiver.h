@@ -46,6 +46,7 @@ private:
         ItemUpdate items[64],
         int turnNumber
     );
+    void receiveEngagement(int participantIdA, int participantIdB, int type);
 
 public:
     GameClientMessagesReceiver(ApplicationContext& context);

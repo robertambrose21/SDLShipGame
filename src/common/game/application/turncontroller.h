@@ -25,10 +25,12 @@ class TurnController :
         TurnEventData, 
         MoveActionEventData,
         AttackActionEventData,
-        TakeItemActionEventData
+        TakeItemActionEventData,
+        EngagementEventData
     >
 {
 public:
+    // TODO: This should probably be moved to a separate class soon
     // TODO: Consider making entities a map rather than a set
     typedef struct _participant {
         int id;
@@ -38,6 +40,7 @@ public:
         std::vector<std::string> items;
         bool passNextTurn;
         std::unique_ptr<BehaviourStrategy> behaviourStrategy;
+        std::set<int> engagements;
     } Participant;
 
 protected:
@@ -83,6 +86,9 @@ public:
     void addEntityToParticipant(int participantId, Entity* entity);
     Participant* getParticipant(int id);
     std::vector<Participant*> getParticipants(void);
+
+    void engage(int participantIdA, int participantIdB);
+    void disengage(int participantIdA, int participantIdB);
 
     void reset(void);
     

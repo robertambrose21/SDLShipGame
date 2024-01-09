@@ -39,6 +39,10 @@ const std::map<int, int>& ServerTurnController::getAllAttachedClients(void) cons
 }
 
 void ServerTurnController::additionalUpdate(int64_t timeSinceLastFrame, bool& quit) {
+    for(auto& [participantId, _] : participants) {
+        assignEngagements(participantId);
+    }
+
     auto participant = participants.at(currentParticipantId).get();
 
     if(participant->behaviourStrategy != nullptr) {
@@ -101,6 +105,47 @@ void ServerTurnController::checkForItems(void) {
             queueAction(std::make_unique<TakeItemAction>(turnNumber, entity, items));
         }
     }
+}
+
+void ServerTurnController::assignEngagements(int participantIdToCheck) {
+    for(auto& [participantId, participant] : participants) {
+        compareAndEngagementParticipants(participant.get(), participants[participantIdToCheck].get());
+    }
+}
+
+void ServerTurnController::compareAndEngagementParticipants(Participant* participantA, Participant* participantB) {
+    if(participantA->id == participantB->id) {
+        return;
+    }
+
+    // We only need to check the engagements for one of the participants
+    if(participantA->engagements.contains(participantB->id)) {
+        if(participantA->entities.empty() || participantB->entities.empty()) {
+            disengage(participantA->id, participantB->id);
+        }
+
+        return;
+    }
+
+    // Exit early if we find an engagement
+    for(auto entityToCheck : participantA->entities) {
+        if(hasEntityEngagement(entityToCheck, participantB)) {
+            engage(participantA->id, participantB->id);
+            return;
+        }
+    }
+}
+
+bool ServerTurnController::hasEntityEngagement(Entity* entityToCheck, Participant* participant) {
+    for(auto entity : participant->entities) {
+        auto distance = glm::distance(glm::vec2(entity->getPosition()), glm::vec2(entityToCheck->getPosition()));
+
+        if(distance <= entityToCheck->getAggroRange()) {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 void ServerTurnController::setTransmitter(GameServerMessagesTransmitter* transmitter) {

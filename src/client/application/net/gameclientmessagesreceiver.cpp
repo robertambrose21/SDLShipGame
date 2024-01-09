@@ -94,6 +94,12 @@ void GameClientMessagesReceiver::receiveMessage(yojimbo::Message* message) {
             break;
         }
 
+        case (int) GameMessageType::ENGAGEMENT: {
+            EngagementMessage* engagementMessage = (EngagementMessage*) message;
+            receiveEngagement(engagementMessage->participantIdA, engagementMessage->participantIdB, engagementMessage->type);
+            break;
+        }
+
         default:
             std::cout << "Received unhandled message: " << message << std::endl;
             break;
@@ -229,4 +235,19 @@ void GameClientMessagesReceiver::receiveTakeItems(
     }
 
     context.getTurnController()->queueAction(std::make_unique<TakeItemAction>(turnNumber, entity, itemsToTake));
+}
+
+void GameClientMessagesReceiver::receiveEngagement(int participantIdA, int participantIdB, int type) {
+    switch(type) {
+        case EngagementEventData::ENGAGED:
+            context.getTurnController()->engage(participantIdA, participantIdB);
+            break;
+
+        case EngagementEventData::DISENGAGED:
+            context.getTurnController()->disengage(participantIdA, participantIdB);
+            break;
+
+        default:
+            break;
+    }
 }

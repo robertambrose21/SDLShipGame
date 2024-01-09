@@ -90,19 +90,6 @@ void EntityPool::killEntity(uint32_t entityId) {
     participantEntities.erase(
         std::remove(participantEntities.begin(), participantEntities.end(), entity), participantEntities.end());
 
-    // auto itemsDropped = entityDefinitions[entity->getName()].lootTable.generateItems();
-    // context->getItemController()->addItems(itemsDropped, entity->getPosition());
-
-    // if(!itemsDropped.empty()) {
-    //     std::cout << entity->getName() << "#" << entityId << " dropped [";
-
-    //     for(int i = 0; i < itemsDropped.size(); i++) {
-    //         std::cout << itemsDropped[i] << ((i == itemsDropped.size() - 1) ? "]" : ", ");
-    //     }
-
-    //     std::cout << std::endl;
-    // }
-
     publish<EntityEventData>({ entity, "Death" });
 
     entities.erase(entityId);

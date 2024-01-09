@@ -11,7 +11,11 @@ private:
 
     bool canProgressToNextTurn(int participantId) override;
     void additionalUpdate(int64_t timeSinceLastFrame, bool& quit);
+    
     void checkForItems(void);
+    void assignEngagements(int participantIdToCheck);
+    void compareAndEngagementParticipants(Participant* participantA, Participant* participantB);
+    bool hasEntityEngagement(Entity* entityToCheck, Participant* participant);
 
 public:
     ServerTurnController();
