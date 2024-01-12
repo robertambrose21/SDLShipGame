@@ -15,4 +15,5 @@ public:
 
     void draw(SDL_Renderer* renderer);
     void writeLine(const std::string& line);
+    void setText(const std::string& text);
 };

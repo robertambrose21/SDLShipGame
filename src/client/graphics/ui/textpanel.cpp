@@ -14,3 +14,7 @@ void TextPanel::draw(SDL_Renderer* renderer) {
 void TextPanel::writeLine(const std::string& line) {
     lines.append(line + "\n");
 }
+
+void TextPanel::setText(const std::string& text) {
+    lines = text;
+}
