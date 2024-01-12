@@ -43,7 +43,7 @@ bool MoveAction::onValidate(void) {
 }
 
 void MoveAction::onExecute(ApplicationContext* context) {
-    entity->setPath(getPath());
+    entity->setPath(getPath(true));
 }
 
 bool MoveAction::hasFinished(void) {
