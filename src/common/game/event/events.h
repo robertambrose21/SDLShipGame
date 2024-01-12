@@ -8,6 +8,7 @@ class Item;
 class AreaOfEffect;
 class Weapon;
 class Projectile;
+class Grid;
 
 struct TurnEventData {
     int turnNumber;
@@ -72,4 +73,11 @@ struct EngagementEventData {
     int participantIdA;
     int participantIdB;
     Type type;
+};
+
+struct TileEventData {
+    int x, y;
+    int id;
+    bool isWalkable;
+    int turnsFrozenFor;
 };

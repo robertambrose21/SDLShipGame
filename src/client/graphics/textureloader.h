@@ -30,6 +30,8 @@ public:
         }
     };
 
+    inline static const std::string NoID = "NO_ID_INTERNAL";
+
 private:
     std::unique_ptr<SDL_Texture, sdl_deleter> texture;
     std::string id;
@@ -38,6 +40,7 @@ private:
 
 public:
     Texture();
+    Texture(std::unique_ptr<SDL_Texture, sdl_deleter> texture);
     Texture(std::unique_ptr<SDL_Texture, sdl_deleter> texture, const std::string& id);
 
     std::string getId(void) const;

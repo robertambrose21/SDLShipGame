@@ -3,28 +3,57 @@
 GridRenderer::GridRenderer(Grid* grid, int windowHeight) :
     grid(grid),
     windowHeight(windowHeight),
-    tileSize(32)
+    tileSize(32),
+    textureNeedsRebuilding(true)
 {
     camera = std::make_unique<Camera>(glm::ivec2(0, 0));
+    grid->subscribe<TileEventData>(this);
 }
 
 void GridRenderer::setTileTexture(int tileId, uint32_t textureId) {
     game_assert(tileId >= 0);
-    tileTextures[tileId] = textureId;
+    tileTexturesIds[tileId] = textureId;
+    textureNeedsRebuilding = true;
 }
 
-void GridRenderer::draw(GraphicsContext& graphicsContext) {
+void GridRenderer::buildTexture(GraphicsContext& graphicsContext) {
+    auto renderer = graphicsContext.getRenderer();
+
     auto const& data = grid->getData();
     auto const& width = grid->getWidth();
     auto const& height = grid->getHeight();
 
+    auto target = std::unique_ptr<SDL_Texture, Texture::sdl_deleter>(
+        SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, tileSize * width, tileSize * height), 
+        Texture::sdl_deleter()
+    );
+
+    SDL_SetRenderTarget(renderer, target.get());
+    SDL_RenderClear(renderer);
+
     for(auto y = 0; y < height; y++) {
         for(auto x = 0; x < width; x++) {
-            // if(data[y][x].isWalkable) {
-                draw(graphicsContext, tileTextures[data[y][x].id], { x, y });
-            // }
+            auto const& realPosition = getTilePosition(x, y);
+            SDL_Rect dst = { realPosition.x, realPosition.y, getTileSize(), getTileSize() };
+            graphicsContext.getTextureLoader().loadTexture(tileTexturesIds[data[y][x].id])->draw(renderer, NULL, &dst);
         }
     }
+
+    SDL_SetRenderTarget(renderer, NULL);
+    
+    texture = Texture(std::move(target));
+
+    textureNeedsRebuilding = false;
+}
+
+void GridRenderer::draw(GraphicsContext& graphicsContext) {
+    if(textureNeedsRebuilding) {
+        buildTexture(graphicsContext);
+    }
+
+    auto camPos = camera->getPosition();
+    SDL_Rect dst = { camPos.x, camPos.y, tileSize * grid->getWidth(), tileSize * grid->getHeight() };
+    texture.draw(graphicsContext.getRenderer(), NULL, &dst);
 }
 
 void GridRenderer::draw(
@@ -57,6 +86,10 @@ void GridRenderer::draw(
     graphicsContext.getTextureLoader().loadTexture(textureId)->draw(
         graphicsContext.getRenderer(), colour, alpha, NULL, &dst
     );
+}
+
+void GridRenderer::onPublish(const Event<TileEventData>& event) {
+    textureNeedsRebuilding = true;
 }
 
 Camera& GridRenderer::getCamera(void) {

@@ -36,6 +36,8 @@ void Grid::setTile(int x, int y, const Tile& tile) {
     game_assert(x < getWidth() && y < getHeight());
     data[y][x] = tile;
     isWalkableTilesDirty = true;
+
+    publish<TileEventData>({ x, y, tile.id, tile.isWalkable, tile.turnsFrozenFor });
 }
 
 void Grid::setTileWalkable(int x, int y, bool isWalkable) {
@@ -53,11 +55,11 @@ void Grid::setData(const std::vector<std::vector<Tile>>& data) {
     isWalkableTilesDirty = true;
 }
 
-const std::vector<std::vector<Tile>>& Grid::getData(void) const {
+const std::vector<std::vector<Grid::Tile>>& Grid::getData(void) const {
     return data;
 }
 
-std::vector<Tile> Grid::getWalkableTiles(void) {
+std::vector<Grid::Tile> Grid::getWalkableTiles(void) {
     if(isWalkableTilesDirty) {
         walkableTiles.clear();
 
@@ -68,12 +70,14 @@ std::vector<Tile> Grid::getWalkableTiles(void) {
                 }
             }
         }
+
+        isWalkableTilesDirty = false;
     }
 
     return walkableTiles;
 }
 
-const Tile& Grid::getTileAt(int x, int y) const {
+const Grid::Tile& Grid::getTileAt(int x, int y) const {
     game_assert(x >= 0 && y >= 0);
     game_assert(x < getWidth() && y < getHeight());
     return data[y][x];

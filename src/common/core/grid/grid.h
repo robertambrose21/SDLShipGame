@@ -11,14 +11,16 @@
 
 #include "core/util/gameassert.h"
 #include "core/util/timing.h"
+#include "core/event/eventpublisher.h"
+#include "game/event/events.h"
 
-typedef struct _tile {
-    int id;
-    bool isWalkable = true;
-    int turnsFrozenFor = 0;
-} Tile;
-
-class Grid {
+class Grid : public EventPublisher<TileEventData> {
+public:
+    typedef struct _tile {
+        int id;
+        bool isWalkable = true;
+        int turnsFrozenFor = 0;
+    } Tile;
 private:
     int width;
     int height;

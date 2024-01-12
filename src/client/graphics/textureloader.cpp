@@ -1,5 +1,13 @@
 #include "textureloader.h"
 
+Texture::Texture() :
+    Texture(nullptr)
+{ }
+
+Texture::Texture(std::unique_ptr<SDL_Texture, sdl_deleter> texture) :
+    Texture(std::move(texture), NoID)
+{ }
+
 Texture::Texture(std::unique_ptr<SDL_Texture, sdl_deleter> texture, const std::string& id) :
     texture(std::move(texture)),
     id(id),
