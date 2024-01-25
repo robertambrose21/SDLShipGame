@@ -16,6 +16,7 @@ add_library(
     items/item.cpp
     items/loottable.cpp
     items/itemcontroller.cpp
+    items/equipment.cpp
     weapons/weapon.cpp 
     weapons/projectile.cpp 
     weapons/projectileweapon.cpp 
@@ -33,6 +34,7 @@ add_library(
     actions/moveaction.cpp
     actions/attackaction.cpp
     actions/takeitemaction.cpp
+    actions/equipitemaction.cpp
     event/events.h
 )
 

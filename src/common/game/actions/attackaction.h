@@ -7,7 +7,7 @@ private:
     Weapon* weapon;
     glm::ivec2 target;
 
-    bool onValidate(void);
+    bool onValidate(ApplicationContext* context);
     void onExecute(ApplicationContext* context);
     bool hasFinished(void);
 

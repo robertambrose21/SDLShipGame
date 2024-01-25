@@ -18,6 +18,7 @@
 #include "game/actions/moveaction.h"
 #include "game/actions/attackaction.h"
 #include "game/actions/takeitemaction.h"
+#include "game/actions/equipitemaction.h"
 #include "game/items/itemcontroller.h"
 
 class TurnController : 
@@ -26,7 +27,8 @@ class TurnController :
         MoveActionEventData,
         AttackActionEventData,
         TakeItemActionEventData,
-        EngagementEventData
+        EngagementEventData,
+        EquipItemActionEventData
     >
 {
 public:
@@ -37,7 +39,7 @@ public:
         bool isReady;
         bool isPlayer;
         std::vector<Entity*> entities;
-        std::vector<std::string> items;
+        std::vector<Item*> items;
         bool passNextTurn;
         std::unique_ptr<BehaviourStrategy> behaviourStrategy;
         std::set<int> engagements;

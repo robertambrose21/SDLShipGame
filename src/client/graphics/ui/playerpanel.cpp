@@ -67,7 +67,7 @@ void PlayerPanel::onPublish(const Event<ProjectileEventData>& event) {
 void PlayerPanel::onPublish(const Event<AreaOfEffectEventData>& event) {
     log(
         event.timestamp,
-        "{} was hit by an area of effect from participant [{}] and took {} damage! {} nopw has {} HP.",
+        "{} was hit by an area of effect from participant [{}] and took {} damage! {} now has {} HP.",
         getEntityIdentifier(event.data.target),
         event.data.aoe->getOwnerId(),
         event.data.aoe->getStats().damagePerTurn,

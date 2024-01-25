@@ -18,6 +18,7 @@
 #include "graphics/ui/playerpanel.h"
 #include "graphics/ui/textpanel.h"
 #include "game/actions/attackaction.h"
+#include "game/actions/equipitemaction.h"
 
 class PlayerController {
 private:
@@ -57,6 +58,7 @@ private:
     void handleMouseDown(const SDL_Event& event);
     void handleMouseUp(const SDL_Event& event);
     void setHoverTiles(void);
+    void equipItem(Item* item, Equipment::Slot slot);
 
 public:
     PlayerController(

@@ -5,7 +5,7 @@ TakeItemAction::TakeItemAction(int turnNumber, Entity* entity, const std::vector
     items(items)
 { }
 
-bool TakeItemAction::onValidate(void) {
+bool TakeItemAction::onValidate(ApplicationContext* context) {
     if(items.empty()) {
         return false;
     }
@@ -29,20 +29,19 @@ void TakeItemAction::onExecute(ApplicationContext* context) {
         return;
     }
 
-    std::vector<uint32_t> itemIds;
     for(auto item : items) {
-        itemIds.push_back(item->getId());
-        participant->items.push_back(item->getName());
+        item->setParticipantId(participant->id);
+        participant->items.push_back(item);
     }
-
-    context->getItemController()->removeItems(itemIds);
+    
+    context->getItemController()->flagWorldItemsDirty();
 }
 
 bool TakeItemAction::hasFinished(void) {
     return true;
 }
 
-bool TakeItemAction::containsAny(std::vector<Item*> itemsA, std::vector<Item*> itemsB) {
+bool TakeItemAction::containsAny(const std::vector<Item*>& itemsA, const std::vector<Item*>& itemsB) {
     if(itemsA.empty() || itemsB.empty()) {
         return false;
     }

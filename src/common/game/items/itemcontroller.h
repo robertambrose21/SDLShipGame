@@ -28,6 +28,8 @@ private:
 
     std::map<std::string, ItemDefinition> itemDefinitions;
     std::map<uint32_t, std::unique_ptr<Item>> items;
+    std::vector<Item*> worldItems;
+    bool areWorldItemsDirty;
 
     ApplicationContext* context;
     bool initialised;
@@ -47,9 +49,13 @@ public:
     void removeItem(uint32_t id);
     void removeItems(const std::vector<uint32_t>& ids);
     std::vector<Item*> getItemsAt(const glm::ivec2& position);
+    bool hasItem(uint32_t id);
     Item* getItem(uint32_t id);
 
+    void flagWorldItemsDirty(void);
+
     std::map<uint32_t, std::unique_ptr<Item>> const& getItems(void) const;
+    std::vector<Item*> getWorldItems(void);
 
     void onPublish(const Event<EntityEventData>& event);
 };

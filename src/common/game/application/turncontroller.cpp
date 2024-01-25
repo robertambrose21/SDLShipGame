@@ -255,6 +255,7 @@ bool TurnController::queueAction(std::unique_ptr<Action> action) {
     bool skipValidation = turnNumber != action->getTurnNumber();
 
     return action->getEntity()->queueAction(
+        context,
         std::move(action),
         [&](auto& action) { publishAction(action); },
         skipValidation
@@ -292,6 +293,17 @@ void TurnController::publishAction(Action& action) {
                 turnNumber,
                 takeItemAction.getEntity(),
                 takeItemAction.getItems()
+            });
+            break;
+        }
+
+        case Action::EquipItem: {
+            auto equipItemAction = dynamic_cast<EquipItemAction&>(action);
+            publish<EquipItemActionEventData>({
+                turnNumber,
+                equipItemAction.getEntity(),
+                equipItemAction.getItem(),
+                equipItemAction.getSlot()
             });
             break;
         }

@@ -6,7 +6,7 @@ Action::Action(int turnNumber, Entity* entity) :
     _isExecuted(false)
 { }
 
-bool Action::validate(void) {
+bool Action::validate(ApplicationContext* context) {
     if(entity == nullptr) {
         return false;
     }
@@ -15,7 +15,7 @@ bool Action::validate(void) {
         return false;
     }
 
-    return onValidate();
+    return onValidate(context);
 }
 
 void Action::execute(ApplicationContext* context) {

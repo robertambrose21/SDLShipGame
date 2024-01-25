@@ -10,11 +10,14 @@
 #include "game/effects/statuseffect.h"
 #include "core/event/eventpublisher.h"
 #include "core/grid/grid.h"
+#include "game/items/equipment.h"
+#include "game/application/applicationcontext.h"
 
 // TODO: Fix with modules?
 class Weapon;
 class Entity;
 class Action;
+class ApplicationContext;
 
 struct EntityEventData {
     Entity* entity;
@@ -61,6 +64,7 @@ private:
     EntityBaseStats stats;
     EntityCurrentStats currentStats;
     std::set<StatusEffect> statusEffects;
+    std::unique_ptr<Equipment> equipment[Equipment::Slot::COUNT];
 
     std::map<uint32_t, std::unique_ptr<Weapon>> weapons;
     Weapon* currentWeapon;
@@ -162,6 +166,10 @@ public:
 
     EntityBaseStats getBaseStats(void) const;
     EntityCurrentStats getCurrentStats(void) const;
+
+    void setEquipment(Item* item, Equipment::Slot slot);
+    Equipment* getEquipment(Equipment::Slot slot);
+
     const float getSpeed(void);
     int getCurrentHP(void) const;
     void setCurrentHP(int hp);
@@ -200,6 +208,7 @@ public:
     void useMoves(int numMoves);
 
     bool queueAction(
+        ApplicationContext* context,
         std::unique_ptr<Action> action, 
         std::function<void(Action&)> onSuccessfulQueue, 
         bool skipValidation = false

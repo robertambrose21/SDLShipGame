@@ -1,6 +1,9 @@
 #include "itemcontroller.h"
 
-ItemController::ItemController() {
+ItemController::ItemController() :
+    areWorldItemsDirty(true),
+    initialised(false)
+{
     loadItemDefinitions();
 }
 
@@ -80,6 +83,8 @@ Item* ItemController::addItem(
         });
     }
 
+    areWorldItemsDirty = true;
+
     return items[id].get();
 }
 
@@ -135,6 +140,8 @@ void ItemController::removeItem(uint32_t id) {
     });
     
     items.erase(id);
+
+    areWorldItemsDirty = true;
 }
 
 void ItemController::removeItems(const std::vector<uint32_t>& ids) {
@@ -149,14 +156,20 @@ void ItemController::removeItems(const std::vector<uint32_t>& ids) {
     for(auto id : ids) {
         items.erase(id);
     }
+
+    areWorldItemsDirty = true;
+}
+
+void ItemController::flagWorldItemsDirty(void) {
+    areWorldItemsDirty = true;
 }
 
 std::vector<Item*> ItemController::getItemsAt(const glm::ivec2& position) {
     std::vector<Item*> foundItems;
 
-    for(auto& [_, item] : items) {
+    for(auto item : getWorldItems()) {
         if(item->getPosition() == position) {
-            foundItems.push_back(item.get());
+            foundItems.push_back(item);
         }
     }
 
@@ -167,8 +180,28 @@ Item* ItemController::getItem(uint32_t id) {
     return items[id].get();
 }
 
+bool ItemController::hasItem(uint32_t id) {
+    return items.contains(id);
+}
+
 std::map<uint32_t, std::unique_ptr<Item>> const& ItemController::getItems(void) const {
     return items;
+}
+
+std::vector<Item*> ItemController::getWorldItems(void) {
+    if(areWorldItemsDirty) {
+        worldItems.clear();
+
+        for(auto& [_, item] : items) { 
+            if(item->getParticipantId() == -1) {
+                worldItems.push_back(item.get());
+            }
+        }
+
+        areWorldItemsDirty = false;
+    }
+
+    return worldItems;
 }
 
 void ItemController::onPublish(const Event<EntityEventData>& event) {

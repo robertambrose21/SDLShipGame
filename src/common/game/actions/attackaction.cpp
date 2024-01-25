@@ -27,7 +27,7 @@ bool AttackAction::passesPrecondition(void) {
     return weapon->isInRange(target);
 }
 
-bool AttackAction::onValidate(void) {
+bool AttackAction::onValidate(ApplicationContext* context) {
     if(weapon == nullptr) {
         return false;
     }

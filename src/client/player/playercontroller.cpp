@@ -86,6 +86,16 @@ void PlayerController::handleKeyPress(const SDL_Event& event) {
                 turnController->passParticipant(participant->id);
                 break;
             }
+            
+            case SDLK_e: {
+                for(auto item : participant->items) {
+                    if(item->getType() == "BodyArmour") {
+                        equipItem(item, Equipment::Slot::BODY);
+                        break;
+                    }
+                }
+                break;
+            }
 
             case SDLK_LSHIFT:
                 isLeftShiftPressed = true;
@@ -326,6 +336,14 @@ void PlayerController::setHoverTiles(void) {
             glm::ivec2(x + pX, y + pY),
             glm::ivec2(x - pX, y - pY)
         };
+    }
+}
+
+void PlayerController::equipItem(Item* item, Equipment::Slot slot) {
+    auto entity = selectedEntities[0];
+
+    if(turnController->queueAction(std::make_unique<EquipItemAction>(turnController->getTurnNumber(), entity, item, slot))) {
+        clientMessagesTransmitter.sendEquipItemMessage(item->getId(), entity->getId(), slot);
     }
 }
 

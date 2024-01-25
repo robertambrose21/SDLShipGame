@@ -1,14 +1,15 @@
 #include "item.h"
 
 Item::Item(const std::string& name, const std::string& type, const glm::ivec2& position) :
-    Item(name, type, position, getNewId())
+    Item(name, type, position, getNewId())    
 { }
 
 Item::Item(const std::string& name, const std::string& type, const glm::ivec2& position, uint32_t id) :
     name(name),
     type(type),
     position(position),
-    id(id)
+    id(id),
+    participantId(-1)
 { }
 
 uint32_t Item::getId(void) const {
@@ -17,6 +18,10 @@ uint32_t Item::getId(void) const {
 
 std::string Item::getName(void) const {
     return name;
+}
+
+std::string Item::getType(void) const {
+    return type;
 }
 
 void Item::setTextureId(uint32_t textureId) {
@@ -41,4 +46,12 @@ void Item::setPosition(const glm::ivec2& position) {
 
 glm::ivec2 Item::getPosition(void) const {
     return position;
+}
+
+int Item::getParticipantId(void) const {
+    return participantId;
+}
+
+void Item::setParticipantId(int participantId) {
+    this->participantId = participantId;
 }

@@ -27,7 +27,8 @@ Entity::Entity(
     EventPublisher<EntityEventData>& publisher,
     const std::string& name,
     const EntityBaseStats& stats
-) : Entity(grid, getNewId(), publisher, name, stats)
+) : 
+    Entity(grid, getNewId(), publisher, name, stats)
 { }
 
 void Entity::setTextureId(uint32_t textureId) {
@@ -123,6 +124,20 @@ EntityBaseStats Entity::getBaseStats(void) const {
 
 EntityCurrentStats Entity::getCurrentStats(void) const {
     return currentStats;
+}
+
+// TODO: If we replace a slot, put the item back in the players inventory
+// TODO: Fire an unequip event
+void Entity::setEquipment(Item* item, Equipment::Slot slot) {
+    if(equipment[slot] != nullptr && equipment[slot]->getItem()->getId() == item->getId()) {
+        return;
+    }
+
+    equipment[slot] = std::make_unique<Equipment>(item, slot);
+}
+
+Equipment* Entity::getEquipment(Equipment::Slot slot) {
+    return equipment[slot].get();
 }
 
 const float Entity::getSpeed(void) {
@@ -334,11 +349,12 @@ void Entity::clearAllActions(void) {
 }
 
 bool Entity::queueAction(
+    ApplicationContext* context,
     std::unique_ptr<Action> action,
     std::function<void(Action&)> onSuccessfulQueue,
     bool skipValidation
 ) {
-    if(!skipValidation && !action->validate()) {
+    if(!skipValidation && !action->validate(context)) {
         return false;
     }
 

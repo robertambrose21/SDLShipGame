@@ -5,11 +5,11 @@
 
 class TakeItemAction : public Action {
 private:
-    bool onValidate(void);
+    bool onValidate(ApplicationContext* context);
     void onExecute(ApplicationContext* context);
     bool hasFinished(void);
 
-    bool containsAny(std::vector<Item*> itemsA, std::vector<Item*> itemsB);
+    bool containsAny(const std::vector<Item*>& itemsA, const std::vector<Item*>& itemsB);
 
     std::vector<Item*> items;
 

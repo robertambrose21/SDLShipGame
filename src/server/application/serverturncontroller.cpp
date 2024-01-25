@@ -61,8 +61,9 @@ bool ServerTurnController::canProgressToNextTurn(int participantId) {
         return false;
     }
 
+    // TODO: Need to add a check to see if any fully dead participants still have projectiles/animations in progress
     if(participant->entities.empty()) {
-        return false;
+        return true;
     }
 
     bool haveEntitiesTurnsFinished = true;

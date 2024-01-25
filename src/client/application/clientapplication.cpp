@@ -40,6 +40,7 @@ void ClientApplication::initialise(void) {
     context.getItemController()->subscribe<ItemEventData>(&stdoutSubscriber);
     context.getTurnController()->subscribe<TakeItemActionEventData>(&stdoutSubscriber);
     context.getTurnController()->subscribe<EngagementEventData>(&stdoutSubscriber);
+    context.getTurnController()->subscribe<EquipItemActionEventData>(&stdoutSubscriber);
 
     weaponDrawStrategy = std::make_unique<WeaponDrawStrategy>();
     entityDrawStrategy = std::make_unique<EntityDrawStrategy>(weaponDrawStrategy.get());
@@ -115,8 +116,9 @@ void ClientApplication::drawGameLoop(GraphicsContext& graphicsContext) {
     auto areaOfEffectPool = context.getAreaOfEffectPool();
     auto itemController = context.getItemController();
 
-    for(auto& [_, item] : itemController->getItems()) {
-        itemDrawStrategy->draw(item.get(), graphicsContext);
+    // for(auto& [_, item] : itemController->getItems()) {
+    for(auto& item : itemController->getWorldItems()) {
+        itemDrawStrategy->draw(item, graphicsContext);
     }
 
     for(auto aoe : areaOfEffectPool->getAoeEffects()) {

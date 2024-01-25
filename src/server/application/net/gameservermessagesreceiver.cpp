@@ -52,6 +52,12 @@ void GameServerMessagesReceiver::receiveMessage(int clientIndex, yojimbo::Messag
             break;
         }
 
+        case (int) GameMessageType::EQUIP_ITEM: {
+            EquipItemMessage* equipItemMessage = (EquipItemMessage*) message;
+            receiveEquipItemMessage(clientIndex, equipItemMessage->itemId, equipItemMessage->entityId, equipItemMessage->slot);
+            break;
+        }
+
         default:
             break;
     }
@@ -132,6 +138,26 @@ void GameServerMessagesReceiver::receiveSetParticipantAckMessage(int clientIndex
     clientParticipantsLoaded[clientIndex].insert(participantId);
 
     // std::cout << "Got participant ACK " << participantId << std::endl;
+}
+
+void GameServerMessagesReceiver::receiveEquipItemMessage(int clientIndex, uint32_t itemId, uint32_t entityId, uint8_t slot) {
+    if(slot >= Equipment::Slot::COUNT) {
+        return;
+    }
+    
+    if(!context.getEntityPool()->hasEntity(entityId)) {
+        return;
+    }
+
+    if(!context.getItemController()->hasItem(itemId)) {
+        return;
+    }
+
+    auto turnController = context.getTurnController();
+    auto item = context.getItemController()->getItem(itemId);
+    auto entity = context.getEntityPool()->getEntity(entityId);
+
+    turnController->queueAction(std::make_unique<EquipItemAction>(turnController->getTurnNumber(), entity, item, (Equipment::Slot) slot));
 }
 
 bool GameServerMessagesReceiver::areParticipantsLoadedForClient(int clientIndex) {

@@ -8,6 +8,7 @@ public:
         Move = 0,
         Attack,
         TakeItem,
+        EquipItem,
         // Freeze,
         Count
     };
@@ -17,14 +18,14 @@ protected:
     bool _isExecuted;
     int turnNumber;
 
-    virtual bool onValidate(void) = 0;
+    virtual bool onValidate(ApplicationContext* context) = 0;
     virtual void onExecute(ApplicationContext* context) = 0;
     virtual bool hasFinished(void) = 0;
 
 public:
     Action(int turnNumber, Entity* entity);
 
-    bool validate(void);
+    bool validate(ApplicationContext* context);
     bool isFinished(void);
     void execute(ApplicationContext* context);
 

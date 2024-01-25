@@ -21,7 +21,7 @@ bool MoveAction::passesPrecondition(void) {
     return true;
 }
 
-bool MoveAction::onValidate(void) {
+bool MoveAction::onValidate(ApplicationContext* context) {
     if(!entity->isEngaged()) {
         return !getPath().empty();
     }

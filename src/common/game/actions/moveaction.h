@@ -12,7 +12,7 @@ private:
 
     std::deque<glm::ivec2> path;
 
-    bool onValidate(void);
+    bool onValidate(ApplicationContext* context);
     void onExecute(ApplicationContext* context);
     bool hasFinished(void);
 

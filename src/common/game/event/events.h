@@ -81,3 +81,10 @@ struct TileEventData {
     bool isWalkable;
     int turnsFrozenFor;
 };
+
+struct EquipItemActionEventData {
+    int turnNumber;
+    Entity* entity;
+    Item* item;
+    int slot;
+};
