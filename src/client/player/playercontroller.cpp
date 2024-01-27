@@ -17,6 +17,7 @@ PlayerController::PlayerController(
 {
     dice = std::make_unique<Dice>(3, clientMessagesTransmitter, context.getTurnController());
     playerPanel = std::make_unique<PlayerPanel>(1920, 1080);
+    inventoryPanel = std::make_unique<InventoryPanel>(400, 600);
     
     turnController->subscribe<TurnEventData>(playerPanel.get());
     entityPool->subscribe<EntityEventData>(playerPanel.get());
@@ -25,7 +26,6 @@ PlayerController::PlayerController(
     context.getAreaOfEffectPool()->subscribe<AreaOfEffectEventData>(playerPanel.get());
     context.getItemController()->subscribe<ItemEventData>(playerPanel.get());
     context.getTurnController()->subscribe<TakeItemActionEventData>(playerPanel.get());
-    context.getTurnController()->subscribe<EngagementEventData>(playerPanel.get());
 }
 
 void PlayerController::update(int64_t timeSinceLastFrame) {
@@ -53,8 +53,6 @@ void PlayerController::update(int64_t timeSinceLastFrame) {
 
 void PlayerController::draw(GraphicsContext& graphicsContext) {
     // dice->draw(graphicsContext);
-    playerPanel->draw(graphicsContext.getRenderer());
-
     if(selection.isActive) {
         auto size = selection.end - selection.start;
 
@@ -78,6 +76,11 @@ void PlayerController::draw(GraphicsContext& graphicsContext) {
     }
 }
 
+void PlayerController::drawUI(GraphicsContext& graphicsContext) {
+    playerPanel->draw();
+    inventoryPanel->draw(graphicsContext, participant);
+}
+
 void PlayerController::handleKeyPress(const SDL_Event& event) {
     if(event.type == SDL_KEYDOWN && event.key.repeat == 0) {
         switch(event.key.keysym.sym) {
@@ -94,6 +97,11 @@ void PlayerController::handleKeyPress(const SDL_Event& event) {
                         break;
                     }
                 }
+                break;
+            }
+
+            case SDLK_i: {
+                inventoryPanel->toggle();
                 break;
             }
 

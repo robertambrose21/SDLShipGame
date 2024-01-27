@@ -5,6 +5,10 @@
 #include <iostream>
 #include <functional>
 
+#include "imgui.h"
+#include "backends/imgui_impl_sdl2.h"
+#include "backends/imgui_impl_sdlrenderer2.h"
+
 #include "textureloader.h"
 #include "gridrenderer.h"
 #include "graphicscontext.h"
@@ -29,6 +33,9 @@ private:
 
     std::vector<std::function<void(GraphicsContext&, bool&)>> drawWorkers;
     std::vector<std::function<void(const SDL_Event&, bool&)>> eventWorkers;
+    std::vector<std::function<void(GraphicsContext&)>> uiWorkers;
+
+    void initialiseImgui(void);
     
 public:
     Window(int width, int height, Grid* grid);
@@ -39,6 +46,7 @@ public:
 
     void addLoopDrawWorker(std::function<void(GraphicsContext&, bool&)> worker);
     void addLoopEventWorker(std::function<void(const SDL_Event&, bool&)> worker);
+    void addUiWorker(std::function<void(GraphicsContext&)> worker);
     
     void setGridTileTexture(int tileId, uint32_t textureId);
 

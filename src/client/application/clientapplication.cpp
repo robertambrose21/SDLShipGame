@@ -88,6 +88,10 @@ void ClientApplication::initialise(void) {
         playerController->handleKeyPress(e);
         playerController->handleMouseEvent(e);
     });
+    window->addUiWorker([&](auto graphicsContext) {
+        // ImGui::ShowDemoWindow();
+        playerController->drawUI(graphicsContext);
+    });
 
     application->addLogicWorker([&](ApplicationContext& c, auto const& timeSinceLastFrame, auto& quit) {
         update(timeSinceLastFrame, quit);

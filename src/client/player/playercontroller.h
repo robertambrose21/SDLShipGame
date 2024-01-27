@@ -16,7 +16,7 @@
 #include "graphics/ui/dice.h"
 #include "graphics/ui/button.h"
 #include "graphics/ui/playerpanel.h"
-#include "graphics/ui/textpanel.h"
+#include "graphics/ui/inventorypanel.h"
 #include "game/actions/attackaction.h"
 #include "game/actions/equipitemaction.h"
 
@@ -52,6 +52,7 @@ private:
     glm::ivec2 p1, p2;
 
     std::unique_ptr<PlayerPanel> playerPanel;
+    std::unique_ptr<InventoryPanel> inventoryPanel;
 
     void move(const glm::ivec2& position);
     void attack(const glm::ivec2& target);
@@ -69,6 +70,7 @@ public:
 
     void update(int64_t timeSinceLastFrame);
     void draw(GraphicsContext& graphicsContext);
+    void drawUI(GraphicsContext& graphicsContext);
 
     void handleKeyPress(const SDL_Event& event);
     void handleMouseEvent(const SDL_Event& event);

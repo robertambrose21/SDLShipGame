@@ -2,8 +2,10 @@
 
 #include <sstream>
 #include <format>
+#include <vector>
 
-#include "textpanel.h"
+#include "imgui.h"
+
 #include "game/application/turncontroller.h"
 #include "game/entities/entitypool.h"
 #include "core/event/eventsubscriber.h"
@@ -15,23 +17,34 @@ class PlayerPanel :
     public EventSubscriber<ProjectileEventData>,
     public EventSubscriber<AreaOfEffectEventData>,
     public EventSubscriber<ItemEventData>,
-    public EventSubscriber<TakeItemActionEventData>,
-    public EventSubscriber<EngagementEventData>
+    public EventSubscriber<TakeItemActionEventData>
 {
 private:
-    const int PanelHeight = 200;
+    typedef struct _textSegment {
+        std::string text;
+        ImVec4 colour;
+    } TextSegment;
 
-    std::unique_ptr<TextPanel> panel;
+    const int PanelHeight = 200;
+    const ImVec4 TimestampColour = ImVec4(.8f, .8f, .7f, 1);
+    const ImVec4 StdTextColour = ImVec4(.8f, .8f, .8f, 1);
+    const ImVec4 HighlightColour = ImVec4(1, 1, 1, 1);
+
+    int width;
+    int height;
+
+    std::vector<std::vector<TextSegment>> lines;
 
     std::string getEntityIdentifier(Entity* entity);
-
-    template<typename... Args>
-    void log(time_t timestamp, std::format_string<Args...> fmt, Args&&... args);
+    
+    std::string getTimestampString(std::time_t timestamp);
+    void appendItemsToLine(std::vector<TextSegment>& segment, const std::vector<Item*>& items);
 
 public:
     PlayerPanel(int width, int height);
 
-    void draw(SDL_Renderer* renderer);
+    void draw(void);
+
     void onPublish(const Event<TurnEventData>& event);
     void onPublish(const Event<EntityEventData>& event);
     void onPublish(const Event<WeaponEventData>& event);
@@ -39,5 +52,4 @@ public:
     void onPublish(const Event<AreaOfEffectEventData>& event);
     void onPublish(const Event<ItemEventData>& event);
     void onPublish(const Event<TakeItemActionEventData>& event);
-    void onPublish(const Event<EngagementEventData>& event);
 };
