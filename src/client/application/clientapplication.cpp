@@ -89,7 +89,7 @@ void ClientApplication::initialise(void) {
         playerController->handleMouseEvent(e);
     });
     window->addUiWorker([&]() {
-        ImGui::ShowDemoWindow();
+        // ImGui::ShowDemoWindow();
         playerController->drawUI();
     });
 

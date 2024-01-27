@@ -17,6 +17,7 @@ PlayerController::PlayerController(
 {
     dice = std::make_unique<Dice>(3, clientMessagesTransmitter, context.getTurnController());
     playerPanel = std::make_unique<PlayerPanel>(1920, 1080);
+    inventoryPanel = std::make_unique<InventoryPanel>(400, 600);
     
     turnController->subscribe<TurnEventData>(playerPanel.get());
     entityPool->subscribe<EntityEventData>(playerPanel.get());
@@ -77,6 +78,7 @@ void PlayerController::draw(GraphicsContext& graphicsContext) {
 
 void PlayerController::drawUI(void) {
     playerPanel->draw();
+    inventoryPanel->draw(participant);
 }
 
 void PlayerController::handleKeyPress(const SDL_Event& event) {
@@ -95,6 +97,11 @@ void PlayerController::handleKeyPress(const SDL_Event& event) {
                         break;
                     }
                 }
+                break;
+            }
+
+            case SDLK_i: {
+                inventoryPanel->toggle();
                 break;
             }
 
