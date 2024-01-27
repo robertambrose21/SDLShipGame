@@ -212,7 +212,7 @@ void GameClientMessagesReceiver::receiveSpawnItems(
     }
 
     for(int i = 0; i < numItems; i++) {
-        context.getItemController()->addItem(items[i].name, position, items[i].id, owner, false);
+        context.getItemController()->addItem(items[i].name, position, items[i].id, owner);
     }
 }
 

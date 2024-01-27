@@ -17,21 +17,28 @@ class PlayerPanel :
     public EventSubscriber<ProjectileEventData>,
     public EventSubscriber<AreaOfEffectEventData>,
     public EventSubscriber<ItemEventData>,
-    public EventSubscriber<TakeItemActionEventData>,
-    public EventSubscriber<EngagementEventData>
+    public EventSubscriber<TakeItemActionEventData>
 {
 private:
+    typedef struct _textSegment {
+        std::string text;
+        ImVec4 colour;
+    } TextSegment;
+
     const int PanelHeight = 200;
+    const ImVec4 TimestampColour = ImVec4(.8f, .8f, .7f, 1);
+    const ImVec4 StdTextColour = ImVec4(.8f, .8f, .8f, 1);
+    const ImVec4 HighlightColour = ImVec4(1, 1, 1, 1);
 
     int width;
     int height;
 
+    std::vector<std::vector<TextSegment>> lines;
+
     std::string getEntityIdentifier(Entity* entity);
-
-    template<typename... Args>
-    void log(time_t timestamp, std::format_string<Args...> fmt, Args&&... args);
-
-    std::vector<std::string> lines;
+    
+    std::string getTimestampString(std::time_t timestamp);
+    void appendItemsToLine(std::vector<TextSegment>& segment, const std::vector<Item*>& items);
 
 public:
     PlayerPanel(int width, int height);
@@ -45,5 +52,4 @@ public:
     void onPublish(const Event<AreaOfEffectEventData>& event);
     void onPublish(const Event<ItemEventData>& event);
     void onPublish(const Event<TakeItemActionEventData>& event);
-    void onPublish(const Event<EngagementEventData>& event);
 };
