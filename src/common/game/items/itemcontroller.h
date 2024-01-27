@@ -22,9 +22,12 @@ private:
         std::string filename;
         std::string name;
         std::string type;
+        std::string rarity;
         uint32_t textureId;
         uint8_t r, g, b, a;
     } ItemDefinition;
+
+    static const std::map<std::string, Item::Rarity> StringToRarity;
 
     std::map<std::string, ItemDefinition> itemDefinitions;
     std::map<uint32_t, std::unique_ptr<Item>> items;
@@ -35,6 +38,8 @@ private:
     bool initialised;
 
     void loadItemDefinitions(void);
+
+    Item::Rarity mapToRarity(const std::string& rarityString);
 
 public:
     ItemController();

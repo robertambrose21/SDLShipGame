@@ -1,12 +1,13 @@
 #include "item.h"
 
-Item::Item(const std::string& name, const std::string& type, const glm::ivec2& position) :
-    Item(name, type, position, getNewId())    
+Item::Item(const std::string& name, Rarity rarity, const std::string& type, const glm::ivec2& position) :
+    Item(name, rarity, type, position, getNewId())    
 { }
 
-Item::Item(const std::string& name, const std::string& type, const glm::ivec2& position, uint32_t id) :
+Item::Item(const std::string& name, Rarity rarity, const std::string& type, const glm::ivec2& position, uint32_t id) :
     name(name),
     type(type),
+    rarity(rarity),
     position(position),
     id(id),
     participantId(-1)
@@ -22,6 +23,10 @@ std::string Item::getName(void) const {
 
 std::string Item::getType(void) const {
     return type;
+}
+
+Item::Rarity Item::getRarity(void) const {
+    return rarity;
 }
 
 void Item::setTextureId(uint32_t textureId) {

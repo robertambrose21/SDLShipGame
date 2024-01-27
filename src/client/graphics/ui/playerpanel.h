@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "imgui.h"
+#include "itemraritycolours.h"
 
 #include "game/application/turncontroller.h"
 #include "game/entities/entitypool.h"

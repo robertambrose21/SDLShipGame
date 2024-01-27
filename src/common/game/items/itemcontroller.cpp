@@ -1,5 +1,13 @@
 #include "itemcontroller.h"
 
+const std::map<std::string, Item::Rarity> ItemController::StringToRarity = {
+    { "Junk", Item::Rarity::Junk },
+    { "Common", Item::Rarity::Common },
+    { "Uncommon", Item::Rarity::Uncommon },
+    { "Rare", Item::Rarity::Rare },
+    { "Epic", Item::Rarity::Epic }
+};
+
 ItemController::ItemController() :
     areWorldItemsDirty(true),
     initialised(false)
@@ -23,6 +31,7 @@ void ItemController::loadItemDefinitions(void) {
         definition.filename = entry.path();
         definition.name = data["name"].get<std::string>();
         definition.type = data["type"].get<std::string>();
+        definition.rarity = data["rarity"].get<std::string>();
 
         auto const& textureData = data["texture"].get<json>();
         definition.textureId = textureData["id"].get<uint32_t>();
@@ -36,6 +45,14 @@ void ItemController::loadItemDefinitions(void) {
 
         itemDefinitions[definition.name] = definition;
     }
+}
+
+Item::Rarity ItemController::mapToRarity(const std::string& rarityString) {
+    if(!StringToRarity.contains(rarityString)) {
+        return Item::Rarity::Unknown;
+    }
+
+    return StringToRarity.at(rarityString);
 }
 
 Item* ItemController::addItem(
@@ -61,6 +78,7 @@ Item* ItemController::addItem(
     auto definition = itemDefinitions[name];
     auto item = std::make_unique<Item>(
         definition.name,
+        mapToRarity(definition.rarity),
         definition.type,
         position,
         id

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "imgui.h"
+#include "itemraritycolours.h"
 
 #include "graphics/graphicscontext.h"
 #include "game/application/turncontroller.h"

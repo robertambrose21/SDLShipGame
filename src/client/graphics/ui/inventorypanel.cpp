@@ -19,7 +19,7 @@ void InventoryPanel::draw(GraphicsContext& graphicsContext, TurnController::Part
 
         ImGui::Image((void*) texture, ImVec2(20, 20));
         ImGui::SameLine();
-        ImGui::Text("[%s]", item->getName().c_str());
+        ImGui::TextColored(ItemRarityColours.at(item->getRarity()), "[%s]", item->getName().c_str());
     }
 
     ImGui::End();

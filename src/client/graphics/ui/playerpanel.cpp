@@ -185,7 +185,7 @@ std::string PlayerPanel::getTimestampString(std::time_t timestamp) {
 
 void PlayerPanel::appendItemsToLine(std::vector<TextSegment>& segment, const std::vector<Item*>& items) {
     for(int i = 0; i < items.size(); i++) {
-        segment.push_back({ "[" + items[i]->getName() + "]" , HighlightColour });
+        segment.push_back({ "[" + items[i]->getName() + "]" , ItemRarityColours.at(items[i]->getRarity()) });
 
         if(i < items.size() - 1) {
             segment.push_back({ ", ", StdTextColour });

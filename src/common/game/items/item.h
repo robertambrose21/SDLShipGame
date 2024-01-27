@@ -8,6 +8,17 @@
 #include "game/event/events.h"
 
 class Item {
+public:
+    // TODO: Come up with names which don't just copy WoW
+    enum Rarity {
+        Unknown,
+        Junk,
+        Common,
+        Uncommon,
+        Rare,
+        Epic
+    };
+
 private:
     typedef struct _colour {
         uint8_t r, g, b, a;
@@ -29,6 +40,7 @@ private:
 
     std::string name;
     std::string type;
+    Rarity rarity;
 
     uint32_t id;
     uint32_t textureId;
@@ -38,11 +50,13 @@ private:
     int participantId;
 
 public:
-    Item(const std::string& name, const std::string& type, const glm::ivec2& position);
-    Item(const std::string& name, const std::string& type, const glm::ivec2& position, uint32_t id);
+    Item(const std::string& name, Rarity rarity, const std::string& type, const glm::ivec2& position);
+    Item(const std::string& name, Rarity rarity, const std::string& type, const glm::ivec2& position, uint32_t id);
 
     std::string getName(void) const;
     std::string getType(void) const;
+    Rarity getRarity(void) const;
+
     uint32_t getId(void) const;
 
     void setTextureId(uint32_t textureId);
