@@ -45,14 +45,7 @@ bool Window::initialiseWindow(void) {
         return false;
     }
 
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO();
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
-
-    ImGui_ImplSDL2_InitForSDLRenderer(window.get(), renderer.get());
-    ImGui_ImplSDLRenderer2_Init(renderer.get());
+    initialiseImgui();
 
     SDL_SetRenderDrawColor(renderer.get(), 0x00, 0x00, 0x00, 0xFF);
 
@@ -70,6 +63,17 @@ bool Window::initialiseWindow(void) {
     graphicsContext = std::make_unique<GraphicsContext>(renderer.get(), textureLoader, *gridRenderer, width, height);
 
     return true;
+}
+
+void Window::initialiseImgui(void) {
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO();
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
+
+    ImGui_ImplSDL2_InitForSDLRenderer(window.get(), renderer.get());
+    ImGui_ImplSDLRenderer2_Init(renderer.get());
 }
 
 
@@ -92,7 +96,9 @@ void Window::update(int64_t timeSinceLastFrame, bool& quit) {
     ImGui_ImplSDL2_NewFrame();
     ImGui::NewFrame();
 
-    ImGui::ShowDemoWindow();
+    for(auto const& worker : uiWorkers) {
+        worker();
+    }
 
     ImGui::Render();
     SDL_RenderClear(renderer.get());
@@ -116,6 +122,10 @@ void Window::addLoopDrawWorker(std::function<void(GraphicsContext&, bool&)> work
 
 void Window::addLoopEventWorker(std::function<void(const SDL_Event&, bool&)> worker) {
     eventWorkers.push_back(worker);
+}
+
+void Window::addUiWorker(std::function<void(void)> worker) {
+    uiWorkers.push_back(worker);
 }
 
 void Window::setGridTileTexture(int tileId, uint32_t textureId) {
