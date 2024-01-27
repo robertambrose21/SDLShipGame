@@ -203,7 +203,13 @@ void GameClientMessagesReceiver::receiveSpawnItems(
     int numItems, 
     ItemUpdate items[64]
 ) {
-    auto const& owner = context.getEntityPool()->getEntity(ownerId);
+    auto entityPool = context.getEntityPool();
+
+    Entity* owner = nullptr;
+
+    if(entityPool->hasEntity(ownerId)) {
+        owner = entityPool->getEntity(ownerId);
+    }
 
     for(int i = 0; i < numItems; i++) {
         context.getItemController()->addItem(items[i].name, position, items[i].id, owner, false);

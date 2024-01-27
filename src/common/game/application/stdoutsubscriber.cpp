@@ -97,7 +97,12 @@ void StdOutSubscriber::onPublish(const Event<ItemEventData>& event) {
         }
     }
 
-    log(event.timestamp, "{} dropped [{}]", getEntityIdentifier(event.data.owner), items);
+    if(event.data.owner != nullptr) {
+        log(event.timestamp, "{} dropped [{}]", getEntityIdentifier(event.data.owner), items);
+    }
+    else {
+        log(event.timestamp, "[{}] was dropped", getEntityIdentifier(event.data.owner), items);
+    }
 }
 
 void StdOutSubscriber::onPublish(const Event<TakeItemActionEventData>& event) {
