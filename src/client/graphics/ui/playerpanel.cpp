@@ -1,13 +1,28 @@
 #include "playerpanel.h"
 
-PlayerPanel::PlayerPanel(int width, int height) {
-    auto font = Font::loadFromFile("../assets/fonts/RobotoMono-SemiBold.ttf", 14);
-    panel = std::make_unique<TextPanel>(std::move(font), glm::ivec2(0, height - PanelHeight), glm::ivec2(width, PanelHeight));
-    panel->setColour(0x64, 0x64, 0x64, 0xFF);
+PlayerPanel::PlayerPanel(int width, int height) :
+    width(width),
+    height(height)
+{
+    ImGuiIO& io = ImGui::GetIO();
+    io.Fonts->AddFontFromFileTTF("../assets/fonts/RobotoMono-SemiBold.ttf", 20.0f);
 }
 
-void PlayerPanel::draw(SDL_Renderer* renderer) {
-    panel->draw(renderer);
+void PlayerPanel::draw(void) {
+    ImGuiWindowFlags flags =
+        ImGuiWindowFlags_NoTitleBar |
+        ImGuiWindowFlags_NoMove |
+        ImGuiWindowFlags_NoResize;
+
+    ImGui::SetNextWindowPos(ImVec2(0, height - PanelHeight));
+    ImGui::SetNextWindowSize(ImVec2(width, PanelHeight));
+    ImGui::Begin("Panel", NULL, flags);
+
+    for(auto line : lines) {
+        ImGui::Text("%s", line.c_str());
+    }
+
+    ImGui::End();
 }
 
 void PlayerPanel::onPublish(const Event<TurnEventData>& event) {
@@ -140,5 +155,5 @@ void PlayerPanel::log(time_t timestamp, std::format_string<Args...> fmt, Args&&.
         << std::put_time(std::localtime(&timestamp), "[%H:%M:%S]: ")
         << std::vformat(fmt.get(), std::make_format_args(args...));
 
-    panel->writeLine(oss.str());
+    lines.push_back(oss.str());
 }

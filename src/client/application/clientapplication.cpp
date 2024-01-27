@@ -90,6 +90,7 @@ void ClientApplication::initialise(void) {
     });
     window->addUiWorker([&]() {
         ImGui::ShowDemoWindow();
+        playerController->drawUI();
     });
 
     application->addLogicWorker([&](ApplicationContext& c, auto const& timeSinceLastFrame, auto& quit) {

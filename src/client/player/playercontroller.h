@@ -16,7 +16,6 @@
 #include "graphics/ui/dice.h"
 #include "graphics/ui/button.h"
 #include "graphics/ui/playerpanel.h"
-#include "graphics/ui/textpanel.h"
 #include "game/actions/attackaction.h"
 #include "game/actions/equipitemaction.h"
 
@@ -69,6 +68,7 @@ public:
 
     void update(int64_t timeSinceLastFrame);
     void draw(GraphicsContext& graphicsContext);
+    void drawUI(void);
 
     void handleKeyPress(const SDL_Event& event);
     void handleMouseEvent(const SDL_Event& event);

@@ -53,8 +53,6 @@ void PlayerController::update(int64_t timeSinceLastFrame) {
 
 void PlayerController::draw(GraphicsContext& graphicsContext) {
     // dice->draw(graphicsContext);
-    playerPanel->draw(graphicsContext.getRenderer());
-
     if(selection.isActive) {
         auto size = selection.end - selection.start;
 
@@ -76,6 +74,10 @@ void PlayerController::draw(GraphicsContext& graphicsContext) {
         SDL_RenderFillRect(graphicsContext.getRenderer(), &dst);
         SDL_RenderDrawLine(graphicsContext.getRenderer(), p1.x, p1.y, p2.x, p2.y);
     }
+}
+
+void PlayerController::drawUI(void) {
+    playerPanel->draw();
 }
 
 void PlayerController::handleKeyPress(const SDL_Event& event) {

@@ -2,8 +2,10 @@
 
 #include <sstream>
 #include <format>
+#include <vector>
 
-#include "textpanel.h"
+#include "imgui.h"
+
 #include "game/application/turncontroller.h"
 #include "game/entities/entitypool.h"
 #include "core/event/eventsubscriber.h"
@@ -21,17 +23,21 @@ class PlayerPanel :
 private:
     const int PanelHeight = 200;
 
-    std::unique_ptr<TextPanel> panel;
+    int width;
+    int height;
 
     std::string getEntityIdentifier(Entity* entity);
 
     template<typename... Args>
     void log(time_t timestamp, std::format_string<Args...> fmt, Args&&... args);
 
+    std::vector<std::string> lines;
+
 public:
     PlayerPanel(int width, int height);
 
-    void draw(SDL_Renderer* renderer);
+    void draw(void);
+
     void onPublish(const Event<TurnEventData>& event);
     void onPublish(const Event<EntityEventData>& event);
     void onPublish(const Event<WeaponEventData>& event);

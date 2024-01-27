@@ -15,7 +15,6 @@ add_library(
     ui/panel.cpp
     ui/playerpanel.cpp
     ui/text.cpp
-    ui/textpanel.cpp
     ui/actionbutton.cpp
     camera.cpp
     drawstrategies/drawstrategy.h
