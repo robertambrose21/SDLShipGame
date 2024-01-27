@@ -22,6 +22,10 @@ void PlayerPanel::draw(void) {
         ImGui::Text("%s", line.c_str());
     }
 
+    if (ImGui::GetScrollY() >= ImGui::GetScrollMaxY()) {
+        ImGui::SetScrollHereY(1.0f);
+    }
+
     ImGui::End();
 }
 
