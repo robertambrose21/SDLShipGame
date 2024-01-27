@@ -70,7 +70,7 @@ public:
 
     void update(int64_t timeSinceLastFrame);
     void draw(GraphicsContext& graphicsContext);
-    void drawUI(void);
+    void drawUI(GraphicsContext& graphicsContext);
 
     void handleKeyPress(const SDL_Event& event);
     void handleMouseEvent(const SDL_Event& event);

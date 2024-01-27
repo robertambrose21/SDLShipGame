@@ -33,7 +33,7 @@ private:
 
     std::vector<std::function<void(GraphicsContext&, bool&)>> drawWorkers;
     std::vector<std::function<void(const SDL_Event&, bool&)>> eventWorkers;
-    std::vector<std::function<void(void)>> uiWorkers;
+    std::vector<std::function<void(GraphicsContext&)>> uiWorkers;
 
     void initialiseImgui(void);
     
@@ -46,7 +46,7 @@ public:
 
     void addLoopDrawWorker(std::function<void(GraphicsContext&, bool&)> worker);
     void addLoopEventWorker(std::function<void(const SDL_Event&, bool&)> worker);
-    void addUiWorker(std::function<void(void)> worker);
+    void addUiWorker(std::function<void(GraphicsContext&)> worker);
     
     void setGridTileTexture(int tileId, uint32_t textureId);
 

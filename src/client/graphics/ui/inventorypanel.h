@@ -2,6 +2,7 @@
 
 #include "imgui.h"
 
+#include "graphics/graphicscontext.h"
 #include "game/application/turncontroller.h"
 
 class InventoryPanel {
@@ -13,7 +14,7 @@ private:
 public:
     InventoryPanel(int width, int height);
 
-    void draw(TurnController::Participant* participant);
+    void draw(GraphicsContext& graphicsContext, TurnController::Participant* participant);
     void show(void);
     void hide(void);
     void toggle(void);

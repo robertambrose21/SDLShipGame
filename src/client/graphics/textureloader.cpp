@@ -55,6 +55,10 @@ uint8_t Texture::getAlpha(void) const {
     return alpha;
 }
 
+SDL_Texture* Texture::getSDLTexture(void) {
+    return texture.get();
+}
+
 TextureLoader::TextureLoader()
 { }
 

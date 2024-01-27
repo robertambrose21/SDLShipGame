@@ -103,7 +103,7 @@ void Window::update(int64_t timeSinceLastFrame, bool& quit) {
     ImGui::NewFrame();
 
     for(auto const& worker : uiWorkers) {
-        worker();
+        worker(*graphicsContext);
     }
 
     ImGui::Render();
@@ -130,7 +130,7 @@ void Window::addLoopEventWorker(std::function<void(const SDL_Event&, bool&)> wor
     eventWorkers.push_back(worker);
 }
 
-void Window::addUiWorker(std::function<void(void)> worker) {
+void Window::addUiWorker(std::function<void(GraphicsContext&)> worker) {
     uiWorkers.push_back(worker);
 }
 

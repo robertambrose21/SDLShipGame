@@ -6,7 +6,7 @@ InventoryPanel::InventoryPanel(int width, int height) :
     isShown(false)
 { }
 
-void InventoryPanel::draw(TurnController::Participant* participant) {
+void InventoryPanel::draw(GraphicsContext& graphicsContext, TurnController::Participant* participant) {
     if(!isShown || participant == nullptr) {
         return;
     }
@@ -15,6 +15,10 @@ void InventoryPanel::draw(TurnController::Participant* participant) {
     ImGui::Begin("Inventory");
 
     for(auto item : participant->items) {
+        auto texture = graphicsContext.getTextureLoader().loadTexture(item->getTextureId())->getSDLTexture();
+
+        ImGui::Image((void*) texture, ImVec2(20, 20));
+        ImGui::SameLine();
         ImGui::Text("[%s]", item->getName().c_str());
     }
 
@@ -32,5 +36,3 @@ void InventoryPanel::hide(void) {
 void InventoryPanel::toggle(void) {
     isShown = !isShown;
 }
-
-// If you don't know the half of it don't let your lips move, focus on yourself you bombaclaat nincompoop

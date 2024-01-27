@@ -76,9 +76,9 @@ void PlayerController::draw(GraphicsContext& graphicsContext) {
     }
 }
 
-void PlayerController::drawUI(void) {
+void PlayerController::drawUI(GraphicsContext& graphicsContext) {
     playerPanel->draw();
-    inventoryPanel->draw(participant);
+    inventoryPanel->draw(graphicsContext, participant);
 }
 
 void PlayerController::handleKeyPress(const SDL_Event& event) {

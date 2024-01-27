@@ -62,6 +62,8 @@ public:
     Colour getColour(void) const;
     void setAlpha(uint8_t alpha);
     uint8_t getAlpha(void) const;
+
+    SDL_Texture* getSDLTexture(void);
 };
 
 class TextureLoader {
