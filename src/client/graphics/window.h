@@ -5,6 +5,10 @@
 #include <iostream>
 #include <functional>
 
+#include "imgui.h"
+#include "backends/imgui_impl_sdl2.h"
+#include "backends/imgui_impl_sdlrenderer2.h"
+
 #include "textureloader.h"
 #include "gridrenderer.h"
 #include "graphicscontext.h"

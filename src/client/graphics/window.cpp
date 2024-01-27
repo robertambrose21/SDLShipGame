@@ -8,6 +8,10 @@ Window::Window(int width, int height, Grid* grid) :
 }
 
 Window::~Window() {
+    ImGui_ImplSDLRenderer2_Shutdown();
+    ImGui_ImplSDL2_Shutdown();
+    ImGui::DestroyContext();
+
     TTF_Quit();
     IMG_Quit();
     SDL_Quit();
@@ -29,6 +33,8 @@ bool Window::initialiseWindow(void) {
         return false;
     }
 
+    // SDL_SetWindowFullscreen(window.get(), SDL_WINDOW_FULLSCREEN_DESKTOP);
+
     renderer = std::unique_ptr<SDL_Renderer, sdl_deleter>(
         SDL_CreateRenderer(window.get(), -1, SDL_RENDERER_ACCELERATED),
         sdl_deleter()
@@ -38,6 +44,15 @@ bool Window::initialiseWindow(void) {
         std::cout << "SDL Renderer could not be created: " << SDL_GetError() << std::endl;
         return false;
     }
+
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO();
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
+
+    ImGui_ImplSDL2_InitForSDLRenderer(window.get(), renderer.get());
+    ImGui_ImplSDLRenderer2_Init(renderer.get());
 
     SDL_SetRenderDrawColor(renderer.get(), 0x00, 0x00, 0x00, 0xFF);
 
@@ -62,6 +77,8 @@ void Window::update(int64_t timeSinceLastFrame, bool& quit) {
     SDL_Event e;
 
     while(SDL_PollEvent(&e) != 0) {
+        ImGui_ImplSDL2_ProcessEvent(&e);
+
         if(e.type == SDL_QUIT) {
             quit = true;
         }
@@ -71,6 +88,13 @@ void Window::update(int64_t timeSinceLastFrame, bool& quit) {
         }
     }
 
+    ImGui_ImplSDLRenderer2_NewFrame();
+    ImGui_ImplSDL2_NewFrame();
+    ImGui::NewFrame();
+
+    ImGui::ShowDemoWindow();
+
+    ImGui::Render();
     SDL_RenderClear(renderer.get());
 
     gridRenderer->draw(*graphicsContext);
@@ -80,6 +104,9 @@ void Window::update(int64_t timeSinceLastFrame, bool& quit) {
     }
 
     SDL_SetRenderDrawColor(renderer.get(), 0x00, 0x00, 0x00, 0xFF);
+
+    ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData());
+
     SDL_RenderPresent(renderer.get());
 }
 

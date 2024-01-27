@@ -1,7 +1,4 @@
 cmake_minimum_required(VERSION 3.12.0)
-project(CoreLib VERSION 0.1.0)
-
-cmake_minimum_required(VERSION 3.12.0)
 project(ServerCoreLib VERSION 0.1.0)
 
 add_library(
