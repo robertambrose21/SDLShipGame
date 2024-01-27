@@ -63,6 +63,7 @@ bool ServerTurnController::canProgressToNextTurn(int participantId) {
 
     // TODO: Need to add a check to see if any fully dead participants still have projectiles/animations in progress
     if(participant->entities.empty()) {
+        transmitter->sendNextTurn(0, currentParticipantId, turnNumber);
         return true;
     }
 
