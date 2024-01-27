@@ -79,12 +79,18 @@ void Window::initialiseImgui(void) {
 
 void Window::update(int64_t timeSinceLastFrame, bool& quit) {
     SDL_Event e;
+    ImGuiIO& io = ImGui::GetIO();
 
     while(SDL_PollEvent(&e) != 0) {
         ImGui_ImplSDL2_ProcessEvent(&e);
 
         if(e.type == SDL_QUIT) {
             quit = true;
+        }
+
+        // Isolate ImGui events from SDL
+        if(io.WantCaptureMouse || io.WantCaptureKeyboard) {
+            continue;
         }
 
         for(auto const& worker : eventWorkers) {
