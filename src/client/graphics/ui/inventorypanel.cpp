@@ -15,6 +15,21 @@ void InventoryPanel::draw(GraphicsContext& graphicsContext, TurnController::Part
     ImGui::Begin("Inventory");
 
     // TODO: This table should only show up if we have an entity selected
+    drawEquipment(graphicsContext, participant);
+
+    ImGui::Separator();
+    ImGui::BeginChild("Bag");
+    
+    for(auto item : participant->items) {
+        drawItem(graphicsContext, item, false);
+    }
+
+    ImGui::EndChild();
+
+    ImGui::End();
+}
+
+void InventoryPanel::drawEquipment(GraphicsContext& graphicsContext, TurnController::Participant* participant) {
     if(ImGui::BeginTable("EquipmentTable", 2)) {
         for(int i = 0; i < Equipment::Slot::COUNT; i++) {
             auto slot = (Equipment::Slot) i;
@@ -36,17 +51,6 @@ void InventoryPanel::draw(GraphicsContext& graphicsContext, TurnController::Part
 
         ImGui::EndTable();
     }
-
-    ImGui::Separator();
-    ImGui::BeginChild("Bag");
-    
-    for(auto item : participant->items) {
-        drawItem(graphicsContext, item, false);
-    }
-
-    ImGui::EndChild();
-
-    ImGui::End();
 }
 
 void InventoryPanel::drawItem(GraphicsContext& graphicsContext, Item* item, bool isEquipped) {
