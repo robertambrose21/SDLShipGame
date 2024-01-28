@@ -168,6 +168,7 @@ public:
     EntityCurrentStats getCurrentStats(void) const;
 
     void setEquipment(Item* item, Equipment::Slot slot);
+    void removeEquipment(Equipment::Slot slot);
     Equipment* getEquipment(Equipment::Slot slot);
 
     const float getSpeed(void);

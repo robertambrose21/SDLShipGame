@@ -36,3 +36,11 @@ bool Equipment::isValid(Item* item, Slot slot) {
 
     return SlotToItemType.at(slot) == item->getType();
 }
+
+void Equipment::getSlotFromItemType(Slot* slot, const std::string& itemType) {
+    for(auto& [equipmentSlot, type] : SlotToItemType) {
+        if(type == itemType) {
+            *slot = equipmentSlot;
+        }
+    }
+}

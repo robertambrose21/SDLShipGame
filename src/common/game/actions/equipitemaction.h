@@ -12,13 +12,15 @@ private:
 
     Item* item;
     Equipment::Slot slot;
+    bool isUnequip;
 
 public:
-    EquipItemAction(int turnNumber, Entity* entity, Item* item, Equipment::Slot slot);
+    EquipItemAction(int turnNumber, Entity* entity, Item* item, Equipment::Slot slot, bool isUnequip = false);
 
     bool passesPrecondition(void);
     Type getType(void);
 
     Item* getItem(void);
     Equipment::Slot getSlot(void) const;
+    bool getIsUnequip(void) const;
 };

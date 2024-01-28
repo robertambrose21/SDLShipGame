@@ -66,12 +66,13 @@ void GameClientMessagesTransmitter::sendSetParticipantAckMessage(int participant
     client.sendMessage(message);
 }
 
-void GameClientMessagesTransmitter::sendEquipItemMessage(uint32_t itemId, uint32_t entityId, Equipment::Slot slot) {
+void GameClientMessagesTransmitter::sendEquipItemMessage(uint32_t itemId, uint32_t entityId, Equipment::Slot slot, bool isUnequip) {
     EquipItemMessage* message = (EquipItemMessage*) client.createMessage(GameMessageType::EQUIP_ITEM);
 
     message->itemId = itemId;
     message->entityId = entityId;
     message->slot = slot;
+    message->isUnequip = isUnequip;
 
     client.sendMessage(message);
 }

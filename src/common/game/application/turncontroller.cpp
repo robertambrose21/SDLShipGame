@@ -303,7 +303,8 @@ void TurnController::publishAction(Action& action) {
                 turnNumber,
                 equipItemAction.getEntity(),
                 equipItemAction.getItem(),
-                equipItemAction.getSlot()
+                equipItemAction.getSlot(),
+                equipItemAction.getIsUnequip()
             });
             break;
         }

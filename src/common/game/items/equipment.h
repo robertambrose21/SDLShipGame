@@ -32,4 +32,5 @@ public:
     void setSlot(Slot slot);
 
     static bool isValid(Item* item, Slot slot);
+    static void getSlotFromItemType(Slot* slot, const std::string& itemType);
 };

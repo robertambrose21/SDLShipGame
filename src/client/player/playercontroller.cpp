@@ -22,6 +22,9 @@ PlayerController::PlayerController(
     inventoryPanel->addOnEquipCallback([&](auto item, auto slot) {
         equipItem(item, slot);
     });
+    inventoryPanel->addOnUnequipCallback([&](auto item, auto slot) {
+        unequipItem(item, slot);
+    });
     
     turnController->subscribe<TurnEventData>(playerPanel.get());
     entityPool->subscribe<EntityEventData>(playerPanel.get());
@@ -344,8 +347,16 @@ void PlayerController::setHoverTiles(void) {
 void PlayerController::equipItem(Item* item, Equipment::Slot slot) {
     auto entity = selectedEntities[0];
 
-    if(turnController->queueAction(std::make_unique<EquipItemAction>(turnController->getTurnNumber(), entity, item, slot))) {
-        clientMessagesTransmitter.sendEquipItemMessage(item->getId(), entity->getId(), slot);
+    if(turnController->queueAction(std::make_unique<EquipItemAction>(turnController->getTurnNumber(), entity, item, slot, false))) {
+        clientMessagesTransmitter.sendEquipItemMessage(item->getId(), entity->getId(), slot, false);
+    }
+}
+
+void PlayerController::unequipItem(Item* item, Equipment::Slot slot) {
+    auto entity = selectedEntities[0];
+
+    if(turnController->queueAction(std::make_unique<EquipItemAction>(turnController->getTurnNumber(), entity, item, slot, true))) {
+        clientMessagesTransmitter.sendEquipItemMessage(item->getId(), entity->getId(), slot, true);
     }
 }
 

@@ -1,9 +1,10 @@
 #include "equipitemaction.h"
 
-EquipItemAction::EquipItemAction(int turnNumber, Entity* entity, Item* item, Equipment::Slot slot) :
+EquipItemAction::EquipItemAction(int turnNumber, Entity* entity, Item* item, Equipment::Slot slot, bool isUnequip) :
     Action(turnNumber, entity),
     item(item),
-    slot(slot)
+    slot(slot),
+    isUnequip(isUnequip)
 { }
 
 bool EquipItemAction::onValidate(ApplicationContext* context) {
@@ -17,6 +18,10 @@ bool EquipItemAction::onValidate(ApplicationContext* context) {
 
     if(!Equipment::isValid(item, slot)) {
         return false;
+    }
+
+    if(isUnequip) {
+        return entity->getEquipment(slot) != nullptr;
     }
 
     auto participant = context->getTurnController()->getParticipant(entity->getParticipantId());
@@ -36,12 +41,17 @@ void EquipItemAction::onExecute(ApplicationContext* context) {
     auto participant = context->getTurnController()->getParticipant(entity->getParticipantId());
     auto existingEquipment = entity->getEquipment(slot);
 
-    if(existingEquipment != nullptr) {
+    if(isUnequip) {
         participant->items.push_back(existingEquipment->getItem());
-    }
+        entity->removeEquipment(slot);
+    } else {
+        if(existingEquipment != nullptr) {
+            participant->items.push_back(existingEquipment->getItem());
+        }
 
-    std::erase(participant->items, item);
-    entity->setEquipment(item, slot);
+        std::erase(participant->items, item);
+        entity->setEquipment(item, slot);
+    }
 }
 
 bool EquipItemAction::hasFinished(void) {
@@ -62,4 +72,8 @@ Item* EquipItemAction::getItem(void) {
 
 Equipment::Slot EquipItemAction::getSlot(void) const {
     return slot;
+}
+
+bool EquipItemAction::getIsUnequip(void) const {
+    return isUnequip;
 }

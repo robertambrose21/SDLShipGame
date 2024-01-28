@@ -35,7 +35,7 @@ private:
     );
     void receivePassParticipantTurnMessage(int clientIndex, int participantId);
     void receiveSetParticipantAckMessage(int clientIndex, int participantId);
-    void receiveEquipItemMessage(int clientIndex, uint32_t itemId, uint32_t entityId, uint8_t slot);
+    void receiveEquipItemMessage(int clientIndex, uint32_t itemId, uint32_t entityId, uint8_t slot, bool isUnequip);
 
 public:
     GameServerMessagesReceiver(ApplicationContext& context);

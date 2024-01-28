@@ -87,4 +87,5 @@ struct EquipItemActionEventData {
     Entity* entity;
     Item* item;
     int slot;
+    bool isUnequip;
 };

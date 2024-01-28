@@ -60,6 +60,7 @@ private:
     void handleMouseUp(const SDL_Event& event);
     void setHoverTiles(void);
     void equipItem(Item* item, Equipment::Slot slot);
+    void unequipItem(Item* item, Equipment::Slot slot);
 
 public:
     PlayerController(

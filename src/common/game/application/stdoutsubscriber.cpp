@@ -135,12 +135,22 @@ void StdOutSubscriber::onPublish(const Event<EngagementEventData>& event) {
 }
 
 void StdOutSubscriber::onPublish(const Event<EquipItemActionEventData>& event) {
-    log(
-        event.timestamp,
-        "{} equipped [{}]",
-        getEntityIdentifier(event.data.entity),
-        event.data.item->getName()
-    );
+    if(event.data.isUnequip) {
+        log(
+            event.timestamp,
+            "{} unequipped [{}]",
+            getEntityIdentifier(event.data.entity),
+            event.data.item->getName()
+        );
+    }
+    else {
+        log(
+            event.timestamp,
+            "{} equipped [{}]",
+            getEntityIdentifier(event.data.entity),
+            event.data.item->getName()
+        );
+    }
 }
 
 std::string StdOutSubscriber::getEntityIdentifier(Entity* entity) {

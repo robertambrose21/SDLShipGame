@@ -53,18 +53,20 @@ void InventoryPanel::drawItem(GraphicsContext& graphicsContext, Item* item, bool
     auto texture = graphicsContext.getTextureLoader().loadTexture(item->getTextureId())->getSDLTexture();
     auto selectableLabel = "##SelectableItem" + std::to_string(item->getId());
 
+    Equipment::Slot slot;
+    Equipment::getSlotFromItemType(&slot, item->getType());
+
     ImGui::SetNextItemAllowOverlap();
     ImGui::Selectable(selectableLabel.c_str());
     if(ImGui::BeginPopupContextItem()) {
         if(isEquipped) {
             if(ImGui::Button("Unequip")) {
-                
+                onUnequipClicked(item, slot);
             }
         }
         else if(item->isEquippable()) {
             if(ImGui::Button("Equip")) {
-                // TODO: Figure out which slot the armour should go into
-                onEquipClicked(item, Equipment::Slot::BODY);
+                onEquipClicked(item, slot);
             }
         }
         if(ImGui::Button("Examine")) {

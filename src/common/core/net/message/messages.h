@@ -408,11 +408,13 @@ public:
     uint32_t itemId;
     uint32_t entityId;
     uint8_t slot;
+    bool isUnequip;
 
     EquipItemMessage() :
         itemId(0),
         entityId(0),
-        slot(0)
+        slot(0),
+        isUnequip(false)
     { }
 
     template <typename Stream>
@@ -420,6 +422,7 @@ public:
         serialize_uint32(stream, itemId);
         serialize_uint32(stream, entityId);
         serialize_bits(stream, slot, 8);
+        serialize_bool(stream, isUnequip);
         return true;
     }
 

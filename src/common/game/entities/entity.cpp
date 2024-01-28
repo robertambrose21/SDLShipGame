@@ -126,8 +126,6 @@ EntityCurrentStats Entity::getCurrentStats(void) const {
     return currentStats;
 }
 
-// TODO: If we replace a slot, put the item back in the players inventory
-// TODO: Fire an unequip event
 void Entity::setEquipment(Item* item, Equipment::Slot slot) {
     if(equipment[slot] != nullptr && equipment[slot]->getItem()->getId() == item->getId()) {
         return;
@@ -136,7 +134,15 @@ void Entity::setEquipment(Item* item, Equipment::Slot slot) {
     equipment[slot] = std::make_unique<Equipment>(item, slot);
 }
 
+void Entity::removeEquipment(Equipment::Slot slot) {
+    equipment[slot] = nullptr;
+}
+
 Equipment* Entity::getEquipment(Equipment::Slot slot) {
+    if(equipment[slot] == nullptr) {
+        return nullptr;
+    }
+
     return equipment[slot].get();
 }
 
