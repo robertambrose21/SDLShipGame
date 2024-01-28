@@ -1,5 +1,12 @@
 #include "item.h"
 
+const std::set<std::string> Item::EquippableItemTypes = {
+    "Helm",
+    "BodyArmour",
+    "Gloves",
+    "Boots"
+};
+
 Item::Item(const std::string& name, Rarity rarity, const std::string& type, const glm::ivec2& position) :
     Item(name, rarity, type, position, getNewId())    
 { }
@@ -59,4 +66,8 @@ int Item::getParticipantId(void) const {
 
 void Item::setParticipantId(int participantId) {
     this->participantId = participantId;
+}
+
+bool Item::isEquippable(void) {
+    return EquippableItemTypes.contains(getType());
 }

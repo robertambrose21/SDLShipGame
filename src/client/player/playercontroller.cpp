@@ -18,6 +18,10 @@ PlayerController::PlayerController(
     dice = std::make_unique<Dice>(3, clientMessagesTransmitter, context.getTurnController());
     playerPanel = std::make_unique<PlayerPanel>(1920, 1080);
     inventoryPanel = std::make_unique<InventoryPanel>(400, 600);
+
+    inventoryPanel->addOnEquipCallback([&](auto item, auto slot) {
+        equipItem(item, slot);
+    });
     
     turnController->subscribe<TurnEventData>(playerPanel.get());
     entityPool->subscribe<EntityEventData>(playerPanel.get());
@@ -90,16 +94,6 @@ void PlayerController::handleKeyPress(const SDL_Event& event) {
                 break;
             }
             
-            case SDLK_e: {
-                for(auto item : participant->items) {
-                    if(item->getType() == "BodyArmour") {
-                        equipItem(item, Equipment::Slot::BODY);
-                        break;
-                    }
-                }
-                break;
-            }
-
             case SDLK_i: {
                 inventoryPanel->toggle();
                 break;

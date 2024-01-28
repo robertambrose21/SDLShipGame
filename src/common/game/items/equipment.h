@@ -16,9 +16,9 @@ public:
         COUNT
     };
 
-private:
     static const std::map<Slot, std::string> SlotToItemType;
 
+private:
     Item* item;
     Slot slot;
 

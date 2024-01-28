@@ -14,15 +14,69 @@ void InventoryPanel::draw(GraphicsContext& graphicsContext, TurnController::Part
     ImGui::SetNextWindowSize(ImVec2(width, height));
     ImGui::Begin("Inventory");
 
-    for(auto item : participant->items) {
-        auto texture = graphicsContext.getTextureLoader().loadTexture(item->getTextureId())->getSDLTexture();
+    // TODO: This table should only show up if we have an entity selected
+    if(ImGui::BeginTable("EquipmentTable", 2)) {
+        for(int i = 0; i < Equipment::Slot::COUNT; i++) {
+            auto slot = (Equipment::Slot) i;
 
-        ImGui::Image((void*) texture, ImVec2(20, 20));
-        ImGui::SameLine();
-        ImGui::TextColored(ItemRarityColours.at(item->getRarity()), "[%s]", item->getName().c_str());
+            ImGui::TableNextRow();
+            ImGui::TableNextColumn();
+            ImGui::TextColored(ImVec4(1, 1, 1, 1), "%s", Equipment::SlotToItemType.at(slot).c_str());
+            ImGui::TableNextColumn();
+
+            auto equipment = participant->entities[0]->getEquipment(slot);
+
+            if(equipment != nullptr) {
+                drawItem(graphicsContext, equipment->getItem(), true);
+            }
+            else {
+                ImGui::TextColored(ImVec4(.3f, .3f, .3f, 1), "<None>");
+            }
+        }
+
+        ImGui::EndTable();
     }
 
+    ImGui::Separator();
+    ImGui::BeginChild("Bag");
+    
+    for(auto item : participant->items) {
+        drawItem(graphicsContext, item, false);
+    }
+
+    ImGui::EndChild();
+
     ImGui::End();
+}
+
+void InventoryPanel::drawItem(GraphicsContext& graphicsContext, Item* item, bool isEquipped) {
+    auto texture = graphicsContext.getTextureLoader().loadTexture(item->getTextureId())->getSDLTexture();
+    auto selectableLabel = "##SelectableItem" + std::to_string(item->getId());
+
+    ImGui::SetNextItemAllowOverlap();
+    ImGui::Selectable(selectableLabel.c_str());
+    if(ImGui::BeginPopupContextItem()) {
+        if(isEquipped) {
+            if(ImGui::Button("Unequip")) {
+                
+            }
+        }
+        else if(item->isEquippable()) {
+            if(ImGui::Button("Equip")) {
+                // TODO: Figure out which slot the armour should go into
+                onEquipClicked(item, Equipment::Slot::BODY);
+            }
+        }
+        if(ImGui::Button("Examine")) {
+            onExamineClicked(item);
+        }
+
+        ImGui::EndPopup();
+    }
+    ImGui::SameLine();
+    ImGui::Image((void*) texture, ImVec2(20, 20));
+    ImGui::SameLine();
+    ImGui::TextColored(ItemRarityColours.at(item->getRarity()), "[%s]", item->getName().c_str());
 }
 
 void InventoryPanel::show(void) {
@@ -35,4 +89,16 @@ void InventoryPanel::hide(void) {
 
 void InventoryPanel::toggle(void) {
     isShown = !isShown;
+}
+
+void InventoryPanel::addOnEquipCallback(std::function<void(Item* item, Equipment::Slot slot)>&& callback) {
+    this->onEquipClicked = callback;
+}
+
+void InventoryPanel::addOnUnequipCallback(std::function<void(Item* item, Equipment::Slot slot)>&& callback) {
+    this->onUnequipClicked = callback;
+}
+
+void InventoryPanel::addOnExamineCallback(std::function<void(Item* item)>&& callback) {
+    this->onExamineClicked = callback;
 }

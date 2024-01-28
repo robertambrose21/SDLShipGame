@@ -2,6 +2,7 @@
 
 #include <string>
 #include <vector>
+#include <set>
 
 #include "core/util/idgenerator.h"
 #include "core/glmimport.h"
@@ -18,6 +19,8 @@ public:
         Rare,
         Epic
     };
+
+    static const std::set<std::string> EquippableItemTypes;
 
 private:
     typedef struct _colour {
@@ -68,4 +71,6 @@ public:
 
     int getParticipantId(void) const;
     void setParticipantId(int participantId);
+
+    bool isEquippable(void);
 };
