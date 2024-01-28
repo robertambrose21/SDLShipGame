@@ -11,6 +11,14 @@ inline uint32_t randomRange(uint32_t lower, uint32_t upper) {
     return dist(rng);
 }
 
+inline double randomRangeDouble(double lower, double upper) {
+    std::random_device dev;
+    std::mt19937 rng(dev());
+    std::uniform_real_distribution<> dist(lower, upper);
+
+    return dist(rng);
+}
+
 inline uint32_t randomDN(uint32_t n) {
     std::random_device dev;
     std::mt19937 rng(dev());

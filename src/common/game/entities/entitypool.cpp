@@ -35,14 +35,22 @@ void EntityPool::loadEntityDefinitions(void) {
         auto const& lootTableData = data["lootTable"].get<std::vector<json>>();
         for(auto const& lootTableItemsData : lootTableData) {
             LootTableItem lootTableItem;
+            lootTableItem.totalWeights = 0.0;
 
             auto const& itemsData = lootTableItemsData["items"].get<std::vector<json>>();
             for(auto const& itemData : itemsData) {
-                lootTableItem.items.push_back(itemData["name"].get<std::string>());
+                std::string name = itemData["name"].get<std::string>();
+                double weight = 1.0;
+
+                if(itemData.contains("weight")) {
+                    weight = itemData["weight"].get<double>();
+                }
+
+                lootTableItem.items.push_back({ name, weight });
+                lootTableItem.totalWeights += weight;
             }
 
             lootTableItem.percentChance = lootTableItemsData["chance"].get<uint8_t>();
-
             lootTableItems.push_back(lootTableItem);
         }
 

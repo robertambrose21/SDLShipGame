@@ -1,21 +1,28 @@
 #pragma once
 
 #include <vector>
+#include <map>
 
 #include "item.h"
 #include "core/util/randomrolls.h"
 #include "core/util/gameassert.h"
 
+typedef struct _lootTableWeightedItem {
+    std::string name;
+    double weight;
+} LootTableWeightedItem;
+
 typedef struct _lootTableItem {
-    std::vector<std::string> items;
+    std::vector<LootTableWeightedItem> items;
     uint8_t percentChance;
+    double totalWeights;
 } LootTableItem;
 
 class LootTable {
 private:
     std::vector<LootTableItem> lootTable;
 
-    std::string generateItem(const std::vector<std::string>& items);
+    std::string generateItem(const std::vector<LootTableWeightedItem>& items, double totalWeights);
 
 public:
     LootTable();
