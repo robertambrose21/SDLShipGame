@@ -50,7 +50,7 @@ void EquipItemAction::onExecute(ApplicationContext* context) {
         }
 
         std::erase(participant->items, item);
-        entity->setEquipment(item, slot);
+        entity->setEquipment(std::make_unique<Equipment>(item, slot));
     }
 }
 

@@ -126,12 +126,15 @@ EntityCurrentStats Entity::getCurrentStats(void) const {
     return currentStats;
 }
 
-void Entity::setEquipment(Item* item, Equipment::Slot slot) {
+void Entity::setEquipment(std::unique_ptr<Equipment> equipmentPiece) {
+    auto slot = equipmentPiece->getSlot();
+    auto item = equipmentPiece->getItem();
+
     if(equipment[slot] != nullptr && equipment[slot]->getItem()->getId() == item->getId()) {
         return;
     }
 
-    equipment[slot] = std::make_unique<Equipment>(item, slot);
+    equipment[slot] = std::move(equipmentPiece);
 }
 
 void Entity::removeEquipment(Equipment::Slot slot) {

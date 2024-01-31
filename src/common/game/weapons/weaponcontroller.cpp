@@ -72,7 +72,7 @@ std::unique_ptr<Weapon> WeaponController::createWeapon(
             context->getProjectilePool()->create(definition.projectile)
         );
         if(item != nullptr) {
-            owner->setEquipment(item, slot);
+            owner->setEquipment(std::make_unique<Equipment>(item, slot));
         }
         return weapon;
     }
@@ -89,9 +89,8 @@ std::unique_ptr<Weapon> WeaponController::createWeapon(
             Weapon::Stats { definition.damage, definition.range, definition.uses }
         );
         if(item != nullptr) {
-            owner->setEquipment(item, slot);
+            owner->setEquipment(std::make_unique<Equipment>(item, slot));
         }
-        owner->setEquipment(item, slot);
         return weapon;
     }
 

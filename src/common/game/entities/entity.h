@@ -167,7 +167,7 @@ public:
     EntityBaseStats getBaseStats(void) const;
     EntityCurrentStats getCurrentStats(void) const;
 
-    void setEquipment(Item* item, Equipment::Slot slot);
+    void setEquipment(std::unique_ptr<Equipment> equipmentPiece);
     void removeEquipment(Equipment::Slot slot);
     Equipment* getEquipment(Equipment::Slot slot);
 
