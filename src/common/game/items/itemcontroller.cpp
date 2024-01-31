@@ -230,5 +230,6 @@ void ItemController::onPublish(const Event<EntityEventData>& event) {
         return;
     }    
 
+    // TODO: owner should be nullptr - need to handle gameservertransmitter
     addItems(itemsDropped, entity->getPosition(), entity);
 }

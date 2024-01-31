@@ -4,23 +4,27 @@ MeleeWeapon::MeleeWeapon(
     Entity* owner, 
     Grid* grid,
     EntityPool* entityPool,
+    Item* item,
+    Slot slot,
     EventPublisher<WeaponEventData>& publisher,
     uint32_t id,
     const std::string& name, 
     const Stats& stats
 ) :
-    Weapon(owner, grid, entityPool, publisher, id, name, stats)
+    Weapon(owner, grid, entityPool, item, slot, publisher, id, name, stats)
 { }
 
 MeleeWeapon::MeleeWeapon(
     Entity* owner, 
     Grid* grid, 
     EntityPool* entityPool,
+    Item* item,
+    Slot slot,
     EventPublisher<WeaponEventData>& publisher,
     const std::string& name, 
     const Stats& stats
 ) :
-    Weapon(owner, grid, entityPool, publisher, name, stats)
+    Weapon(owner, grid, entityPool, item, slot, publisher, name, stats)
 { }
 
 bool MeleeWeapon::onUse(const glm::ivec2& position, const glm::ivec2& target) {

@@ -5,13 +5,15 @@ ProjectileWeapon::ProjectileWeapon(
     Grid* grid,
     EntityPool* entityPool,
     ProjectilePool* projectilePool,
+    Item* item,
+    Slot slot,
     EventPublisher<WeaponEventData>& publisher,
     uint32_t id,
     const std::string& name, 
     const Stats& stats,
     const Projectile::Blueprint& projectileBlueprint
 ) :
-    Weapon(owner, grid, entityPool, publisher, id, name, stats),
+    Weapon(owner, grid, entityPool, item, slot, publisher, id, name, stats),
     projectilePool(projectilePool),
     projectileBlueprint(projectileBlueprint)
 { }
@@ -21,12 +23,14 @@ ProjectileWeapon::ProjectileWeapon(
     Grid* grid,
     EntityPool* entityPool,
     ProjectilePool* projectilePool,
+    Item* item,
+    Slot slot,
     EventPublisher<WeaponEventData>& publisher,
     const std::string& name, 
     const Stats& stats,
     const Projectile::Blueprint& projectileBlueprint
 ) :
-    ProjectileWeapon(owner, grid, entityPool, projectilePool, publisher, getNewId(), name, stats, projectileBlueprint)
+    ProjectileWeapon(owner, grid, entityPool, projectilePool, item, slot, publisher, getNewId(), name, stats, projectileBlueprint)
 { }
 
 bool ProjectileWeapon::onUse(const glm::ivec2& position, const glm::ivec2& target) {

@@ -8,11 +8,12 @@
 #include "core/event/eventpublisher.h"
 #include "core/grid/grid.h"
 #include "game/event/events.h"
+#include "game/items/equipment.h"
 
 class Entity;
 class EntityPool;
 
-class Weapon {
+class Weapon : public Equipment {
 public:
     // TODO: Probably a better way to do abstraction than this
     enum Type {
@@ -45,6 +46,8 @@ public:
         Entity* owner,
         Grid* grid,
         EntityPool* entityPool,
+        Item* item,
+        Slot slot,
         EventPublisher<WeaponEventData>& publisher,
         uint32_t id,
         const std::string& name, 
@@ -52,9 +55,11 @@ public:
     );
 
     Weapon(
-        Entity* owner,
+        Entity* owner, 
         Grid* grid,
         EntityPool* entityPool,
+        Item* item,
+        Slot slot,
         EventPublisher<WeaponEventData>& publisher,
         const std::string& name, 
         const Stats& stats

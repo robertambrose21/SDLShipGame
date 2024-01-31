@@ -8,6 +8,7 @@
 #include "core/glmimport.h"
 #include "game/event/events.h"
 
+// TODO: This might not have a position - should probably make different classes for dropped items/equipped items?
 class Item {
 public:
     // TODO: Come up with names which don't just copy WoW

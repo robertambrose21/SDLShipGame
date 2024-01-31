@@ -266,8 +266,8 @@ void ServerApplication::loadGame(void) {
         if(entityType > 2) {
             enemy = context.getEntityPool()->addEntity("Space Worm");
             enemy->setPosition(glm::ivec2(x, y));
-            auto teeth = context.getWeaponController()->createWeapon("Space Worm Teeth", enemy);
-            auto poisonSpit = context.getWeaponController()->createWeapon("Poison Spit", enemy);
+            auto teeth = context.getWeaponController()->createWeapon("Space Worm Teeth", enemy, Equipment::LEFT_HAND);
+            auto poisonSpit = context.getWeaponController()->createWeapon("Poison Spit", enemy, Equipment::LEFT_HAND);
             auto teethId = enemy->addWeapon(std::move(teeth))->getId();
             enemy->addWeapon(std::move(poisonSpit));
             enemy->setCurrentWeapon(teethId);
@@ -275,7 +275,7 @@ void ServerApplication::loadGame(void) {
         else {
             enemy = context.getEntityPool()->addEntity("Brute");
             enemy->setPosition(glm::ivec2(x, y));
-            auto fists = context.getWeaponController()->createWeapon("Brute Fists", enemy);
+            auto fists = context.getWeaponController()->createWeapon("Brute Fists", enemy, Equipment::LEFT_HAND);
             auto fistsId = enemy->addWeapon(std::move(fists))->getId();
             enemy->setCurrentWeapon(fistsId);
         }
@@ -309,13 +309,14 @@ Entity* ServerApplication::addPlayer(bool hasFreezeGun) {
     if(hasFreezeGun) {
         player = context.getEntityPool()->addEntity("Player FreezeGun");
         player->setPosition(glm::ivec2(x, y));
-        auto freezeGun = player->addWeapon(context.getWeaponController()->createWeapon("Freeze Gun", player));
+        auto freezeGun = player->addWeapon(context.getWeaponController()->createWeapon("Freeze Gun", player, Equipment::RIGHT_HAND));
         player->setCurrentWeapon(freezeGun->getId());
     }
     else {
         player = context.getEntityPool()->addEntity("Player");
         player->setPosition(glm::ivec2(x, y));
-        auto grenadeLauncher = player->addWeapon(context.getWeaponController()->createWeapon("Grenade Launcher", player));
+        auto grenadeLauncher = player->addWeapon(context.getWeaponController()->createWeapon("Grenade Launcher", player,
+            Equipment::LEFT_HAND));
         player->setCurrentWeapon(grenadeLauncher->getId());
     }
     return player;

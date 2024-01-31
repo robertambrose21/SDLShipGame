@@ -4,11 +4,14 @@ Weapon::Weapon(
     Entity* owner,
     Grid* grid,
     EntityPool* entityPool,
+    Item* item,
+    Slot slot,
     EventPublisher<WeaponEventData>& publisher,
     uint32_t id,
     const std::string& name, 
     const Stats& stats
 ) :
+    Equipment(item, slot),
     id(id),
     owner(owner),
     grid(grid),
@@ -25,11 +28,13 @@ Weapon::Weapon(
     Entity* owner,
     Grid* grid,
     EntityPool* entityPool,
+    Item* item,
+    Slot slot,
     EventPublisher<WeaponEventData>& publisher,
     const std::string& name, 
     const Stats& stats
 ) :
-    Weapon(owner, grid, entityPool, publisher, getNewId(), name, stats)
+    Weapon(owner, grid, entityPool, item, slot, publisher, getNewId(), name, stats)
 { }
 
 void Weapon::use(const glm::ivec2& position, const glm::ivec2& target) {

@@ -13,12 +13,14 @@ public:
         BODY,
         HANDS,
         FEET,
+        LEFT_HAND,
+        RIGHT_HAND,
         COUNT
     };
 
     static const std::map<Slot, std::string> SlotToItemType;
 
-private:
+protected:
     Item* item;
     Slot slot;
 

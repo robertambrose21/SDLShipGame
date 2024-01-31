@@ -21,6 +21,12 @@ void WeaponController::loadWeaponDefinitions(void) {
         WeaponDefinition definition;
         definition.filename = entry.path();
         definition.name = data["name"].get<std::string>();
+        if(data.contains("item")) {
+            definition.item = data["item"].get<std::string>();
+        }
+        else {
+            definition.item = "";
+        }
         definition.weaponClass = data["class"].get<std::string>();
         if(data.contains("projectile")) {
             definition.projectile = data["projectile"].get<std::string>();
@@ -28,6 +34,7 @@ void WeaponController::loadWeaponDefinitions(void) {
         else {
             definition.projectile = "";
         }
+        
         definition.damage = data["damage"].get<int>();
         definition.range = data["range"].get<int>();
         definition.uses = data["uses"].get<int>();
@@ -41,42 +48,68 @@ void WeaponController::loadWeaponDefinitions(void) {
 std::unique_ptr<Weapon> WeaponController::createWeapon(
     uint32_t id, 
     const std::string& name, 
-    Entity* owner
+    Entity* owner,
+    Equipment::Slot slot
 ) {
     game_assert(initialised);
     game_assert(weaponDefinitions.contains(name));
 
     auto definition = weaponDefinitions[name];
+    auto item = getItem(definition.item, owner);
 
     if(definition.weaponClass == "Projectile") {
-        return std::make_unique<ProjectileWeapon>(
+        auto weapon = std::make_unique<ProjectileWeapon>(
             owner,
             context->getGrid(),
             context->getEntityPool(),
             context->getProjectilePool(),
+            item,
+            slot,
             *this,
             id,
             definition.name,
             Weapon::Stats { definition.damage, definition.range, definition.uses },
             context->getProjectilePool()->create(definition.projectile)
         );
+        if(item != nullptr) {
+            owner->setEquipment(item, slot);
+        }
+        return weapon;
     }
     else if(definition.weaponClass == "Melee") {
-        return std::make_unique<MeleeWeapon>(
+        auto weapon = std::make_unique<MeleeWeapon>(
             owner,
             context->getGrid(),
             context->getEntityPool(),
+            item,
+            slot,
             *this,
             id,
             definition.name,
             Weapon::Stats { definition.damage, definition.range, definition.uses }
         );
+        if(item != nullptr) {
+            owner->setEquipment(item, slot);
+        }
+        owner->setEquipment(item, slot);
+        return weapon;
     }
 
     throw std::runtime_error("Could not create weapon of class \"" + definition.weaponClass + "\"");
 }
 
-std::unique_ptr<Weapon> WeaponController::createWeapon(const std::string& name, Entity* owner) {
+std::unique_ptr<Weapon> WeaponController::createWeapon(const std::string& name, Entity* owner, Equipment::Slot slot) {
     game_assert(initialised);
-    return createWeapon(getNewId(), name, owner);
+    return createWeapon(getNewId(), name, owner, slot);
+}
+
+Item* WeaponController::getItem(const std::string& itemName, Entity* owner) {
+    if(itemName == "") {
+        return nullptr;
+    }
+
+    auto item = context->getItemController()->addItem(itemName, glm::ivec2(0, 0), owner, false);
+    item->setParticipantId(owner->getParticipantId());
+
+    return item;
 }
