@@ -36,6 +36,6 @@ public:
     void initialise(ApplicationContext& context);
 
     // TODO: Rename to add weapon
-    std::unique_ptr<Weapon> createWeapon(const std::string& name, Entity* owner, Equipment::Slot slot);
-    std::unique_ptr<Weapon> createWeapon(uint32_t id, const std::string& name, Entity* owner, Equipment::Slot slot);
+    std::unique_ptr<Weapon> createWeapon(const std::string& name, Entity* owner);
+    std::unique_ptr<Weapon> createWeapon(uint32_t id, const std::string& name, Entity* owner);
 };

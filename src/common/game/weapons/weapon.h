@@ -13,7 +13,7 @@
 class Entity;
 class EntityPool;
 
-class Weapon : public Equipment {
+class Weapon {
 public:
     // TODO: Probably a better way to do abstraction than this
     enum Type {
@@ -39,6 +39,8 @@ protected:
     EntityPool* entityPool;
     EventPublisher<WeaponEventData>& publisher;
 
+    Item* item;
+
     virtual bool onUse(const glm::ivec2& position, const glm::ivec2& target) = 0;
 
 public:
@@ -47,7 +49,6 @@ public:
         Grid* grid,
         EntityPool* entityPool,
         Item* item,
-        Slot slot,
         EventPublisher<WeaponEventData>& publisher,
         uint32_t id,
         const std::string& name, 
@@ -59,7 +60,6 @@ public:
         Grid* grid,
         EntityPool* entityPool,
         Item* item,
-        Slot slot,
         EventPublisher<WeaponEventData>& publisher,
         const std::string& name, 
         const Stats& stats
@@ -82,4 +82,6 @@ public:
     uint32_t getId(void) const;
     std::string getName(void) const;
     Entity* getOwner(void);
+
+    Item* getItem(void);
 };

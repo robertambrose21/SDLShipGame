@@ -71,3 +71,7 @@ void Item::setParticipantId(int participantId) {
 bool Item::isEquippable(void) {
     return EquippableItemTypes.contains(getType());
 }
+
+bool Item::isWeapon(void) {
+    return type == "Weapon";
+}

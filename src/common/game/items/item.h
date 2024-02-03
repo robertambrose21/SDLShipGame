@@ -74,4 +74,5 @@ public:
     void setParticipantId(int participantId);
 
     bool isEquippable(void);
+    bool isWeapon(void);
 };

@@ -13,7 +13,6 @@ public:
         Grid* grid,
         EntityPool* entityPool,
         Item* item,
-        Slot slot,
         EventPublisher<WeaponEventData>& publisher,
         uint32_t id,
         const std::string& name, 
@@ -25,7 +24,6 @@ public:
         Grid* grid,
         EntityPool* entityPool,
         Item* item,
-        Slot slot,
         EventPublisher<WeaponEventData>& publisher,
         const std::string& name, 
         const Stats& stats

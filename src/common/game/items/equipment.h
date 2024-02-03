@@ -13,8 +13,6 @@ public:
         BODY,
         HANDS,
         FEET,
-        LEFT_HAND,
-        RIGHT_HAND,
         COUNT
     };
 

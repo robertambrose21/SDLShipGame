@@ -132,8 +132,7 @@ void EntityPool::synchronize() {
                 
                 if(!existing->hasWeapon(weaponUpdate.id)) {
                     existing->addWeapon(
-                        context->getWeaponController()->createWeapon(weaponUpdate.id, weaponUpdate.name, existing.get(), 
-                        Equipment::LEFT_HAND));
+                        context->getWeaponController()->createWeapon(weaponUpdate.id, weaponUpdate.name, existing.get()));
                 }
             }
 

@@ -48,8 +48,7 @@ void WeaponController::loadWeaponDefinitions(void) {
 std::unique_ptr<Weapon> WeaponController::createWeapon(
     uint32_t id, 
     const std::string& name, 
-    Entity* owner,
-    Equipment::Slot slot
+    Entity* owner
 ) {
     game_assert(initialised);
     game_assert(weaponDefinitions.contains(name));
@@ -58,48 +57,38 @@ std::unique_ptr<Weapon> WeaponController::createWeapon(
     auto item = getItem(definition.item, owner);
 
     if(definition.weaponClass == "Projectile") {
-        auto weapon = std::make_unique<ProjectileWeapon>(
+        return std::make_unique<ProjectileWeapon>(
             owner,
             context->getGrid(),
             context->getEntityPool(),
             context->getProjectilePool(),
             item,
-            slot,
             *this,
             id,
             definition.name,
             Weapon::Stats { definition.damage, definition.range, definition.uses },
             context->getProjectilePool()->create(definition.projectile)
         );
-        if(item != nullptr) {
-            owner->setEquipment(std::make_unique<Equipment>(item, slot));
-        }
-        return weapon;
     }
     else if(definition.weaponClass == "Melee") {
-        auto weapon = std::make_unique<MeleeWeapon>(
+        return std::make_unique<MeleeWeapon>(
             owner,
             context->getGrid(),
             context->getEntityPool(),
             item,
-            slot,
             *this,
             id,
             definition.name,
             Weapon::Stats { definition.damage, definition.range, definition.uses }
         );
-        if(item != nullptr) {
-            owner->setEquipment(std::make_unique<Equipment>(item, slot));
-        }
-        return weapon;
     }
 
     throw std::runtime_error("Could not create weapon of class \"" + definition.weaponClass + "\"");
 }
 
-std::unique_ptr<Weapon> WeaponController::createWeapon(const std::string& name, Entity* owner, Equipment::Slot slot) {
+std::unique_ptr<Weapon> WeaponController::createWeapon(const std::string& name, Entity* owner) {
     game_assert(initialised);
-    return createWeapon(getNewId(), name, owner, slot);
+    return createWeapon(getNewId(), name, owner);
 }
 
 Item* WeaponController::getItem(const std::string& itemName, Entity* owner) {

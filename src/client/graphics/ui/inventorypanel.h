@@ -20,6 +20,7 @@ private:
     std::function<void(Item* item)> onExamineClicked;
 
     void drawEquipment(GraphicsContext& graphicsContext, TurnController::Participant* participant);
+    void drawWeapons(GraphicsContext& graphicsContext, TurnController::Participant* participant);
     void drawItem(GraphicsContext& graphicsContext, Item* item, bool isEquipped);
 
 public:

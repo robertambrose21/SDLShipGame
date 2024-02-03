@@ -16,6 +16,8 @@ void InventoryPanel::draw(GraphicsContext& graphicsContext, TurnController::Part
 
     // TODO: This table should only show up if we have an entity selected
     drawEquipment(graphicsContext, participant);
+    ImGui::Separator();
+    drawWeapons(graphicsContext, participant);
 
     ImGui::Separator();
     ImGui::BeginChild("Bag");
@@ -30,7 +32,9 @@ void InventoryPanel::draw(GraphicsContext& graphicsContext, TurnController::Part
 }
 
 void InventoryPanel::drawEquipment(GraphicsContext& graphicsContext, TurnController::Participant* participant) {
-    if(ImGui::BeginTable("EquipmentTable", 2)) {
+    ImGuiTableFlags flags = ImGuiTableFlags_SizingFixedFit;
+
+    if(ImGui::BeginTable("EquipmentTable", 2, flags)) {
         for(int i = 0; i < Equipment::Slot::COUNT; i++) {
             auto slot = (Equipment::Slot) i;
 
@@ -46,6 +50,31 @@ void InventoryPanel::drawEquipment(GraphicsContext& graphicsContext, TurnControl
             }
             else {
                 ImGui::TextColored(ImVec4(.3f, .3f, .3f, 1), "<None>");
+            }
+        }
+
+        ImGui::EndTable();
+    }
+}
+
+void InventoryPanel::drawWeapons(GraphicsContext& graphicsContext, TurnController::Participant* participant) {
+    ImGuiTableFlags flags = ImGuiTableFlags_SizingFixedFit;
+
+    if(ImGui::BeginTable("WeaponsTable", 2, flags)) {
+        int weaponNumber = 1;
+        for(auto weapon : participant->entities[0]->getWeapons()) {
+            ImGui::TableNextRow();
+            ImGui::TableNextColumn();
+            ImGui::TextColored(ImVec4(1, 1, 1, 1), "Weapon %d", weaponNumber++);
+            ImGui::TableNextColumn();
+
+            auto item = weapon->getItem();
+
+            if(item != nullptr) {
+                drawItem(graphicsContext, item, true);
+            }
+            else {
+                ImGui::TextColored(ImVec4(1, 1, 1, 1), "Missing item: %s", weapon->getName().c_str());
             }
         }
 
