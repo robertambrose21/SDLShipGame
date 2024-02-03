@@ -11,19 +11,30 @@ inline uint32_t getNewId(void) {
 }
 
 struct UUID {
-    UUIDv4::UUID id;
+    UUIDv4::UUID uuid;
+
+    UUID()
+    { }
+
+    UUID(const UUIDv4::UUID uuid) :
+        uuid(uuid)
+    { }
+
+    UUID(const std::string& uuidStr) :
+        uuid(UUIDv4::UUID::fromStrFactory(uuidStr))
+    { }
 
     std::string getString(void) {
-        return id.str();
+        return uuid.str();
     }
 
     bool operator==(const UUID& other) const {
-        return id == other.id;
+        return uuid == other.uuid;
+    }
+
+    static inline UUID getNewUUID(void) {
+        UUIDv4::UUIDGenerator<std::mt19937_64> uuidGenerator;
+        UUIDv4::UUID uuid = uuidGenerator.getUUID();
+        return UUID(uuid);
     }
 };
-
-inline UUID getNewUUID(void) {
-    UUIDv4::UUIDGenerator<std::mt19937_64> uuidGenerator;
-    UUIDv4::UUID uuid = uuidGenerator.getUUID();
-    return { uuid };
-}
