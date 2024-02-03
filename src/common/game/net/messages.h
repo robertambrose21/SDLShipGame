@@ -23,6 +23,8 @@ struct WeaponStateUpdate {
     int range;
     int uses;
     int usesLeft;
+    uint32_t itemId;
+    bool hasItem;
 
     WeaponStateUpdate() {
         memset(this, 0, sizeof(WeaponStateUpdate));

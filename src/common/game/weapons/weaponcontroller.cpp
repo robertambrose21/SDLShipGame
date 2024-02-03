@@ -46,7 +46,7 @@ void WeaponController::loadWeaponDefinitions(void) {
 }
 
 std::unique_ptr<Weapon> WeaponController::createWeapon(
-    uint32_t id, 
+    uint32_t id,
     const std::string& name, 
     Entity* owner
 ) {

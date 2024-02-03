@@ -76,3 +76,14 @@ void GameClientMessagesTransmitter::sendEquipItemMessage(uint32_t itemId, uint32
 
     client.sendMessage(message);
 }
+
+void GameClientMessagesTransmitter::sendEquipWeaponMessage(uint32_t itemId, uint32_t entityId, uint32_t weaponId, bool isUnequip) {
+    EquipWeaponMessage* message = (EquipWeaponMessage*) client.createMessage(GameMessageType::EQUIP_WEAPON);
+
+    message->itemId = itemId;
+    message->entityId = entityId;
+    message->weaponId = weaponId;
+    message->isUnequip = isUnequip;
+
+    client.sendMessage(message);
+}

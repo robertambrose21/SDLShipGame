@@ -62,6 +62,7 @@ public:
     Rarity getRarity(void) const;
 
     uint32_t getId(void) const;
+    void setId(uint32_t id);
 
     void setTextureId(uint32_t textureId);
     uint32_t getTextureId(void) const;

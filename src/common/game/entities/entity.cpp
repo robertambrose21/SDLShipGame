@@ -197,6 +197,10 @@ Weapon* Entity::addWeapon(std::unique_ptr<Weapon> weapon) {
 }
 
 void Entity::removeWeapon(uint32_t weaponId) {
+    if(weaponId == currentWeapon->getId()) {
+        currentWeapon = nullptr;
+    }
+
     weapons.erase(weaponId);
 }
 
@@ -209,6 +213,14 @@ void Entity::setCurrentWeapon(uint32_t weaponId) {
 }
 
 Weapon* Entity::getCurrentWeapon(void) {
+    if(weapons.empty()) {
+        return nullptr;
+    }
+
+    if(currentWeapon == nullptr) {
+        setCurrentWeapon(weapons.begin()->first);
+    }
+
     return currentWeapon;
 }
 
@@ -306,12 +318,12 @@ int Entity::getAggroRange(void) const {
     return 10; // temp hardcoded for now
 }
 
-bool Entity::isTurnInProgress(void) const {
-    return (currentWeapon != nullptr && !currentWeapon->hasFinished()) || getMovesLeft() > 0;
+bool Entity::isTurnInProgress(void) {
+    return (getCurrentWeapon() != nullptr && !getCurrentWeapon()->hasFinished()) || getMovesLeft() > 0;
 }
 
 bool Entity::hasAnimationsInProgress(void) {
-    return currentWeapon != nullptr && currentWeapon->isAnimationInProgress();
+    return getCurrentWeapon() != nullptr && getCurrentWeapon()->isAnimationInProgress();
 }
 
 void Entity::useMoves(int numMoves) {
@@ -402,7 +414,13 @@ void Entity::popAction(int currentTurnNumber) {
 
 void Entity::setParticipantId(int participantId) {
     this->participantId = participantId;
-}
+
+    for(auto& [id, weapon] : weapons) {
+        if(weapon->getItem() != nullptr) {
+            weapon->getItem()->setParticipantId(participantId);
+        }
+    }
+ }
 
 int Entity::getParticipantId(void) const {
     return participantId;

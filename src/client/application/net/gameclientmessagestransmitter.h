@@ -26,4 +26,5 @@ public:
     void sendPassParticipantTurnMessage(int participantId);
     void sendSetParticipantAckMessage(int participantId);
     void sendEquipItemMessage(uint32_t itemId, uint32_t entityId, Equipment::Slot slot, bool isUnequip);
+    void sendEquipWeaponMessage(uint32_t itemId, uint32_t entityId, uint32_t weaponId, bool isUnequip);
 };

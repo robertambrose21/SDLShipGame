@@ -19,6 +19,7 @@
 #include "graphics/ui/inventorypanel.h"
 #include "game/actions/attackaction.h"
 #include "game/actions/equipitemaction.h"
+#include "game/actions/equipweaponaction.h"
 
 class PlayerController {
 private:
@@ -61,6 +62,8 @@ private:
     void setHoverTiles(void);
     void equipItem(Item* item, Equipment::Slot slot);
     void unequipItem(Item* item, Equipment::Slot slot);
+    void equipWeapon(Item* item);
+    void unequipWeapon(Weapon* weapon);
 
 public:
     PlayerController(

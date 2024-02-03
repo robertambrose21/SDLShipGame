@@ -89,3 +89,10 @@ struct EquipItemActionEventData {
     int slot;
     bool isUnequip;
 };
+
+struct EquipWeaponActionEventData {
+    int turnNumber;
+    Entity* entity;
+    Item* item;
+    Weapon* toUnequip;
+};

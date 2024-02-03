@@ -25,6 +25,12 @@ PlayerController::PlayerController(
     inventoryPanel->addOnUnequipCallback([&](auto item, auto slot) {
         unequipItem(item, slot);
     });
+    inventoryPanel->addOnEquipWeaponClicked([&](auto item) {
+        equipWeapon(item);
+    });
+    inventoryPanel->addOnUnequipWeaponClicked([&](auto weapon) {
+        unequipWeapon(weapon);
+    });
     
     turnController->subscribe<TurnEventData>(playerPanel.get());
     entityPool->subscribe<EntityEventData>(playerPanel.get());
@@ -357,6 +363,26 @@ void PlayerController::unequipItem(Item* item, Equipment::Slot slot) {
 
     if(turnController->queueAction(std::make_unique<EquipItemAction>(turnController->getTurnNumber(), entity, item, slot, true))) {
         clientMessagesTransmitter.sendEquipItemMessage(item->getId(), entity->getId(), slot, true);
+    }
+}
+
+void PlayerController::equipWeapon(Item* item) {
+    auto entity = selectedEntities[0];
+
+    if(turnController->queueAction(std::make_unique<EquipWeaponAction>(turnController->getTurnNumber(), entity, item))) {
+        clientMessagesTransmitter.sendEquipWeaponMessage(item->getId(), entity->getId(), 0, false);
+    }
+}
+
+void PlayerController::unequipWeapon(Weapon* weapon) {
+    auto entity = selectedEntities[0];
+
+    if(turnController->queueAction(std::make_unique<EquipWeaponAction>(
+        turnController->getTurnNumber(),
+        entity, weapon->getItem(),
+        weapon))
+    ) {
+        clientMessagesTransmitter.sendEquipWeaponMessage(weapon->getItem()->getId(), entity->getId(), weapon->getId(), true);
     }
 }
 

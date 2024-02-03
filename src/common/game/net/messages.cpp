@@ -25,6 +25,8 @@ WeaponStateUpdate WeaponStateUpdate::serialize(Weapon* weapon) {
     weaponUpdate.range = weapon->getStats().range;
     weaponUpdate.uses = weapon->getStats().uses;
     weaponUpdate.usesLeft = weapon->getUsesLeft();
+    weaponUpdate.hasItem = weapon->getItem() != nullptr;
+    weaponUpdate.itemId = weaponUpdate.hasItem ? weapon->getItem()->getId() : 0;
 
     return weaponUpdate;
 }

@@ -153,6 +153,25 @@ void StdOutSubscriber::onPublish(const Event<EquipItemActionEventData>& event) {
     }
 }
 
+void StdOutSubscriber::onPublish(const Event<EquipWeaponActionEventData>& event) {
+    if(event.data.toUnequip != nullptr) {
+        log(
+            event.timestamp,
+            "{} unequipped [{}]",
+            getEntityIdentifier(event.data.entity),
+            event.data.toUnequip->getName()
+        );
+    }
+    else {
+        log(
+            event.timestamp,
+            "{} equipped [{}]",
+            getEntityIdentifier(event.data.entity),
+            event.data.item->getName()
+        );
+    }
+}
+
 std::string StdOutSubscriber::getEntityIdentifier(Entity* entity) {
     game_assert(entity != nullptr);
     return entity->getName() + "#" + std::to_string(entity->getId());

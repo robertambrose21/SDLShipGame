@@ -23,7 +23,7 @@ void InventoryPanel::draw(GraphicsContext& graphicsContext, TurnController::Part
     ImGui::BeginChild("Bag");
     
     for(auto item : participant->items) {
-        drawItem(graphicsContext, item, false);
+        drawInventoryItem(graphicsContext, item);
     }
 
     ImGui::EndChild();
@@ -46,7 +46,7 @@ void InventoryPanel::drawEquipment(GraphicsContext& graphicsContext, TurnControl
             auto equipment = participant->entities[0]->getEquipment(slot);
 
             if(equipment != nullptr) {
-                drawItem(graphicsContext, equipment->getItem(), true);
+                drawEquippedItem(graphicsContext, equipment->getItem());
             }
             else {
                 ImGui::TextColored(ImVec4(.3f, .3f, .3f, 1), "<None>");
@@ -68,21 +68,14 @@ void InventoryPanel::drawWeapons(GraphicsContext& graphicsContext, TurnControlle
             ImGui::TextColored(ImVec4(1, 1, 1, 1), "Weapon %d", weaponNumber++);
             ImGui::TableNextColumn();
 
-            auto item = weapon->getItem();
-
-            if(item != nullptr) {
-                drawItem(graphicsContext, item, true);
-            }
-            else {
-                ImGui::TextColored(ImVec4(1, 1, 1, 1), "Missing item: %s", weapon->getName().c_str());
-            }
+            drawEquippedWeapon(graphicsContext, weapon);
         }
 
         ImGui::EndTable();
     }
 }
 
-void InventoryPanel::drawItem(GraphicsContext& graphicsContext, Item* item, bool isEquipped) {
+void InventoryPanel::drawInventoryItem(GraphicsContext& graphicsContext, Item* item) {
     auto texture = graphicsContext.getTextureLoader().loadTexture(item->getTextureId())->getSDLTexture();
     auto selectableLabel = "##SelectableItem" + std::to_string(item->getId());
 
@@ -92,15 +85,63 @@ void InventoryPanel::drawItem(GraphicsContext& graphicsContext, Item* item, bool
     ImGui::SetNextItemAllowOverlap();
     ImGui::Selectable(selectableLabel.c_str());
     if(ImGui::BeginPopupContextItem()) {
-        if(isEquipped) {
-            if(ImGui::Button("Unequip")) {
-                onUnequipClicked(item, slot);
+        if(item->isWeapon()) {
+            if(ImGui::Button("Equip")) {
+                onEquipWeaponClicked(item);
             }
         }
         else if(item->isEquippable()) {
             if(ImGui::Button("Equip")) {
                 onEquipClicked(item, slot);
             }
+        }
+        if(ImGui::Button("Examine")) {
+            onExamineClicked(item);
+        }
+
+        ImGui::EndPopup();
+    }
+    ImGui::SameLine();
+    ImGui::Image((void*) texture, ImVec2(20, 20));
+    ImGui::SameLine();
+    ImGui::TextColored(ItemRarityColours.at(item->getRarity()), "[%s]", item->getName().c_str());
+}
+
+void InventoryPanel::drawEquippedItem(GraphicsContext& graphicsContext, Item* item) {
+    auto texture = graphicsContext.getTextureLoader().loadTexture(item->getTextureId())->getSDLTexture();
+    auto selectableLabel = "##SelectableEquipment" + std::to_string(item->getId());
+
+    Equipment::Slot slot;
+    Equipment::getSlotFromItemType(&slot, item->getType());
+
+    ImGui::SetNextItemAllowOverlap();
+    ImGui::Selectable(selectableLabel.c_str());
+    if(ImGui::BeginPopupContextItem()) {
+        if(ImGui::Button("Unequip")) {
+            onUnequipClicked(item, slot);
+        }
+        if(ImGui::Button("Examine")) {
+            onExamineClicked(item);
+        }
+
+        ImGui::EndPopup();
+    }
+    ImGui::SameLine();
+    ImGui::Image((void*) texture, ImVec2(20, 20));
+    ImGui::SameLine();
+    ImGui::TextColored(ItemRarityColours.at(item->getRarity()), "[%s]", item->getName().c_str());
+}
+
+void InventoryPanel::drawEquippedWeapon(GraphicsContext& graphicsContext, Weapon* weapon) {
+    auto item = weapon->getItem();
+    auto texture = graphicsContext.getTextureLoader().loadTexture(item->getTextureId())->getSDLTexture();
+    auto selectableLabel = "##SelectableWeapon" + std::to_string(weapon->getId());
+
+    ImGui::SetNextItemAllowOverlap();
+    ImGui::Selectable(selectableLabel.c_str());
+    if(ImGui::BeginPopupContextItem()) {
+        if(ImGui::Button("Unequip")) {
+            onUnequipWeaponClicked(weapon);
         }
         if(ImGui::Button("Examine")) {
             onExamineClicked(item);
@@ -132,6 +173,14 @@ void InventoryPanel::addOnEquipCallback(std::function<void(Item* item, Equipment
 
 void InventoryPanel::addOnUnequipCallback(std::function<void(Item* item, Equipment::Slot slot)>&& callback) {
     this->onUnequipClicked = callback;
+}
+
+void InventoryPanel::addOnEquipWeaponClicked(std::function<void(Item* item)>&& callback) {
+    this->onEquipWeaponClicked = callback;
+}
+
+void InventoryPanel::addOnUnequipWeaponClicked(std::function<void(Weapon* weapon)>&& callback) {
+    this->onUnequipWeaponClicked = callback;
 }
 
 void InventoryPanel::addOnExamineCallback(std::function<void(Item* item)>&& callback) {

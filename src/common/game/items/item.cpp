@@ -24,6 +24,10 @@ uint32_t Item::getId(void) const {
     return id;
 }
 
+void Item::setId(uint32_t id) {
+    this->id = id;
+}
+
 std::string Item::getName(void) const {
     return name;
 }

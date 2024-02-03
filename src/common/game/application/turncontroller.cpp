@@ -79,6 +79,8 @@ void TurnController::addEntityToParticipant(int participantId, Entity* entity) {
         );
     }
 
+    entity->setParticipantId(participantId);
+
     if(!participants[participantId]->engagements.empty()) {
         entity->engage();
     }
@@ -305,6 +307,17 @@ void TurnController::publishAction(Action& action) {
                 equipItemAction.getItem(),
                 equipItemAction.getSlot(),
                 equipItemAction.getIsUnequip()
+            });
+            break;
+        }
+
+        case Action::EquipWeaponItem: {
+            auto equipWeaponAction = dynamic_cast<EquipWeaponAction&>(action);
+            publish<EquipWeaponActionEventData>({
+                turnNumber,
+                equipWeaponAction.getEntity(),
+                equipWeaponAction.getItem(),
+                equipWeaponAction.getToUnequip()
             });
             break;
         }

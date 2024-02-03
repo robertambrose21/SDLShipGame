@@ -64,6 +64,18 @@ void GameServerMessagesReceiver::receiveMessage(int clientIndex, yojimbo::Messag
             break;
         }
 
+        case (int) GameMessageType::EQUIP_WEAPON: {
+            EquipWeaponMessage* equipWeaponMessage = (EquipWeaponMessage*) message;
+            receiveEquipWeaponMessage(
+                clientIndex,
+                equipWeaponMessage->itemId,
+                equipWeaponMessage->entityId,
+                equipWeaponMessage->weaponId,
+                equipWeaponMessage->isUnequip
+            );
+            break;
+        }
+
         default:
             break;
     }
@@ -175,6 +187,48 @@ void GameServerMessagesReceiver::receiveEquipItemMessage(
         item,
         (Equipment::Slot) slot,
         isUnequip
+    ));
+}
+
+void GameServerMessagesReceiver::receiveEquipWeaponMessage(
+    int clientIndex, 
+    uint32_t itemId, 
+    uint32_t entityId, 
+    uint32_t weaponId, 
+    bool isUnequip
+) {
+    if(!context.getEntityPool()->hasEntity(entityId)) {
+        return;
+    }
+
+    if(!context.getItemController()->hasItem(itemId)) {
+        return;
+    }
+
+    auto turnController = context.getTurnController();
+    auto item = context.getItemController()->getItem(itemId);
+    auto entity = context.getEntityPool()->getEntity(entityId);
+    Weapon* weapon = nullptr;
+
+    // TODO: use the map
+    for(auto w : entity->getWeapons()) {
+        if(w->getId() == weaponId) {
+            weapon = w;
+        }
+    }
+
+    if(isUnequip && weapon == nullptr) {
+        return;
+    }
+    else if(!isUnequip && weapon != nullptr) {
+        return;
+    }
+
+    turnController->queueAction(std::make_unique<EquipWeaponAction>(
+        turnController->getTurnNumber(), 
+        entity, 
+        item,
+        weapon
     ));
 }
 
