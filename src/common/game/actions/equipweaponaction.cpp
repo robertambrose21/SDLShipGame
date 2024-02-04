@@ -1,9 +1,9 @@
 #include "equipweaponaction.h"
 
-EquipWeaponAction::EquipWeaponAction(int turnNumber, Entity* entity, Item* item, Weapon* toUnequip) :
+EquipWeaponAction::EquipWeaponAction(int turnNumber, Entity* entity, Item* item, const UUID& weaponId) :
     Action(turnNumber, entity),
     item(item),
-    toUnequip(toUnequip)
+    weaponId(weaponId)
 { }
 
 bool EquipWeaponAction::onValidate(ApplicationContext* context) {
@@ -15,15 +15,8 @@ bool EquipWeaponAction::onValidate(ApplicationContext* context) {
         return false;
     }
 
-    if(toUnequip != nullptr) {
-        // TOOD: use weapons map
-        for(auto weapon : entity->getWeapons()) {
-            if(weapon->getId() == toUnequip->getId()) {
-                return true;
-            }
-        }
-
-        return false;
+    if(entity->hasWeapon(weaponId)) {
+        return entity->getWeapon(weaponId)->getItem()->getId() == item->getId();
     }
 
     auto participant = context->getTurnController()->getParticipant(entity->getParticipantId());
@@ -42,12 +35,12 @@ bool EquipWeaponAction::onValidate(ApplicationContext* context) {
 void EquipWeaponAction::onExecute(ApplicationContext* context) {
     auto participant = context->getTurnController()->getParticipant(entity->getParticipantId());
 
-    if(toUnequip != nullptr) {
+    if(entity->hasWeapon(weaponId)) {
         participant->items.push_back(item);
-        entity->removeWeapon(toUnequip->getId());
+        entity->removeWeapon(weaponId);
     }
     else {
-        entity->addWeapon(context->getWeaponController()->createWeapon(item->getName(), entity));
+        entity->addWeapon(context->getWeaponController()->createWeapon(weaponId, item->getName(), entity));
         std::erase(participant->items, item);
     }
 }
@@ -68,6 +61,6 @@ Item* EquipWeaponAction::getItem(void) {
     return item;
 }
 
-Weapon* EquipWeaponAction::getToUnequip(void) {
-    return toUnequip;
+UUID EquipWeaponAction::getWeaponId(void) const {
+    return weaponId;
 }

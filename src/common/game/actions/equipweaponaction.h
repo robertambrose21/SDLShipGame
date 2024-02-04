@@ -11,14 +11,14 @@ private:
     bool hasFinished(void);
 
     Item* item;
-    Weapon* toUnequip;
+    UUID weaponId;
 
 public:
-    EquipWeaponAction(int turnNumber, Entity* entity, Item* item, Weapon* toUnequip = nullptr);
+    EquipWeaponAction(int turnNumber, Entity* entity, Item* item, const UUID& weaponId);
 
     bool passesPrecondition(void);
     Type getType(void);
 
     Item* getItem(void);
-    Weapon* getToUnequip(void);
+    UUID getWeaponId(void) const;
 };

@@ -41,7 +41,6 @@ void ClientApplication::initialise(void) {
     context.getTurnController()->subscribe<TakeItemActionEventData>(&stdoutSubscriber);
     context.getTurnController()->subscribe<EngagementEventData>(&stdoutSubscriber);
     context.getTurnController()->subscribe<EquipItemActionEventData>(&stdoutSubscriber);
-    context.getTurnController()->subscribe<EquipWeaponActionEventData>(&stdoutSubscriber);
 
     weaponDrawStrategy = std::make_unique<WeaponDrawStrategy>();
     entityDrawStrategy = std::make_unique<EntityDrawStrategy>(weaponDrawStrategy.get());

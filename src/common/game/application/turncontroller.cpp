@@ -317,7 +317,7 @@ void TurnController::publishAction(Action& action) {
                 turnNumber,
                 equipWeaponAction.getEntity(),
                 equipWeaponAction.getItem(),
-                equipWeaponAction.getToUnequip()
+                equipWeaponAction.getWeaponId()
             });
             break;
         }

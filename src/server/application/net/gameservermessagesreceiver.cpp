@@ -210,27 +210,12 @@ void GameServerMessagesReceiver::receiveEquipWeaponMessage(
     auto turnController = context.getTurnController();
     auto item = context.getItemController()->getItem(itemId);
     auto entity = context.getEntityPool()->getEntity(entityId);
-    Weapon* weapon = nullptr;
-
-    // TODO: use the map
-    for(auto w : entity->getWeapons()) {
-        if(w->getId() == weaponId) {
-            weapon = w;
-        }
-    }
-
-    if(isUnequip && weapon == nullptr) {
-        return;
-    }
-    else if(!isUnequip && weapon != nullptr) {
-        return;
-    }
 
     turnController->queueAction(std::make_unique<EquipWeaponAction>(
         turnController->getTurnNumber(), 
         entity, 
         item,
-        weapon
+        weaponId
     ));
 }
 

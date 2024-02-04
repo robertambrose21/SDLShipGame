@@ -368,9 +368,10 @@ void PlayerController::unequipItem(Item* item, Equipment::Slot slot) {
 
 void PlayerController::equipWeapon(Item* item) {
     auto entity = selectedEntities[0];
+    auto weaponId = UUID::getNewUUID();
 
-    if(turnController->queueAction(std::make_unique<EquipWeaponAction>(turnController->getTurnNumber(), entity, item))) {
-        clientMessagesTransmitter.sendEquipWeaponMessage(item->getId(), entity->getId(), UUID::getNewUUID(), false);
+    if(turnController->queueAction(std::make_unique<EquipWeaponAction>(turnController->getTurnNumber(), entity, item, weaponId))) {
+        clientMessagesTransmitter.sendEquipWeaponMessage(item->getId(), entity->getId(), weaponId, false);
     }
 }
 
@@ -379,8 +380,9 @@ void PlayerController::unequipWeapon(Weapon* weapon) {
 
     if(turnController->queueAction(std::make_unique<EquipWeaponAction>(
         turnController->getTurnNumber(),
-        entity, weapon->getItem(),
-        weapon))
+        entity,
+        weapon->getItem(),
+        weapon->getId()))
     ) {
         clientMessagesTransmitter.sendEquipWeaponMessage(weapon->getItem()->getId(), entity->getId(), weapon->getId(), true);
     }

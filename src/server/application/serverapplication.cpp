@@ -41,7 +41,6 @@ void ServerApplication::initialise(void) {
     context.getTurnController()->subscribe<TakeItemActionEventData>(&stdoutSubscriber);
     context.getTurnController()->subscribe<EngagementEventData>(&stdoutSubscriber);
     context.getTurnController()->subscribe<EquipItemActionEventData>(&stdoutSubscriber);
-    context.getTurnController()->subscribe<EquipWeaponActionEventData>(&stdoutSubscriber);
 
     server = std::make_unique<GameServer>(yojimbo::Address("127.0.0.1", 8081));
 
