@@ -28,8 +28,20 @@ struct UUID {
         return uuid.str();
     }
 
+    std::string getBytes(void) {
+        return uuid.bytes();
+    }
+
     bool operator==(const UUID& other) const {
         return uuid == other.uuid;
+    }
+
+    bool operator<(const UUID& other) const {
+        return uuid < other.uuid;
+    }
+
+    static UUID fromBytes(const std::string& bytes) {
+        return UUIDv4::UUID(bytes);
     }
 
     static inline UUID getNewUUID(void) {
