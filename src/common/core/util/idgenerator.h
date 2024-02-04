@@ -16,10 +16,6 @@ struct UUID {
     UUID()
     { }
 
-    UUID(const UUIDv4::UUID uuid) :
-        uuid(uuid)
-    { }
-
     UUID(const std::string& uuidStr) :
         uuid(UUIDv4::UUID::fromStrFactory(uuidStr))
     { }
@@ -41,12 +37,15 @@ struct UUID {
     }
 
     static UUID fromBytes(const std::string& bytes) {
-        return UUIDv4::UUID(bytes);
+        UUID uuid;
+        uuid.uuid = UUIDv4::UUID(bytes);
+        return uuid;
     }
 
     static inline UUID getNewUUID(void) {
+        UUID uuid;
         UUIDv4::UUIDGenerator<std::mt19937_64> uuidGenerator;
-        UUIDv4::UUID uuid = uuidGenerator.getUUID();
-        return UUID(uuid);
+        uuid.uuid = uuidGenerator.getUUID();
+        return uuid;
     }
 };
