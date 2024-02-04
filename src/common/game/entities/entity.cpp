@@ -165,7 +165,7 @@ void Entity::takeDamage(int amount) {
     currentStats.totalHP -= amount;
 }
 
-void Entity::attack(const glm::ivec2& target, uint32_t weaponId) {
+void Entity::attack(const glm::ivec2& target, const UUID& weaponId) {
     // TODO: free use when not engaged
     weapons[weaponId]->use(position, target);
 }
@@ -182,11 +182,11 @@ std::vector<Weapon*> Entity::getWeapons(void) const {
     return vWeapons;
 }
 
-Weapon* Entity::getWeapon(uint32_t weaponId) {
+Weapon* Entity::getWeapon(const UUID& weaponId) {
     return weapons[weaponId].get();
 }
 
-bool Entity::hasWeapon(uint32_t weaponId) {
+bool Entity::hasWeapon(const UUID& weaponId) {
     return weapons.contains(weaponId);
 }
 
@@ -196,7 +196,7 @@ Weapon* Entity::addWeapon(std::unique_ptr<Weapon> weapon) {
     return weapons[id].get();
 }
 
-void Entity::removeWeapon(uint32_t weaponId) {
+void Entity::removeWeapon(const UUID& weaponId) {
     if(weaponId == currentWeapon->getId()) {
         currentWeapon = nullptr;
     }
@@ -208,7 +208,7 @@ void Entity::removeAllWeapons(void) {
     weapons.clear();
 }
 
-void Entity::setCurrentWeapon(uint32_t weaponId) {
+void Entity::setCurrentWeapon(const UUID& weaponId) {
     currentWeapon = weapons[weaponId].get();
 }
 

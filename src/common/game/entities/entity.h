@@ -66,7 +66,7 @@ private:
     std::set<StatusEffect> statusEffects;
     std::unique_ptr<Equipment> equipment[Equipment::Slot::COUNT];
 
-    std::map<uint32_t, std::unique_ptr<Weapon>> weapons;
+    std::map<UUID, std::unique_ptr<Weapon>> weapons;
     Weapon* currentWeapon;
 
     std::map<int, std::deque<std::unique_ptr<Action>>> actionsChain;
@@ -175,15 +175,15 @@ public:
     int getCurrentHP(void) const;
     void setCurrentHP(int hp);
     void takeDamage(int amount);
-    void attack(const glm::ivec2& target, uint32_t weaponId);
+    void attack(const glm::ivec2& target, const UUID& weaponId);
 
     std::vector<Weapon*> getWeapons(void) const;
-    Weapon* getWeapon(uint32_t weaponId);
-    bool hasWeapon(uint32_t weaponId);
+    Weapon* getWeapon(const UUID& weaponId);
+    bool hasWeapon(const UUID& weaponId);
     Weapon* addWeapon(std::unique_ptr<Weapon> weapon);
-    void removeWeapon(uint32_t weaponId);
+    void removeWeapon(const UUID& weaponId);
     void removeAllWeapons(void);
-    void setCurrentWeapon(uint32_t weaponId);
+    void setCurrentWeapon(const UUID& weaponId);
     Weapon* getCurrentWeapon(void);
     
     uint32_t getId(void) const;

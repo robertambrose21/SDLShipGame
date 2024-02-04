@@ -370,7 +370,7 @@ void PlayerController::equipWeapon(Item* item) {
     auto entity = selectedEntities[0];
 
     if(turnController->queueAction(std::make_unique<EquipWeaponAction>(turnController->getTurnNumber(), entity, item))) {
-        clientMessagesTransmitter.sendEquipWeaponMessage(item->getId(), entity->getId(), 0, false);
+        clientMessagesTransmitter.sendEquipWeaponMessage(item->getId(), entity->getId(), UUID::getNewUUID(), false);
     }
 }
 

@@ -14,7 +14,7 @@ public:
         EntityPool* entityPool,
         Item* item,
         EventPublisher<WeaponEventData>& publisher,
-        uint32_t id,
+        const UUID& id,
         const std::string& name, 
         const Stats& stats
     );

@@ -37,5 +37,5 @@ public:
 
     // TODO: Rename to add weapon
     std::unique_ptr<Weapon> createWeapon(const std::string& name, Entity* owner);
-    std::unique_ptr<Weapon> createWeapon(uint32_t id, const std::string& name, Entity* owner);
+    std::unique_ptr<Weapon> createWeapon(const UUID& id, const std::string& name, Entity* owner);
 };

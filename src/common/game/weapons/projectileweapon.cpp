@@ -7,7 +7,7 @@ ProjectileWeapon::ProjectileWeapon(
     ProjectilePool* projectilePool,
     Item* item,
     EventPublisher<WeaponEventData>& publisher,
-    uint32_t id,
+    const UUID& id,
     const std::string& name, 
     const Stats& stats,
     const Projectile::Blueprint& projectileBlueprint
@@ -28,7 +28,7 @@ ProjectileWeapon::ProjectileWeapon(
     const Stats& stats,
     const Projectile::Blueprint& projectileBlueprint
 ) :
-    ProjectileWeapon(owner, grid, entityPool, projectilePool, item, publisher, getNewId(), name, stats, projectileBlueprint)
+    ProjectileWeapon(owner, grid, entityPool, projectilePool, item, publisher, UUID::getNewUUID(), name, stats, projectileBlueprint)
 { }
 
 bool ProjectileWeapon::onUse(const glm::ivec2& position, const glm::ivec2& target) {

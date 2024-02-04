@@ -46,7 +46,7 @@ void WeaponController::loadWeaponDefinitions(void) {
 }
 
 std::unique_ptr<Weapon> WeaponController::createWeapon(
-    uint32_t id,
+    const UUID& id,
     const std::string& name, 
     Entity* owner
 ) {
@@ -88,7 +88,7 @@ std::unique_ptr<Weapon> WeaponController::createWeapon(
 
 std::unique_ptr<Weapon> WeaponController::createWeapon(const std::string& name, Entity* owner) {
     game_assert(initialised);
-    return createWeapon(getNewId(), name, owner);
+    return createWeapon(UUID::getNewUUID(), name, owner);
 }
 
 Item* WeaponController::getItem(const std::string& itemName, Entity* owner) {

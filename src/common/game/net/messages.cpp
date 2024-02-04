@@ -19,7 +19,7 @@ WeaponStateUpdate WeaponStateUpdate::serialize(Weapon* weapon) {
             break;
     }
 
-    weaponUpdate.id = weapon->getId();
+    strcpy(weaponUpdate.idBytes, weapon->getId().getBytes().data());
     strcpy(weaponUpdate.name, weapon->getName().c_str());
     weaponUpdate.damage = weapon->getStats().damage;
     weaponUpdate.range = weapon->getStats().range;
@@ -50,7 +50,7 @@ EntityStateUpdate EntityStateUpdate::serialize(Entity* entity) {
     entityStateUpdate.y = entity->getPosition().y;
     entityStateUpdate.participantId = entity->getParticipantId();
     entityStateUpdate.isEngaged = entity->isEngaged();
-    entityStateUpdate.currentWeaponId = entity->getCurrentWeapon()->getId();
+    strcpy(entityStateUpdate.currentWeaponIdBytes, entity->getCurrentWeapon()->getId().getBytes().data());
     entityStateUpdate.numWeapons = entity->getWeapons().size();
 
     int index = 0;
@@ -75,11 +75,12 @@ void EntityStateUpdate::deserialize(const EntityStateUpdate& update, Entity* exi
 
     for(int i = 0; i < update.numWeapons; i++) {
         auto& weaponUpdate = update.weaponUpdates[i];
-        auto weapon = existing->getWeapon(weaponUpdate.id);
+        auto weaponId = UUID::fromBytes(weaponUpdate.idBytes);
+        auto weapon = existing->getWeapon(weaponId);
 
         game_assert(weapon != nullptr);
 
-        if(weaponUpdate.id == update.currentWeaponId) {
+        if(weaponId == UUID::fromBytes(update.currentWeaponIdBytes)) {
             existing->setCurrentWeapon(weapon->getId());
         }
 

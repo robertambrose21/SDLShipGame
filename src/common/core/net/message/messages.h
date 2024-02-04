@@ -77,14 +77,13 @@ class AttackMessage : public yojimbo::Message {
 public:
     uint32_t entityId;
     int x, y;
-    uint32_t weaponId;
+    char weaponIdBytes[16];
     int turnNumber;
 
     AttackMessage() :
         entityId(0),
         x(0),
         y(0),
-        weaponId(0),
         turnNumber(0)
     { }
 
@@ -93,7 +92,7 @@ public:
         serialize_uint32(stream, entityId);
         serialize_int(stream, x, 0, 512);
         serialize_int(stream, y, 0, 512);
-        serialize_uint32(stream, weaponId);
+        serialize_string(stream, weaponIdBytes, 128);
         serialize_int(stream, turnNumber, 0, 512);
         return true;
     }
@@ -126,12 +125,12 @@ public:
             serialize_bits(stream, entity.y, 16);
 
             // Weapons
-            serialize_uint32(stream, entity.currentWeaponId);
+            serialize_string(stream, entity.currentWeaponIdBytes, 128);
             serialize_int(stream, entity.numWeapons, 0, MaxWeapons);
             for(int j = 0; j < entity.numWeapons; j++) {
                 auto& weapon = entity.weaponUpdates[j];
 
-                serialize_uint32(stream, weapon.id);
+                serialize_string(stream, weapon.idBytes, 128);
                 serialize_string(stream, weapon.name, sizeof(weapon.name));
                 serialize_string(stream, weapon.weaponClass, sizeof(weapon.weaponClass));
                 serialize_string(stream, weapon.projectile, sizeof(weapon.projectile));
@@ -436,13 +435,12 @@ class EquipWeaponMessage : public yojimbo::Message {
 public:
     uint32_t itemId;
     uint32_t entityId;
-    uint32_t weaponId;
+    char weaponIdBytes[16];
     bool isUnequip;
 
     EquipWeaponMessage() :
         itemId(0),
         entityId(0),
-        weaponId(0),
         isUnequip(false)
     { }
 
@@ -450,7 +448,7 @@ public:
     bool Serialize(Stream& stream) {
         serialize_uint32(stream, itemId);
         serialize_uint32(stream, entityId);
-        serialize_uint32(stream, weaponId);
+        serialize_string(stream, weaponIdBytes, 128);
         serialize_bool(stream, isUnequip);
         return true;
     }

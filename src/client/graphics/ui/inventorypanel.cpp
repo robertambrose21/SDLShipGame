@@ -135,7 +135,7 @@ void InventoryPanel::drawEquippedItem(GraphicsContext& graphicsContext, Item* it
 void InventoryPanel::drawEquippedWeapon(GraphicsContext& graphicsContext, Weapon* weapon) {
     auto item = weapon->getItem();
     auto texture = graphicsContext.getTextureLoader().loadTexture(item->getTextureId())->getSDLTexture();
-    auto selectableLabel = "##SelectableWeapon" + std::to_string(weapon->getId());
+    auto selectableLabel = "##SelectableWeapon" + weapon->getId().getString();
 
     ImGui::SetNextItemAllowOverlap();
     ImGui::Selectable(selectableLabel.c_str());

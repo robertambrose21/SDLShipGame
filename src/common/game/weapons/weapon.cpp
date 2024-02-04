@@ -6,7 +6,7 @@ Weapon::Weapon(
     EntityPool* entityPool,
     Item* item,
     EventPublisher<WeaponEventData>& publisher,
-    uint32_t id,
+    const UUID& id,
     const std::string& name, 
     const Stats& stats
 ) :
@@ -32,7 +32,7 @@ Weapon::Weapon(
     const std::string& name, 
     const Stats& stats
 ) :
-    Weapon(owner, grid, entityPool, item, publisher, getNewId(), name, stats)
+    Weapon(owner, grid, entityPool, item, publisher, UUID::getNewUUID(), name, stats)
 { }
 
 void Weapon::use(const glm::ivec2& position, const glm::ivec2& target) {
@@ -79,7 +79,7 @@ void Weapon::setUsesLeft(int usesLeft) {
     this->usesLeft = usesLeft;
 }
 
-uint32_t Weapon::getId(void) const {
+UUID Weapon::getId(void) const {
     return id;
 }
 
