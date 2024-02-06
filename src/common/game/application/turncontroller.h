@@ -19,6 +19,7 @@
 #include "game/actions/attackaction.h"
 #include "game/actions/takeitemaction.h"
 #include "game/actions/equipitemaction.h"
+#include "game/actions/equipweaponaction.h"
 #include "game/items/itemcontroller.h"
 
 class TurnController : 
@@ -28,7 +29,8 @@ class TurnController :
         AttackActionEventData,
         TakeItemActionEventData,
         EngagementEventData,
-        EquipItemActionEventData
+        EquipItemActionEventData,
+        EquipWeaponActionEventData
     >
 {
 public:

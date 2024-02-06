@@ -8,6 +8,7 @@
 #include "core/event/eventpublisher.h"
 #include "core/grid/grid.h"
 #include "game/event/events.h"
+#include "game/items/equipment.h"
 
 class Entity;
 class EntityPool;
@@ -27,7 +28,7 @@ public:
     } Stats;
 
 protected:
-    uint32_t id;
+    UUID id;
     std::string name;
     Entity* owner;
     Stats stats;
@@ -38,6 +39,8 @@ protected:
     EntityPool* entityPool;
     EventPublisher<WeaponEventData>& publisher;
 
+    Item* item;
+
     virtual bool onUse(const glm::ivec2& position, const glm::ivec2& target) = 0;
 
 public:
@@ -45,16 +48,18 @@ public:
         Entity* owner,
         Grid* grid,
         EntityPool* entityPool,
+        Item* item,
         EventPublisher<WeaponEventData>& publisher,
-        uint32_t id,
+        const UUID& id,
         const std::string& name, 
         const Stats& stats
     );
 
     Weapon(
-        Entity* owner,
+        Entity* owner, 
         Grid* grid,
         EntityPool* entityPool,
+        Item* item,
         EventPublisher<WeaponEventData>& publisher,
         const std::string& name, 
         const Stats& stats
@@ -74,7 +79,9 @@ public:
     int getUsesLeft(void) const;
     void setUsesLeft(int usesLeft);
 
-    uint32_t getId(void) const;
+    UUID getId(void) const;
     std::string getName(void) const;
     Entity* getOwner(void);
+
+    Item* getItem(void);
 };

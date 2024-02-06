@@ -9,6 +9,7 @@ public:
         Attack,
         TakeItem,
         EquipItem,
+        EquipWeaponItem,
         // Freeze,
         Count
     };

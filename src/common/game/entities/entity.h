@@ -66,7 +66,7 @@ private:
     std::set<StatusEffect> statusEffects;
     std::unique_ptr<Equipment> equipment[Equipment::Slot::COUNT];
 
-    std::map<uint32_t, std::unique_ptr<Weapon>> weapons;
+    std::map<UUID, std::unique_ptr<Weapon>> weapons;
     Weapon* currentWeapon;
 
     std::map<int, std::deque<std::unique_ptr<Action>>> actionsChain;
@@ -167,7 +167,7 @@ public:
     EntityBaseStats getBaseStats(void) const;
     EntityCurrentStats getCurrentStats(void) const;
 
-    void setEquipment(Item* item, Equipment::Slot slot);
+    void setEquipment(std::unique_ptr<Equipment> equipmentPiece);
     void removeEquipment(Equipment::Slot slot);
     Equipment* getEquipment(Equipment::Slot slot);
 
@@ -175,15 +175,15 @@ public:
     int getCurrentHP(void) const;
     void setCurrentHP(int hp);
     void takeDamage(int amount);
-    void attack(const glm::ivec2& target, uint32_t weaponId);
+    void attack(const glm::ivec2& target, const UUID& weaponId);
 
     std::vector<Weapon*> getWeapons(void) const;
-    Weapon* getWeapon(uint32_t weaponId);
-    bool hasWeapon(uint32_t weaponId);
+    Weapon* getWeapon(const UUID& weaponId);
+    bool hasWeapon(const UUID& weaponId);
     Weapon* addWeapon(std::unique_ptr<Weapon> weapon);
-    void removeWeapon(uint32_t weaponId);
+    void removeWeapon(const UUID& weaponId);
     void removeAllWeapons(void);
-    void setCurrentWeapon(uint32_t weaponId);
+    void setCurrentWeapon(const UUID& weaponId);
     Weapon* getCurrentWeapon(void);
     
     uint32_t getId(void) const;
@@ -204,7 +204,7 @@ public:
     int getMovesLeft(void) const;
     void setMovesLeft(int movesLeft);
     int getAggroRange(void) const;
-    bool isTurnInProgress(void) const;
+    bool isTurnInProgress(void);
     bool hasAnimationsInProgress(void);
     void useMoves(int numMoves);
 

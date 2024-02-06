@@ -4,7 +4,7 @@ const std::map<Equipment::Slot, std::string> Equipment::SlotToItemType = {
     { HEAD, "Helm" },
     { BODY, "BodyArmour" },
     { HANDS, "Gloves" },
-    { FEET, "Boots" },
+    { FEET, "Boots" }
 };
 
 Equipment::Equipment()

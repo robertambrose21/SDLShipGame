@@ -21,9 +21,10 @@ public:
     void sendAttackMessage(
         uint32_t entityId, 
         const glm::ivec2& target, 
-        uint32_t weaponId
+        UUID weaponId
     );
     void sendPassParticipantTurnMessage(int participantId);
     void sendSetParticipantAckMessage(int participantId);
     void sendEquipItemMessage(uint32_t itemId, uint32_t entityId, Equipment::Slot slot, bool isUnequip);
+    void sendEquipWeaponMessage(uint32_t itemId, uint32_t entityId, UUID weaponId, bool isUnequip);
 };

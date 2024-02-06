@@ -38,14 +38,14 @@ void GameClientMessagesTransmitter::sendSelectEntityMessage(uint32_t entityId) {
 void GameClientMessagesTransmitter::sendAttackMessage(
     uint32_t entityId, 
     const glm::ivec2& target,
-    uint32_t weaponId
+    UUID weaponId
 ) {
     AttackMessage* message = (AttackMessage*) client.createMessage(GameMessageType::ATTACK_ENTITY);
     
     message->entityId = entityId;
     message->x = target.x;
     message->y = target.y;
-    message->weaponId = weaponId;
+    strcpy(message->weaponIdBytes, weaponId.getBytes().data());
 
     client.sendMessage(message);
 }
@@ -72,6 +72,17 @@ void GameClientMessagesTransmitter::sendEquipItemMessage(uint32_t itemId, uint32
     message->itemId = itemId;
     message->entityId = entityId;
     message->slot = slot;
+    message->isUnequip = isUnequip;
+
+    client.sendMessage(message);
+}
+
+void GameClientMessagesTransmitter::sendEquipWeaponMessage(uint32_t itemId, uint32_t entityId, UUID weaponId, bool isUnequip) {
+    EquipWeaponMessage* message = (EquipWeaponMessage*) client.createMessage(GameMessageType::EQUIP_WEAPON);
+
+    message->itemId = itemId;
+    message->entityId = entityId;
+    strcpy(message->weaponIdBytes, weaponId.getBytes().data());
     message->isUnequip = isUnequip;
 
     client.sendMessage(message);

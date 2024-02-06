@@ -129,10 +129,16 @@ void EntityPool::synchronize() {
             // Weapons
             for(int j = 0; j < entityUpdate.numWeapons; j++) {
                 auto const& weaponUpdate = entityUpdate.weaponUpdates[j];
+                auto weaponId = UUID::fromBytes(weaponUpdate.idBytes);
                 
-                if(!existing->hasWeapon(weaponUpdate.id)) {
-                    existing->addWeapon(
-                        context->getWeaponController()->createWeapon(weaponUpdate.id, weaponUpdate.name, existing.get()));
+                if(!existing->hasWeapon(weaponId)) {
+                    auto weapon = context->getWeaponController()->createWeapon(weaponId, weaponUpdate.name, existing.get());
+                    
+                    if(weapon->getItem() != nullptr && weaponUpdate.hasItem) {
+                        weapon->getItem()->setId(weaponUpdate.itemId);
+                    }
+
+                    existing->addWeapon(std::move(weapon));
                 }
             }
 

@@ -23,6 +23,7 @@ enum class GameMessageType {
     TAKE_ITEMS,
     ENGAGEMENT,
     EQUIP_ITEM,
+    EQUIP_WEAPON,
     COUNT
 };
 
@@ -76,14 +77,13 @@ class AttackMessage : public yojimbo::Message {
 public:
     uint32_t entityId;
     int x, y;
-    uint32_t weaponId;
+    char weaponIdBytes[16];
     int turnNumber;
 
     AttackMessage() :
         entityId(0),
         x(0),
         y(0),
-        weaponId(0),
         turnNumber(0)
     { }
 
@@ -92,7 +92,7 @@ public:
         serialize_uint32(stream, entityId);
         serialize_int(stream, x, 0, 512);
         serialize_int(stream, y, 0, 512);
-        serialize_uint32(stream, weaponId);
+        serialize_string(stream, weaponIdBytes, 128);
         serialize_int(stream, turnNumber, 0, 512);
         return true;
     }
@@ -125,12 +125,12 @@ public:
             serialize_bits(stream, entity.y, 16);
 
             // Weapons
-            serialize_uint32(stream, entity.currentWeaponId);
+            serialize_string(stream, entity.currentWeaponIdBytes, 128);
             serialize_int(stream, entity.numWeapons, 0, MaxWeapons);
             for(int j = 0; j < entity.numWeapons; j++) {
                 auto& weapon = entity.weaponUpdates[j];
 
-                serialize_uint32(stream, weapon.id);
+                serialize_string(stream, weapon.idBytes, 128);
                 serialize_string(stream, weapon.name, sizeof(weapon.name));
                 serialize_string(stream, weapon.weaponClass, sizeof(weapon.weaponClass));
                 serialize_string(stream, weapon.projectile, sizeof(weapon.projectile));
@@ -138,6 +138,8 @@ public:
                 serialize_bits(stream, weapon.range, 16);
                 serialize_bits(stream, weapon.uses, 16);
                 serialize_bits(stream, weapon.usesLeft, 16);
+                serialize_bool(stream, weapon.hasItem);
+                serialize_uint32(stream, weapon.itemId);
             }
         }
         
@@ -429,6 +431,31 @@ public:
     YOJIMBO_VIRTUAL_SERIALIZE_FUNCTIONS();
 };
 
+class EquipWeaponMessage : public yojimbo::Message {
+public:
+    uint32_t itemId;
+    uint32_t entityId;
+    char weaponIdBytes[16];
+    bool isUnequip;
+
+    EquipWeaponMessage() :
+        itemId(0),
+        entityId(0),
+        isUnequip(false)
+    { }
+
+    template <typename Stream>
+    bool Serialize(Stream& stream) {
+        serialize_uint32(stream, itemId);
+        serialize_uint32(stream, entityId);
+        serialize_string(stream, weaponIdBytes, 128);
+        serialize_bool(stream, isUnequip);
+        return true;
+    }
+
+    YOJIMBO_VIRTUAL_SERIALIZE_FUNCTIONS();
+};
+
 YOJIMBO_MESSAGE_FACTORY_START(GameMessageFactory, (int)GameMessageType::COUNT);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::FIND_PATH, FindPathMessage);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::SELECT_ENTITY, SelectEntityMessage);
@@ -446,4 +473,5 @@ YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::SPAWN_ITEMS, SpawnItemsMessag
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::TAKE_ITEMS, TakeItemsMessage);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::ENGAGEMENT, EngagementMessage);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::EQUIP_ITEM, EquipItemMessage);
+YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::EQUIP_WEAPON, EquipWeaponMessage);
 YOJIMBO_MESSAGE_FACTORY_FINISH();

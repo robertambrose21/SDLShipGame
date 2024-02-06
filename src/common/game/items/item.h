@@ -8,6 +8,7 @@
 #include "core/glmimport.h"
 #include "game/event/events.h"
 
+// TODO: This might not have a position - should probably make different classes for dropped items/equipped items?
 class Item {
 public:
     // TODO: Come up with names which don't just copy WoW
@@ -61,6 +62,7 @@ public:
     Rarity getRarity(void) const;
 
     uint32_t getId(void) const;
+    void setId(uint32_t id);
 
     void setTextureId(uint32_t textureId);
     uint32_t getTextureId(void) const;
@@ -73,4 +75,5 @@ public:
     void setParticipantId(int participantId);
 
     bool isEquippable(void);
+    bool isWeapon(void);
 };

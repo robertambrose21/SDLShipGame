@@ -75,7 +75,7 @@ void GameServerMessagesTransmitter::onPublish(const Event<AttackActionEventData>
         message->entityId = event.data.owner->getId();
         message->x = event.data.target.x;
         message->y = event.data.target.y;
-        message->weaponId = event.data.weapon->getId();
+        strcpy(message->weaponIdBytes, event.data.weapon->getId().getBytes().data());
         message->turnNumber = event.data.turnNumber;
 
         server.sendMessage(clientIndex, message);

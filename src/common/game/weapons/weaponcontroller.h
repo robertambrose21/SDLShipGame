@@ -16,23 +16,26 @@ private:
         std::string name;
         std::string weaponClass;
         std::string projectile;
+        std::string item;
         int damage;
         int range;
         int uses;
     } WeaponDefinition;
-
-    void loadWeaponDefinitions(void);
 
     std::map<std::string, WeaponDefinition> weaponDefinitions;
 
     ApplicationContext* context;
     bool initialised;
 
+    void loadWeaponDefinitions(void);
+    Item* getItem(const std::string& itemName, Entity* owner);
+
 public:
     WeaponController();
 
     void initialise(ApplicationContext& context);
 
+    // TODO: Rename to add weapon
     std::unique_ptr<Weapon> createWeapon(const std::string& name, Entity* owner);
-    std::unique_ptr<Weapon> createWeapon(uint32_t id, const std::string& name, Entity* owner);
+    std::unique_ptr<Weapon> createWeapon(const UUID& id, const std::string& name, Entity* owner);
 };

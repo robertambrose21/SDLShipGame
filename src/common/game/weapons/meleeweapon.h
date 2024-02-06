@@ -12,8 +12,9 @@ public:
         Entity* owner, 
         Grid* grid,
         EntityPool* entityPool,
+        Item* item,
         EventPublisher<WeaponEventData>& publisher,
-        uint32_t id,
+        const UUID& id,
         const std::string& name, 
         const Stats& stats
     );
@@ -22,6 +23,7 @@ public:
         Entity* owner, 
         Grid* grid,
         EntityPool* entityPool,
+        Item* item,
         EventPublisher<WeaponEventData>& publisher,
         const std::string& name, 
         const Stats& stats

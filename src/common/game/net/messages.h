@@ -15,7 +15,7 @@ class Player;
 class Weapon;
 
 struct WeaponStateUpdate {
-    uint32_t id;
+    char idBytes[16];
     char name[MaxWeaponNameLength];
     char weaponClass[MaxWeaponNameLength];
     char projectile[MaxWeaponNameLength];
@@ -23,6 +23,8 @@ struct WeaponStateUpdate {
     int range;
     int uses;
     int usesLeft;
+    uint32_t itemId;
+    bool hasItem;
 
     WeaponStateUpdate() {
         memset(this, 0, sizeof(WeaponStateUpdate));
@@ -41,7 +43,7 @@ struct EntityStateUpdate {
     int x, y;
     int participantId;
     bool isEngaged;
-    uint32_t currentWeaponId;
+    char currentWeaponIdBytes[16];
     int numWeapons;
     WeaponStateUpdate weaponUpdates[MaxWeapons];
 

@@ -21,6 +21,12 @@ void WeaponController::loadWeaponDefinitions(void) {
         WeaponDefinition definition;
         definition.filename = entry.path();
         definition.name = data["name"].get<std::string>();
+        if(data.contains("item")) {
+            definition.item = data["item"].get<std::string>();
+        }
+        else {
+            definition.item = "";
+        }
         definition.weaponClass = data["class"].get<std::string>();
         if(data.contains("projectile")) {
             definition.projectile = data["projectile"].get<std::string>();
@@ -28,6 +34,7 @@ void WeaponController::loadWeaponDefinitions(void) {
         else {
             definition.projectile = "";
         }
+        
         definition.damage = data["damage"].get<int>();
         definition.range = data["range"].get<int>();
         definition.uses = data["uses"].get<int>();
@@ -39,7 +46,7 @@ void WeaponController::loadWeaponDefinitions(void) {
 }
 
 std::unique_ptr<Weapon> WeaponController::createWeapon(
-    uint32_t id, 
+    const UUID& id,
     const std::string& name, 
     Entity* owner
 ) {
@@ -47,6 +54,7 @@ std::unique_ptr<Weapon> WeaponController::createWeapon(
     game_assert(weaponDefinitions.contains(name));
 
     auto definition = weaponDefinitions[name];
+    auto item = getItem(definition.item, owner);
 
     if(definition.weaponClass == "Projectile") {
         return std::make_unique<ProjectileWeapon>(
@@ -54,6 +62,7 @@ std::unique_ptr<Weapon> WeaponController::createWeapon(
             context->getGrid(),
             context->getEntityPool(),
             context->getProjectilePool(),
+            item,
             *this,
             id,
             definition.name,
@@ -66,6 +75,7 @@ std::unique_ptr<Weapon> WeaponController::createWeapon(
             owner,
             context->getGrid(),
             context->getEntityPool(),
+            item,
             *this,
             id,
             definition.name,
@@ -78,5 +88,16 @@ std::unique_ptr<Weapon> WeaponController::createWeapon(
 
 std::unique_ptr<Weapon> WeaponController::createWeapon(const std::string& name, Entity* owner) {
     game_assert(initialised);
-    return createWeapon(getNewId(), name, owner);
+    return createWeapon(UUID::getNewUUID(), name, owner);
+}
+
+Item* WeaponController::getItem(const std::string& itemName, Entity* owner) {
+    if(itemName == "") {
+        return nullptr;
+    }
+
+    auto item = context->getItemController()->addItem(itemName, glm::ivec2(0, 0), owner, false);
+    item->setParticipantId(owner->getParticipantId());
+
+    return item;
 }

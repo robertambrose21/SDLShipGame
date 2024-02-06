@@ -18,7 +18,7 @@ public:
 
     static const std::map<Slot, std::string> SlotToItemType;
 
-private:
+protected:
     Item* item;
     Slot slot;
 

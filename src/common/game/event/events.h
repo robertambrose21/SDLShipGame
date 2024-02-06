@@ -2,6 +2,7 @@
 
 #include <vector>
 #include "core/glmimport.h"
+#include "core/util/idgenerator.h"
 
 class Entity;
 class Item;
@@ -88,4 +89,11 @@ struct EquipItemActionEventData {
     Item* item;
     int slot;
     bool isUnequip;
+};
+
+struct EquipWeaponActionEventData {
+    int turnNumber;
+    Entity* entity;
+    Item* item;
+    UUID weaponId;
 };

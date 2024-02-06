@@ -35,7 +35,7 @@ void GameServerMessagesReceiver::receiveMessage(int clientIndex, yojimbo::Messag
                 attackMessage->entityId, 
                 attackMessage->x, 
                 attackMessage->y,
-                attackMessage->weaponId
+                attackMessage->weaponIdBytes
             );
             break;
         }
@@ -60,6 +60,18 @@ void GameServerMessagesReceiver::receiveMessage(int clientIndex, yojimbo::Messag
                 equipItemMessage->entityId, 
                 equipItemMessage->slot,
                 equipItemMessage->isUnequip
+            );
+            break;
+        }
+
+        case (int) GameMessageType::EQUIP_WEAPON: {
+            EquipWeaponMessage* equipWeaponMessage = (EquipWeaponMessage*) message;
+            receiveEquipWeaponMessage(
+                clientIndex,
+                equipWeaponMessage->itemId,
+                equipWeaponMessage->entityId,
+                equipWeaponMessage->weaponIdBytes,
+                equipWeaponMessage->isUnequip
             );
             break;
         }
@@ -111,12 +123,13 @@ void GameServerMessagesReceiver::receieveAttackMessage(
     uint32_t entityId, 
     int x,
     int y,
-    uint32_t weaponId
+    char weaponIdBytes[16]
 ) {
     if(!context.getEntityPool()->hasEntity(entityId)) {
         return;
     }
 
+    auto weaponId = UUID::fromBytes(weaponIdBytes);
     auto const& entity = context.getEntityPool()->getEntity(entityId);
 
     for(auto weapon : entity->getWeapons()) {
@@ -175,6 +188,34 @@ void GameServerMessagesReceiver::receiveEquipItemMessage(
         item,
         (Equipment::Slot) slot,
         isUnequip
+    ));
+}
+
+void GameServerMessagesReceiver::receiveEquipWeaponMessage(
+    int clientIndex, 
+    uint32_t itemId, 
+    uint32_t entityId, 
+    char weaponIdBytes[16],
+    bool isUnequip
+) {
+    if(!context.getEntityPool()->hasEntity(entityId)) {
+        return;
+    }
+
+    if(!context.getItemController()->hasItem(itemId)) {
+        return;
+    }
+
+    auto weaponId = UUID::fromBytes(weaponIdBytes);
+    auto turnController = context.getTurnController();
+    auto item = context.getItemController()->getItem(itemId);
+    auto entity = context.getEntityPool()->getEntity(entityId);
+
+    turnController->queueAction(std::make_unique<EquipWeaponAction>(
+        turnController->getTurnNumber(), 
+        entity, 
+        item,
+        weaponId
     ));
 }
 

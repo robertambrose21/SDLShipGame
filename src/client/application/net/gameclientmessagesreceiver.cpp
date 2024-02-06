@@ -60,7 +60,7 @@ void GameClientMessagesReceiver::receiveMessage(yojimbo::Message* message) {
                 attackMessage->entityId,
                 attackMessage->x,
                 attackMessage->y,
-                attackMessage->weaponId,
+                attackMessage->weaponIdBytes,
                 attackMessage->turnNumber
             );
             break;
@@ -175,7 +175,7 @@ void GameClientMessagesReceiver::receiveAttackEntity(
     uint32_t entityId, 
     int x,
     int y,
-    uint32_t weaponId,
+    char weaponIdBytes[16],
     int turnNumber
 ) {
     auto entityPool = context.getEntityPool();
@@ -184,6 +184,7 @@ void GameClientMessagesReceiver::receiveAttackEntity(
         return;
     }
 
+    auto weaponId = UUID::fromBytes(weaponIdBytes);
     auto const& entity = entityPool->getEntity(entityId);
 
     for(auto weapon : entity->getWeapons()) {
