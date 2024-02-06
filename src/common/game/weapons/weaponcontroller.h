@@ -17,7 +17,7 @@ private:
         std::string weaponClass;
         std::string projectile;
         std::string item;
-        int damage;
+        std::string damageSource;
         int range;
         int uses;
     } WeaponDefinition;

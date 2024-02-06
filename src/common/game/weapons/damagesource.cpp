@@ -1,4 +1,5 @@
 #include "damagesource.h"
+#include "game/entities/entity.h" // Fuck you C++ circular dependency shenanigans
 
 DamageSource::DamageSource() :
     numDice(0),
@@ -11,10 +12,7 @@ DamageSource::DamageSource(int numDice, int diceSize, int flatDamage) :
     numDice(numDice),
     diceSize(diceSize),
     flatDamage(flatDamage)
-{
-    game_assert(numDice >= 0);
-    game_assert(diceSize > 0);
-}
+{ }
 
 DamageSource DamageSource::parse(const std::string& value) {
     if(!isValid(value)) {
@@ -74,7 +72,7 @@ int DamageSource::getFlatDamageModifier(const std::string& value) {
     throw std::runtime_error("failed regex");
 }
 
-void DamageSource::apply(Entity* entity) {
+int DamageSource::apply(Entity* entity) {
     int damage = flatDamage;
 
     for(int i = 0; i < numDice; i++) {
@@ -82,6 +80,8 @@ void DamageSource::apply(Entity* entity) {
     }
 
     entity->takeDamage(damage);
+
+    return damage;
 }
 
 int DamageSource::getNumDice(void) const {

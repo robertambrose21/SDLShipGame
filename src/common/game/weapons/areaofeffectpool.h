@@ -20,7 +20,7 @@ private:
         uint32_t textureId;
         float radius;
         int turns;
-        int damagePerTurn;
+        std::string damageSource;
     } AoeDefinition;
 
     std::map<std::string, AoeDefinition> aoeDefinitions;

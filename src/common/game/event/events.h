@@ -30,6 +30,7 @@ struct ItemEventData {
 struct AreaOfEffectEventData {
     AreaOfEffect* aoe;
     Entity* target;
+    int damage;
 };
 
 struct ProjectileEventData {
@@ -43,6 +44,7 @@ struct WeaponEventData {
     Entity* owner;
     Entity* target;
     Weapon* weapon;
+    int damage;
 };
 
 struct MoveActionEventData {

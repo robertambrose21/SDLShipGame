@@ -9,7 +9,8 @@ AreaOfEffect::AreaOfEffect(
     int ownerId,
     int liveTurn,
     const glm::ivec2& position, 
-    const Stats& stats
+    const Stats& stats,
+    const DamageSource& damageSource
 ) :
     grid(grid),
     entityPool(entityPool),
@@ -18,7 +19,8 @@ AreaOfEffect::AreaOfEffect(
     ownerId(ownerId),
     liveTurn(liveTurn),
     position(position),
-    stats(stats)
+    stats(stats),
+    damageSource(damageSource)
 {
     effectedTilePositions = grid->getTilesInCircle(position.x, position.y, stats.radius);
 
@@ -34,8 +36,7 @@ void AreaOfEffect::apply(void) {
     auto effectedEntities = Entity::filterByTiles(effectedTilePositions, entities, ownerId);
 
     for(auto const& entity : effectedEntities) {
-        entity->takeDamage(stats.damagePerTurn);
-        publisher.publish<AreaOfEffectEventData>({ this, entity });
+        publisher.publish<AreaOfEffectEventData>({ this, entity, damageSource.apply(entity) });
     }
 }
 

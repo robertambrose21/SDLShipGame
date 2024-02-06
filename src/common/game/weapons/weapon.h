@@ -4,6 +4,7 @@
 #include <functional>
 #include <memory>
 
+#include "damagesource.h"
 #include "game/entities/entity.h"
 #include "core/event/eventpublisher.h"
 #include "core/grid/grid.h"
@@ -22,7 +23,6 @@ public:
     };
 
     typedef struct _stats {
-        int damage;
         int range;
         int uses;
     } Stats;
@@ -32,6 +32,7 @@ protected:
     std::string name;
     Entity* owner;
     Stats stats;
+    DamageSource damageSource;
 
     int usesLeft;
 
@@ -52,7 +53,8 @@ public:
         EventPublisher<WeaponEventData>& publisher,
         const UUID& id,
         const std::string& name, 
-        const Stats& stats
+        const Stats& stats,
+        const DamageSource& damageSource
     );
 
     Weapon(
@@ -62,7 +64,8 @@ public:
         Item* item,
         EventPublisher<WeaponEventData>& publisher,
         const std::string& name, 
-        const Stats& stats
+        const Stats& stats,
+        const DamageSource& damageSource
     );
 
     void use(const glm::ivec2& position, const glm::ivec2& target);
@@ -82,6 +85,7 @@ public:
     UUID getId(void) const;
     std::string getName(void) const;
     Entity* getOwner(void);
+    DamageSource getDamageSource(void) const;
 
     Item* getItem(void);
 };

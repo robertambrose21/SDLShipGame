@@ -35,7 +35,7 @@ void StdOutSubscriber::onPublish(const Event<WeaponEventData>& event) {
         "{} meleed {} for {} damage! {} now has {} HP.",
         getEntityIdentifier(event.data.owner),
         getEntityIdentifier(event.data.target),
-        event.data.weapon->getStats().damage,
+        event.data.damage,
         getEntityIdentifier(event.data.target),
         event.data.target->getCurrentHP()
     );
@@ -72,7 +72,7 @@ void StdOutSubscriber::onPublish(const Event<AreaOfEffectEventData>& event) {
         "{} was hit by an area of effect from participant [{}] and took {} damage! {} now has {} HP.",
         getEntityIdentifier(event.data.target),
         event.data.aoe->getOwnerId(),
-        event.data.aoe->getStats().damagePerTurn,
+        event.data.damage,
         getEntityIdentifier(event.data.target),
         event.data.target->getCurrentHP()
     );

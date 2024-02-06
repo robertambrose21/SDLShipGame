@@ -4,6 +4,7 @@
 #include "game/entities/entity.h"
 #include "core/event/eventpublisher.h"
 #include "game/event/events.h"
+#include "damagesource.h"
 
 class EntityPool;
 class AreaOfEffect;
@@ -13,7 +14,6 @@ public:
     typedef struct _stats {
         float radius;
         int turns;
-        int damagePerTurn;
     } Stats;
 
 private:
@@ -29,6 +29,7 @@ private:
     int liveTurn;
     glm::ivec2 position;
     Stats stats;
+    DamageSource damageSource;
 
 public:
     AreaOfEffect(
@@ -39,7 +40,8 @@ public:
         int ownerId,
         int liveTurn,
         const glm::ivec2& position, 
-        const Stats& stats
+        const Stats& stats,
+        const DamageSource& damageSource
     );
 
     void update(int64_t timeSinceLastFrame);

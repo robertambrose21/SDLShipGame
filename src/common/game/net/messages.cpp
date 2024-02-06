@@ -21,7 +21,7 @@ WeaponStateUpdate WeaponStateUpdate::serialize(Weapon* weapon) {
 
     strcpy(weaponUpdate.idBytes, weapon->getId().getBytes().data());
     strcpy(weaponUpdate.name, weapon->getName().c_str());
-    weaponUpdate.damage = weapon->getStats().damage;
+    // weaponUpdate.damage = weapon->getStats().damage;
     weaponUpdate.range = weapon->getStats().range;
     weaponUpdate.uses = weapon->getStats().uses;
     weaponUpdate.usesLeft = weapon->getUsesLeft();

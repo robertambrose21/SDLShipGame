@@ -26,7 +26,6 @@ void ProjectilePool::loadProjectileDefinitions(void) {
             definition.aoe = "";
         }
         definition.textureId = data["textureId"].get<uint32_t>();
-        definition.multiplier = data["multiplier"].get<float>();
         definition.speed = data["speed"].get<float>();
         if(data.contains("effects")) {
             auto const& effects = data["effects"].get<std::vector<json>>();
@@ -62,7 +61,7 @@ Projectile::Blueprint ProjectilePool::create(const std::string& name) {
     auto const& definition = projectileDefinitions[name];
     auto const& aoe = definition.aoe;
     Projectile::Blueprint blueprint(
-        Projectile::Stats { definition.multiplier, definition.speed, definition.effects },
+        Projectile::Stats { definition.speed, definition.effects },
         name,
         definition.textureId,
         [&, aoe](auto grid, auto ownerId, auto target, auto turnNumber) { // TODO: Don't add this if there's no aoe
