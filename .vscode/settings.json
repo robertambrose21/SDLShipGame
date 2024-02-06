@@ -90,7 +90,8 @@
     "stop_token": "cpp",
     "filesystem": "cpp",
     "charconv": "cpp",
-    "format": "cpp"
+    "format": "cpp",
+    "regex": "cpp"
   },
   "editor.formatOnSave": false,
   "C_Cpp.clang_format_fallbackStyle": "{ BasedOnStyle: Google, IndentWidth: 4, ColumnLimit: 0 }",

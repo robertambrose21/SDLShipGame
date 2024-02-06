@@ -28,6 +28,7 @@ add_library(
     weapons/projectilepool.cpp
     weapons/areaofeffectpool.cpp
     weapons/weaponcontroller.cpp
+    weapons/damagesource.cpp
     application/turncontroller.cpp
     application/stdoutsubscriber.cpp
     actions/action.cpp
