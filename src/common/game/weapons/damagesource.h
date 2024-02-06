@@ -14,6 +14,7 @@ private:
     int numDice;
     int diceSize;
     int flatDamage;
+    int power;
 
     static bool isValid(const std::string& value);
     static void parseValues(const std::string& value, int& numDice, int& diceSize, int& flatDamage);
@@ -21,9 +22,9 @@ private:
 
 public:
     DamageSource();
-    DamageSource(int numDice, int diceSize, int flatDamage);
+    DamageSource(int numDice, int diceSize, int flatDamage, int power);
 
-    static DamageSource parse(const std::string& value);
+    static DamageSource parse(const std::string& value, int power);
 
     int apply(Entity* entity);
 
@@ -34,5 +35,8 @@ public:
     int getFlatDamage(void) const;
     void setFlatDamage(int flatDamage);
 
-    std::string getString(void);
+    int getPower(void) const;
+    void setPower(int power);
+
+    std::string getDamageString(void);
 };

@@ -25,6 +25,7 @@ public:
     typedef struct _stats {
         int range;
         int uses;
+        int power;
     } Stats;
 
 protected:

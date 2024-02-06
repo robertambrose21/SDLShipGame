@@ -14,6 +14,7 @@ public:
     typedef struct _stats {
         float radius;
         int turns;
+        int power;
     } Stats;
 
 private:

@@ -5,6 +5,7 @@
 typedef struct _entityBaseStats {
     int movesPerTurn;
     int totalHP;
+    int baseArmour;
 } EntityBaseStats;
 
 typedef struct _entityCurrentStats : EntityBaseStats {

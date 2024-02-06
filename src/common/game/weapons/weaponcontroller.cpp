@@ -38,6 +38,7 @@ void WeaponController::loadWeaponDefinitions(void) {
         definition.damageSource = data["damage"].get<std::string>();
         definition.range = data["range"].get<int>();
         definition.uses = data["uses"].get<int>();
+        definition.power = data["power"].get<int>();
 
         std::cout << "Loaded weapon definition \"" << definition.name << "\"" << std::endl;
 
@@ -66,8 +67,8 @@ std::unique_ptr<Weapon> WeaponController::createWeapon(
             *this,
             id,
             definition.name,
-            Weapon::Stats { definition.range, definition.uses },
-            DamageSource::parse(definition.damageSource),
+            Weapon::Stats { definition.range, definition.uses, definition.power },
+            DamageSource::parse(definition.damageSource, definition.power),
             context->getProjectilePool()->create(definition.projectile)
         );
     }
@@ -80,8 +81,8 @@ std::unique_ptr<Weapon> WeaponController::createWeapon(
             *this,
             id,
             definition.name,
-            Weapon::Stats { definition.range, definition.uses },
-            DamageSource::parse(definition.damageSource)
+            Weapon::Stats { definition.range, definition.uses, definition.power },
+            DamageSource::parse(definition.damageSource, definition.power)
         );
     }
 

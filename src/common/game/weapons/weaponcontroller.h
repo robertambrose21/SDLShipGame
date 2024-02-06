@@ -18,6 +18,7 @@ private:
         std::string projectile;
         std::string item;
         std::string damageSource;
+        int power;
         int range;
         int uses;
     } WeaponDefinition;

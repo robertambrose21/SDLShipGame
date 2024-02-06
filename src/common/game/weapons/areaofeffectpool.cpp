@@ -32,6 +32,7 @@ void AreaOfEffectPool::loadAoeDefinitions(void) {
         definition.radius = data["radius"].get<float>();
         definition.turns = data["turns"].get<int>();
         definition.damageSource = data["damagePerTurn"].get<std::string>();
+        definition.power = data["power"].get<int>();
 
         std::cout << "Loaded area of effect definition \"" << definition.name << "\"" << std::endl;
 
@@ -56,8 +57,8 @@ void AreaOfEffectPool::add(const std::string& name, int ownerId, int turnNumber,
                 ownerId,
                 turnNumber,
                 position,
-                AreaOfEffect::Stats { definition.radius, definition.turns },
-                DamageSource::parse(definition.damageSource)
+                AreaOfEffect::Stats { definition.radius, definition.turns, definition.power },
+                DamageSource::parse(definition.damageSource, definition.power)
             )
         )
     );

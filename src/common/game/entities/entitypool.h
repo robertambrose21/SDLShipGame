@@ -29,6 +29,7 @@ private:
         uint8_t r, g, b, a;
         int movesPerTurn;
         int hp;
+        int armour;
         LootTable lootTable;
     } EntityDefinition;
 

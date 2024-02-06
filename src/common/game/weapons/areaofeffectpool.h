@@ -21,6 +21,7 @@ private:
         float radius;
         int turns;
         std::string damageSource;
+        int power;
     } AoeDefinition;
 
     std::map<std::string, AoeDefinition> aoeDefinitions;

@@ -4,17 +4,19 @@
 DamageSource::DamageSource() :
     numDice(0),
     diceSize(0),
-    flatDamage(0)
+    flatDamage(0),
+    power(0)
 { }
 
 
-DamageSource::DamageSource(int numDice, int diceSize, int flatDamage) :
+DamageSource::DamageSource(int numDice, int diceSize, int flatDamage, int power) :
     numDice(numDice),
     diceSize(diceSize),
-    flatDamage(flatDamage)
+    flatDamage(flatDamage),
+    power(power)
 { }
 
-DamageSource DamageSource::parse(const std::string& value) {
+DamageSource DamageSource::parse(const std::string& value, int power) {
     if(!isValid(value)) {
         throw std::runtime_error("failed regex");
     }
@@ -22,6 +24,8 @@ DamageSource DamageSource::parse(const std::string& value) {
     DamageSource damageSource;
 
     parseValues(value, damageSource.numDice, damageSource.diceSize, damageSource.flatDamage);
+
+    damageSource.power = power;
 
     return damageSource;
 }
@@ -79,6 +83,8 @@ int DamageSource::apply(Entity* entity) {
         damage += randomDN(diceSize);
     }
 
+    damage *= (power / entity->getCurrentStats().baseArmour);
+
     entity->takeDamage(damage);
 
     return damage;
@@ -108,7 +114,15 @@ void DamageSource::setFlatDamage(int flatDamage) {
     this->flatDamage = flatDamage;
 }
 
-std::string DamageSource::getString(void) {
+int DamageSource::getPower(void) const {
+    return power;
+}
+
+void DamageSource::setPower(int power) {
+    this->power = power;
+}
+
+std::string DamageSource::getDamageString(void) {
     if(numDice == 0) {
         return std::to_string(flatDamage);
     }
