@@ -196,11 +196,11 @@ Entity* EntityPool::addEntity(const std::string& name, uint32_t id) {
         id,
         *this,
         definition.name,
-        Stats {
+        Stats(
             definition.movesPerTurn,
             definition.hp,
             definition.armour
-        }
+        )
     );
     entity->setTextureId(definition.textureId);
     entity->setColour({

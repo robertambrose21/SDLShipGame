@@ -41,6 +41,13 @@ void ItemController::loadItemDefinitions(void) {
         definition.b = colourData["b"].get<uint8_t>();
         definition.a = colourData["a"].get<uint8_t>();
 
+        if(data.contains("stats")) {
+            auto const& stats = data["stats"].get<json>();
+            if(stats.contains("moves")) definition.stats.moves = stats["moves"].get<int>();
+            if(stats.contains("hp")) definition.stats.hp = stats["hp"].get<int>();
+            if(stats.contains("armour")) definition.stats.armour = stats["armour"].get<int>();
+        }
+
         std::cout << "Loaded item definition \"" << definition.name << "\"" << std::endl;
 
         itemDefinitions[definition.name] = definition;
@@ -79,6 +86,7 @@ Item* ItemController::addItem(
     auto item = std::make_unique<Item>(
         definition.name,
         mapToRarity(definition.rarity),
+        definition.stats,
         definition.type,
         position,
         id

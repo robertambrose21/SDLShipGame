@@ -134,10 +134,12 @@ void Entity::setEquipment(std::unique_ptr<Equipment> equipmentPiece) {
         return;
     }
 
+    baseStats.add(item->getStats());
     equipment[slot] = std::move(equipmentPiece);
 }
 
 void Entity::removeEquipment(Equipment::Slot slot) {
+    baseStats.remove(equipment[slot]->getItem()->getStats());
     equipment[slot] = nullptr;
 }
 

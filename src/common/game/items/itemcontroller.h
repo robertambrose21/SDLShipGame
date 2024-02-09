@@ -10,6 +10,7 @@
 #include "game/application/applicationcontext.h"
 #include "game/entities/entitypool.h"
 #include "item.h"
+#include "game/stats/stats.h"
 
 using json = nlohmann::json;
 
@@ -25,6 +26,7 @@ private:
         std::string rarity;
         uint32_t textureId;
         uint8_t r, g, b, a;
+        Stats stats;
     } ItemDefinition;
 
     static const std::map<std::string, Item::Rarity> StringToRarity;

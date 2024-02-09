@@ -7,14 +7,15 @@ const std::set<std::string> Item::EquippableItemTypes = {
     "Boots"
 };
 
-Item::Item(const std::string& name, Rarity rarity, const std::string& type, const glm::ivec2& position) :
-    Item(name, rarity, type, position, getNewId())    
+Item::Item(const std::string& name, Rarity rarity, const Stats& stats, const std::string& type, const glm::ivec2& position) :
+    Item(name, rarity, stats, type, position, getNewId())    
 { }
 
-Item::Item(const std::string& name, Rarity rarity, const std::string& type, const glm::ivec2& position, uint32_t id) :
+Item::Item(const std::string& name, Rarity rarity, const Stats& stats, const std::string& type, const glm::ivec2& position, uint32_t id) :
     name(name),
     type(type),
     rarity(rarity),
+    stats(stats),
     position(position),
     id(id),
     participantId(-1)
@@ -38,6 +39,10 @@ std::string Item::getType(void) const {
 
 Item::Rarity Item::getRarity(void) const {
     return rarity;
+}
+
+Stats Item::getStats(void) const {
+    return stats;
 }
 
 void Item::setTextureId(uint32_t textureId) {
