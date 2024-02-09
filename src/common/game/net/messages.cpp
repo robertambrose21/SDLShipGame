@@ -44,7 +44,7 @@ EntityStateUpdate EntityStateUpdate::serialize(Entity* entity) {
 
     entityStateUpdate.id = entity->getId();
     strcpy(entityStateUpdate.name, entity->getName().c_str());
-    entityStateUpdate.totalHP = entity->getBaseStats().totalHP;
+    entityStateUpdate.totalHP = entity->getBaseStats().hp;
     entityStateUpdate.currentHP = entity->getCurrentHP();
     entityStateUpdate.x = entity->getPosition().x;
     entityStateUpdate.y = entity->getPosition().y;

@@ -6,7 +6,7 @@
 #include "core/util/idgenerator.h"
 #include "game/weapons/weapon.h"
 #include "core/util/gameassert.h"
-#include "entitystats.h"
+#include "game/stats/stats.h"
 #include "game/effects/statuseffect.h"
 #include "core/event/eventpublisher.h"
 #include "core/grid/grid.h"
@@ -61,8 +61,8 @@ private:
     std::deque<glm::ivec2> path;
     uint32_t timeSinceLastMoved;
 
-    EntityBaseStats stats;
-    EntityCurrentStats currentStats;
+    Stats baseStats;
+    Stats currentStats;
     std::set<StatusEffect> statusEffects;
     std::unique_ptr<Equipment> equipment[Equipment::Slot::COUNT];
 
@@ -89,14 +89,14 @@ public:
         uint32_t id,
         EventPublisher<EntityEventData>& publisher,
         const std::string& name,
-        const EntityBaseStats& stats
+        const Stats& stats
     );
 
     Entity(
         Grid* grid,
         EventPublisher<EntityEventData>& publisher,
         const std::string& name,
-        const EntityBaseStats& stats
+        const Stats& stats
     );
 
     // TODO: Should these be in EntityPool?
@@ -164,8 +164,8 @@ public:
     void disengage(void);
     bool isEngaged(void) const;
 
-    EntityBaseStats getBaseStats(void) const;
-    EntityCurrentStats getCurrentStats(void) const;
+    Stats getBaseStats(void) const;
+    Stats getCurrentStats(void) const;
 
     void setEquipment(std::unique_ptr<Equipment> equipmentPiece);
     void removeEquipment(Equipment::Slot slot);

@@ -196,7 +196,7 @@ Entity* EntityPool::addEntity(const std::string& name, uint32_t id) {
         id,
         *this,
         definition.name,
-        EntityBaseStats {
+        Stats {
             definition.movesPerTurn,
             definition.hp,
             definition.armour
