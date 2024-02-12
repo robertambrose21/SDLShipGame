@@ -9,7 +9,6 @@ add_library(
     effects/statuseffect.cpp
     effects/effect.h
     entities/entity.cpp 
-    entities/entitystats.h
     entities/entitypool.cpp 
     entities/behaviour/behaviourstrategy.h
     entities/behaviour/chaseandattackstrategy.cpp

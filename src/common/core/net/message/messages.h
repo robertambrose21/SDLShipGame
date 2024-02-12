@@ -77,7 +77,7 @@ class AttackMessage : public yojimbo::Message {
 public:
     uint32_t entityId;
     int x, y;
-    char weaponIdBytes[16];
+    uint8_t weaponIdBytes[16];
     int turnNumber;
 
     AttackMessage() :
@@ -92,7 +92,7 @@ public:
         serialize_uint32(stream, entityId);
         serialize_int(stream, x, 0, 512);
         serialize_int(stream, y, 0, 512);
-        serialize_string(stream, weaponIdBytes, 128);
+        serialize_bytes(stream, weaponIdBytes, 16);
         serialize_int(stream, turnNumber, 0, 512);
         return true;
     }
@@ -125,12 +125,12 @@ public:
             serialize_bits(stream, entity.y, 16);
 
             // Weapons
-            serialize_string(stream, entity.currentWeaponIdBytes, 128);
+            serialize_bytes(stream, entity.currentWeaponIdBytes, 16);
             serialize_int(stream, entity.numWeapons, 0, MaxWeapons);
             for(int j = 0; j < entity.numWeapons; j++) {
                 auto& weapon = entity.weaponUpdates[j];
-
-                serialize_string(stream, weapon.idBytes, 128);
+                
+                serialize_bytes(stream, weapon.idBytes, 16);
                 serialize_string(stream, weapon.name, sizeof(weapon.name));
                 serialize_string(stream, weapon.weaponClass, sizeof(weapon.weaponClass));
                 serialize_string(stream, weapon.projectile, sizeof(weapon.projectile));
@@ -435,7 +435,7 @@ class EquipWeaponMessage : public yojimbo::Message {
 public:
     uint32_t itemId;
     uint32_t entityId;
-    char weaponIdBytes[16];
+    uint8_t weaponIdBytes[16];
     bool isUnequip;
 
     EquipWeaponMessage() :
@@ -448,7 +448,7 @@ public:
     bool Serialize(Stream& stream) {
         serialize_uint32(stream, itemId);
         serialize_uint32(stream, entityId);
-        serialize_string(stream, weaponIdBytes, 128);
+        serialize_bytes(stream, weaponIdBytes, 16);
         serialize_bool(stream, isUnequip);
         return true;
     }
