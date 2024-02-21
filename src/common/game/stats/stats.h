@@ -1,31 +1,33 @@
 #pragma once
 
-typedef struct _stats {
-    _stats() :
-        moves(0),
-        hp(0),
-        armour(0)
-    { }
+#include <map>
+#include <string>
 
-    _stats(int moves, int hp, int armour) :
-        moves(moves),
-        hp(hp),
-        armour(armour)
-    { }
-
-    void add(const _stats& other) {
-        moves += other.moves;
-        hp += other.hp;
-        armour += other.armour;
-    }
-
-    void remove(const _stats& other) {
-        moves -= other.moves;
-        hp -= other.hp;
-        armour -= other.armour;
-    }
-
+class Stats {
+public:
     int moves;
     int hp;
     int armour;
-} Stats;
+
+    Stats();
+    Stats(int moves, int hp, int armour);
+
+    void add(const Stats& other);
+    void remove(const Stats& other);
+
+    std::map<std::string, std::string> getValues(void);
+};
+
+class WeaponStats : Stats {
+public:
+    int range;
+    int uses;
+    int power;
+
+    WeaponStats(int range, int uses, int power);
+
+    void add(const WeaponStats& other);
+    void remove(const WeaponStats& other);
+
+    std::map<std::string, std::string> getValues(void);
+};

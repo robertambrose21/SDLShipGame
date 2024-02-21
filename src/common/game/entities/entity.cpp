@@ -211,6 +211,10 @@ void Entity::removeAllWeapons(void) {
 }
 
 void Entity::setCurrentWeapon(const UUID& weaponId) {
+    if(!hasWeapon(weaponId)) {
+        return;
+    }
+
     currentWeapon = weapons[weaponId].get();
 }
 

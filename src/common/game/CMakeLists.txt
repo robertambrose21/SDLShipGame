@@ -37,7 +37,7 @@ add_library(
     actions/equipitemaction.cpp
     actions/equipweaponaction.cpp
     event/events.h
-    stats/stats.h
+    stats/stats.cpp
 )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX CXX_STANDARD 20)

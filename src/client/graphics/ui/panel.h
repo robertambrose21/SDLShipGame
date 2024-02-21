@@ -4,6 +4,7 @@
 #include "../sdlimport.h"
 #include "../graphicscontext.h"
 
+// TODO: Delete probably
 class Panel {
 private:
     glm::ivec2 position;
