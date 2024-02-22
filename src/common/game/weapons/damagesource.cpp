@@ -83,7 +83,7 @@ int DamageSource::apply(Entity* entity) {
         damage += randomDN(diceSize);
     }
 
-    damage *= (power / entity->getCurrentStats().armour);
+    damage *= (power / entity->getCurrentStats().common.armour);
 
     entity->takeDamage(damage);
 

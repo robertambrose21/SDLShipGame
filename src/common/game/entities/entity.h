@@ -61,8 +61,8 @@ private:
     std::deque<glm::ivec2> path;
     uint32_t timeSinceLastMoved;
 
-    Stats baseStats;
-    Stats currentStats;
+    AllStats baseStats;
+    AllStats currentStats;
     std::set<StatusEffect> statusEffects;
     std::unique_ptr<Equipment> equipment[Equipment::Slot::COUNT];
 
@@ -89,14 +89,14 @@ public:
         uint32_t id,
         EventPublisher<EntityEventData>& publisher,
         const std::string& name,
-        const Stats& stats
+        const AllStats& stats
     );
 
     Entity(
         Grid* grid,
         EventPublisher<EntityEventData>& publisher,
         const std::string& name,
-        const Stats& stats
+        const AllStats& stats
     );
 
     // TODO: Should these be in EntityPool?
@@ -164,8 +164,8 @@ public:
     void disengage(void);
     bool isEngaged(void) const;
 
-    Stats getBaseStats(void) const;
-    Stats getCurrentStats(void) const;
+    AllStats getBaseStats(void) const;
+    AllStats getCurrentStats(void) const;
 
     void setEquipment(std::unique_ptr<Equipment> equipmentPiece);
     void removeEquipment(Equipment::Slot slot);

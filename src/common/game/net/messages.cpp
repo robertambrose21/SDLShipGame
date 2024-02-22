@@ -21,8 +21,8 @@ WeaponStateUpdate WeaponStateUpdate::serialize(Weapon* weapon) {
 
     memcpy(weaponUpdate.idBytes, &weapon->getId().getBytes()[0], 16);
     strcpy(weaponUpdate.name, weapon->getName().c_str());
-    weaponUpdate.range = weapon->getStats().range;
-    weaponUpdate.uses = weapon->getStats().uses;
+    weaponUpdate.range = weapon->getStats().weapon.range;
+    weaponUpdate.uses = weapon->getStats().weapon.uses;
     weaponUpdate.usesLeft = weapon->getUsesLeft();
     weaponUpdate.hasItem = weapon->getItem() != nullptr;
     weaponUpdate.itemId = weaponUpdate.hasItem ? weapon->getItem()->getId() : 0;
@@ -43,7 +43,7 @@ EntityStateUpdate EntityStateUpdate::serialize(Entity* entity) {
 
     entityStateUpdate.id = entity->getId();
     strcpy(entityStateUpdate.name, entity->getName().c_str());
-    entityStateUpdate.totalHP = entity->getBaseStats().hp;
+    entityStateUpdate.totalHP = entity->getBaseStats().common.hp;
     entityStateUpdate.currentHP = entity->getCurrentHP();
     entityStateUpdate.x = entity->getPosition().x;
     entityStateUpdate.y = entity->getPosition().y;

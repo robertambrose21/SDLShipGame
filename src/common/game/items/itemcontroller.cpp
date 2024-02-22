@@ -43,9 +43,9 @@ void ItemController::loadItemDefinitions(void) {
 
         if(data.contains("stats")) {
             auto const& stats = data["stats"].get<json>();
-            if(stats.contains("moves")) definition.stats.moves = stats["moves"].get<int>();
-            if(stats.contains("hp")) definition.stats.hp = stats["hp"].get<int>();
-            if(stats.contains("armour")) definition.stats.armour = stats["armour"].get<int>();
+            if(stats.contains("moves")) definition.stats.common.moves = stats["moves"].get<int>();
+            if(stats.contains("hp")) definition.stats.common.hp = stats["hp"].get<int>();
+            if(stats.contains("armour")) definition.stats.common.armour = stats["armour"].get<int>();
         }
 
         std::cout << "Loaded item definition \"" << definition.name << "\"" << std::endl;

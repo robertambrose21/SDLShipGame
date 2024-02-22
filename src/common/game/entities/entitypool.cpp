@@ -191,16 +191,21 @@ Entity* EntityPool::addEntity(const std::string& name, uint32_t id) {
     game_assert(entityDefinitions.contains(name));
 
     auto definition = entityDefinitions[name];
+
+    auto stats = AllStats();
+    stats.common = CommonStats(
+        definition.movesPerTurn,
+        definition.hp,
+        definition.armour
+    );
+
+    
     auto entity = std::make_unique<Entity>(
         context->getGrid(),
         id,
         *this,
         definition.name,
-        Stats(
-            definition.movesPerTurn,
-            definition.hp,
-            definition.armour
-        )
+        stats
     );
     entity->setTextureId(definition.textureId);
     entity->setColour({

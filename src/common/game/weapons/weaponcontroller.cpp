@@ -57,6 +57,13 @@ std::unique_ptr<Weapon> WeaponController::createWeapon(
     auto definition = weaponDefinitions[name];
     auto item = getItem(definition.item, owner);
 
+    auto stats = AllStats();
+    stats.weapon = WeaponStats(definition.range, definition.uses, definition.power);
+    if(item != nullptr) {
+        item->addStats(stats);
+        stats.common = item->getStats().common;
+    }
+
     if(definition.weaponClass == "Projectile") {
         return std::make_unique<ProjectileWeapon>(
             owner,
@@ -67,7 +74,7 @@ std::unique_ptr<Weapon> WeaponController::createWeapon(
             *this,
             id,
             definition.name,
-            Weapon::Stats { definition.range, definition.uses, definition.power },
+            stats,
             DamageSource::parse(definition.damageSource, definition.power),
             context->getProjectilePool()->create(definition.projectile)
         );
@@ -81,7 +88,7 @@ std::unique_ptr<Weapon> WeaponController::createWeapon(
             *this,
             id,
             definition.name,
-            Weapon::Stats { definition.range, definition.uses, definition.power },
+            stats,
             DamageSource::parse(definition.damageSource, definition.power)
         );
     }

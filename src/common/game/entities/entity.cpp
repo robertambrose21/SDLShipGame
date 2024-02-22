@@ -6,7 +6,7 @@ Entity::Entity(
     uint32_t id,
     EventPublisher<EntityEventData>& publisher,
     const std::string& name,
-    const Stats& stats
+    const AllStats& stats
 ) :
     id(id),
     publisher(publisher),
@@ -26,7 +26,7 @@ Entity::Entity(
     Grid* grid,
     EventPublisher<EntityEventData>& publisher,
     const std::string& name,
-    const Stats& stats
+    const AllStats& stats
 ) : 
     Entity(grid, getNewId(), publisher, name, stats)
 { }
@@ -118,11 +118,11 @@ bool Entity::isEngaged(void) const {
     return engaged;
 }
 
-Stats Entity::getBaseStats(void) const {
+AllStats Entity::getBaseStats(void) const {
     return baseStats;
 }
 
-Stats Entity::getCurrentStats(void) const {
+AllStats Entity::getCurrentStats(void) const {
     return currentStats;
 }
 
@@ -152,19 +152,19 @@ Equipment* Entity::getEquipment(Equipment::Slot slot) {
 }
 
 const float Entity::getSpeed(void) {
-    return 2000.0f / (MOVES_PER_SECOND * baseStats.moves);
+    return 2000.0f / (MOVES_PER_SECOND * baseStats.common.moves);
 }
 
 int Entity::getCurrentHP(void) const {
-    return currentStats.hp;
+    return currentStats.common.hp;
 }
 
 void Entity::setCurrentHP(int hp) {
-    currentStats.hp = hp;
+    currentStats.common.hp = hp;
 }
 
 void Entity::takeDamage(int amount) {
-    currentStats.hp -= amount;
+    currentStats.common.hp -= amount;
 }
 
 void Entity::attack(const glm::ivec2& target, const UUID& weaponId) {
@@ -313,11 +313,11 @@ bool Entity::isNeighbour(Entity* entity) const {
 }
 
 int Entity::getMovesLeft(void) const {
-    return currentStats.moves;
+    return currentStats.common.moves;
 }
 
 void Entity::setMovesLeft(int movesLeft) {
-    currentStats.moves = movesLeft;
+    currentStats.common.moves = movesLeft;
 }
 
 int Entity::getAggroRange(void) const {
@@ -333,10 +333,10 @@ bool Entity::hasAnimationsInProgress(void) {
 }
 
 void Entity::useMoves(int numMoves) {
-    currentStats.moves -= numMoves;
+    currentStats.common.moves -= numMoves;
     
-    if(currentStats.moves <= 0) {
-        currentStats.moves = 0;
+    if(currentStats.common.moves <= 0) {
+        currentStats.common.moves = 0;
         path.clear();
     }
 }
@@ -351,7 +351,7 @@ void Entity::nextTurn(void) {
 }
 
 void Entity::reset(void) {
-    currentStats.moves = baseStats.moves;
+    currentStats.common.moves = baseStats.common.moves;
     path.clear();
 
     for(auto& [_, weapon] : weapons) {
@@ -362,7 +362,7 @@ void Entity::reset(void) {
 }
 
 void Entity::endTurn(void) {
-    currentStats.moves = 0;
+    currentStats.common.moves = 0;
     path.clear();
 
     for(auto& [_, weapon] : weapons) {

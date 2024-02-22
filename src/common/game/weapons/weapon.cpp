@@ -8,7 +8,7 @@ Weapon::Weapon(
     EventPublisher<WeaponEventData>& publisher,
     const UUID& id,
     const std::string& name, 
-    const Stats& stats,
+    const AllStats& stats,
     const DamageSource& damageSource
 ) :
     id(id),
@@ -32,7 +32,7 @@ Weapon::Weapon(
     Item* item,
     EventPublisher<WeaponEventData>& publisher,
     const std::string& name, 
-    const Stats& stats,
+    const AllStats& stats,
     const DamageSource& damageSource
 ) :
     Weapon(owner, grid, entityPool, item, publisher, UUID::getNewUUID(), name, stats, damageSource)
@@ -63,14 +63,14 @@ void Weapon::setFinished(void) {
 }
 
 void Weapon::reset(void) {
-    usesLeft = stats.uses;
+    usesLeft = stats.weapon.uses;
 }
 
 bool Weapon::isInRange(const glm::ivec2& position) {
-    return glm::distance(glm::vec2(owner->getPosition()), glm::vec2(position)) <= stats.range;
+    return glm::distance(glm::vec2(owner->getPosition()), glm::vec2(position)) <= stats.weapon.range;
 }
 
-Weapon::Stats Weapon::getStats(void) const {
+AllStats Weapon::getStats(void) const {
     return stats;
 }
 

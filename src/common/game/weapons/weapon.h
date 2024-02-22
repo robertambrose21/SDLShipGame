@@ -10,6 +10,7 @@
 #include "core/grid/grid.h"
 #include "game/event/events.h"
 #include "game/items/equipment.h"
+#include "game/stats/stats.h"
 
 class Entity;
 class EntityPool;
@@ -21,18 +22,12 @@ public:
         MELEE,
         PROJECTILE
     };
-
-    typedef struct _stats {
-        int range;
-        int uses;
-        int power;
-    } Stats;
-
+    
 protected:
     UUID id;
     std::string name;
     Entity* owner;
-    Stats stats;
+    AllStats stats;
     DamageSource damageSource;
 
     int usesLeft;
@@ -54,7 +49,7 @@ public:
         EventPublisher<WeaponEventData>& publisher,
         const UUID& id,
         const std::string& name, 
-        const Stats& stats,
+        const AllStats& stats,
         const DamageSource& damageSource
     );
 
@@ -65,10 +60,11 @@ public:
         Item* item,
         EventPublisher<WeaponEventData>& publisher,
         const std::string& name, 
-        const Stats& stats,
+        const AllStats& stats,
         const DamageSource& damageSource
     );
 
+    // TODO: Take an exact damage value
     void use(const glm::ivec2& position, const glm::ivec2& target);
     void reset(void);
     void setFinished(void);
@@ -79,7 +75,7 @@ public:
     virtual bool isAnimationInProgress(void);
     virtual Type getType(void) const = 0;
 
-    Stats getStats(void) const;
+    AllStats getStats(void) const;
     int getUsesLeft(void) const;
     void setUsesLeft(int usesLeft);
 

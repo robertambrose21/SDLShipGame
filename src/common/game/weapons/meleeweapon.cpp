@@ -8,7 +8,7 @@ MeleeWeapon::MeleeWeapon(
     EventPublisher<WeaponEventData>& publisher,
     const UUID& id,
     const std::string& name, 
-    const Stats& stats,
+    const AllStats& stats,
     const DamageSource& damageSource
 ) :
     Weapon(owner, grid, entityPool, item, publisher, id, name, stats, damageSource)
@@ -21,7 +21,7 @@ MeleeWeapon::MeleeWeapon(
     Item* item,
     EventPublisher<WeaponEventData>& publisher,
     const std::string& name, 
-    const Stats& stats,
+    const AllStats& stats,
     const DamageSource& damageSource
 ) :
     Weapon(owner, grid, entityPool, item, publisher, name, stats, damageSource)

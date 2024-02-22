@@ -9,7 +9,7 @@ ProjectileWeapon::ProjectileWeapon(
     EventPublisher<WeaponEventData>& publisher,
     const UUID& id,
     const std::string& name, 
-    const Stats& stats,
+    const AllStats& stats,
     const DamageSource& damageSource,
     const Projectile::Blueprint& projectileBlueprint
 ) :
@@ -26,7 +26,7 @@ ProjectileWeapon::ProjectileWeapon(
     Item* item,
     EventPublisher<WeaponEventData>& publisher,
     const std::string& name, 
-    const Stats& stats,
+    const AllStats& stats,
     const DamageSource& damageSource,
     const Projectile::Blueprint& projectileBlueprint
 ) :

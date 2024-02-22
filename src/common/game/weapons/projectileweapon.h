@@ -23,7 +23,7 @@ public:
         EventPublisher<WeaponEventData>& publisher,
         const UUID& id,
         const std::string& name, 
-        const Stats& stats, 
+        const AllStats& stats, 
         const DamageSource& damageSource,
         const Projectile::Blueprint& projectileBlueprint
     );
@@ -36,7 +36,7 @@ public:
         Item* item,
         EventPublisher<WeaponEventData>& publisher,
         const std::string& name, 
-        const Stats& stats,
+        const AllStats& stats,
         const DamageSource& damageSource,
         const Projectile::Blueprint& projectileBlueprint
     );
