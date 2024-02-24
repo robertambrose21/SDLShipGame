@@ -15,6 +15,12 @@ using json = nlohmann::json;
 
 class ProjectilePool : public EventPublisher<ProjectileEventData> {
 private:
+    typedef struct _effectDefinition {
+        EffectType type;
+        int duration;
+        int damagePerTick;
+    } EffectDefintion;
+
     typedef struct _projectileDefinition {
         std::string filename;
         std::string name;
@@ -22,7 +28,7 @@ private:
         uint32_t textureId;
         float multiplier;
         float speed;
-        std::vector<Effect> effects;
+        std::vector<EffectDefintion> effects;
     } ProjectileDefinition;
 
     std::map<std::string, ProjectileDefinition> projectileDefinitions;
@@ -34,6 +40,8 @@ private:
     bool initialised;
 
     void loadProjectileDefinitions(void);
+    std::function<void(int, const glm::ivec2&, int, bool)> buildOnHitCallback(const ProjectileDefinition& definition);
+    std::vector<EffectStats> buildEffectStats(const ProjectileDefinition& definition);
 
 public:
     ProjectilePool();

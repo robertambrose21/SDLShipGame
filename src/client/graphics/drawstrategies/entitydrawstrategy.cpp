@@ -25,7 +25,7 @@ void EntityDrawStrategy::draw(Entity* drawable, GraphicsContext& graphicsContext
         weaponDrawStrategy->draw(weapon, graphicsContext);
     }
 
-    if(drawable->getFrozenFor() > 0) {
+    if(drawable->getIsFrozen()) {
         auto const &realPosition = gridRenderer.getTilePosition(position.x, position.y) 
                 + gridRenderer.getCamera().getPosition();
         auto const &size = gridRenderer.getTileSize();

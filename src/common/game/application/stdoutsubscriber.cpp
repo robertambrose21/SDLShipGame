@@ -20,7 +20,7 @@ void StdOutSubscriber::onPublish(const Event<EntityEventData>& event) {
     if(event.data.type == "Death") {
         log(event.timestamp, "{} died.",getEntityIdentifier(event.data.entity));
     }
-    else if(event.data.type == "Freeze" && event.data.entity->getFrozenFor() <= 0) {
+    else if(event.data.type == "Freeze" && event.data.entity->getIsFrozen()) {
         log(event.timestamp, "{} unfreezes.", getEntityIdentifier(event.data.entity));
     }
 }
@@ -58,12 +58,12 @@ void StdOutSubscriber::onPublish(const Event<ProjectileEventData>& event) {
         );
     }
 
-    auto effects = event.data.projectile->getStats().effects;
-    for(auto effect : effects) {
-        if(effect.name == "freeze") {
-            log(event.timestamp, "{} is frozen for {} turns.", getEntityIdentifier(event.data.target), effect.duration);
-        }
-    }
+    // auto effects = event.data.projectile->getStats().effects;
+    // for(auto effect : effects) {
+    //     if(effect.name == "freeze") {
+    //         log(event.timestamp, "{} is frozen for {} turns.", getEntityIdentifier(event.data.target), effect.duration);
+    //     }
+    // }
 }
 
 void StdOutSubscriber::onPublish(const Event<AreaOfEffectEventData>& event) {

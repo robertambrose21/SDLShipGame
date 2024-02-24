@@ -35,8 +35,7 @@ bool ProjectileWeapon::onUse(const glm::ivec2& position, const glm::ivec2& targe
 
     context->getProjectilePool()->add(
         Projectile::create(
-            context->getGrid(),
-            context->getEntityPool(),
+            context,
             *context->getProjectilePool(), 
             owner->getParticipantId(), 
             projectileBlueprint, 

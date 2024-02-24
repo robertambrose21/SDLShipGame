@@ -68,6 +68,88 @@ std::map<std::string, std::string> WeaponStats::getValues(void) {
     return values;
 }
 
+
+EffectStats::EffectStats() :
+    duration(0),
+    damagePerTick(0)
+{ }
+
+EffectStats::EffectStats(EffectType type, int duration, int damagePerTick) :
+    type(type),
+    duration(duration),
+    damagePerTick(damagePerTick)
+{ }
+
+void EffectStats::add(const EffectStats& other) {
+    if(type != other.type) {
+        return;
+    }
+
+    duration += other.duration;
+    damagePerTick += other.damagePerTick;
+}
+
+void EffectStats::remove(const EffectStats& other) {
+    if(type != other.type) {
+        return;
+    }
+
+    duration -= other.duration;
+    damagePerTick -= other.damagePerTick;
+}
+
+std::map<std::string, std::string> EffectStats::getValues(void) {
+    std::map<std::string, std::string> values;
+
+    switch(type) {
+        case FREEZE:
+            values["Type"] = "Freeze";
+            break;
+
+        case POISON:
+            values["Type"] = "Poison";
+            break;
+
+        default:
+            break;
+    }
+
+    if(duration != 0) values["Duration"] = std::to_string(duration);
+    if(damagePerTick != 0) values["Damage per tick"] = std::to_string(damagePerTick);
+
+    return values;
+}
+
+ProjectileStats::ProjectileStats() :
+    speed(0.0f)
+{ }
+
+ProjectileStats::ProjectileStats(float speed, const std::vector<EffectStats>& effects) :
+    speed(speed),
+    effects(effects)
+{ }
+
+void ProjectileStats::add(const ProjectileStats& other) {
+    speed += other.speed;
+
+    for(auto effect : other.effects) {
+        effects.push_back(effect);
+    }
+}
+
+void ProjectileStats::remove(const ProjectileStats& other) {
+    speed -= other.speed;
+    // Deliberately do not remove effects
+}
+
+std::map<std::string, std::string> ProjectileStats::getValues(void) {
+    std::map<std::string, std::string> values;
+
+    if(speed != 0) values["Speed"] = std::to_string(speed);
+
+    return values;
+}
+
 AllStats::AllStats()
 { }
 

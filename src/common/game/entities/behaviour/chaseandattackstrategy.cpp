@@ -30,7 +30,7 @@ bool ChaseAndAttackStrategy::doTurnForEntity(Entity* entity, int participantId) 
         return true;
     }
 
-    if(entity->getFrozenFor() > 0) {
+    if(entity->getIsFrozen()) {
         return true;
     }
 

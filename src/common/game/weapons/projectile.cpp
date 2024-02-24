@@ -2,20 +2,18 @@
 #include "game/application/application.h"
 
 Projectile::Projectile(
-    Grid* grid,
-    EntityPool* entityPool,
+    ApplicationContext* context,
     EventPublisher<ProjectileEventData>& publisher,
     uint32_t textureId,
     int ownerId,
     const glm::ivec2& startPosition,
     const glm::ivec2& target,
-    const Stats& stats,
+    const ProjectileStats& stats,
     const DamageSource& damageSource,
     bool isAnimationOnly,
     std::function<void(int, const glm::ivec2&, int, bool)> onHitCallback
 ) :
-    grid(grid),
-    entityPool(entityPool),
+    context(context),
     publisher(publisher),
     textureId(textureId),
     ownerId(ownerId),
@@ -50,7 +48,7 @@ int Projectile::getOwnerId(void) const {
     return ownerId;
 }
 
-Projectile::Stats Projectile::getStats(void) const {
+ProjectileStats Projectile::getStats(void) const {
     return stats;
 }
 
@@ -66,7 +64,7 @@ void Projectile::apply(const glm::ivec2& position) {
     auto entity = Entity::filterByTile(
         position.x,
         position.y,
-        entityPool->getEntities(),
+        context->getEntityPool()->getEntities(),
         ownerId);
 
     int damage = 0;
@@ -74,31 +72,50 @@ void Projectile::apply(const glm::ivec2& position) {
     if (entity != nullptr) {
         damage = damageSource.apply(entity);
 
-        // Effects could be applied from damage source too?
-        for (auto const& effect : stats.effects) {
-            if (effect.name == "freeze") {
-                entity->setFrozenFor(effect.duration);
+        for (auto& effect : stats.effects) {
+            switch(effect.type) {
+            case FREEZE:
+                entity->addEffect(std::make_unique<FreezeEffect>(context, effect.duration));
+                break;
+
+            case POISON: {
+                auto damageTicks = std::vector<int>(effect.duration);
+                std::fill(damageTicks.begin(), damageTicks.end(), effect.damagePerTick);
+                entity->addEffect(std::make_unique<PoisonEffect>(context, damageTicks));
+                break;
             }
+
+            default:
+                break;
+            }
+            // entity->addEffect();
         }
+
+        // // Effects could be applied from damage source too?
+        // for (auto const& effect : stats.effects) {
+        //     if (effect.name == "freeze") {
+        //         entity->setFrozenFor(effect.duration);
+        //     }
+        // }
     }
     // TODO: This is just an onHitCallback
     else {
-        for (auto const& effect : stats.effects) {
-            if (effect.name == "freeze") {
-                glm::ivec2 dir = startPosition - target;
-                auto perp = glm::normalize(glm::vec2(dir.y, -dir.x));
-                auto pX = std::min(grid->getWidth() - 1, (int)std::round(perp.x));
-                auto pY = std::min(grid->getHeight() - 1, (int)std::round(perp.y));
+        // for (auto const& effect : stats.effects) {
+        //     if (effect.name == "freeze") {
+        //         glm::ivec2 dir = startPosition - target;
+        //         auto perp = glm::normalize(glm::vec2(dir.y, -dir.x));
+        //         auto pX = std::min(grid->getWidth() - 1, (int)std::round(perp.x));
+        //         auto pY = std::min(grid->getHeight() - 1, (int)std::round(perp.y));
 
-                // TODO: Colour/unfreeze tiles after some time
-                grid->setTileFrozenFor(position.x, position.y, effect.duration);
-                grid->setTileFrozenFor(position.x + pX, position.y + pY, effect.duration);
-                grid->setTileFrozenFor(position.x - pX, position.y - pY, effect.duration);
-            }
-        }
+        //         // TODO: Colour/unfreeze tiles after some time
+        //         grid->setTileFrozenFor(position.x, position.y, effect.duration);
+        //         grid->setTileFrozenFor(position.x + pX, position.y + pY, effect.duration);
+        //         grid->setTileFrozenFor(position.x - pX, position.y - pY, effect.duration);
+        //     }
+        // }
     }
 
-    publisher.publish<ProjectileEventData>({this, entity, position, damage});
+    publisher.publish<ProjectileEventData>({ this, entity, position, damage });
 }
 
 float Projectile::calculateStep(void) const {

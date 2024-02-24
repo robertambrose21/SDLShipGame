@@ -18,7 +18,8 @@ Entity::Entity(
     timeSinceLastMoved(0),
     selected(false),
     engaged(false),
-    frozenForNumTurns(0),
+    isFrozen(false),
+    isPoisoned(false),
     externalActionsChainNeedsRecalculating(true)
 { }
 
@@ -61,7 +62,7 @@ void Entity::update(int64_t timeSinceLastFrame, bool& quit) {
         weapon->update(timeSinceLastFrame);
     }
 
-    if(frozenForNumTurns > 0) {
+    if(isFrozen) {
         return;
     }
     
@@ -344,9 +345,15 @@ void Entity::useMoves(int numMoves) {
 void Entity::nextTurn(void) {
     reset();
 
-    if(frozenForNumTurns > 0) {
-        frozenForNumTurns--;
-        publisher.publish<EntityEventData>({ this, "Freeze" });
+    std::erase_if(effects, [](const auto& effect) {
+        return effect->getDuration() <= 0;
+    });
+
+    isFrozen = false;
+
+    for(auto& effect : effects) {
+        effect->apply(this);
+        effect->nextTurn();
     }
 }
 
@@ -432,10 +439,26 @@ int Entity::getParticipantId(void) const {
     return participantId;
 }
 
-int Entity::getFrozenFor(void) const {
-    return frozenForNumTurns > 0;
+void Entity::addEffect(std::unique_ptr<Effect> effect) {
+    effects.push_back(std::move(effect));
 }
 
-void Entity::setFrozenFor(int numTurns) {
-    frozenForNumTurns = numTurns;
+const std::vector<std::unique_ptr<Effect>>& Entity::getEffects(void) const {
+    return effects;
+}
+
+bool Entity::getIsFrozen(void) const {
+    return isFrozen;
+}
+
+void Entity::setFrozen(bool isFrozen) {
+    this->isFrozen = isFrozen;
+}
+
+bool Entity::getIsPoisoned(void) const {
+    return isPoisoned;
+}
+
+void Entity::setIsPoisoned(bool isPoisoned) {
+    this->isPoisoned = isPoisoned;
 }

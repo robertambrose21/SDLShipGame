@@ -7,16 +7,17 @@
 #include "game/weapons/weapon.h"
 #include "core/util/gameassert.h"
 #include "game/stats/stats.h"
-#include "game/effects/statuseffect.h"
 #include "core/event/eventpublisher.h"
 #include "core/grid/grid.h"
 #include "game/items/equipment.h"
 #include "game/application/applicationcontext.h"
+#include "game/effects/effect.h"
 
 // TODO: Fix with modules?
 class Weapon;
 class Entity;
 class Action;
+class Effect;
 class ApplicationContext;
 
 struct EntityEventData {
@@ -63,7 +64,7 @@ private:
 
     AllStats baseStats;
     AllStats currentStats;
-    std::set<StatusEffect> statusEffects;
+    std::vector<std::unique_ptr<Effect>> effects;
     std::unique_ptr<Equipment> equipment[Equipment::Slot::COUNT];
 
     std::map<UUID, std::unique_ptr<Weapon>> weapons;
@@ -77,7 +78,8 @@ private:
 
     int participantId;
 
-    int frozenForNumTurns;
+    bool isFrozen;
+    bool isPoisoned;
 
     void clearAllActions(void);
 
@@ -225,6 +227,12 @@ public:
     void endTurn(void);
     void reset(void);
 
-    int getFrozenFor(void) const;
-    void setFrozenFor(int numTurns);
+    void addEffect(std::unique_ptr<Effect> effect);
+    const std::vector<std::unique_ptr<Effect>>& getEffects(void) const;
+
+    bool getIsFrozen(void) const;
+    void setFrozen(bool isFrozen);
+
+    bool getIsPoisoned(void) const;
+    void setIsPoisoned(bool isPoisoned);
 };

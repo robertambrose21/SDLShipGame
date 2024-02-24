@@ -48,7 +48,7 @@ void PlayerPanel::onPublish(const Event<EntityEventData>& event) {
             { " died", StdTextColour}
         });
     }
-    else if(event.data.type == "Freeze" && event.data.entity->getFrozenFor() <= 0) {
+    else if(event.data.type == "Freeze" && event.data.entity->getIsFrozen()) {
         lines.push_back({
             { getTimestampString(event.timestamp), TimestampColour },
             { getEntityIdentifier(event.data.entity), HighlightColour },
@@ -98,18 +98,18 @@ void PlayerPanel::onPublish(const Event<ProjectileEventData>& event) {
         });
     }
 
-    auto effects = event.data.projectile->getStats().effects;
-    for(auto effect : effects) {
-        if(effect.name == "freeze") {
-            lines.push_back({
-                { getTimestampString(event.timestamp), TimestampColour },
-                { getEntityIdentifier(event.data.target), HighlightColour },
-                { " is frozen for ", StdTextColour },
-                { std::to_string(effect.duration), HighlightColour },
-                { " turns", StdTextColour }
-            });
-        }
-    }
+    // auto effects = event.data.projectile->getStats().effects;
+    // for(auto effect : effects) {
+    //     if(effect.name == "freeze") {
+    //         lines.push_back({
+    //             { getTimestampString(event.timestamp), TimestampColour },
+    //             { getEntityIdentifier(event.data.target), HighlightColour },
+    //             { " is frozen for ", StdTextColour },
+    //             { std::to_string(effect.duration), HighlightColour },
+    //             { " turns", StdTextColour }
+    //         });
+    //     }
+    // }
 }
 
 void PlayerPanel::onPublish(const Event<AreaOfEffectEventData>& event) {

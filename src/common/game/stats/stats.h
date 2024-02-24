@@ -2,6 +2,10 @@
 
 #include <map>
 #include <string>
+#include <vector>
+#include <algorithm>
+
+#include "game/effects/effecttypes.h"
 
 template<class T>
 class Stats {
@@ -38,6 +42,35 @@ public:
 
     void add(const WeaponStats& other);
     void remove(const WeaponStats& other);
+
+    std::map<std::string, std::string> getValues(void);
+};
+
+class EffectStats : Stats<EffectStats> {
+public:
+    EffectType type;
+    int duration;
+    int damagePerTick;
+
+    EffectStats();
+    EffectStats(EffectType type, int duration, int damagePerTick);
+
+    void add(const EffectStats& other);
+    void remove(const EffectStats& other);
+
+    std::map<std::string, std::string> getValues(void);
+};
+
+class ProjectileStats : Stats<ProjectileStats> {
+public:
+    float speed;
+    std::vector<EffectStats> effects;
+
+    ProjectileStats();
+    ProjectileStats(float speed, const std::vector<EffectStats>& effects);
+
+    void add(const ProjectileStats& other);
+    void remove(const ProjectileStats& other);
 
     std::map<std::string, std::string> getValues(void);
 };
