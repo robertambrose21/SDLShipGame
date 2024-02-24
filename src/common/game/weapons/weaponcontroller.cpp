@@ -67,9 +67,7 @@ std::unique_ptr<Weapon> WeaponController::createWeapon(
     if(definition.weaponClass == "Projectile") {
         return std::make_unique<ProjectileWeapon>(
             owner,
-            context->getGrid(),
-            context->getEntityPool(),
-            context->getProjectilePool(),
+            context,
             item,
             *this,
             id,
@@ -82,8 +80,7 @@ std::unique_ptr<Weapon> WeaponController::createWeapon(
     else if(definition.weaponClass == "Melee") {
         return std::make_unique<MeleeWeapon>(
             owner,
-            context->getGrid(),
-            context->getEntityPool(),
+            context,
             item,
             *this,
             id,

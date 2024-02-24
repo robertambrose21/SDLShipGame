@@ -10,7 +10,10 @@
 #include "application/clientturncontroller.h"
 #include "game/actions/attackaction.h"
 
-class GameClientMessagesReceiver : public ClientMessagesReceiver {
+class GameClientMessagesReceiver :
+    public ClientMessagesReceiver,
+    public EventPublisher<ApplyDamageEventData>
+{
 private:
     ApplicationContext& context;
     GameClientMessagesTransmitter* transmitter;
@@ -47,6 +50,7 @@ private:
         int turnNumber
     );
     void receiveEngagement(int participantIdA, int participantIdB, int type);
+    void receiveApplyDamageMessage(int fromId, uint32_t targetId, uint8_t source, int damage);
 
 public:
     GameClientMessagesReceiver(ApplicationContext& context);

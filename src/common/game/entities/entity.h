@@ -175,7 +175,7 @@ public:
     int getCurrentHP(void) const;
     void setCurrentHP(int hp);
     void takeDamage(int amount);
-    void attack(const glm::ivec2& target, const UUID& weaponId);
+    void attack(const glm::ivec2& target, const UUID& weaponId, bool isAnimationOnly = false);
 
     std::vector<Weapon*> getWeapons(void) const;
     Weapon* getWeapon(const UUID& weaponId);

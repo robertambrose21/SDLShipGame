@@ -40,7 +40,7 @@ struct ProjectileEventData {
     int damage;
 };
 
-struct WeaponEventData {
+struct MeleeWeaponEventData {
     Entity* owner;
     Entity* target;
     Weapon* weapon;
@@ -65,6 +65,19 @@ struct TakeItemActionEventData {
     int turnNumber;
     Entity* entity;
     std::vector<Item*> items;
+};
+
+enum DamageType {
+    AOE,
+    PROJECTILE,
+    MELEE
+};
+
+struct ApplyDamageEventData {
+    int participantId;
+    Entity* target;
+    DamageType source;
+    int damage;
 };
 
 struct EngagementEventData {

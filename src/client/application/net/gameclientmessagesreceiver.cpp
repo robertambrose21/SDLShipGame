@@ -100,6 +100,17 @@ void GameClientMessagesReceiver::receiveMessage(yojimbo::Message* message) {
             break;
         }
 
+        case (int) GameMessageType::APPLY_DAMAGE: {
+            ApplyDamageMessage* applyDamageMessage = (ApplyDamageMessage*) message;
+            receiveApplyDamageMessage(
+                applyDamageMessage->fromId, 
+                applyDamageMessage->targetId, 
+                applyDamageMessage->source, 
+                applyDamageMessage->damage
+            );
+            break;
+        }
+
         default:
             std::cout << "Received unhandled message: " << message << std::endl;
             break;
@@ -189,7 +200,15 @@ void GameClientMessagesReceiver::receiveAttackEntity(
 
     for(auto weapon : entity->getWeapons()) {
         if(weapon->getId() == weaponId) {
-            context.getTurnController()->queueAction(std::make_unique<AttackAction>(turnNumber, entity, weapon, glm::ivec2(x, y)));
+            context.getTurnController()->queueAction(
+                std::make_unique<AttackAction>(
+                    turnNumber, 
+                    entity, 
+                    weapon, 
+                    glm::ivec2(x, y), 
+                    true
+                )
+            );
         }
     }
 }
@@ -257,4 +276,18 @@ void GameClientMessagesReceiver::receiveEngagement(int participantIdA, int parti
         default:
             break;
     }
+}
+
+void GameClientMessagesReceiver::receiveApplyDamageMessage(int fromId, uint32_t targetId, uint8_t source, int damage) {
+    auto entityPool = context.getEntityPool();
+
+    if(!entityPool->hasEntity(targetId)) {
+        return;
+    }
+
+    auto const& entity = entityPool->getEntity(targetId);
+
+    entity->takeDamage(damage);
+
+    publish<ApplyDamageEventData>({ fromId, entity, (DamageType) source, damage });
 }

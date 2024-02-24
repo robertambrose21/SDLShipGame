@@ -4,11 +4,13 @@ AttackAction::AttackAction(
     int turnNumber,
     Entity* entity,
     Weapon* weapon,
-    const glm::ivec2& target
+    const glm::ivec2& target,
+    bool isAnimationOnly
 ) :
     Action(turnNumber, entity),
     weapon(weapon),
-    target(target)
+    target(target),
+    isAnimationOnly(isAnimationOnly)
 { }
 
 Action::Type AttackAction::getType(void) {
@@ -21,6 +23,10 @@ Weapon* AttackAction::getWeapon(void) {
 
 glm::ivec2 AttackAction::getTarget(void) const {
     return target;
+}
+
+bool AttackAction::getIsAnimationOnly(void) const {
+    return isAnimationOnly;
 }
 
 bool AttackAction::passesPrecondition(void) {
@@ -40,7 +46,7 @@ bool AttackAction::onValidate(ApplicationContext* context) {
 }
 
 void AttackAction::onExecute(ApplicationContext* context) {
-    entity->attack(target, weapon->getId());
+    entity->attack(target, weapon->getId(), isAnimationOnly);
 }
 
 bool AttackAction::hasFinished(void) {

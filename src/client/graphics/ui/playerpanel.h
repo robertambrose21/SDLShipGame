@@ -14,11 +14,12 @@
 class PlayerPanel : 
     public EventSubscriber<TurnEventData>,
     public EventSubscriber<EntityEventData>,
-    public EventSubscriber<WeaponEventData>,
+    public EventSubscriber<MeleeWeaponEventData>,
     public EventSubscriber<ProjectileEventData>,
     public EventSubscriber<AreaOfEffectEventData>,
     public EventSubscriber<ItemEventData>,
-    public EventSubscriber<TakeItemActionEventData>
+    public EventSubscriber<TakeItemActionEventData>,
+    public EventSubscriber<ApplyDamageEventData>
 {
 private:
     typedef struct _textSegment {
@@ -48,9 +49,10 @@ public:
 
     void onPublish(const Event<TurnEventData>& event);
     void onPublish(const Event<EntityEventData>& event);
-    void onPublish(const Event<WeaponEventData>& event);
+    void onPublish(const Event<MeleeWeaponEventData>& event);
     void onPublish(const Event<ProjectileEventData>& event);
     void onPublish(const Event<AreaOfEffectEventData>& event);
     void onPublish(const Event<ItemEventData>& event);
     void onPublish(const Event<TakeItemActionEventData>& event);
+    void onPublish(const Event<ApplyDamageEventData>& event);
 };

@@ -39,7 +39,7 @@ PlayerController::PlayerController(
     
     turnController->subscribe<TurnEventData>(playerPanel.get());
     entityPool->subscribe<EntityEventData>(playerPanel.get());
-    context.getWeaponController()->subscribe<WeaponEventData>(playerPanel.get());
+    context.getWeaponController()->subscribe<MeleeWeaponEventData>(playerPanel.get());
     context.getProjectilePool()->subscribe<ProjectileEventData>(playerPanel.get());
     context.getAreaOfEffectPool()->subscribe<AreaOfEffectEventData>(playerPanel.get());
     context.getItemController()->subscribe<ItemEventData>(playerPanel.get());
@@ -318,7 +318,8 @@ void PlayerController::attack(const glm::ivec2& target) {
             weapon->getId()
         );
         
-        if(turnController->queueAction(std::make_unique<AttackAction>(turnController->getTurnNumber(), entity, weapon, target))) {
+        // TODO: ClientTurnController actions
+        if(turnController->queueAction(std::make_unique<AttackAction>(turnController->getTurnNumber(), entity, weapon, target, true))) {
             dice->clickAction(1);
         }
     }
@@ -410,6 +411,10 @@ void PlayerController::setParticipant(TurnController::Participant* participant) 
     game_assert(participant != nullptr);
     game_assert(participant->isPlayer);
     this->participant = participant;
+}
+
+PlayerPanel* PlayerController::getPlayerPanel(void) {
+    return playerPanel.get();
 }
 
 Dice& PlayerController::getDice(void) {

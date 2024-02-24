@@ -2,40 +2,46 @@
 
 MeleeWeapon::MeleeWeapon(
     Entity* owner, 
-    Grid* grid,
-    EntityPool* entityPool,
+    ApplicationContext* context,
     Item* item,
-    EventPublisher<WeaponEventData>& publisher,
+    EventPublisher<MeleeWeaponEventData>& publisher,
     const UUID& id,
     const std::string& name, 
     const AllStats& stats,
     const DamageSource& damageSource
 ) :
-    Weapon(owner, grid, entityPool, item, publisher, id, name, stats, damageSource)
+    Weapon(owner, context, item, publisher, id, name, stats, damageSource)
 { }
 
 MeleeWeapon::MeleeWeapon(
     Entity* owner, 
-    Grid* grid, 
-    EntityPool* entityPool,
+    ApplicationContext* context,
     Item* item,
-    EventPublisher<WeaponEventData>& publisher,
+    EventPublisher<MeleeWeaponEventData>& publisher,
     const std::string& name, 
     const AllStats& stats,
     const DamageSource& damageSource
 ) :
-    Weapon(owner, grid, entityPool, item, publisher, name, stats, damageSource)
+    Weapon(owner, context, item, publisher, name, stats, damageSource)
 { }
 
-bool MeleeWeapon::onUse(const glm::ivec2& position, const glm::ivec2& target) {
-    auto entities = entityPool->getEntities();
+bool MeleeWeapon::onUse(const glm::ivec2& position, const glm::ivec2& target, bool isAnimationOnly) {
+    if(isAnimationOnly) {
+        return true;
+    }
+
+    apply(position, target);
+
+    return true;
+}
+
+void MeleeWeapon::apply(const glm::ivec2& position, const glm::ivec2& target) {
+    auto entities = context->getEntityPool()->getEntities();
     auto entity = Entity::filterByTile(target.x, target.y, entities, owner->getParticipantId());
     
     if(entity != nullptr) {
-        publisher.publish<WeaponEventData>({ owner, entity, this, damageSource.apply(entity) });
+        publisher.publish<MeleeWeaponEventData>({ owner, entity, this, damageSource.apply(entity) });
     }
-
-    return true;
 }
 
 void MeleeWeapon::update(int64_t timeSinceLastFrame) {

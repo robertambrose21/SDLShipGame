@@ -25,16 +25,16 @@ void StdOutSubscriber::onPublish(const Event<EntityEventData>& event) {
     }
 }
 
-void StdOutSubscriber::onPublish(const Event<WeaponEventData>& event) {
+void StdOutSubscriber::onPublish(const Event<MeleeWeaponEventData>& event) {
     if(event.data.weapon->getType() != Weapon::Type::MELEE) {
         return;
     }
-
+    
     log(
         event.timestamp,
-        "{} meleed {} for {} damage! {} now has {} HP.",
-        getEntityIdentifier(event.data.owner),
+        "{} was meleed by participant [{}] and took {} damage! {} now has {} HP.",
         getEntityIdentifier(event.data.target),
+        event.data.owner->getParticipantId(),
         event.data.damage,
         getEntityIdentifier(event.data.target),
         event.data.target->getCurrentHP()
@@ -150,6 +150,49 @@ void StdOutSubscriber::onPublish(const Event<EquipItemActionEventData>& event) {
             getEntityIdentifier(event.data.entity),
             event.data.item->getName()
         );
+    }
+}
+
+void StdOutSubscriber::onPublish(const Event<ApplyDamageEventData>& event) {
+    switch(event.data.source) {
+        case DamageType::AOE:
+            log(
+                event.timestamp,
+                "{} was hit by an area of effect from participant [{}] and took {} damage! {} now has {} HP.",
+                getEntityIdentifier(event.data.target),
+                event.data.participantId,
+                event.data.damage,
+                getEntityIdentifier(event.data.target),
+                event.data.target->getCurrentHP()
+            );
+            break;
+
+        case DamageType::PROJECTILE:
+            log(
+                event.timestamp,
+                "{} was hit by a projectile from participant [{}] and took {} damage! {} now has {} HP.",
+                getEntityIdentifier(event.data.target),
+                event.data.participantId,
+                event.data.damage,
+                getEntityIdentifier(event.data.target),
+                event.data.target->getCurrentHP()
+            );
+            break;
+
+        case DamageType::MELEE:
+            log(
+                event.timestamp,
+                "{} was meleed by participant [{}] and took {} damage! {} now has {} HP.",
+                getEntityIdentifier(event.data.target),
+                event.data.participantId,
+                event.data.damage,
+                getEntityIdentifier(event.data.target),
+                event.data.target->getCurrentHP()
+            );
+            break;
+        
+        default:
+            break;
     }
 }
 

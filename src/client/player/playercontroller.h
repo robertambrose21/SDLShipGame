@@ -87,5 +87,6 @@ public:
     void toggleSelection(const std::vector<Entity*>& entities);
     void deselectAll(void);
 
+    PlayerPanel* getPlayerPanel(void);
     Dice& getDice(void);
 };

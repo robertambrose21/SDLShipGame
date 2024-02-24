@@ -42,7 +42,7 @@ void AreaOfEffectPool::loadAoeDefinitions(void) {
     game_assert(!aoeDefinitions.empty());
 }
 
-void AreaOfEffectPool::add(const std::string& name, int ownerId, int turnNumber, const glm::ivec2& position) {
+void AreaOfEffectPool::add(const std::string& name, int ownerId, int turnNumber, const glm::ivec2& position, bool isAnimationOnly) {
     game_assert(initialised);
     game_assert(aoeDefinitions.contains(name));
 
@@ -56,6 +56,7 @@ void AreaOfEffectPool::add(const std::string& name, int ownerId, int turnNumber,
                 definition.textureId,
                 ownerId,
                 turnNumber,
+                isAnimationOnly,
                 position,
                 AreaOfEffect::Stats { definition.radius, definition.turns, definition.power },
                 DamageSource::parse(definition.damageSource, definition.power)

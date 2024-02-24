@@ -39,7 +39,7 @@ public:
 
     void initialise(ApplicationContext& context);
 
-    void add(const std::string& name, int ownerId, int turnNumber, const glm::ivec2& position);
+    void add(const std::string& name, int ownerId, int turnNumber, const glm::ivec2& position, bool isAnimationOnly);
 
     void update(int64_t timeSinceLastFrame);
 
