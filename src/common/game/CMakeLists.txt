@@ -9,7 +9,6 @@ add_library(
     effects/statuseffect.cpp
     effects/effect.h
     entities/entity.cpp 
-    entities/entitystats.h
     entities/entitypool.cpp 
     entities/behaviour/behaviourstrategy.h
     entities/behaviour/chaseandattackstrategy.cpp
@@ -28,6 +27,7 @@ add_library(
     weapons/projectilepool.cpp
     weapons/areaofeffectpool.cpp
     weapons/weaponcontroller.cpp
+    weapons/damagesource.cpp
     application/turncontroller.cpp
     application/stdoutsubscriber.cpp
     actions/action.cpp
@@ -37,6 +37,7 @@ add_library(
     actions/equipitemaction.cpp
     actions/equipweaponaction.cpp
     event/events.h
+    stats/stats.cpp
 )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX CXX_STANDARD 20)

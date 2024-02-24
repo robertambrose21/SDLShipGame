@@ -7,6 +7,7 @@
 #include "core/util/idgenerator.h"
 #include "core/glmimport.h"
 #include "game/event/events.h"
+#include "game/stats/stats.h"
 
 // TODO: This might not have a position - should probably make different classes for dropped items/equipped items?
 class Item {
@@ -45,6 +46,7 @@ private:
     std::string name;
     std::string type;
     Rarity rarity;
+    AllStats stats;
 
     uint32_t id;
     uint32_t textureId;
@@ -54,12 +56,15 @@ private:
     int participantId;
 
 public:
-    Item(const std::string& name, Rarity rarity, const std::string& type, const glm::ivec2& position);
-    Item(const std::string& name, Rarity rarity, const std::string& type, const glm::ivec2& position, uint32_t id);
+    Item(const std::string& name, Rarity rarity, const AllStats& stats, const std::string& type, const glm::ivec2& position);
+    Item(const std::string& name, Rarity rarity, const AllStats& stats, const std::string& type, const glm::ivec2& position, uint32_t id);
 
     std::string getName(void) const;
     std::string getType(void) const;
     Rarity getRarity(void) const;
+    AllStats getStats(void) const;
+    void addStats(const AllStats& stats);
+    void removeStats(const AllStats& stats);
 
     uint32_t getId(void) const;
     void setId(uint32_t id);

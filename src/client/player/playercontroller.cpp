@@ -31,6 +31,11 @@ PlayerController::PlayerController(
     inventoryPanel->addOnUnequipWeaponClicked([&](auto weapon) {
         unequipWeapon(weapon);
     });
+    inventoryPanel->addOnExamineCallback([&](auto item) {
+        if(!examineItemPanels.contains(item->getId())) {
+            examineItemPanels[item->getId()] = std::make_unique<ExamineItemPanel>(item);
+        }
+    });
     
     turnController->subscribe<TurnEventData>(playerPanel.get());
     entityPool->subscribe<EntityEventData>(playerPanel.get());
@@ -92,6 +97,15 @@ void PlayerController::draw(GraphicsContext& graphicsContext) {
 void PlayerController::drawUI(GraphicsContext& graphicsContext) {
     playerPanel->draw();
     inventoryPanel->draw(graphicsContext, participant);
+
+    std::erase_if(examineItemPanels, [](const auto& item) {
+        auto const& [_, examineItemPanel] = item;
+        return !examineItemPanel->getIsOpen();
+    });
+
+    for(auto& [_, examineItemPanel] : examineItemPanels) {
+        examineItemPanel->draw(graphicsContext);
+    }
 }
 
 void PlayerController::handleKeyPress(const SDL_Event& event) {

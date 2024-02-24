@@ -30,7 +30,7 @@ private:
         uint32_t entityId, 
         int x,
         int y,
-        char weaponIdBytes[16],
+        uint8_t weaponIdBytes[16],
         int turnNumber
     );
     void receiveNextTurn(int participantId, int turnNumber);

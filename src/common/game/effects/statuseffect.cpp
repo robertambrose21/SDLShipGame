@@ -5,28 +5,28 @@ StatusEffect::StatusEffect(int turnsActive) :
     turnsLeft(turnsActive)
 { }
 
-void StatusEffect::apply(const EntityBaseStats& baseStats) {
-    if(turnsLeft <= 0) {
-        return;
-    }
+// void StatusEffect::apply(const EntityBaseStats& baseStats) {
+//     if(turnsLeft <= 0) {
+//         return;
+//     }
 
-    for(auto const& modifier : modifiers) {
-        switch(modifier.statName) {
-            case BaseStat::MovesPerTurn:
-                modify(baseStats.movesPerTurn, modifier.value, modifier.operation);
-                break;
+//     for(auto const& modifier : modifiers) {
+//         switch(modifier.statName) {
+//             case BaseStat::MovesPerTurn:
+//                 modify(baseStats.movesPerTurn, modifier.value, modifier.operation);
+//                 break;
 
-            case BaseStat::TotalHP:
-                modify(baseStats.totalHP, modifier.value, modifier.operation);
-                break;
+//             case BaseStat::TotalHP:
+//                 modify(baseStats.totalHP, modifier.value, modifier.operation);
+//                 break;
 
-            default:
-                break;
-        }
-    }
+//             default:
+//                 break;
+//         }
+//     }
 
-    turnsLeft--;
-}
+//     turnsLeft--;
+// }
 
 double StatusEffect::modify(double currentValue, double modifierValue, char operation) {
     switch(operation) {

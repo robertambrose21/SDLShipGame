@@ -123,7 +123,7 @@ void GameServerMessagesReceiver::receieveAttackMessage(
     uint32_t entityId, 
     int x,
     int y,
-    char weaponIdBytes[16]
+    uint8_t weaponIdBytes[16]
 ) {
     if(!context.getEntityPool()->hasEntity(entityId)) {
         return;
@@ -195,7 +195,7 @@ void GameServerMessagesReceiver::receiveEquipWeaponMessage(
     int clientIndex, 
     uint32_t itemId, 
     uint32_t entityId, 
-    char weaponIdBytes[16],
+    uint8_t weaponIdBytes[16],
     bool isUnequip
 ) {
     if(!context.getEntityPool()->hasEntity(entityId)) {

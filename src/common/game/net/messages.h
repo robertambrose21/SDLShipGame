@@ -15,7 +15,7 @@ class Player;
 class Weapon;
 
 struct WeaponStateUpdate {
-    char idBytes[16];
+    uint8_t idBytes[16];
     char name[MaxWeaponNameLength];
     char weaponClass[MaxWeaponNameLength];
     char projectile[MaxWeaponNameLength];
@@ -43,7 +43,7 @@ struct EntityStateUpdate {
     int x, y;
     int participantId;
     bool isEngaged;
-    char currentWeaponIdBytes[16];
+    uint8_t currentWeaponIdBytes[16];
     int numWeapons;
     WeaponStateUpdate weaponUpdates[MaxWeapons];
 

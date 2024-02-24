@@ -17,6 +17,7 @@
 #include "graphics/ui/button.h"
 #include "graphics/ui/playerpanel.h"
 #include "graphics/ui/inventorypanel.h"
+#include "graphics/ui/examineitempanel.h"
 #include "game/actions/attackaction.h"
 #include "game/actions/equipitemaction.h"
 #include "game/actions/equipweaponaction.h"
@@ -54,6 +55,7 @@ private:
 
     std::unique_ptr<PlayerPanel> playerPanel;
     std::unique_ptr<InventoryPanel> inventoryPanel;
+    std::map<uint32_t, std::unique_ptr<ExamineItemPanel>> examineItemPanels;
 
     void move(const glm::ivec2& position);
     void attack(const glm::ivec2& target);

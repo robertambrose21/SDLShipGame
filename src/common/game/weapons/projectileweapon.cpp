@@ -9,10 +9,11 @@ ProjectileWeapon::ProjectileWeapon(
     EventPublisher<WeaponEventData>& publisher,
     const UUID& id,
     const std::string& name, 
-    const Stats& stats,
+    const AllStats& stats,
+    const DamageSource& damageSource,
     const Projectile::Blueprint& projectileBlueprint
 ) :
-    Weapon(owner, grid, entityPool, item, publisher, id, name, stats),
+    Weapon(owner, grid, entityPool, item, publisher, id, name, stats, damageSource),
     projectilePool(projectilePool),
     projectileBlueprint(projectileBlueprint)
 { }
@@ -25,10 +26,11 @@ ProjectileWeapon::ProjectileWeapon(
     Item* item,
     EventPublisher<WeaponEventData>& publisher,
     const std::string& name, 
-    const Stats& stats,
+    const AllStats& stats,
+    const DamageSource& damageSource,
     const Projectile::Blueprint& projectileBlueprint
 ) :
-    ProjectileWeapon(owner, grid, entityPool, projectilePool, item, publisher, UUID::getNewUUID(), name, stats, projectileBlueprint)
+    ProjectileWeapon(owner, grid, entityPool, projectilePool, item, publisher, UUID::getNewUUID(), name, stats, damageSource, projectileBlueprint)
 { }
 
 bool ProjectileWeapon::onUse(const glm::ivec2& position, const glm::ivec2& target) {
@@ -45,7 +47,7 @@ bool ProjectileWeapon::onUse(const glm::ivec2& position, const glm::ivec2& targe
             projectileBlueprint, 
             position, 
             target, 
-            stats.damage
+            damageSource
         ), 
         owner
     );

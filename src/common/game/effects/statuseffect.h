@@ -2,8 +2,6 @@
 
 #include <set>
 
-#include "game/entities/entitystats.h"
-
 enum BaseStat {
     MovesPerTurn,
     TotalHP
@@ -38,7 +36,7 @@ public:
     StatusEffect(int turnsActive);
 
     void addModifier(const Modifier& modifier);
-    void apply(const EntityBaseStats& baseStats);
+    // void apply(const EntityBaseStats& baseStats);
 
     int getTurnsLeft(void) const;
 };

@@ -10,7 +10,7 @@ Projectile::Projectile(
     const glm::ivec2& startPosition,
     const glm::ivec2& target,
     const Stats& stats,
-    int weaponBaseDamage,
+    const DamageSource& damageSource,
     std::function<void(Grid*, int, const glm::ivec2&, int)> onHitCallback
 ) :
     grid(grid),
@@ -22,7 +22,7 @@ Projectile::Projectile(
     position(startPosition),
     target(target),
     stats(stats),
-    weaponBaseDamage(weaponBaseDamage),
+    damageSource(damageSource),
     onHitCallback(onHitCallback),
     timeSinceLive(0.0f)
 {
@@ -65,9 +65,9 @@ void Projectile::doHit(const glm::ivec2& position) {
     onHitCallback(grid, ownerId, position, 1);
 
     if(entity != nullptr) {
-        damage = std::floor(weaponBaseDamage * stats.damageMultiplier);
+        damage = damageSource.apply(entity);
 
-        entity->takeDamage(damage);
+        // Effects could be applied from damage source too?
         for(auto const& effect : stats.effects) {
             if(effect.name == "freeze") {
                 entity->setFrozenFor(effect.duration);

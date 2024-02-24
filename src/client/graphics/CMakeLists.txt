@@ -18,6 +18,7 @@ add_library(
     ui/actionbutton.cpp
     ui/inventorypanel.cpp
     ui/itemraritycolours.h
+    ui/examineitempanel.cpp
     camera.cpp
     drawstrategies/drawstrategy.h
     drawstrategies/entitydrawstrategy.cpp

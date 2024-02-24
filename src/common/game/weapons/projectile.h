@@ -16,7 +16,6 @@ class Projectile;
 class Projectile {
 public:
     typedef struct _stats {
-        float damageMultiplier;
         float speed;
         std::vector<Effect> effects;
     } Stats;
@@ -59,7 +58,7 @@ private:
     float distanceToTarget;
     float step;
 
-    int weaponBaseDamage;
+    DamageSource damageSource;
 
     // TODO: position not entity for target
     std::function<void(Grid*, int, const glm::ivec2&, int)> onHitCallback;
@@ -77,7 +76,7 @@ public:
         const glm::ivec2& startPosition,
         const glm::ivec2& target,
         const Stats& stats,
-        int weaponBaseDamage,
+        const DamageSource& damageSource,
         std::function<void(Grid*, int, const glm::ivec2&, int)> onHitCallback = 
             [](Grid*, int, const glm::ivec2&, int){ }
     );
@@ -90,7 +89,7 @@ public:
         const Blueprint& blueprint, 
         const glm::ivec2& startPosition,
         const glm::ivec2& target,
-        int weaponBaseDamage
+        const DamageSource& damageSource
     ) {
         return std::make_unique<Projectile>(
             grid,
@@ -101,7 +100,7 @@ public:
             startPosition, 
             target, 
             blueprint.stats, 
-            weaponBaseDamage, 
+            damageSource, 
             blueprint.onHitCallback
         );
     }

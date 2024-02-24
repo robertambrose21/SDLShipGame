@@ -19,8 +19,11 @@ void EntityPool::loadEntityDefinitions(void) {
         EntityDefinition definition;
         definition.filename = entry.path();
         definition.name = data["name"].get<std::string>();
-        definition.movesPerTurn = data["movesPerTurn"].get<int>();
-        definition.hp = data["hp"].get<int>();
+
+        auto const& stats = data["stats"].get<json>();
+        definition.movesPerTurn = stats["movesPerTurn"].get<int>();
+        definition.hp = stats["hp"].get<int>();
+        definition.armour = stats["armour"].get<int>();
 
         auto const& textureData = data["texture"].get<json>();
         definition.textureId = textureData["id"].get<uint32_t>();
@@ -188,15 +191,21 @@ Entity* EntityPool::addEntity(const std::string& name, uint32_t id) {
     game_assert(entityDefinitions.contains(name));
 
     auto definition = entityDefinitions[name];
+
+    auto stats = AllStats();
+    stats.common = CommonStats(
+        definition.movesPerTurn,
+        definition.hp,
+        definition.armour
+    );
+
+    
     auto entity = std::make_unique<Entity>(
         context->getGrid(),
         id,
         *this,
         definition.name,
-        EntityBaseStats {
-            definition.movesPerTurn,
-            definition.hp
-        }
+        stats
     );
     entity->setTextureId(definition.textureId);
     entity->setColour({

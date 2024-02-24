@@ -4,11 +4,13 @@
 #include <functional>
 #include <memory>
 
+#include "damagesource.h"
 #include "game/entities/entity.h"
 #include "core/event/eventpublisher.h"
 #include "core/grid/grid.h"
 #include "game/event/events.h"
 #include "game/items/equipment.h"
+#include "game/stats/stats.h"
 
 class Entity;
 class EntityPool;
@@ -20,18 +22,13 @@ public:
         MELEE,
         PROJECTILE
     };
-
-    typedef struct _stats {
-        int damage;
-        int range;
-        int uses;
-    } Stats;
-
+    
 protected:
     UUID id;
     std::string name;
     Entity* owner;
-    Stats stats;
+    AllStats stats;
+    DamageSource damageSource;
 
     int usesLeft;
 
@@ -52,7 +49,8 @@ public:
         EventPublisher<WeaponEventData>& publisher,
         const UUID& id,
         const std::string& name, 
-        const Stats& stats
+        const AllStats& stats,
+        const DamageSource& damageSource
     );
 
     Weapon(
@@ -62,9 +60,11 @@ public:
         Item* item,
         EventPublisher<WeaponEventData>& publisher,
         const std::string& name, 
-        const Stats& stats
+        const AllStats& stats,
+        const DamageSource& damageSource
     );
 
+    // TODO: Take an exact damage value
     void use(const glm::ivec2& position, const glm::ivec2& target);
     void reset(void);
     void setFinished(void);
@@ -75,13 +75,14 @@ public:
     virtual bool isAnimationInProgress(void);
     virtual Type getType(void) const = 0;
 
-    Stats getStats(void) const;
+    AllStats getStats(void) const;
     int getUsesLeft(void) const;
     void setUsesLeft(int usesLeft);
 
     UUID getId(void) const;
     std::string getName(void) const;
     Entity* getOwner(void);
+    DamageSource getDamageSource(void) const;
 
     Item* getItem(void);
 };

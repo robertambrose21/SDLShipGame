@@ -7,7 +7,6 @@
 
 #include "core/json.hpp"
 #include "entity.h"
-#include "entitystats.h"
 #include "game/application/turncontroller.h"
 #include "game/weapons/weaponcontroller.h"
 #include "game/items/itemcontroller.h"
@@ -29,6 +28,7 @@ private:
         uint8_t r, g, b, a;
         int movesPerTurn;
         int hp;
+        int armour;
         LootTable lootTable;
     } EntityDefinition;
 

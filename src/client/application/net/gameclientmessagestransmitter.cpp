@@ -45,7 +45,7 @@ void GameClientMessagesTransmitter::sendAttackMessage(
     message->entityId = entityId;
     message->x = target.x;
     message->y = target.y;
-    strcpy(message->weaponIdBytes, weaponId.getBytes().data());
+    memcpy(message->weaponIdBytes, &weaponId.getBytes()[0], 16);
 
     client.sendMessage(message);
 }
@@ -82,7 +82,7 @@ void GameClientMessagesTransmitter::sendEquipWeaponMessage(uint32_t itemId, uint
 
     message->itemId = itemId;
     message->entityId = entityId;
-    strcpy(message->weaponIdBytes, weaponId.getBytes().data());
+    memcpy(message->weaponIdBytes, &weaponId.getBytes()[0], 16);
     message->isUnequip = isUnequip;
 
     client.sendMessage(message);

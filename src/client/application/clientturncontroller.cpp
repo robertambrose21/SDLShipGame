@@ -26,6 +26,8 @@ bool ClientTurnController::canProgressToNextTurn(int participantId) {
     return true;
 }
 
+// TODO: This should be queued up instead of just silently ignored.
+// - May want to consider in the future sending an ACK to the server in case something gets stuck
 void ClientTurnController::receiveSetNextTurnFlag(int participantId, int turnNumber) {
     if(this->currentParticipantId == participantId && this->turnNumber == turnNumber) {
         receivedValidNextTurnFlag = true;

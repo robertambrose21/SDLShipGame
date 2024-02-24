@@ -31,12 +31,18 @@ private:
         uint32_t entityId, 
         int x,
         int y,
-        char weaponIdBytes[16]
+        uint8_t weaponIdBytes[16]
     );
     void receivePassParticipantTurnMessage(int clientIndex, int participantId);
     void receiveSetParticipantAckMessage(int clientIndex, int participantId);
     void receiveEquipItemMessage(int clientIndex, uint32_t itemId, uint32_t entityId, uint8_t slot, bool isUnequip);
-    void receiveEquipWeaponMessage(int clientIndex, uint32_t itemId, uint32_t entityId, char weaponIdBytes[16], bool isUnequip);
+    void receiveEquipWeaponMessage(
+        int clientIndex, 
+        uint32_t itemId, 
+        uint32_t entityId, 
+        uint8_t weaponIdBytes[16], 
+        bool isUnequip
+    );
 
 public:
     GameServerMessagesReceiver(ApplicationContext& context);

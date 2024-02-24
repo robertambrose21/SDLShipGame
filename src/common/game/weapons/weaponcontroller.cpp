@@ -35,9 +35,10 @@ void WeaponController::loadWeaponDefinitions(void) {
             definition.projectile = "";
         }
         
-        definition.damage = data["damage"].get<int>();
+        definition.damageSource = data["damage"].get<std::string>();
         definition.range = data["range"].get<int>();
         definition.uses = data["uses"].get<int>();
+        definition.power = data["power"].get<int>();
 
         std::cout << "Loaded weapon definition \"" << definition.name << "\"" << std::endl;
 
@@ -56,6 +57,13 @@ std::unique_ptr<Weapon> WeaponController::createWeapon(
     auto definition = weaponDefinitions[name];
     auto item = getItem(definition.item, owner);
 
+    auto stats = AllStats();
+    stats.weapon = WeaponStats(definition.range, definition.uses, definition.power);
+    if(item != nullptr) {
+        item->addStats(stats);
+        stats.common = item->getStats().common;
+    }
+
     if(definition.weaponClass == "Projectile") {
         return std::make_unique<ProjectileWeapon>(
             owner,
@@ -66,7 +74,8 @@ std::unique_ptr<Weapon> WeaponController::createWeapon(
             *this,
             id,
             definition.name,
-            Weapon::Stats { definition.damage, definition.range, definition.uses },
+            stats,
+            DamageSource::parse(definition.damageSource, definition.power),
             context->getProjectilePool()->create(definition.projectile)
         );
     }
@@ -79,7 +88,8 @@ std::unique_ptr<Weapon> WeaponController::createWeapon(
             *this,
             id,
             definition.name,
-            Weapon::Stats { definition.damage, definition.range, definition.uses }
+            stats,
+            DamageSource::parse(definition.damageSource, definition.power)
         );
     }
 
