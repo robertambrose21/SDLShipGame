@@ -29,12 +29,12 @@ void StdOutSubscriber::onPublish(const Event<MeleeWeaponEventData>& event) {
     if(event.data.weapon->getType() != Weapon::Type::MELEE) {
         return;
     }
-
+    
     log(
         event.timestamp,
-        "{} meleed {} for {} damage! {} now has {} HP.",
-        getEntityIdentifier(event.data.owner),
+        "{} was meleed by participant [{}] and took {} damage! {} now has {} HP.",
         getEntityIdentifier(event.data.target),
+        event.data.owner->getParticipantId(),
         event.data.damage,
         getEntityIdentifier(event.data.target),
         event.data.target->getCurrentHP()
