@@ -10,7 +10,10 @@
 #include "application/clientturncontroller.h"
 #include "game/actions/attackaction.h"
 
-class GameClientMessagesReceiver : public ClientMessagesReceiver {
+class GameClientMessagesReceiver :
+    public ClientMessagesReceiver,
+    public EventPublisher<ApplyDamageEventData>
+{
 private:
     ApplicationContext& context;
     GameClientMessagesTransmitter* transmitter;

@@ -18,7 +18,8 @@ class PlayerPanel :
     public EventSubscriber<ProjectileEventData>,
     public EventSubscriber<AreaOfEffectEventData>,
     public EventSubscriber<ItemEventData>,
-    public EventSubscriber<TakeItemActionEventData>
+    public EventSubscriber<TakeItemActionEventData>,
+    public EventSubscriber<ApplyDamageEventData>
 {
 private:
     typedef struct _textSegment {
@@ -53,4 +54,5 @@ public:
     void onPublish(const Event<AreaOfEffectEventData>& event);
     void onPublish(const Event<ItemEventData>& event);
     void onPublish(const Event<TakeItemActionEventData>& event);
+    void onPublish(const Event<ApplyDamageEventData>& event);
 };

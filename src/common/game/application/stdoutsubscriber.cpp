@@ -153,6 +153,49 @@ void StdOutSubscriber::onPublish(const Event<EquipItemActionEventData>& event) {
     }
 }
 
+void StdOutSubscriber::onPublish(const Event<ApplyDamageEventData>& event) {
+    switch(event.data.source) {
+        case DamageType::AOE:
+            log(
+                event.timestamp,
+                "{} was hit by an area of effect from participant [{}] and took {} damage! {} now has {} HP.",
+                getEntityIdentifier(event.data.target),
+                event.data.participantId,
+                event.data.damage,
+                getEntityIdentifier(event.data.target),
+                event.data.target->getCurrentHP()
+            );
+            break;
+
+        case DamageType::PROJECTILE:
+            log(
+                event.timestamp,
+                "{} was hit by a projectile from participant [{}] and took {} damage! {} now has {} HP.",
+                getEntityIdentifier(event.data.target),
+                event.data.participantId,
+                event.data.damage,
+                getEntityIdentifier(event.data.target),
+                event.data.target->getCurrentHP()
+            );
+            break;
+
+        case DamageType::MELEE:
+            log(
+                event.timestamp,
+                "{} was meleed by participant [{}] and took {} damage! {} now has {} HP.",
+                getEntityIdentifier(event.data.target),
+                event.data.participantId,
+                event.data.damage,
+                getEntityIdentifier(event.data.target),
+                event.data.target->getCurrentHP()
+            );
+            break;
+        
+        default:
+            break;
+    }
+}
+
 std::string StdOutSubscriber::getEntityIdentifier(Entity* entity) {
     game_assert(entity != nullptr);
     return entity->getName() + "#" + std::to_string(entity->getId());

@@ -172,6 +172,41 @@ void PlayerPanel::onPublish(const Event<TakeItemActionEventData>& event) {
     lines.push_back(line);
 }
 
+void PlayerPanel::onPublish(const Event<ApplyDamageEventData>& event) {
+    std::vector<TextSegment> line = {
+        { getTimestampString(event.timestamp), TimestampColour },
+        { getEntityIdentifier(event.data.target), HighlightColour }
+    };
+
+    switch(event.data.source) {
+        case DamageType::AOE:
+            line.push_back({ " was hit by an area of effect from participant [", StdTextColour });
+            break;
+
+        case DamageType::PROJECTILE:
+            line.push_back({ " was hit by a projectile from participant [", StdTextColour });
+            break;
+
+        case DamageType::MELEE:
+            line.push_back({ " was meleed by participant [", StdTextColour });
+            break;
+
+        default:
+            break;
+    }
+
+    line.push_back({ std::to_string(event.data.participantId), HighlightColour });
+    line.push_back({ "] and took ", StdTextColour });
+    line.push_back({ std::to_string(event.data.damage), HighlightColour });
+    line.push_back({ " damage! ", StdTextColour });
+    line.push_back({ getEntityIdentifier(event.data.target), HighlightColour });
+    line.push_back({ " now has ", StdTextColour });
+    line.push_back({ std::to_string(event.data.target->getCurrentHP()), StdTextColour });
+    line.push_back({ " HP.", StdTextColour });
+
+    lines.push_back(line);
+}
+
 std::string PlayerPanel::getEntityIdentifier(Entity* entity) {
     game_assert(entity != nullptr);
     return entity->getName() + "#" + std::to_string(entity->getId());

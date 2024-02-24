@@ -57,6 +57,7 @@ void ClientApplication::initialise(void) {
     clientMessagesTransmitter = std::make_unique<GameClientMessagesTransmitter>(*client);
 
     clientMessagesReceiver->setTransmitter(clientMessagesTransmitter.get());
+    clientMessagesReceiver->subscribe<ApplyDamageEventData>(&stdoutSubscriber);
 
     context.getTurnController()->setOnAllParticipantsSetFunction([&]() {
         clientStateMachine->setState(std::make_unique<ClientGameLoopState>());
@@ -77,9 +78,12 @@ void ClientApplication::initialise(void) {
     }
 
     playerController = std::make_unique<PlayerController>(
-        *clientMessagesTransmitter, application->getContext(), window->getGraphicsContext()
+        *clientMessagesTransmitter,
+        application->getContext(), 
+        window->getGraphicsContext()
     );
     clientMessagesReceiver->setPlayerController(playerController.get());
+    clientMessagesReceiver->subscribe<ApplyDamageEventData>(playerController->getPlayerPanel());
 
     window->addLoopDrawWorker([&](auto graphicsContext, auto& quit) {
         draw(graphicsContext, quit);

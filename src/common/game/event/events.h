@@ -67,6 +67,19 @@ struct TakeItemActionEventData {
     std::vector<Item*> items;
 };
 
+enum DamageType {
+    AOE,
+    PROJECTILE,
+    MELEE
+};
+
+struct ApplyDamageEventData {
+    int participantId;
+    Entity* target;
+    DamageType source;
+    int damage;
+};
+
 struct EngagementEventData {
     enum Type {
         ENGAGED,

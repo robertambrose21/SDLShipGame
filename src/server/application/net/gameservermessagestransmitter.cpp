@@ -117,7 +117,7 @@ void GameServerMessagesTransmitter::onPublish(const Event<AreaOfEffectEventData>
 
         message->fromId = event.data.aoe->getOwnerId();
         message->targetId = event.data.target->getId();
-        message->source = 0;
+        message->source = (uint8_t) DamageType::AOE;
         message->damage = event.data.damage;
 
         server.sendMessage(clientIndex, message);
@@ -135,7 +135,7 @@ void GameServerMessagesTransmitter::onPublish(const Event<ProjectileEventData>& 
 
         message->fromId = event.data.projectile->getOwnerId();
         message->targetId = event.data.target->getId();
-        message->source = 1;
+        message->source = (uint8_t) DamageType::PROJECTILE;
         message->damage = event.data.damage;
 
         server.sendMessage(clientIndex, message);
@@ -148,7 +148,7 @@ void GameServerMessagesTransmitter::onPublish(const Event<MeleeWeaponEventData>&
 
         message->fromId = event.data.owner->getParticipantId();
         message->targetId = event.data.target->getId();
-        message->source = 2;
+        message->source = (uint8_t) DamageType::MELEE;
         message->damage = event.data.damage;
 
         server.sendMessage(clientIndex, message);

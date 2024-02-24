@@ -287,7 +287,7 @@ void GameClientMessagesReceiver::receiveApplyDamageMessage(int fromId, uint32_t 
 
     auto const& entity = entityPool->getEntity(targetId);
 
-    std::cout << "[" << source << "]: Took " << damage << " damage from " << fromId << std::endl;
-
     entity->takeDamage(damage);
+
+    publish<ApplyDamageEventData>({ fromId, entity, (DamageType) source, damage });
 }

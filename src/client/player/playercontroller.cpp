@@ -413,6 +413,10 @@ void PlayerController::setParticipant(TurnController::Participant* participant) 
     this->participant = participant;
 }
 
+PlayerPanel* PlayerController::getPlayerPanel(void) {
+    return playerPanel.get();
+}
+
 Dice& PlayerController::getDice(void) {
     return *dice;
 }
