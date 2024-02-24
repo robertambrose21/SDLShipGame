@@ -2,52 +2,48 @@
 
 ProjectileWeapon::ProjectileWeapon(
     Entity* owner,
-    Grid* grid,
-    EntityPool* entityPool,
-    ProjectilePool* projectilePool,
+    ApplicationContext* context,
     Item* item,
-    EventPublisher<WeaponEventData>& publisher,
+    EventPublisher<MeleeWeaponEventData>& publisher,
     const UUID& id,
     const std::string& name, 
     const AllStats& stats,
     const DamageSource& damageSource,
     const Projectile::Blueprint& projectileBlueprint
 ) :
-    Weapon(owner, grid, entityPool, item, publisher, id, name, stats, damageSource),
-    projectilePool(projectilePool),
+    Weapon(owner, context, item, publisher, id, name, stats, damageSource),
     projectileBlueprint(projectileBlueprint)
 { }
 
 ProjectileWeapon::ProjectileWeapon(
     Entity* owner,
-    Grid* grid,
-    EntityPool* entityPool,
-    ProjectilePool* projectilePool,
+    ApplicationContext* context,
     Item* item,
-    EventPublisher<WeaponEventData>& publisher,
+    EventPublisher<MeleeWeaponEventData>& publisher,
     const std::string& name, 
     const AllStats& stats,
     const DamageSource& damageSource,
     const Projectile::Blueprint& projectileBlueprint
 ) :
-    ProjectileWeapon(owner, grid, entityPool, projectilePool, item, publisher, UUID::getNewUUID(), name, stats, damageSource, projectileBlueprint)
+    ProjectileWeapon(owner, context, item, publisher, UUID::getNewUUID(), name, stats, damageSource, projectileBlueprint)
 { }
 
-bool ProjectileWeapon::onUse(const glm::ivec2& position, const glm::ivec2& target) {
+bool ProjectileWeapon::onUse(const glm::ivec2& position, const glm::ivec2& target, bool isAnimationOnly) {
     if(!isInRange(target)) {
         return false;
     }
 
-    projectilePool->add(
+    context->getProjectilePool()->add(
         Projectile::create(
-            grid,
-            entityPool,
-            *projectilePool, 
+            context->getGrid(),
+            context->getEntityPool(),
+            *context->getProjectilePool(), 
             owner->getParticipantId(), 
             projectileBlueprint, 
             position, 
             target, 
-            damageSource
+            damageSource,
+            isAnimationOnly
         ), 
         owner
     );
@@ -55,12 +51,16 @@ bool ProjectileWeapon::onUse(const glm::ivec2& position, const glm::ivec2& targe
     return true;
 }
 
+void ProjectileWeapon::apply(const glm::ivec2& position, const glm::ivec2& target) {
+    // no-op
+}
+
 void ProjectileWeapon::update(int64_t timeSinceLastFrame) {
     // no-op
 }
 
 bool ProjectileWeapon::isInRange(const glm::ivec2& target) {
-    return Weapon::isInRange(target) && !grid->hasIntersection(owner->getPosition(), target);
+    return Weapon::isInRange(target) && !context->getGrid()->hasIntersection(owner->getPosition(), target);
 }
 
 void ProjectileWeapon::setProjectileBlueprint(const Projectile::Blueprint& projectileBlueprint) {
@@ -72,7 +72,7 @@ Projectile::Blueprint ProjectileWeapon::getProjectileBluePrint(void) const {
 }
 
 bool ProjectileWeapon::isAnimationInProgress(void) {
-    return projectilePool->getNumProjectilesForOwner(owner) > 0;
+    return context->getProjectilePool()->getNumProjectilesForOwner(owner) > 0;
 }
 
 Weapon::Type ProjectileWeapon::getType(void) const {

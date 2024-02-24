@@ -8,19 +8,17 @@
 
 class ProjectileWeapon : public Weapon {
 private:
-    ProjectilePool* projectilePool;
     Projectile::Blueprint projectileBlueprint;
 
-    bool onUse(const glm::ivec2& position, const glm::ivec2& target);
+    bool onUse(const glm::ivec2& position, const glm::ivec2& target, bool isAnimationOnly);
+    void apply(const glm::ivec2& position, const glm::ivec2& target);
 
 public:
     ProjectileWeapon(
         Entity* owner,
-        Grid* grid,
-        EntityPool* entityPool,
-        ProjectilePool* projectilePool,
+        ApplicationContext* context,
         Item* item,
-        EventPublisher<WeaponEventData>& publisher,
+        EventPublisher<MeleeWeaponEventData>& publisher,
         const UUID& id,
         const std::string& name, 
         const AllStats& stats, 
@@ -30,11 +28,9 @@ public:
 
     ProjectileWeapon(
         Entity* owner,
-        Grid* grid,
-        EntityPool* entityPool,
-        ProjectilePool* projectilePool,
+        ApplicationContext* context,
         Item* item,
-        EventPublisher<WeaponEventData>& publisher,
+        EventPublisher<MeleeWeaponEventData>& publisher,
         const std::string& name, 
         const AllStats& stats,
         const DamageSource& damageSource,

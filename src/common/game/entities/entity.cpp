@@ -167,9 +167,9 @@ void Entity::takeDamage(int amount) {
     currentStats.common.hp -= amount;
 }
 
-void Entity::attack(const glm::ivec2& target, const UUID& weaponId) {
+void Entity::attack(const glm::ivec2& target, const UUID& weaponId, bool isAnimationOnly) {
     // TODO: free use when not engaged
-    weapons[weaponId]->use(position, target);
+    weapons[weaponId]->use(position, target, isAnimationOnly);
 }
 
 std::vector<Weapon*> Entity::getWeapons(void) const {

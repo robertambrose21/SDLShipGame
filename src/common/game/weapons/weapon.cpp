@@ -2,10 +2,9 @@
 
 Weapon::Weapon(
     Entity* owner,
-    Grid* grid,
-    EntityPool* entityPool,
+    ApplicationContext* context,
     Item* item,
-    EventPublisher<WeaponEventData>& publisher,
+    EventPublisher<MeleeWeaponEventData>& publisher,
     const UUID& id,
     const std::string& name, 
     const AllStats& stats,
@@ -13,8 +12,7 @@ Weapon::Weapon(
 ) :
     id(id),
     owner(owner),
-    grid(grid),
-    entityPool(entityPool),
+    context(context),
     item(item),
     publisher(publisher),
     name(name),
@@ -27,23 +25,22 @@ Weapon::Weapon(
 
 Weapon::Weapon(
     Entity* owner,
-    Grid* grid,
-    EntityPool* entityPool,
+    ApplicationContext* context,
     Item* item,
-    EventPublisher<WeaponEventData>& publisher,
+    EventPublisher<MeleeWeaponEventData>& publisher,
     const std::string& name, 
     const AllStats& stats,
     const DamageSource& damageSource
 ) :
-    Weapon(owner, grid, entityPool, item, publisher, UUID::getNewUUID(), name, stats, damageSource)
+    Weapon(owner, context, item, publisher, UUID::getNewUUID(), name, stats, damageSource)
 { }
 
-void Weapon::use(const glm::ivec2& position, const glm::ivec2& target) {
+void Weapon::use(const glm::ivec2& position, const glm::ivec2& target, bool isAnimationOnly) {
     if(usesLeft <= 0) {
         return;
     }
 
-    if(!onUse(position, target)) {
+    if(!onUse(position, target, isAnimationOnly)) {
         return;
     }
     

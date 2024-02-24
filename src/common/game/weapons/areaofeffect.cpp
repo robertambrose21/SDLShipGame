@@ -8,6 +8,7 @@ AreaOfEffect::AreaOfEffect(
     uint32_t textureId,
     int ownerId,
     int liveTurn,
+    bool isAnimationOnly,
     const glm::ivec2& position, 
     const Stats& stats,
     const DamageSource& damageSource
@@ -18,13 +19,15 @@ AreaOfEffect::AreaOfEffect(
     textureId(textureId),
     ownerId(ownerId),
     liveTurn(liveTurn),
+    isAnimationOnly(isAnimationOnly),
     position(position),
     stats(stats),
     damageSource(damageSource)
 {
-    effectedTilePositions = grid->getTilesInCircle(position.x, position.y, stats.radius);
-
-    apply();
+    if(!isAnimationOnly) {
+        effectedTilePositions = grid->getTilesInCircle(position.x, position.y, stats.radius);
+        apply();
+    }
 }
 
 void AreaOfEffect::update(int64_t timeSinceLastFrame) {
@@ -41,6 +44,10 @@ void AreaOfEffect::apply(void) {
 }
 
 void AreaOfEffect::onNextTurn(int currentParticipantId, int turnNumber) {
+    if(isAnimationOnly) {
+        return;
+    }
+
     if(currentParticipantId != ownerId) {
         return;
     }

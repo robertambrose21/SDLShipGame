@@ -28,6 +28,7 @@ private:
 
     int ownerId;
     int liveTurn;
+    bool isAnimationOnly;
     glm::ivec2 position;
     Stats stats;
     DamageSource damageSource;
@@ -40,6 +41,7 @@ public:
         uint32_t textureId,
         int ownerId,
         int liveTurn,
+        bool isAnimationOnly,
         const glm::ivec2& position, 
         const Stats& stats,
         const DamageSource& damageSource

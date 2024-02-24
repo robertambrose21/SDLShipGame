@@ -9,7 +9,7 @@
 
 using json = nlohmann::json;
 
-class WeaponController : public EventPublisher<WeaponEventData> {
+class WeaponController : public EventPublisher<MeleeWeaponEventData> {
 private:
     typedef struct _weaponDefinition {
         std::string filename;

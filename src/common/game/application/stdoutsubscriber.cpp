@@ -25,7 +25,7 @@ void StdOutSubscriber::onPublish(const Event<EntityEventData>& event) {
     }
 }
 
-void StdOutSubscriber::onPublish(const Event<WeaponEventData>& event) {
+void StdOutSubscriber::onPublish(const Event<MeleeWeaponEventData>& event) {
     if(event.data.weapon->getType() != Weapon::Type::MELEE) {
         return;
     }

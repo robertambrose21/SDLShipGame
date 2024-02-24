@@ -189,7 +189,15 @@ void GameClientMessagesReceiver::receiveAttackEntity(
 
     for(auto weapon : entity->getWeapons()) {
         if(weapon->getId() == weaponId) {
-            context.getTurnController()->queueAction(std::make_unique<AttackAction>(turnNumber, entity, weapon, glm::ivec2(x, y)));
+            context.getTurnController()->queueAction(
+                std::make_unique<AttackAction>(
+                    turnNumber, 
+                    entity, 
+                    weapon, 
+                    glm::ivec2(x, y), 
+                    true
+                )
+            );
         }
     }
 }

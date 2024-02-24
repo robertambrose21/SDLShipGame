@@ -24,14 +24,14 @@ public:
         Stats stats;
         std::string name;
         uint32_t textureId;
-        std::function<void(Grid*, int, const glm::ivec2&, int)> onHitCallback;
+        std::function<void(Grid*, int, const glm::ivec2&, int, bool)> onHitCallback;
 
         _blueprint(
             const Stats& stats,
             const std::string& name,
             uint32_t textureId,
-            std::function<void(Grid*, int, const glm::ivec2&, int)> onHitCallback =
-                [](Grid*, int, const glm::ivec2&, int){ }
+            std::function<void(Grid*, int, const glm::ivec2&, int, bool)> onHitCallback =
+                [](Grid*, int, const glm::ivec2&, int, bool){ }
         ) :
             stats(stats),
             name(name),
@@ -57,52 +57,53 @@ private:
     float timeSinceLive;
     float distanceToTarget;
     float step;
+    bool isAnimationOnly;
 
     DamageSource damageSource;
 
-    // TODO: position not entity for target
-    std::function<void(Grid*, int, const glm::ivec2&, int)> onHitCallback;
+    std::function<void(Grid*, int, const glm::ivec2&, int, bool)> onHitCallback;
 
     float calculateStep(void) const;
     void doHit(const glm::ivec2& position);
+    void apply(const glm::ivec2 & position);
 
 public:
-    Projectile(
-        Grid* grid,
-        EntityPool* entityPool,
-        EventPublisher<ProjectileEventData>& publisher,
-        uint32_t textureId,
-        int ownerId,
-        const glm::ivec2& startPosition,
-        const glm::ivec2& target,
-        const Stats& stats,
-        const DamageSource& damageSource,
-        std::function<void(Grid*, int, const glm::ivec2&, int)> onHitCallback = 
-            [](Grid*, int, const glm::ivec2&, int){ }
-    );
+Projectile(
+    Grid* grid,
+    EntityPool* entityPool,
+    EventPublisher<ProjectileEventData>& publisher,
+    uint32_t textureId,
+    int ownerId,
+    const glm::ivec2& startPosition,
+    const glm::ivec2& target,
+    const Stats& stats,
+    const DamageSource& damageSource,
+    bool isAnimationOnly,
+    std::function<void(Grid*, int, const glm::ivec2&, int, bool)> onHitCallback =
+        [](Grid*, int, const glm::ivec2&, int, bool) {});
 
-    static std::unique_ptr<Projectile> create(
-        Grid* grid,
-        EntityPool* entityPool,
-        EventPublisher<ProjectileEventData>& publisher,
-        int ownerId,
-        const Blueprint& blueprint, 
-        const glm::ivec2& startPosition,
-        const glm::ivec2& target,
-        const DamageSource& damageSource
-    ) {
-        return std::make_unique<Projectile>(
-            grid,
-            entityPool,
-            publisher,
-            blueprint.textureId,
-            ownerId,
-            startPosition, 
-            target, 
-            blueprint.stats, 
-            damageSource, 
-            blueprint.onHitCallback
-        );
+static std::unique_ptr<Projectile> create(
+    Grid* grid,
+    EntityPool* entityPool,
+    EventPublisher<ProjectileEventData>& publisher,
+    int ownerId,
+    const Blueprint& blueprint,
+    const glm::ivec2& startPosition,
+    const glm::ivec2& target,
+    const DamageSource& damageSource,
+    bool isAnimationOnly) {
+    return std::make_unique<Projectile>(
+        grid,
+        entityPool,
+        publisher,
+        blueprint.textureId,
+        ownerId,
+        startPosition,
+        target,
+        blueprint.stats,
+        damageSource,
+        isAnimationOnly,
+        blueprint.onHitCallback);
     }
 
     void update(int64_t timeSinceLastFrame);

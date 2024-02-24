@@ -11,9 +11,10 @@
 #include "game/event/events.h"
 #include "game/items/equipment.h"
 #include "game/stats/stats.h"
+#include "game/application/applicationcontext.h"
 
 class Entity;
-class EntityPool;
+class ApplicationContext;
 
 class Weapon {
 public:
@@ -32,40 +33,38 @@ protected:
 
     int usesLeft;
 
-    Grid* grid;
-    EntityPool* entityPool;
-    EventPublisher<WeaponEventData>& publisher;
+    ApplicationContext* context;
+    EventPublisher<MeleeWeaponEventData>& publisher;
 
     Item* item;
 
-    virtual bool onUse(const glm::ivec2& position, const glm::ivec2& target) = 0;
+    virtual bool onUse(const glm::ivec2& position, const glm::ivec2& target, bool isAnimationOnly) = 0;
+    virtual void apply(const glm::ivec2& position, const glm::ivec2& target) = 0;
 
 public:
     Weapon(
         Entity* owner,
-        Grid* grid,
-        EntityPool* entityPool,
+        ApplicationContext* context,
         Item* item,
-        EventPublisher<WeaponEventData>& publisher,
+        EventPublisher<MeleeWeaponEventData>& publisher,
         const UUID& id,
-        const std::string& name, 
+        const std::string& name,
         const AllStats& stats,
         const DamageSource& damageSource
     );
 
     Weapon(
         Entity* owner, 
-        Grid* grid,
-        EntityPool* entityPool,
+        ApplicationContext* context,
         Item* item,
-        EventPublisher<WeaponEventData>& publisher,
+        EventPublisher<MeleeWeaponEventData>& publisher,
         const std::string& name, 
         const AllStats& stats,
         const DamageSource& damageSource
     );
 
     // TODO: Take an exact damage value
-    void use(const glm::ivec2& position, const glm::ivec2& target);
+    void use(const glm::ivec2& position, const glm::ivec2& target, bool isAnimationOnly = false);
     void reset(void);
     void setFinished(void);
     virtual bool isInRange(const glm::ivec2& position);

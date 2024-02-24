@@ -40,7 +40,7 @@ struct ProjectileEventData {
     int damage;
 };
 
-struct WeaponEventData {
+struct MeleeWeaponEventData {
     Entity* owner;
     Entity* target;
     Weapon* weapon;

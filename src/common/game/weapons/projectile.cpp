@@ -11,7 +11,8 @@ Projectile::Projectile(
     const glm::ivec2& target,
     const Stats& stats,
     const DamageSource& damageSource,
-    std::function<void(Grid*, int, const glm::ivec2&, int)> onHitCallback
+    bool isAnimationOnly,
+    std::function<void(Grid*, int, const glm::ivec2&, int, bool)> onHitCallback
 ) :
     grid(grid),
     entityPool(entityPool),
@@ -23,6 +24,7 @@ Projectile::Projectile(
     target(target),
     stats(stats),
     damageSource(damageSource),
+    isAnimationOnly(isAnimationOnly),
     onHitCallback(onHitCallback),
     timeSinceLive(0.0f)
 {
@@ -53,35 +55,40 @@ Projectile::Stats Projectile::getStats(void) const {
 }
 
 void Projectile::doHit(const glm::ivec2& position) {
+    onHitCallback(grid, ownerId, position, 1, isAnimationOnly);
+
+    if(!isAnimationOnly) {
+        apply(position);
+    }
+}
+
+void Projectile::apply(const glm::ivec2& position) {
     auto entity = Entity::filterByTile(
-        position.x, 
-        position.y, 
-        entityPool->getEntities(), 
-        ownerId
-    );
+        position.x,
+        position.y,
+        entityPool->getEntities(),
+        ownerId);
 
     int damage = 0;
 
-    onHitCallback(grid, ownerId, position, 1);
-
-    if(entity != nullptr) {
+    if (entity != nullptr) {
         damage = damageSource.apply(entity);
 
         // Effects could be applied from damage source too?
-        for(auto const& effect : stats.effects) {
-            if(effect.name == "freeze") {
+        for (auto const& effect : stats.effects) {
+            if (effect.name == "freeze") {
                 entity->setFrozenFor(effect.duration);
             }
         }
     }
     // TODO: This is just an onHitCallback
     else {
-        for(auto const& effect : stats.effects) {
-            if(effect.name == "freeze") {
+        for (auto const& effect : stats.effects) {
+            if (effect.name == "freeze") {
                 glm::ivec2 dir = startPosition - target;
                 auto perp = glm::normalize(glm::vec2(dir.y, -dir.x));
-                auto pX = std::min(grid->getWidth() - 1, (int) std::round(perp.x));
-                auto pY = std::min(grid->getHeight() - 1, (int) std::round(perp.y));
+                auto pX = std::min(grid->getWidth() - 1, (int)std::round(perp.x));
+                auto pY = std::min(grid->getHeight() - 1, (int)std::round(perp.y));
 
                 // TODO: Colour/unfreeze tiles after some time
                 grid->setTileFrozenFor(position.x, position.y, effect.duration);
@@ -91,7 +98,7 @@ void Projectile::doHit(const glm::ivec2& position) {
         }
     }
 
-    publisher.publish<ProjectileEventData>({ this, entity, position, damage });
+    publisher.publish<ProjectileEventData>({this, entity, position, damage});
 }
 
 float Projectile::calculateStep(void) const {
