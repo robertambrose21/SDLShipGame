@@ -47,6 +47,7 @@ private:
         int turnNumber
     );
     void receiveEngagement(int participantIdA, int participantIdB, int type);
+    void receiveApplyDamageMessage(int fromId, uint32_t targetId, uint8_t source, int damage);
 
 public:
     GameClientMessagesReceiver(ApplicationContext& context);

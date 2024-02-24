@@ -111,6 +111,50 @@ void GameServerMessagesTransmitter::onPublish(const Event<EngagementEventData>& 
     }
 }
 
+void GameServerMessagesTransmitter::onPublish(const Event<AreaOfEffectEventData>& event) {
+    for(auto [participantId, clientIndex] : turnController->getAllAttachedClients()) {
+        ApplyDamageMessage* message = (ApplyDamageMessage*) server.createMessage(clientIndex, GameMessageType::APPLY_DAMAGE);
+
+        message->fromId = event.data.aoe->getOwnerId();
+        message->targetId = event.data.target->getId();
+        message->source = 0;
+        message->damage = event.data.damage;
+
+        server.sendMessage(clientIndex, message);
+    }
+}
+
+void GameServerMessagesTransmitter::onPublish(const Event<ProjectileEventData>& event) {
+    // TODO: Handle status effects
+    if(event.data.target == nullptr) {
+        return;
+    }
+
+    for(auto [participantId, clientIndex] : turnController->getAllAttachedClients()) {
+        ApplyDamageMessage* message = (ApplyDamageMessage*) server.createMessage(clientIndex, GameMessageType::APPLY_DAMAGE);
+
+        message->fromId = event.data.projectile->getOwnerId();
+        message->targetId = event.data.target->getId();
+        message->source = 1;
+        message->damage = event.data.damage;
+
+        server.sendMessage(clientIndex, message);
+    }
+}
+
+void GameServerMessagesTransmitter::onPublish(const Event<MeleeWeaponEventData>& event) {
+    for(auto [participantId, clientIndex] : turnController->getAllAttachedClients()) {
+        ApplyDamageMessage* message = (ApplyDamageMessage*) server.createMessage(clientIndex, GameMessageType::APPLY_DAMAGE);
+
+        message->fromId = event.data.owner->getParticipantId();
+        message->targetId = event.data.target->getId();
+        message->source = 2;
+        message->damage = event.data.damage;
+
+        server.sendMessage(clientIndex, message);
+    }
+}
+
 void GameServerMessagesTransmitter::sendSetParticipant(
     int clientIndex, 
     TurnController::Participant* participant

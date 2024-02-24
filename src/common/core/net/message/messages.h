@@ -24,6 +24,7 @@ enum class GameMessageType {
     ENGAGEMENT,
     EQUIP_ITEM,
     EQUIP_WEAPON,
+    APPLY_DAMAGE,
     COUNT
 };
 
@@ -456,6 +457,32 @@ public:
     YOJIMBO_VIRTUAL_SERIALIZE_FUNCTIONS();
 };
 
+class ApplyDamageMessage : public yojimbo::Message {
+public:
+    int fromId;
+    uint32_t targetId;
+    uint8_t source;
+    int damage;
+
+    ApplyDamageMessage() :
+        fromId(0),
+        targetId(0),
+        source(0),
+        damage(0)
+    { }
+
+    template <typename Stream>
+    bool Serialize(Stream& stream) {
+        serialize_int(stream, fromId, 0, 64);
+        serialize_uint32(stream, targetId);
+        serialize_bits(stream, source, 8);
+        serialize_int(stream, damage, 0, 4096);
+        return true;
+    }
+
+    YOJIMBO_VIRTUAL_SERIALIZE_FUNCTIONS();
+};
+
 YOJIMBO_MESSAGE_FACTORY_START(GameMessageFactory, (int)GameMessageType::COUNT);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::FIND_PATH, FindPathMessage);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::SELECT_ENTITY, SelectEntityMessage);
@@ -474,4 +501,5 @@ YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::TAKE_ITEMS, TakeItemsMessage)
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::ENGAGEMENT, EngagementMessage);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::EQUIP_ITEM, EquipItemMessage);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::EQUIP_WEAPON, EquipWeaponMessage);
+YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::APPLY_DAMAGE, ApplyDamageMessage);
 YOJIMBO_MESSAGE_FACTORY_FINISH();

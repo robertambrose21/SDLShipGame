@@ -24,8 +24,9 @@ AreaOfEffect::AreaOfEffect(
     stats(stats),
     damageSource(damageSource)
 {
+    effectedTilePositions = grid->getTilesInCircle(position.x, position.y, stats.radius);
+
     if(!isAnimationOnly) {
-        effectedTilePositions = grid->getTilesInCircle(position.x, position.y, stats.radius);
         apply();
     }
 }

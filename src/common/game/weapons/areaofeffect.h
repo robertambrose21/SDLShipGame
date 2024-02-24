@@ -11,6 +11,7 @@ class AreaOfEffect;
 
 class AreaOfEffect {
 public:
+    // TODO: Use AllStats structure
     typedef struct _stats {
         float radius;
         int turns;

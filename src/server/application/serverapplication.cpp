@@ -65,6 +65,9 @@ void ServerApplication::initialise(void) {
     context.getTurnController()->subscribe<AttackActionEventData>(transmitter.get());
     context.getTurnController()->subscribe<TakeItemActionEventData>(transmitter.get());
     context.getTurnController()->subscribe<EngagementEventData>(transmitter.get());
+    context.getAreaOfEffectPool()->subscribe<AreaOfEffectEventData>(transmitter.get());
+    context.getProjectilePool()->subscribe<ProjectileEventData>(transmitter.get());
+    context.getWeaponController()->subscribe<MeleeWeaponEventData>(transmitter.get());
 
     application->addLogicWorker([&](ApplicationContext& c, auto const& timeSinceLastFrame, auto& quit) {
         server->update(timeSinceLastFrame);
