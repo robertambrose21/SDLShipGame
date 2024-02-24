@@ -12,7 +12,7 @@ Projectile::Projectile(
     const Stats& stats,
     const DamageSource& damageSource,
     bool isAnimationOnly,
-    std::function<void(Grid*, int, const glm::ivec2&, int, bool)> onHitCallback
+    std::function<void(int, const glm::ivec2&, int, bool)> onHitCallback
 ) :
     grid(grid),
     entityPool(entityPool),
@@ -55,7 +55,7 @@ Projectile::Stats Projectile::getStats(void) const {
 }
 
 void Projectile::doHit(const glm::ivec2& position) {
-    onHitCallback(grid, ownerId, position, 1, isAnimationOnly);
+    onHitCallback(ownerId, position, 1, isAnimationOnly);
 
     if(!isAnimationOnly) {
         apply(position);
