@@ -8,6 +8,7 @@ add_library(
     ${PROJECT_NAME}
     effects/effecttypes.h
     effects/effect.cpp
+    effects/grideffect.cpp
     effects/effectcontroller.cpp
     entities/entity.cpp 
     entities/entitypool.cpp 

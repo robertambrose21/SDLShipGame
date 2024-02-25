@@ -67,7 +67,7 @@ void GridRenderer::draw(
     SDL_Rect dst = { realPosition.x, realPosition.y, getTileSize(), getTileSize() };
     graphicsContext.getTextureLoader().loadTexture(textureId)->draw(renderer, NULL, &dst);
 
-    if(grid->getTileAt(position.x, position.y).turnsFrozenFor > 0) {
+    if(grid->getTileAt(position.x, position.y).isFrozen) {
         SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
         SDL_SetRenderDrawColor(renderer, 0x00, 0xFF, 0xFF, 0x7F);
         SDL_RenderFillRect(renderer, &dst);

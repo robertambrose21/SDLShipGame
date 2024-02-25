@@ -95,7 +95,7 @@ struct TileEventData {
     int x, y;
     int id;
     bool isWalkable;
-    int turnsFrozenFor;
+    bool isFrozen;
 };
 
 struct EquipItemActionEventData {

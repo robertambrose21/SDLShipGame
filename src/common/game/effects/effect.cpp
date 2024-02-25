@@ -26,8 +26,7 @@ Entity* Effect::getTarget(void) {
 
 
 FreezeEffect::FreezeEffect(Entity* target, int duration) :
-    Effect(target, duration),
-    direction(glm::ivec2(0, 0))
+    Effect(target, duration)
 { }
 
 void FreezeEffect::doApply(void) {
@@ -36,10 +35,6 @@ void FreezeEffect::doApply(void) {
 
 EffectType FreezeEffect::getType(void) const {
     return EffectType::FREEZE;
-}
-
-void FreezeEffect::setDirection(const glm::ivec2& direction) {
-    this->direction = direction;
 }
 
 

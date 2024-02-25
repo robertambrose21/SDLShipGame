@@ -4,10 +4,12 @@
 #include <vector>
 
 #include "effect.h"
+#include "grideffect.h"
 
 class EffectController {
 private:
-    std::map<uint32_t, std::vector<std::unique_ptr<Effect>>> effects; // vector of effects
+    std::map<uint32_t, std::vector<std::unique_ptr<Effect>>> effects;
+    std::vector<std::unique_ptr<GridEffect>> gridEffects;
 
 public:
     EffectController();
@@ -15,4 +17,5 @@ public:
     void onNextTurn(void);
 
     Effect* addEffect(std::unique_ptr<Effect> effect);
+    GridEffect* addGridEffect(std::unique_ptr<GridEffect> effect);
 };

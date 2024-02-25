@@ -26,16 +26,11 @@ public:
 };
 
 class FreezeEffect : public Effect {
-private:
-    glm::ivec2 direction;
-
 public:
     FreezeEffect(Entity* target, int duration);
 
     void doApply(void);
     EffectType getType(void) const;
-
-    void setDirection(const glm::ivec2& direction);
 };
 
 class PoisonEffect : public Effect {

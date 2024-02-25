@@ -19,7 +19,7 @@ public:
     typedef struct _tile {
         int id;
         bool isWalkable = true;
-        int turnsFrozenFor = 0;
+        bool isFrozen = false;
     } Tile;
 private:
     int width;
@@ -63,7 +63,7 @@ public:
 
     void setTile(int x, int y, const Tile& tile);
     void setTileWalkable(int x, int y, bool isWalkable);
-    void setTileFrozenFor(int x, int y, int turnsFrozenFor);
+    void setTileFrozen(int x, int y, bool isFrozen);
 
     // Expects points to be in tile space.
     // e.g. the line (0, 0) -> (1, 1) in a 3x3 grid will check a 4x4 square of tiles like so:
