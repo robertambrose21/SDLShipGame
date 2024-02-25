@@ -4,22 +4,25 @@
 
 #include "game/entities/entity.h"
 #include "effecttypes.h"
+#include "game/stats/stats.h"
 
 class Effect {
 protected:
     Entity* target;
-    int duration;
+    int ticksLeft;
+    EffectStats stats;
 
     virtual void doApply(void) = 0;
 
 public:
-    Effect(Entity* target, int duration);
+    Effect(Entity* target, const EffectStats& stats);
 
     virtual EffectType getType(void) const = 0;
 
     void apply(void);
 
-    int getDuration(void) const;
+    EffectStats getStats(void) const;
+    int getTicksLeft(void) const;
     void nextTurn(void);
 
     Entity* getTarget(void);
@@ -27,22 +30,16 @@ public:
 
 class FreezeEffect : public Effect {
 public:
-    FreezeEffect(Entity* target, int duration);
+    FreezeEffect(Entity* target, const EffectStats& stats);
 
     void doApply(void);
     EffectType getType(void) const;
 };
 
 class PoisonEffect : public Effect {
-private:
-    std::vector<int> damageTicks;
-    int totalTicks;
-
 public:
-    PoisonEffect(Entity* target, const std::vector<int>& damageTicks);
+    PoisonEffect(Entity* target, const EffectStats& stats);
 
     void doApply(void);
     EffectType getType(void) const;
-
-    const std::vector<int>& getDamageTicks(void) const;
 };

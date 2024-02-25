@@ -70,15 +70,17 @@ std::map<std::string, std::string> WeaponStats::getValues(void) {
 
 
 EffectStats::EffectStats() :
-    duration(0),
-    damagePerTick(0)
+    duration(0)
 { }
 
-EffectStats::EffectStats(EffectType type, int duration, int damagePerTick) :
+EffectStats::EffectStats(EffectType type, int duration, const std::vector<int>& damageTicks) :
     type(type),
     duration(duration),
-    damagePerTick(damagePerTick)
-{ }
+    damageTicks(damageTicks)
+{
+    // TODO: Proper handling
+    game_assert(damageTicks.size() <= duration);
+}
 
 void EffectStats::add(const EffectStats& other) {
     if(type != other.type) {
@@ -86,7 +88,6 @@ void EffectStats::add(const EffectStats& other) {
     }
 
     duration += other.duration;
-    damagePerTick += other.damagePerTick;
 }
 
 void EffectStats::remove(const EffectStats& other) {
@@ -95,7 +96,6 @@ void EffectStats::remove(const EffectStats& other) {
     }
 
     duration -= other.duration;
-    damagePerTick -= other.damagePerTick;
 }
 
 std::map<std::string, std::string> EffectStats::getValues(void) {
@@ -115,7 +115,7 @@ std::map<std::string, std::string> EffectStats::getValues(void) {
     }
 
     if(duration != 0) values["Duration"] = std::to_string(duration);
-    if(damagePerTick != 0) values["Damage per tick"] = std::to_string(damagePerTick);
+    if(!damageTicks.empty()) values["Damage per tick"] = std::to_string(damageTicks[0]);
 
     return values;
 }

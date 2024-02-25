@@ -6,6 +6,7 @@
 #include <algorithm>
 
 #include "game/effects/effecttypes.h"
+#include "core/util/gameassert.h"
 
 template<class T>
 class Stats {
@@ -50,10 +51,10 @@ class EffectStats : Stats<EffectStats> {
 public:
     EffectType type;
     int duration;
-    int damagePerTick;
+    std::vector<int> damageTicks;
 
     EffectStats();
-    EffectStats(EffectType type, int duration, int damagePerTick);
+    EffectStats(EffectType type, int duration, const std::vector<int>& damageTicks);
 
     void add(const EffectStats& other);
     void remove(const EffectStats& other);

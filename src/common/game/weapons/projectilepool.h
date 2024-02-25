@@ -18,7 +18,7 @@ private:
     typedef struct _effectDefinition {
         EffectType type;
         int duration;
-        int damagePerTick;
+        std::vector<int> damageTicks;
     } EffectDefintion;
 
     typedef struct _projectileDefinition {

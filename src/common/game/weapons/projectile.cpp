@@ -75,13 +75,11 @@ void Projectile::apply(const glm::ivec2& position) {
         for (auto& effect : stats.effects) {
             switch(effect.type) {
             case FREEZE:
-                context->getEffectController()->addEffect(std::make_unique<FreezeEffect>(entity, effect.duration));
+                context->getEffectController()->addEffect(std::make_unique<FreezeEffect>(entity, effect));
                 break;
 
             case POISON: {
-                auto damageTicks = std::vector<int>(effect.duration);
-                std::fill(damageTicks.begin(), damageTicks.end(), effect.damagePerTick);
-                context->getEffectController()->addEffect(std::make_unique<PoisonEffect>(entity, damageTicks));
+                context->getEffectController()->addEffect(std::make_unique<PoisonEffect>(entity, effect));
                 break;
             }
 
@@ -114,26 +112,8 @@ void Projectile::apply(const glm::ivec2& position) {
             default:
                 break;
             }
-
-            // // TODO: Colour/unfreeze tiles after some time
-            // grid->setTileFrozenFor(position.x, position.y, effect.duration);
-            // grid->setTileFrozenFor(position.x + pX, position.y + pY, effect.duration);
-            // grid->setTileFrozenFor(position.x - pX, position.y - pY, effect.duration);
         }
 
-        // for (auto const& effect : stats.effects) {
-        //     if (effect.name == "freeze") {
-        //         glm::ivec2 dir = startPosition - target;
-        //         auto perp = glm::normalize(glm::vec2(dir.y, -dir.x));
-        //         auto pX = std::min(grid->getWidth() - 1, (int)std::round(perp.x));
-        //         auto pY = std::min(grid->getHeight() - 1, (int)std::round(perp.y));
-
-        //         // TODO: Colour/unfreeze tiles after some time
-        //         grid->setTileFrozenFor(position.x, position.y, effect.duration);
-        //         grid->setTileFrozenFor(position.x + pX, position.y + pY, effect.duration);
-        //         grid->setTileFrozenFor(position.x - pX, position.y - pY, effect.duration);
-        //     }
-        // }
     }
 
     publisher.publish<ProjectileEventData>({ this, entity, position, damage });

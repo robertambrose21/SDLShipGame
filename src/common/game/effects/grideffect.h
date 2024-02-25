@@ -20,6 +20,8 @@ public:
     void apply(void);
 
     int getDuration(void) const;
+    int getX(void) const;
+    int getY(void) const;
     void nextTurn(void);
 };
 

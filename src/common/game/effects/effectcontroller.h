@@ -5,8 +5,11 @@
 
 #include "effect.h"
 #include "grideffect.h"
+#include "game/event/events.h"
+#include "core/event/eventpublisher.h"
 
-class EffectController {
+class EffectController : public EventPublisher<EntityEffectEvent, GridEffectEvent>
+{
 private:
     std::map<uint32_t, std::vector<std::unique_ptr<Effect>>> effects;
     std::vector<std::unique_ptr<GridEffect>> gridEffects;

@@ -3,6 +3,8 @@
 #include <vector>
 #include "core/glmimport.h"
 #include "core/util/idgenerator.h"
+#include "game/effects/effecttypes.h"
+#include "game/stats/stats.h"
 
 class Entity;
 class Item;
@@ -111,4 +113,16 @@ struct EquipWeaponActionEventData {
     Entity* entity;
     Item* item;
     UUID weaponId;
+};
+
+struct EntityEffectEvent {
+    EffectType type;
+    Entity* target;
+    EffectStats stats;
+};
+
+struct GridEffectEvent {
+    EffectType type;
+    int x, y;
+    int duration;
 };

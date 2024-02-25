@@ -40,7 +40,10 @@ void ProjectilePool::loadProjectileDefinitions(void) {
                     auto poison = effect["poison"].get<json>();
                     auto duration = poison["duration"].get<int>();
                     auto damagePerTick = poison["damagePerTick"].get<int>();
-                    definition.effects.push_back({ EffectType::POISON, duration, damagePerTick });
+                    
+                    std::vector<int> damageTicks(duration);
+                    std::fill(damageTicks.begin(), damageTicks.end(), damagePerTick);
+                    definition.effects.push_back({ EffectType::POISON, duration, damageTicks });
                 }
             }
         }
@@ -67,7 +70,7 @@ std::vector<EffectStats> ProjectilePool::buildEffectStats(const ProjectileDefini
     std::vector<EffectStats> effects;
 
     for(auto effect : definition.effects) {
-        effects.push_back({ effect.type, effect.duration, effect.damagePerTick });
+        effects.push_back({ effect.type, effect.duration, effect.damageTicks });
     }
 
     return effects;

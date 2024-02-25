@@ -17,6 +17,14 @@ int GridEffect::getDuration(void) const {
     return duration;
 }
 
+int GridEffect::getX(void) const {
+    return x;
+}
+
+int GridEffect::getY(void) const {
+    return y;
+}
+
 void GridEffect::nextTurn(void) {
     duration--;
 }
