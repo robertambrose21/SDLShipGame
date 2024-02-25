@@ -177,7 +177,9 @@ void TurnController::nextParticipantTurn(void) {
 
     currentParticipantId = (currentParticipantId + 1) % participants.size();
 
-    removeInactiveEntities(participants[currentParticipantId]->entities);
+    context->getEffectController()->onNextTurn();
+
+    incrementEntitiesTurn(participants[currentParticipantId]->entities);
 
     for(auto const& onNextTurnFunc : onNextTurnWorkers) {
         onNextTurnFunc(currentParticipantId, turnNumber);
@@ -186,7 +188,7 @@ void TurnController::nextParticipantTurn(void) {
     incrementTurn();
 }
 
-void TurnController::removeInactiveEntities(std::vector<Entity*> entities) {
+void TurnController::incrementEntitiesTurn(std::vector<Entity*> entities) {
     std::set<Entity*> entitiesForDeletion;
 
     for(auto const& entity : entities) {

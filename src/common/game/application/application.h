@@ -10,6 +10,7 @@
 #include "game/weapons/meleeweapon.h"
 #include "game/weapons/weaponcontroller.h"
 #include "game/items/itemcontroller.h"
+#include "game/effects/effectcontroller.h"
 
 class WeaponController;
 
@@ -22,6 +23,7 @@ private:
     std::unique_ptr<AreaOfEffectPool> areaOfEffectPool;
     std::unique_ptr<TurnController> turnController;
     std::unique_ptr<ItemController> itemController;
+    std::unique_ptr<EffectController> effectController;
 
     std::unique_ptr<ApplicationContext> context;
 
@@ -35,7 +37,8 @@ public:
         std::unique_ptr<ProjectilePool> projectilePool,
         std::unique_ptr<AreaOfEffectPool> areaOfEffectPool,
         std::unique_ptr<TurnController> turnController,
-        std::unique_ptr<ItemController> itemController
+        std::unique_ptr<ItemController> itemController,
+        std::unique_ptr<EffectController> effectController
     );
 
     ApplicationContext& getContext(void);

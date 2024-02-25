@@ -20,7 +20,8 @@ void ServerApplication::initialise(void) {
         std::make_unique<ProjectilePool>(),
         std::make_unique<AreaOfEffectPool>(),
         std::make_unique<ServerTurnController>(),
-        std::make_unique<ItemController>()
+        std::make_unique<ItemController>(),
+        std::make_unique<EffectController>()
     );
 
     auto& context = application->getContext();

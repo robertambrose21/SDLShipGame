@@ -1,19 +1,13 @@
 #include "effect.h"
 
-Effect::Effect(ApplicationContext* context, int duration) :
-    context(context),
+Effect::Effect(Entity* target, int duration) :
+    target(target),
     duration(duration)
 { }
 
-void Effect::apply(Entity* target) {
+void Effect::apply(void) {
     if(duration > 0) {
-        doApply(target);
-    }
-}
-
-void Effect::apply(const glm::ivec2& target) {
-    if(duration > 0) {
-        doApply(target);
+        doApply();
     }
 }
 
@@ -25,27 +19,19 @@ void Effect::nextTurn(void) {
     duration--;
 }
 
+Entity* Effect::getTarget(void) {
+    return target;
+}
 
 
-FreezeEffect::FreezeEffect(ApplicationContext* context, int duration) :
-    Effect(context, duration),
+
+FreezeEffect::FreezeEffect(Entity* target, int duration) :
+    Effect(target, duration),
     direction(glm::ivec2(0, 0))
 { }
 
-void FreezeEffect::doApply(Entity* target) {
+void FreezeEffect::doApply(void) {
     target->setFrozen(true);
-}
-
-void FreezeEffect::doApply(const glm::ivec2& target) {
-    auto grid = context->getGrid();
-
-    auto perp = glm::normalize(glm::vec2(direction.y, -direction.x));
-    auto pX = std::min(grid->getWidth() - 1, (int)std::round(perp.x));
-    auto pY = std::min(grid->getHeight() - 1, (int)std::round(perp.y));
-
-    grid->setTileFrozenFor(target.x, target.y, duration);
-    grid->setTileFrozenFor(target.x + pX, target.y + pY, duration);
-    grid->setTileFrozenFor(target.x - pX, target.y - pY, duration);
 }
 
 EffectType FreezeEffect::getType(void) const {
@@ -58,20 +44,15 @@ void FreezeEffect::setDirection(const glm::ivec2& direction) {
 
 
 
-PoisonEffect::PoisonEffect(ApplicationContext* context, const std::vector<int>& damageTicks) :
-    Effect(context, damageTicks.size()),
+PoisonEffect::PoisonEffect(Entity* target, const std::vector<int>& damageTicks) :
+    Effect(target, damageTicks.size()),
     damageTicks(damageTicks),
     totalTicks(damageTicks.size())
 { }
 
-void PoisonEffect::doApply(Entity* target) {
+void PoisonEffect::doApply(void) {
     target->setIsPoisoned(true);
     target->takeDamage(damageTicks[totalTicks - duration]);
-    std::cout << "Took " << damageTicks[totalTicks - duration] << " damage" << std::endl;
-}
-
-void PoisonEffect::doApply(const glm::ivec2& target) {
-    // no-op
 }
 
 EffectType PoisonEffect::getType(void) const {

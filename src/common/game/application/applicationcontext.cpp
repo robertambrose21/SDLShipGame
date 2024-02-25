@@ -7,7 +7,8 @@ ApplicationContext::ApplicationContext(
     ProjectilePool* projectilePool,
     AreaOfEffectPool* areaOfEffectPool,
     TurnController* turnController,
-    ItemController* itemController
+    ItemController* itemController,
+    EffectController* effectController
 ) :
     grid(grid),
     entityPool(entityPool),
@@ -15,7 +16,8 @@ ApplicationContext::ApplicationContext(
     projectilePool(projectilePool),
     areaOfEffectPool(areaOfEffectPool),
     turnController(turnController),
-    itemController(itemController)
+    itemController(itemController),
+    effectController(effectController)
 { }
 
 EntityPool* ApplicationContext::getEntityPool(void) {
@@ -40,6 +42,10 @@ TurnController* ApplicationContext::getTurnController(void) {
 
 ItemController* ApplicationContext::getItemController(void) {
     return itemController;
+}
+
+EffectController* ApplicationContext::getEffectController(void) {
+    return effectController;
 }
 
 Grid* ApplicationContext::getGrid(void) {

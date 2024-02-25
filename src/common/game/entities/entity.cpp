@@ -344,22 +344,14 @@ void Entity::useMoves(int numMoves) {
 
 void Entity::nextTurn(void) {
     reset();
-
-    std::erase_if(effects, [](const auto& effect) {
-        return effect->getDuration() <= 0;
-    });
-
-    isFrozen = false;
-
-    for(auto& effect : effects) {
-        effect->apply(this);
-        effect->nextTurn();
-    }
 }
 
 void Entity::reset(void) {
     currentStats.common.moves = baseStats.common.moves;
     path.clear();
+
+    isFrozen = false;
+    isPoisoned = false;
 
     for(auto& [_, weapon] : weapons) {
         if(weapon != nullptr) {

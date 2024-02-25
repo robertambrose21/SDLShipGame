@@ -75,28 +75,20 @@ void Projectile::apply(const glm::ivec2& position) {
         for (auto& effect : stats.effects) {
             switch(effect.type) {
             case FREEZE:
-                entity->addEffect(std::make_unique<FreezeEffect>(context, effect.duration));
+                context->getEffectController()->addEffect(std::make_unique<FreezeEffect>(entity, effect.duration));
                 break;
 
             case POISON: {
                 auto damageTicks = std::vector<int>(effect.duration);
                 std::fill(damageTicks.begin(), damageTicks.end(), effect.damagePerTick);
-                entity->addEffect(std::make_unique<PoisonEffect>(context, damageTicks));
+                context->getEffectController()->addEffect(std::make_unique<PoisonEffect>(entity, damageTicks));
                 break;
             }
 
             default:
                 break;
             }
-            // entity->addEffect();
         }
-
-        // // Effects could be applied from damage source too?
-        // for (auto const& effect : stats.effects) {
-        //     if (effect.name == "freeze") {
-        //         entity->setFrozenFor(effect.duration);
-        //     }
-        // }
     }
     // TODO: This is just an onHitCallback
     else {

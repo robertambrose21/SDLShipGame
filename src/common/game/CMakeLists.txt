@@ -8,6 +8,7 @@ add_library(
     ${PROJECT_NAME}
     effects/effecttypes.h
     effects/effect.cpp
+    effects/effectcontroller.cpp
     entities/entity.cpp 
     entities/entitypool.cpp 
     entities/behaviour/behaviourstrategy.h
