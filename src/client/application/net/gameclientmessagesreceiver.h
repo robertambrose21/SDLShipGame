@@ -51,6 +51,8 @@ private:
     );
     void receiveEngagement(int participantIdA, int participantIdB, int type);
     void receiveApplyDamageMessage(int fromId, uint32_t targetId, uint8_t source, int damage);
+    void receiveApplyEntityEffectMessage(uint8_t type, uint32_t targetId, const EffectStatsUpdate& effectStats);
+    void receiveApplyGridEffectMessage(uint8_t type, int x, int y, uint8_t duration);
 
 public:
     GameClientMessagesReceiver(ApplicationContext& context);

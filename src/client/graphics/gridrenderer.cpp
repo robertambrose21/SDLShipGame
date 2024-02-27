@@ -36,6 +36,12 @@ void GridRenderer::buildTexture(GraphicsContext& graphicsContext) {
             auto const& realPosition = getTilePosition(x, y);
             SDL_Rect dst = { realPosition.x, realPosition.y, getTileSize(), getTileSize() };
             graphicsContext.getTextureLoader().loadTexture(tileTexturesIds[data[y][x].id])->draw(renderer, NULL, &dst);
+
+            if(grid->getTileAt(x, y).isFrozen) {
+                SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+                SDL_SetRenderDrawColor(renderer, 0x00, 0xFF, 0xFF, 0x7F);
+                SDL_RenderFillRect(renderer, &dst);
+            }
         }
     }
 
@@ -47,7 +53,7 @@ void GridRenderer::buildTexture(GraphicsContext& graphicsContext) {
 }
 
 void GridRenderer::draw(GraphicsContext& graphicsContext) {
-    if(textureNeedsRebuilding) {
+    if(textureNeedsRebuilding || grid->getIsDirty()) {
         buildTexture(graphicsContext);
     }
 
@@ -89,6 +95,10 @@ void GridRenderer::draw(
 }
 
 void GridRenderer::onPublish(const Event<TileEventData>& event) {
+    textureNeedsRebuilding = true;
+}
+
+void GridRenderer::onPublish(const Event<GridEffectEvent>& event) {
     textureNeedsRebuilding = true;
 }
 

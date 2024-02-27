@@ -78,6 +78,8 @@ void ClientApplication::initialise(void) {
         }
     }
 
+    context.getEffectController()->subscribe<GridEffectEvent>(&window->getGraphicsContext().getGridRenderer());
+
     playerController = std::make_unique<PlayerController>(
         *clientMessagesTransmitter,
         application->getContext(), 

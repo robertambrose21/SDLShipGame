@@ -431,14 +431,6 @@ int Entity::getParticipantId(void) const {
     return participantId;
 }
 
-void Entity::addEffect(std::unique_ptr<Effect> effect) {
-    effects.push_back(std::move(effect));
-}
-
-const std::vector<std::unique_ptr<Effect>>& Entity::getEffects(void) const {
-    return effects;
-}
-
 bool Entity::getIsFrozen(void) const {
     return isFrozen;
 }

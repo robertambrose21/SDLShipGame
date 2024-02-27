@@ -177,8 +177,6 @@ void TurnController::nextParticipantTurn(void) {
 
     currentParticipantId = (currentParticipantId + 1) % participants.size();
 
-    context->getEffectController()->onNextTurn();
-
     incrementEntitiesTurn(participants[currentParticipantId]->entities);
 
     for(auto const& onNextTurnFunc : onNextTurnWorkers) {
@@ -186,6 +184,8 @@ void TurnController::nextParticipantTurn(void) {
     }
 
     incrementTurn();
+
+    context->getEffectController()->onNextTurn();
 }
 
 void TurnController::incrementEntitiesTurn(std::vector<Entity*> entities) {

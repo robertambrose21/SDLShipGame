@@ -111,6 +111,27 @@ void GameClientMessagesReceiver::receiveMessage(yojimbo::Message* message) {
             break;
         }
 
+        case (int) GameMessageType::APPLY_ENTITY_EFFECT: {
+            ApplyEntityEffectMessage* applyEntityEffectMessage = (ApplyEntityEffectMessage*) message;
+            receiveApplyEntityEffectMessage(
+                applyEntityEffectMessage->type,
+                applyEntityEffectMessage->targetId,
+                applyEntityEffectMessage->effectStats
+            );
+            break;
+        }
+
+        case (int) GameMessageType::APPLY_GRID_EFFECT: {
+            ApplyGridEffectMessage* applyGridEffectMessage = (ApplyGridEffectMessage*) message;
+            receiveApplyGridEffectMessage(
+                applyGridEffectMessage->type,
+                applyGridEffectMessage->x,
+                applyGridEffectMessage->y,
+                applyGridEffectMessage->duration
+            );
+            break;
+        }
+
         default:
             std::cout << "Received unhandled message: " << message << std::endl;
             break;
@@ -290,4 +311,45 @@ void GameClientMessagesReceiver::receiveApplyDamageMessage(int fromId, uint32_t 
     entity->takeDamage(damage);
 
     publish<ApplyDamageEventData>({ fromId, entity, (DamageType) source, damage });
+}
+
+void GameClientMessagesReceiver::receiveApplyEntityEffectMessage(uint8_t type, uint32_t targetId, const EffectStatsUpdate& effectStats) {
+    auto entityPool = context.getEntityPool();
+
+    if(!entityPool->hasEntity(targetId)) {
+        return;
+    }
+
+    auto const& target = entityPool->getEntity(targetId);
+
+    std::vector<int> damageTicks;
+    for(int i = 0; i < effectStats.numDamageTicks; i++) {
+        damageTicks.push_back(effectStats.damageTicks[i]);
+    }
+
+    auto stats = EffectStats((EffectType) effectStats.effectType, effectStats.duration, damageTicks);
+
+    switch((EffectType) type) {
+        case FREEZE:
+            context.getEffectController()->addEffect(std::make_unique<FreezeEffect>(target, stats));
+            break;
+
+        case POISON:
+            context.getEffectController()->addEffect(std::make_unique<PoisonEffect>(target, stats));
+            break;
+
+        default:
+            break;
+    }
+}
+
+void GameClientMessagesReceiver::receiveApplyGridEffectMessage(uint8_t type, int x, int y, uint8_t duration) {
+    switch((EffectType) type) {
+        case FREEZE:
+            context.getEffectController()->addGridEffect(std::make_unique<GridFreezeEffect>(context.getGrid(), x, y, duration));
+            break;
+
+        default:
+            break;
+    }
 }

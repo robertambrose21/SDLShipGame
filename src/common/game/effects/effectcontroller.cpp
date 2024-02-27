@@ -12,6 +12,7 @@ void EffectController::onNextTurn(void) {
 
         for(auto& effect : entityEffects) {
             effect->apply();
+            effect->nextTurn();
         }
     }
 
@@ -22,6 +23,7 @@ void EffectController::onNextTurn(void) {
 
     for(auto& effect : gridEffects) {
         effect->apply();
+        effect->nextTurn();
     }
 }
 
@@ -29,6 +31,7 @@ Effect* EffectController::addEffect(std::unique_ptr<Effect> effect) {
     auto entityId = effect->getTarget()->getId();
     auto effectPtr = effect.get();
     effects[entityId].push_back(std::move(effect));
+    effectPtr->apply();
 
     publish<EntityEffectEvent>({ 
         effectPtr->getType(), 
@@ -42,6 +45,7 @@ Effect* EffectController::addEffect(std::unique_ptr<Effect> effect) {
 GridEffect* EffectController::addGridEffect(std::unique_ptr<GridEffect> effect) {
     auto effectPtr = effect.get();
     gridEffects.push_back(std::move(effect));
+    effectPtr->apply();
 
     publish<GridEffectEvent>({ 
         effectPtr->getType(), 

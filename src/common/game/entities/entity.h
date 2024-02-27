@@ -64,7 +64,6 @@ private:
 
     AllStats baseStats;
     AllStats currentStats;
-    std::vector<std::unique_ptr<Effect>> effects;
     std::unique_ptr<Equipment> equipment[Equipment::Slot::COUNT];
 
     std::map<UUID, std::unique_ptr<Weapon>> weapons;
@@ -226,10 +225,7 @@ public:
     void nextTurn(void);
     void endTurn(void);
     void reset(void);
-
-    void addEffect(std::unique_ptr<Effect> effect);
-    const std::vector<std::unique_ptr<Effect>>& getEffects(void) const;
-
+    
     bool getIsFrozen(void) const;
     void setFrozen(bool isFrozen);
 

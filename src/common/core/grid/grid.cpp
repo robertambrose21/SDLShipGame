@@ -4,7 +4,7 @@ Grid::Grid(int width, int height, const std::vector<std::vector<Tile>>& data) :
     width(width),
     height(height),
     data(data),
-    isWalkableTilesDirty(true)
+    isDirty(true)
 {
     game_assert(width > 0);
     game_assert(height > 0);
@@ -20,6 +20,8 @@ void Grid::nextTurn(void) {
             data[y][x].isFrozen = false;
         }
     }
+
+    isDirty = true;
 }
 
 int Grid::getWidth(void) const {
@@ -33,24 +35,34 @@ int Grid::getHeight(void) const {
 void Grid::setTile(int x, int y, const Tile& tile) {
     game_assert(x < getWidth() && y < getHeight());
     data[y][x] = tile;
-    isWalkableTilesDirty = true;
+    isDirty = true;
 
-    publish<TileEventData>({ x, y, tile.id, tile.isWalkable, true });
+    publish<TileEventData>({ x, y, tile.id, tile.isWalkable, tile.isFrozen });
 }
 
 void Grid::setTileWalkable(int x, int y, bool isWalkable) {
     game_assert(x < getWidth() && y < getHeight());
     data[y][x].isWalkable = isWalkable;
+    isDirty = true;
 }
 
 void Grid::setTileFrozen(int x, int y, bool isFrozen) {
     game_assert(x < getWidth() && y < getHeight());
     data[y][x].isFrozen = isFrozen;
+    isDirty = true;
+}
+
+bool Grid::getIsDirty(void) const {
+    return isDirty;
+}
+
+void Grid::setDirty(void) {
+    isDirty = true;
 }
 
 void Grid::setData(const std::vector<std::vector<Tile>>& data) {
     this->data = data;
-    isWalkableTilesDirty = true;
+    isDirty = true;
 }
 
 const std::vector<std::vector<Grid::Tile>>& Grid::getData(void) const {
@@ -58,7 +70,7 @@ const std::vector<std::vector<Grid::Tile>>& Grid::getData(void) const {
 }
 
 std::vector<Grid::Tile> Grid::getWalkableTiles(void) {
-    if(isWalkableTilesDirty) {
+    if(isDirty) {
         walkableTiles.clear();
 
         for(auto y = 0; y < getHeight(); y++) {
@@ -69,7 +81,7 @@ std::vector<Grid::Tile> Grid::getWalkableTiles(void) {
             }
         }
 
-        isWalkableTilesDirty = false;
+        isDirty = false;
     }
 
     return walkableTiles;
