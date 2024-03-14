@@ -57,14 +57,17 @@ std::unique_ptr<Weapon> WeaponController::createWeapon(
     auto definition = weaponDefinitions[name];
     auto item = getItem(definition.item, owner);
 
-    auto stats = AllStats();
-    stats.weapon = WeaponStats(definition.range, definition.uses, definition.power);
-    if(item != nullptr) {
-        item->addStats(stats);
-        stats.common = item->getStats().common;
-    }
-
     if(definition.weaponClass == "Projectile") {
+        auto projectileBlueprint = context->getProjectilePool()->create(definition.projectile);
+
+        auto stats = AllStats();
+        stats.weapon = WeaponStats(definition.range, definition.uses, definition.power);
+        stats.weapon.setProjectileStats(projectileBlueprint.stats);
+        if(item != nullptr) {
+            item->addStats(stats);
+            stats.common = item->getStats().common;
+        }
+
         return std::make_unique<ProjectileWeapon>(
             owner,
             context,
@@ -74,10 +77,17 @@ std::unique_ptr<Weapon> WeaponController::createWeapon(
             definition.name,
             stats,
             DamageSource::parse(definition.damageSource, definition.power),
-            context->getProjectilePool()->create(definition.projectile)
+            projectileBlueprint
         );
     }
     else if(definition.weaponClass == "Melee") {
+        auto stats = AllStats();
+        stats.weapon = WeaponStats(definition.range, definition.uses, definition.power);
+        if(item != nullptr) {
+            item->addStats(stats);
+            stats.common = item->getStats().common;
+        }
+
         return std::make_unique<MeleeWeapon>(
             owner,
             context,

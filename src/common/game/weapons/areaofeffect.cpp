@@ -10,7 +10,7 @@ AreaOfEffect::AreaOfEffect(
     int liveTurn,
     bool isAnimationOnly,
     const glm::ivec2& position, 
-    const Stats& stats,
+    const AreaOfEffectStats& stats,
     const DamageSource& damageSource
 ) :
     grid(grid),
@@ -60,7 +60,7 @@ int AreaOfEffect::getOwnerId(void) const {
     return ownerId;
 }
 
-AreaOfEffect::Stats AreaOfEffect::getStats(void) const {
+AreaOfEffectStats AreaOfEffect::getStats(void) const {
     return stats;
 }
 

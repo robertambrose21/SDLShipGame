@@ -10,14 +10,6 @@ class EntityPool;
 class AreaOfEffect;
 
 class AreaOfEffect {
-public:
-    // TODO: Use AllStats structure
-    typedef struct _stats {
-        float radius;
-        int turns;
-        int power;
-    } Stats;
-
 private:
     Grid* grid;
     EntityPool* entityPool;
@@ -31,7 +23,7 @@ private:
     int liveTurn;
     bool isAnimationOnly;
     glm::ivec2 position;
-    Stats stats;
+    AreaOfEffectStats stats;
     DamageSource damageSource;
 
 public:
@@ -44,7 +36,7 @@ public:
         int liveTurn,
         bool isAnimationOnly,
         const glm::ivec2& position, 
-        const Stats& stats,
+        const AreaOfEffectStats& stats,
         const DamageSource& damageSource
     );
 
@@ -53,7 +45,7 @@ public:
     void onNextTurn(int currentParticipantId, int turnNumber);
 
     int getOwnerId(void) const;
-    Stats getStats(void) const;
+    AreaOfEffectStats getStats(void) const;
 
     std::vector<glm::ivec2> getEffectedTilePositions(void);
 

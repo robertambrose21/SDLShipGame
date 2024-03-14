@@ -58,7 +58,7 @@ void AreaOfEffectPool::add(const std::string& name, int ownerId, int turnNumber,
                 turnNumber,
                 isAnimationOnly,
                 position,
-                AreaOfEffect::Stats { definition.radius, definition.turns, definition.power },
+                AreaOfEffectStats(definition.radius, definition.turns, definition.power),
                 DamageSource::parse(definition.damageSource, definition.power)
             )
         )
@@ -88,6 +88,7 @@ void AreaOfEffectPool::update(int64_t timeSinceLastFrame) {
 std::vector<AreaOfEffect*> AreaOfEffectPool::getAoeEffects(void) {
     game_assert(initialised);
 
+    // TODO: just return the map
     std::vector<AreaOfEffect*> aoes;
 
     for(auto&& [_, aoe] : aoeObjects) {
@@ -95,4 +96,18 @@ std::vector<AreaOfEffect*> AreaOfEffectPool::getAoeEffects(void) {
     }
 
     return aoes;
+}
+
+AreaOfEffectStats AreaOfEffectPool::getStatsFor(const std::string& key) {
+    if(!aoeDefinitions.contains(key)) {
+        return AreaOfEffectStats();
+    }
+
+    auto definition = aoeDefinitions[key];
+
+    return AreaOfEffectStats(
+        definition.radius,
+        definition.turns,
+        definition.power
+    );
 }
