@@ -10,8 +10,7 @@ AreaOfEffect::AreaOfEffect(
     int liveTurn,
     bool isAnimationOnly,
     const glm::ivec2& position, 
-    const AreaOfEffectStats& stats,
-    const DamageSource& damageSource
+    const AreaOfEffectStats& stats
 ) :
     grid(grid),
     entityPool(entityPool),
@@ -21,8 +20,7 @@ AreaOfEffect::AreaOfEffect(
     liveTurn(liveTurn),
     isAnimationOnly(isAnimationOnly),
     position(position),
-    stats(stats),
-    damageSource(damageSource)
+    stats(stats)
 {
     effectedTilePositions = grid->getTilesInCircle(position.x, position.y, stats.radius);
 
@@ -40,7 +38,7 @@ void AreaOfEffect::apply(void) {
     auto effectedEntities = Entity::filterByTiles(effectedTilePositions, entities, ownerId);
 
     for(auto const& entity : effectedEntities) {
-        publisher.publish<AreaOfEffectEventData>({ this, entity, damageSource.apply(entity) });
+        publisher.publish<AreaOfEffectEventData>({ this, entity, stats.damageSource.apply(entity) });
     }
 }
 

@@ -47,6 +47,8 @@ void AreaOfEffectPool::add(const std::string& name, int ownerId, int turnNumber,
     game_assert(aoeDefinitions.contains(name));
 
     auto const& definition = aoeDefinitions[name];
+    auto damageSource = DamageSource::parse(definition.damageSource, definition.power);
+
     aoeObjects.push_back(
         std::make_pair(context->getTurnController()->getTurnNumber(),
             std::make_unique<AreaOfEffect>(
@@ -58,8 +60,7 @@ void AreaOfEffectPool::add(const std::string& name, int ownerId, int turnNumber,
                 turnNumber,
                 isAnimationOnly,
                 position,
-                AreaOfEffectStats(definition.radius, definition.turns, definition.power),
-                DamageSource::parse(definition.damageSource, definition.power)
+                AreaOfEffectStats(definition.radius, definition.turns, definition.power, damageSource)
             )
         )
     );
@@ -108,6 +109,7 @@ AreaOfEffectStats AreaOfEffectPool::getStatsFor(const std::string& key) {
     return AreaOfEffectStats(
         definition.radius,
         definition.turns,
-        definition.power
+        definition.power,
+        DamageSource::parse(definition.damageSource, definition.power)
     );
 }

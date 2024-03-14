@@ -56,13 +56,14 @@ std::unique_ptr<Weapon> WeaponController::createWeapon(
 
     auto definition = weaponDefinitions[name];
     auto item = getItem(definition.item, owner);
+    auto damageSource = DamageSource::parse(definition.damageSource, definition.power);
 
     if(definition.weaponClass == "Projectile") {
         auto projectileBlueprint = context->getProjectilePool()->create(definition.projectile);
 
         auto stats = AllStats();
-        stats.weapon = WeaponStats(definition.range, definition.uses, definition.power);
-        stats.weapon.setProjectileStats(projectileBlueprint.stats);
+        stats.weapon = WeaponStats(definition.range, definition.uses, definition.power, damageSource);
+        stats.weapon.projectile = projectileBlueprint.stats;
         if(item != nullptr) {
             item->addStats(stats);
             stats.common = item->getStats().common;
@@ -76,13 +77,12 @@ std::unique_ptr<Weapon> WeaponController::createWeapon(
             id,
             definition.name,
             stats,
-            DamageSource::parse(definition.damageSource, definition.power),
             projectileBlueprint
         );
     }
     else if(definition.weaponClass == "Melee") {
         auto stats = AllStats();
-        stats.weapon = WeaponStats(definition.range, definition.uses, definition.power);
+        stats.weapon = WeaponStats(definition.range, definition.uses, definition.power, damageSource);
         if(item != nullptr) {
             item->addStats(stats);
             stats.common = item->getStats().common;
@@ -95,8 +95,7 @@ std::unique_ptr<Weapon> WeaponController::createWeapon(
             *this,
             id,
             definition.name,
-            stats,
-            DamageSource::parse(definition.damageSource, definition.power)
+            stats
         );
     }
 

@@ -7,10 +7,9 @@ MeleeWeapon::MeleeWeapon(
     EventPublisher<MeleeWeaponEventData>& publisher,
     const UUID& id,
     const std::string& name, 
-    const AllStats& stats,
-    const DamageSource& damageSource
+    const AllStats& stats
 ) :
-    Weapon(owner, context, item, publisher, id, name, stats, damageSource)
+    Weapon(owner, context, item, publisher, id, name, stats)
 { }
 
 MeleeWeapon::MeleeWeapon(
@@ -19,10 +18,9 @@ MeleeWeapon::MeleeWeapon(
     Item* item,
     EventPublisher<MeleeWeaponEventData>& publisher,
     const std::string& name, 
-    const AllStats& stats,
-    const DamageSource& damageSource
+    const AllStats& stats
 ) :
-    Weapon(owner, context, item, publisher, name, stats, damageSource)
+    Weapon(owner, context, item, publisher, name, stats)
 { }
 
 bool MeleeWeapon::onUse(const glm::ivec2& position, const glm::ivec2& target, bool isAnimationOnly) {
@@ -40,7 +38,7 @@ void MeleeWeapon::apply(const glm::ivec2& position, const glm::ivec2& target) {
     auto entity = Entity::filterByTile(target.x, target.y, entities, owner->getParticipantId());
     
     if(entity != nullptr) {
-        publisher.publish<MeleeWeaponEventData>({ owner, entity, this, damageSource.apply(entity) });
+        publisher.publish<MeleeWeaponEventData>({ owner, entity, this, stats.weapon.damageSource.apply(entity) });
     }
 }
 

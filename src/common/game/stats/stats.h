@@ -6,6 +6,7 @@
 #include <algorithm>
 
 #include "game/effects/effecttypes.h"
+#include "game/weapons/damagesource.h"
 #include "core/util/gameassert.h"
 
 typedef struct _statsValue {
@@ -66,9 +67,10 @@ public:
     float radius;
     int turns;
     int power;
+    DamageSource damageSource;
 
     AreaOfEffectStats();
-    AreaOfEffectStats(float radius, int turns, int power);
+    AreaOfEffectStats(float radius, int turns, int power, const DamageSource& damageSource);
 
     void add(const AreaOfEffectStats& other);
     void remove(const AreaOfEffectStats& other);
@@ -85,7 +87,6 @@ public:
     ProjectileStats();
     ProjectileStats(float speed, const std::vector<EffectStats>& effects);
 
-    void setAreaOfEffectStats(const AreaOfEffectStats& aoe);
     void add(const ProjectileStats& other);
     void remove(const ProjectileStats& other);
 
@@ -94,16 +95,15 @@ public:
 
 class WeaponStats : Stats<WeaponStats> {
 public:
-    // Damage
     int range;
     int uses;
     int power;
+    DamageSource damageSource;
     ProjectileStats projectile;
 
     WeaponStats();
-    WeaponStats(int range, int uses, int power);
+    WeaponStats(int range, int uses, int power, const DamageSource& damageSource);
 
-    void setProjectileStats(const ProjectileStats& projectile);
     void add(const WeaponStats& other);
     void remove(const WeaponStats& other);
 

@@ -16,8 +16,7 @@ public:
         EventPublisher<MeleeWeaponEventData>& publisher,
         const UUID& id,
         const std::string& name, 
-        const AllStats& stats,
-        const DamageSource& damageSource
+        const AllStats& stats
     );
 
     MeleeWeapon(
@@ -26,8 +25,7 @@ public:
         Item* item,
         EventPublisher<MeleeWeaponEventData>& publisher,
         const std::string& name, 
-        const AllStats& stats,
-        const DamageSource& damageSource
+        const AllStats& stats
     );
 
     void update(int64_t timeSinceLastFrame);

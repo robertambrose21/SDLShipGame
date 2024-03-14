@@ -122,6 +122,22 @@ void DamageSource::setPower(int power) {
     this->power = power;
 }
 
+bool DamageSource::isZero(void) {
+    if(power == 0) {
+        return true;
+    }
+
+    if(numDice == 0 && flatDamage == 0) {
+        return true;
+    }
+
+    if(diceSize == 0 && flatDamage == 0) {
+        return true;
+    }
+
+    return false;
+}
+
 std::string DamageSource::getDamageString(void) {
     if(numDice == 0) {
         return std::to_string(flatDamage);

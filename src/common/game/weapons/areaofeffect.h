@@ -24,7 +24,6 @@ private:
     bool isAnimationOnly;
     glm::ivec2 position;
     AreaOfEffectStats stats;
-    DamageSource damageSource;
 
 public:
     AreaOfEffect(
@@ -36,8 +35,7 @@ public:
         int liveTurn,
         bool isAnimationOnly,
         const glm::ivec2& position, 
-        const AreaOfEffectStats& stats,
-        const DamageSource& damageSource
+        const AreaOfEffectStats& stats
     );
 
     void update(int64_t timeSinceLastFrame);

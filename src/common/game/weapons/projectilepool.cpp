@@ -93,7 +93,7 @@ Projectile::Blueprint ProjectilePool::create(const std::string& name) {
     auto stats = ProjectileStats(definition.speed, buildEffectStats(definition));
 
     if(aoe != "") {
-        stats.setAreaOfEffectStats(context->getAreaOfEffectPool()->getStatsFor(aoe));
+        stats.aoe = context->getAreaOfEffectPool()->getStatsFor(aoe);
     }
 
     Projectile::Blueprint blueprint(

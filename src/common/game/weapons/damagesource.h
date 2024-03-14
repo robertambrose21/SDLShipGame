@@ -38,5 +38,7 @@ public:
     int getPower(void) const;
     void setPower(int power);
 
+    bool isZero(void);
+
     std::string getDamageString(void);
 };
