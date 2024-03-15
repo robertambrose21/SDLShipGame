@@ -58,12 +58,15 @@ void StdOutSubscriber::onPublish(const Event<ProjectileEventData>& event) {
         );
     }
 
-    // auto effects = event.data.projectile->getStats().effects;
-    // for(auto effect : effects) {
-    //     if(effect.name == "freeze") {
-    //         log(event.timestamp, "{} is frozen for {} turns.", getEntityIdentifier(event.data.target), effect.duration);
-    //     }
-    // }
+    auto effects = event.data.projectile->getStats().effects;
+    for(auto effect : effects) {
+        if(effect.type == EffectType::FREEZE) {
+            log(event.timestamp, "{} is frozen for {} turns.", getEntityIdentifier(event.data.target), effect.duration);
+        }
+        else if(effect.type == EffectType::POISON) {
+            log(event.timestamp, "{} is poisoned for {} turns.", getEntityIdentifier(event.data.target), effect.duration);
+        }
+    }
 }
 
 void StdOutSubscriber::onPublish(const Event<AreaOfEffectEventData>& event) {
