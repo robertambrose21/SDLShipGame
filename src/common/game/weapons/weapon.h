@@ -28,8 +28,8 @@ protected:
     UUID id;
     std::string name;
     Entity* owner;
-    AllStats stats;
     DamageSource damageSource;
+    AllStats stats;
 
     int usesLeft;
 
@@ -49,8 +49,8 @@ public:
         EventPublisher<MeleeWeaponEventData>& publisher,
         const UUID& id,
         const std::string& name,
-        const AllStats& stats,
-        const DamageSource& damageSource
+        const DamageSource& damageSource,
+        const AllStats& stats
     );
 
     Weapon(
@@ -58,12 +58,11 @@ public:
         ApplicationContext* context,
         Item* item,
         EventPublisher<MeleeWeaponEventData>& publisher,
-        const std::string& name, 
-        const AllStats& stats,
-        const DamageSource& damageSource
+        const std::string& name,
+        const DamageSource& damageSource,
+        const AllStats& stats
     );
 
-    // TODO: Take an exact damage value
     void use(const glm::ivec2& position, const glm::ivec2& target, bool isAnimationOnly = false);
     void reset(void);
     void setFinished(void);

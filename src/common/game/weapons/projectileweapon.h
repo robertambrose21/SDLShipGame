@@ -21,7 +21,7 @@ public:
         EventPublisher<MeleeWeaponEventData>& publisher,
         const UUID& id,
         const std::string& name, 
-        const AllStats& stats, 
+        const AllStats& stats,
         const DamageSource& damageSource,
         const Projectile::Blueprint& projectileBlueprint
     );

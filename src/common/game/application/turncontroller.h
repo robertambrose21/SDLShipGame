@@ -21,6 +21,7 @@
 #include "game/actions/equipitemaction.h"
 #include "game/actions/equipweaponaction.h"
 #include "game/items/itemcontroller.h"
+#include "game/effects/effectcontroller.h"
 
 class TurnController : 
     public EventPublisher<
@@ -61,7 +62,7 @@ protected:
     void endCurrentParticipantTurn(void);
     void nextParticipantTurn(void);
     void executeEntityActions(Entity* entity);
-    void removeInactiveEntities(std::vector<Entity*> entities);
+    void incrementEntitiesTurn(std::vector<Entity*> entities);
     void incrementTurn(void);
     void publishAction(Action& action);
 

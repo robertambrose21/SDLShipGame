@@ -6,8 +6,10 @@ include_directories(../)
 
 add_library(
     ${PROJECT_NAME}
-    effects/statuseffect.cpp
-    effects/effect.h
+    effects/effecttypes.h
+    effects/effect.cpp
+    effects/grideffect.cpp
+    effects/effectcontroller.cpp
     entities/entity.cpp 
     entities/entitypool.cpp 
     entities/behaviour/behaviourstrategy.h

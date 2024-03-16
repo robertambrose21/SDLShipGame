@@ -18,7 +18,8 @@ Entity::Entity(
     timeSinceLastMoved(0),
     selected(false),
     engaged(false),
-    frozenForNumTurns(0),
+    isFrozen(false),
+    isPoisoned(false),
     externalActionsChainNeedsRecalculating(true)
 { }
 
@@ -61,7 +62,7 @@ void Entity::update(int64_t timeSinceLastFrame, bool& quit) {
         weapon->update(timeSinceLastFrame);
     }
 
-    if(frozenForNumTurns > 0) {
+    if(isFrozen) {
         return;
     }
     
@@ -343,16 +344,14 @@ void Entity::useMoves(int numMoves) {
 
 void Entity::nextTurn(void) {
     reset();
-
-    if(frozenForNumTurns > 0) {
-        frozenForNumTurns--;
-        publisher.publish<EntityEventData>({ this, "Freeze" });
-    }
 }
 
 void Entity::reset(void) {
     currentStats.common.moves = baseStats.common.moves;
     path.clear();
+
+    isFrozen = false;
+    isPoisoned = false;
 
     for(auto& [_, weapon] : weapons) {
         if(weapon != nullptr) {
@@ -432,10 +431,18 @@ int Entity::getParticipantId(void) const {
     return participantId;
 }
 
-int Entity::getFrozenFor(void) const {
-    return frozenForNumTurns > 0;
+bool Entity::getIsFrozen(void) const {
+    return isFrozen;
 }
 
-void Entity::setFrozenFor(int numTurns) {
-    frozenForNumTurns = numTurns;
+void Entity::setFrozen(bool isFrozen) {
+    this->isFrozen = isFrozen;
+}
+
+bool Entity::getIsPoisoned(void) const {
+    return isPoisoned;
+}
+
+void Entity::setIsPoisoned(bool isPoisoned) {
+    this->isPoisoned = isPoisoned;
 }

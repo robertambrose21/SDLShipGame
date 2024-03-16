@@ -48,7 +48,7 @@ void PlayerPanel::onPublish(const Event<EntityEventData>& event) {
             { " died", StdTextColour}
         });
     }
-    else if(event.data.type == "Freeze" && event.data.entity->getFrozenFor() <= 0) {
+    else if(event.data.type == "Freeze" && event.data.entity->getIsFrozen()) {
         lines.push_back({
             { getTimestampString(event.timestamp), TimestampColour },
             { getEntityIdentifier(event.data.entity), HighlightColour },
@@ -100,11 +100,20 @@ void PlayerPanel::onPublish(const Event<ProjectileEventData>& event) {
 
     auto effects = event.data.projectile->getStats().effects;
     for(auto effect : effects) {
-        if(effect.name == "freeze") {
+        if(effect.type == EffectType::FREEZE) {
             lines.push_back({
                 { getTimestampString(event.timestamp), TimestampColour },
                 { getEntityIdentifier(event.data.target), HighlightColour },
                 { " is frozen for ", StdTextColour },
+                { std::to_string(effect.duration), HighlightColour },
+                { " turns", StdTextColour }
+            });
+        }
+        else if(effect.type == EffectType::POISON) {
+            lines.push_back({
+                { getTimestampString(event.timestamp), TimestampColour },
+                { getEntityIdentifier(event.data.target), HighlightColour },
+                { " is poisoned for ", StdTextColour },
                 { std::to_string(effect.duration), HighlightColour },
                 { " turns", StdTextColour }
             });

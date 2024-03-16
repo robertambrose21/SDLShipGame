@@ -9,9 +9,9 @@ AreaOfEffect::AreaOfEffect(
     int ownerId,
     int liveTurn,
     bool isAnimationOnly,
-    const glm::ivec2& position, 
-    const Stats& stats,
-    const DamageSource& damageSource
+    const glm::ivec2& position,
+    const DamageSource& damageSource,
+    const AreaOfEffectStats& stats
 ) :
     grid(grid),
     entityPool(entityPool),
@@ -21,8 +21,8 @@ AreaOfEffect::AreaOfEffect(
     liveTurn(liveTurn),
     isAnimationOnly(isAnimationOnly),
     position(position),
-    stats(stats),
-    damageSource(damageSource)
+    damageSource(damageSource),
+    stats(stats)
 {
     effectedTilePositions = grid->getTilesInCircle(position.x, position.y, stats.radius);
 
@@ -60,7 +60,7 @@ int AreaOfEffect::getOwnerId(void) const {
     return ownerId;
 }
 
-AreaOfEffect::Stats AreaOfEffect::getStats(void) const {
+AreaOfEffectStats AreaOfEffect::getStats(void) const {
     return stats;
 }
 

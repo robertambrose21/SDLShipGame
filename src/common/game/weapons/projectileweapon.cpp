@@ -11,7 +11,7 @@ ProjectileWeapon::ProjectileWeapon(
     const DamageSource& damageSource,
     const Projectile::Blueprint& projectileBlueprint
 ) :
-    Weapon(owner, context, item, publisher, id, name, stats, damageSource),
+    Weapon(owner, context, item, publisher, id, name, damageSource, stats),
     projectileBlueprint(projectileBlueprint)
 { }
 
@@ -35,13 +35,12 @@ bool ProjectileWeapon::onUse(const glm::ivec2& position, const glm::ivec2& targe
 
     context->getProjectilePool()->add(
         Projectile::create(
-            context->getGrid(),
-            context->getEntityPool(),
+            context,
             *context->getProjectilePool(), 
             owner->getParticipantId(), 
             projectileBlueprint, 
             position, 
-            target, 
+            target,
             damageSource,
             isAnimationOnly
         ), 

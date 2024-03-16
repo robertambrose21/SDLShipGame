@@ -25,6 +25,8 @@ enum class GameMessageType {
     EQUIP_ITEM,
     EQUIP_WEAPON,
     APPLY_DAMAGE,
+    APPLY_ENTITY_EFFECT,
+    APPLY_GRID_EFFECT,
     COUNT
 };
 
@@ -483,6 +485,60 @@ public:
     YOJIMBO_VIRTUAL_SERIALIZE_FUNCTIONS();
 };
 
+class ApplyEntityEffectMessage : public yojimbo::Message {
+public:
+    uint8_t type;
+    uint32_t targetId;
+    EffectStatsUpdate effectStats;
+
+    ApplyEntityEffectMessage() :
+        type(0),
+        targetId(0)
+    { }
+
+    template <typename Stream>
+    bool Serialize(Stream& stream) {
+        serialize_bits(stream, type, 8);
+        serialize_uint32(stream, targetId);
+        serialize_bits(stream, effectStats.effectType, 8);
+        serialize_bits(stream, effectStats.duration, 8);
+        serialize_bits(stream, effectStats.numDamageTicks, 8);
+
+        for(int i = 0; i < effectStats.numDamageTicks; i++) {
+            serialize_bits(stream, effectStats.damageTicks[i], 8);
+        }
+
+        return true;
+    }
+
+    YOJIMBO_VIRTUAL_SERIALIZE_FUNCTIONS();
+};
+
+class ApplyGridEffectMessage : public yojimbo::Message {
+public:
+    uint8_t type;
+    int x, y;
+    uint8_t duration;
+
+    ApplyGridEffectMessage() :
+        type(0),
+        x(0),
+        y(0),
+        duration(0)
+    { }
+
+    template <typename Stream>
+    bool Serialize(Stream& stream) {
+        serialize_bits(stream, type, 8);
+        serialize_int(stream, x, 0, 512);
+        serialize_int(stream, y, 0, 512);
+        serialize_bits(stream, duration, 8);
+        return true;
+    }
+
+    YOJIMBO_VIRTUAL_SERIALIZE_FUNCTIONS();
+};
+
 YOJIMBO_MESSAGE_FACTORY_START(GameMessageFactory, (int)GameMessageType::COUNT);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::FIND_PATH, FindPathMessage);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::SELECT_ENTITY, SelectEntityMessage);
@@ -502,4 +558,6 @@ YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::ENGAGEMENT, EngagementMessage
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::EQUIP_ITEM, EquipItemMessage);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::EQUIP_WEAPON, EquipWeaponMessage);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::APPLY_DAMAGE, ApplyDamageMessage);
+YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::APPLY_ENTITY_EFFECT, ApplyEntityEffectMessage);
+YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::APPLY_GRID_EFFECT, ApplyGridEffectMessage);
 YOJIMBO_MESSAGE_FACTORY_FINISH();

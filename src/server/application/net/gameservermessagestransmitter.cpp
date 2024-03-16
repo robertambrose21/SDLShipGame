@@ -155,6 +155,39 @@ void GameServerMessagesTransmitter::onPublish(const Event<MeleeWeaponEventData>&
     }
 }
 
+void GameServerMessagesTransmitter::onPublish(const Event<EntityEffectEvent>& event) {
+    for(auto [participantId, clientIndex] : turnController->getAllAttachedClients()) {
+        ApplyEntityEffectMessage* message = 
+            (ApplyEntityEffectMessage*) server.createMessage(clientIndex, GameMessageType::APPLY_ENTITY_EFFECT);
+        
+        message->type = event.data.type;
+        message->targetId = event.data.target->getId();
+        message->effectStats.duration = event.data.stats.duration;
+        message->effectStats.effectType = event.data.stats.type;
+        message->effectStats.numDamageTicks = event.data.stats.damageTicks.size();
+
+        for(int i = 0; i < event.data.stats.damageTicks.size(); i++) {
+            message->effectStats.damageTicks[i] = event.data.stats.damageTicks[i];
+        }
+
+        server.sendMessage(clientIndex, message);
+    }
+}
+
+void GameServerMessagesTransmitter::onPublish(const Event<GridEffectEvent>& event) {
+    for(auto [participantId, clientIndex] : turnController->getAllAttachedClients()) {
+        ApplyGridEffectMessage* message = 
+            (ApplyGridEffectMessage*) server.createMessage(clientIndex, GameMessageType::APPLY_GRID_EFFECT);
+
+        message->type = event.data.type;
+        message->x = event.data.x;
+        message->y = event.data.y;
+        message->duration = event.data.duration;
+
+        server.sendMessage(clientIndex, message);
+    }
+}
+
 void GameServerMessagesTransmitter::sendSetParticipant(
     int clientIndex, 
     TurnController::Participant* participant

@@ -20,7 +20,8 @@ void ClientApplication::initialise(void) {
         std::make_unique<ProjectilePool>(),
         std::make_unique<AreaOfEffectPool>(),
         std::make_unique<ClientTurnController>(),
-        std::make_unique<ItemController>()
+        std::make_unique<ItemController>(),
+        std::make_unique<EffectController>()
     );
 
     auto& context = application->getContext();
@@ -76,6 +77,8 @@ void ClientApplication::initialise(void) {
             grid->setTile(i, j, { 1, true });
         }
     }
+
+    context.getEffectController()->subscribe<GridEffectEvent>(&window->getGraphicsContext().getGridRenderer());
 
     playerController = std::make_unique<PlayerController>(
         *clientMessagesTransmitter,

@@ -20,7 +20,8 @@ void ServerApplication::initialise(void) {
         std::make_unique<ProjectilePool>(),
         std::make_unique<AreaOfEffectPool>(),
         std::make_unique<ServerTurnController>(),
-        std::make_unique<ItemController>()
+        std::make_unique<ItemController>(),
+        std::make_unique<EffectController>()
     );
 
     auto& context = application->getContext();
@@ -68,6 +69,8 @@ void ServerApplication::initialise(void) {
     context.getAreaOfEffectPool()->subscribe<AreaOfEffectEventData>(transmitter.get());
     context.getProjectilePool()->subscribe<ProjectileEventData>(transmitter.get());
     context.getWeaponController()->subscribe<MeleeWeaponEventData>(transmitter.get());
+    context.getEffectController()->subscribe<EntityEffectEvent>(transmitter.get());
+    context.getEffectController()->subscribe<GridEffectEvent>(transmitter.get());
 
     application->addLogicWorker([&](ApplicationContext& c, auto const& timeSinceLastFrame, auto& quit) {
         server->update(timeSinceLastFrame);

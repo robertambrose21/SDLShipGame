@@ -15,19 +15,14 @@ class Projectile;
 
 class Projectile {
 public:
-    typedef struct _stats {
-        float speed;
-        std::vector<Effect> effects;
-    } Stats;
-
     typedef struct _blueprint {
-        Stats stats;
+        ProjectileStats stats;
         std::string name;
         uint32_t textureId;
         std::function<void(int, const glm::ivec2&, int, bool)> onHitCallback;
 
         _blueprint(
-            const Stats& stats,
+            const ProjectileStats& stats,
             const std::string& name,
             uint32_t textureId,
             std::function<void(int, const glm::ivec2&, int, bool)> onHitCallback =
@@ -41,10 +36,9 @@ public:
     } Blueprint;
 
 private:
-    Stats stats;
+    ProjectileStats stats;
 
-    Grid* grid;
-    EntityPool* entityPool;
+    ApplicationContext* context;
     EventPublisher<ProjectileEventData>& publisher;
     uint32_t textureId;
 
@@ -69,22 +63,20 @@ private:
 
 public:
     Projectile(
-        Grid* grid,
-        EntityPool* entityPool,
+        ApplicationContext* context,
         EventPublisher<ProjectileEventData>& publisher,
         uint32_t textureId,
         int ownerId,
         const glm::ivec2& startPosition,
         const glm::ivec2& target,
-        const Stats& stats,
+        const ProjectileStats& stats,
         const DamageSource& damageSource,
         bool isAnimationOnly,
         std::function<void(int, const glm::ivec2&, int, bool)> onHitCallback =
             [](int, const glm::ivec2&, int, bool) {});
 
     static std::unique_ptr<Projectile> create(
-        Grid* grid,
-        EntityPool* entityPool,
+        ApplicationContext* context,
         EventPublisher<ProjectileEventData>& publisher,
         int ownerId,
         const Blueprint& blueprint,
@@ -93,8 +85,7 @@ public:
         const DamageSource& damageSource,
         bool isAnimationOnly) {
         return std::make_unique<Projectile>(
-            grid,
-            entityPool,
+            context,
             publisher,
             blueprint.textureId,
             ownerId,
@@ -111,7 +102,7 @@ public:
     bool hasReachedTarget(void);
 
     int getOwnerId(void) const;
-    Stats getStats(void) const;
+    ProjectileStats getStats(void) const;
 
     uint32_t getTextureId(void) const;
     glm::ivec2 getPosition(void) const;

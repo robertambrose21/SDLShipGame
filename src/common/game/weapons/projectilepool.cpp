@@ -28,13 +28,22 @@ void ProjectilePool::loadProjectileDefinitions(void) {
         definition.textureId = data["textureId"].get<uint32_t>();
         definition.speed = data["speed"].get<float>();
         if(data.contains("effects")) {
-            auto const& effects = data["effects"].get<std::vector<json>>();
+            auto effects = data["effects"].get<std::vector<json>>();
 
             for(auto const& effect : effects) {
                 if(effect.contains("freeze")) {
-                    auto duration = effect["freeze"].get<int>();
-
-                    definition.effects.push_back(Effect("freeze", duration));
+                    auto freeze = effect["freeze"].get<json>();
+                    auto duration = freeze["duration"].get<int>();
+                    definition.effects.push_back({ EffectType::FREEZE, duration });
+                }
+                if(effect.contains("poison")) {
+                    auto poison = effect["poison"].get<json>();
+                    auto duration = poison["duration"].get<int>();
+                    auto damagePerTick = poison["damagePerTick"].get<int>();
+                    
+                    std::vector<int> damageTicks(duration);
+                    std::fill(damageTicks.begin(), damageTicks.end(), damagePerTick);
+                    definition.effects.push_back({ EffectType::POISON, duration, damageTicks });
                 }
             }
         }
@@ -45,6 +54,27 @@ void ProjectilePool::loadProjectileDefinitions(void) {
     }
 
     game_assert(!projectileDefinitions.empty());
+}
+
+std::function<void(int, const glm::ivec2&, int, bool)> ProjectilePool::buildOnHitCallback(const ProjectileDefinition& definition) {
+    auto const& aoe = definition.aoe;
+    
+    return [&](auto ownerId, auto target, auto turnNumber, auto isAnimationOnly) {
+        if(aoe != "") {
+            context->getAreaOfEffectPool()->add(aoe, ownerId, turnNumber, target, isAnimationOnly);
+        }
+    };
+}
+
+// TODO: Should be handled by effect controller
+std::vector<EffectStats> ProjectilePool::buildEffectStats(const ProjectileDefinition& definition) {
+    std::vector<EffectStats> effects;
+
+    for(auto effect : definition.effects) {
+        effects.push_back({ effect.type, effect.duration, effect.damageTicks });
+    }
+
+    return effects;
 }
 
 void ProjectilePool::add(std::unique_ptr<Projectile> projectile, Entity* owner) {
@@ -60,15 +90,17 @@ Projectile::Blueprint ProjectilePool::create(const std::string& name) {
 
     auto const& definition = projectileDefinitions[name];
     auto const& aoe = definition.aoe;
+    auto stats = ProjectileStats(definition.speed, buildEffectStats(definition));
+
+    if(aoe != "") {
+        stats.aoe = context->getAreaOfEffectPool()->getStatsFor(aoe);
+    }
+
     Projectile::Blueprint blueprint(
-        Projectile::Stats { definition.speed, definition.effects },
+        stats,
         name,
         definition.textureId,
-        [&, aoe](auto ownerId, auto target, auto turnNumber, auto isAnimationOnly) { // TODO: Don't add this if there's no aoe
-            if(aoe != "") {
-                context->getAreaOfEffectPool()->add(aoe, ownerId, turnNumber, target, isAnimationOnly);
-            }
-        }
+        buildOnHitCallback(definition)
     );
 
     return blueprint;

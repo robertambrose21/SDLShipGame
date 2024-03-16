@@ -198,7 +198,6 @@ Entity* EntityPool::addEntity(const std::string& name, uint32_t id) {
         definition.hp,
         definition.armour
     );
-
     
     auto entity = std::make_unique<Entity>(
         context->getGrid(),
