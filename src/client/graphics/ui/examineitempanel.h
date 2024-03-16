@@ -20,7 +20,6 @@ private:
 
     std::map<StatsKey::Type, std::vector<StatsPair>> stats;
 
-
     std::map<StatsKey::Type, std::vector<StatsPair>> buildStats(void);
     std::string getStatsTypeString(StatsKey::Type type);
 
