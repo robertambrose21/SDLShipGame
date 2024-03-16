@@ -184,28 +184,24 @@ bool EffectStats::operator==(const EffectStats& other) {
 
 AreaOfEffectStats::AreaOfEffectStats() :
     radius(0),
-    turns(0),
-    power(0)
+    turns(0)
 { }
 
-AreaOfEffectStats::AreaOfEffectStats(float radius, int turns, int power, const DamageStats& damage) :
+AreaOfEffectStats::AreaOfEffectStats(float radius, int turns, const DamageStats& damage) :
     radius(radius),
     turns(turns),
-    power(power),
     damage(damage)
 { }
 
 void AreaOfEffectStats::add(const AreaOfEffectStats& other) {
     radius += other.radius;
     turns += other.turns;
-    power += other.power;
     damage.add(other.damage);
 }
 
 void AreaOfEffectStats::remove(const AreaOfEffectStats& other) {
     radius -= other.radius;
     turns -= other.turns;
-    power -= other.power;
     damage.remove(other.damage);
 }
 
@@ -214,7 +210,7 @@ std::map<StatsKey, std::string> AreaOfEffectStats::getValues(void) {
 
     if(radius != 0) values[{ "Radius", StatsKey::AreaOfEffect }] = std::to_string(radius);
     if(turns != 0) values[{ "Turns", StatsKey::AreaOfEffect }] = std::to_string(turns);
-    if(power != 0) values[{ "Power", StatsKey::AreaOfEffect }] = std::to_string(power);
+    if(damage.power != 0) values[{ "Power", StatsKey::AreaOfEffect }] = std::to_string(damage.power);
     if(!damage.isZero()) values[{ "Damage", StatsKey::AreaOfEffect }] = damage.getDamageString();
 
     return values;

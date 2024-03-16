@@ -61,7 +61,7 @@ void AreaOfEffectPool::add(const std::string& name, int ownerId, int turnNumber,
                 isAnimationOnly,
                 position,
                 damageSource,
-                AreaOfEffectStats(definition.radius, definition.turns, definition.power, damageSource.getStats())
+                AreaOfEffectStats(definition.radius, definition.turns, damageSource.getStats())
             )
         )
     );
@@ -110,7 +110,6 @@ AreaOfEffectStats AreaOfEffectPool::getStatsFor(const std::string& key) {
     return AreaOfEffectStats(
         definition.radius,
         definition.turns,
-        definition.power,
         DamageSource::parse(definition.damageSource, definition.power).getStats()
     );
 }

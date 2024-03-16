@@ -90,11 +90,10 @@ class AreaOfEffectStats : Stats<AreaOfEffectStats> {
 public:
     float radius;
     int turns;
-    int power;
     DamageStats damage;
 
     AreaOfEffectStats();
-    AreaOfEffectStats(float radius, int turns, int power, const DamageStats& damage);
+    AreaOfEffectStats(float radius, int turns, const DamageStats& damage);
 
     void add(const AreaOfEffectStats& other);
     void remove(const AreaOfEffectStats& other);
