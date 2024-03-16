@@ -8,6 +8,9 @@ add_library(
     ${PROJECT_NAME}
     glmimport.cpp 
     grid/grid.cpp
+    grid/generation/generationstrategy.cpp
+    grid/generation/emptystrategy.cpp
+    grid/generation/hallstrategy.cpp
     net/message/messages.h
     net/yojimboimport.h
     util/idgenerator.h

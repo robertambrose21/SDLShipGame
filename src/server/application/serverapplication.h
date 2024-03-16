@@ -4,6 +4,8 @@
 #include "application/net/gameservermessagesreceiver.h"
 #include "application/net/gameservermessagestransmitter.h"
 #include "game/entities/behaviour/chaseandattackstrategy.h"
+#include "core/grid/generation/emptystrategy.h"
+#include "core/grid/generation/hallstrategy.h"
 #include "game/application/application.h"
 #include "game/application/stdoutsubscriber.h"
 #include "serverturncontroller.h"

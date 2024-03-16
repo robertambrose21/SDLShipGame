@@ -195,53 +195,15 @@ void ServerApplication::sendGameStateUpdatesToClients(void) {
 void ServerApplication::loadMap(void) {
     auto& context = application->getContext();
     auto grid = context.getGrid();
-
-    // for(auto i = 0; i < grid->getWidth(); i++) {
-    //     for(auto j = 0; j < grid->getHeight(); j++) {
-    //         if(i == 10 && j != 12) {
-    //             grid->setTile(i, j, { 2, false });
-    //         }
-    //         else {
-    //             grid->setTile(i, j, { 1, true });
-    //         }
-    //     }
-    // }
-
-    for(auto i = 0; i < grid->getWidth(); i++) {
-        for(auto j = 0; j < grid->getHeight(); j++) {
-            grid->setTile(i, j, { 2, false });
-        }
-    }
-
-    int maxTunnels = 5000;
-    int maxTunnelLength = 22;
-    int stepsLeft = 0;
-    int x = 0, y = 0;
-    int direction = 0;
-
-    while(maxTunnels > 0) {
-        if(stepsLeft == 0) {
-            direction = randomRange(0, 3);
-            stepsLeft = randomRange(1, maxTunnelLength);
-            maxTunnels--;
-        }
-
-        if(direction == 0 && x < grid->getWidth() - 1) {
-            x++;
-        }
-        else if(direction == 1 && x > 0) {
-            x--;
-        }
-        else if(direction == 2 && y < grid->getHeight() - 1) {
-            y++;
-        }
-        else if(direction == 3 && y > 0) {
-            y--;
-        }
-
-        grid->setTile(x, y, { 1, true });
-        stepsLeft--;
-    }
+    // grid->setData(EmptyStrategy(grid->getWidth(), grid->getHeight()).generate());
+    grid->setData(
+        HallStrategy(
+            grid->getWidth(),
+            grid->getHeight(),
+            5000,
+            22
+        ).generate()
+    );
 }
 
 void ServerApplication::loadGame(void) {
