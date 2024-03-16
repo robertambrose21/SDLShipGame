@@ -15,7 +15,8 @@ class GraphicsContext;
 // TODO: This is potentially overloaded - entities/projectiles and everything else call the 'draw' function
 class GridRenderer : 
     public EventSubscriber<TileEventData>, 
-    public EventSubscriber<GridEffectEvent>
+    public EventSubscriber<GridEffectEvent>,
+    public EventSubscriber<GridDirtyEventData>
 {
 private:
     int windowHeight;
@@ -47,6 +48,7 @@ public:
 
     void onPublish(const Event<TileEventData>& event);
     void onPublish(const Event<GridEffectEvent>& event);
+    void onPublish(const Event<GridDirtyEventData>& event);
 
     Grid* getGrid(void);
     Camera& getCamera(void);

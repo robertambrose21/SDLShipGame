@@ -14,7 +14,7 @@
 #include "core/event/eventpublisher.h"
 #include "game/event/events.h"
 
-class Grid : public EventPublisher<TileEventData> {
+class Grid : public EventPublisher<TileEventData, GridDirtyEventData> {
 public:
     typedef struct _tile {
         int id;
@@ -53,6 +53,8 @@ private:
     bool hasPointsOnDifferentSides(const glm::vec2& p1, const glm::vec2& p2, const std::vector<glm::vec2>& corners);
     bool hasTileIntersection(const glm::vec2& p1, const glm::vec2& p2, int x, int y);
 
+    void setDirty(bool isDirty);
+
 public:
     Grid(int width, int height, const std::vector<std::vector<Tile>>& data = { });
 
@@ -66,7 +68,6 @@ public:
     void setTileFrozen(int x, int y, bool isFrozen);
 
     bool getIsDirty(void) const;
-    void setDirty(void);
 
     // Expects points to be in tile space.
     // e.g. the line (0, 0) -> (1, 1) in a 3x3 grid will check a 4x4 square of tiles like so:

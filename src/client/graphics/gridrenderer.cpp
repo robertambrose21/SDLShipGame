@@ -53,8 +53,7 @@ void GridRenderer::buildTexture(GraphicsContext& graphicsContext) {
 }
 
 void GridRenderer::draw(GraphicsContext& graphicsContext) {
-    // TODO: should instead set flag from the grid via an event
-    if(textureNeedsRebuilding || grid->getIsDirty()) {
+    if(textureNeedsRebuilding) {
         buildTexture(graphicsContext);
     }
 
@@ -101,6 +100,12 @@ void GridRenderer::onPublish(const Event<TileEventData>& event) {
 
 void GridRenderer::onPublish(const Event<GridEffectEvent>& event) {
     textureNeedsRebuilding = true;
+}
+
+void GridRenderer::onPublish(const Event<GridDirtyEventData>& event) {
+    if(event.data.isGridDirty) {
+        textureNeedsRebuilding = true;
+    }
 }
 
 Camera& GridRenderer::getCamera(void) {

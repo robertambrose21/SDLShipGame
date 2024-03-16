@@ -126,3 +126,7 @@ struct GridEffectEvent {
     int x, y;
     int duration;
 };
+
+struct GridDirtyEventData {
+    bool isGridDirty;
+};
