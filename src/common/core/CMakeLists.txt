@@ -11,6 +11,7 @@ add_library(
     grid/generation/generationstrategy.cpp
     grid/generation/emptystrategy.cpp
     grid/generation/hallstrategy.cpp
+    grid/generation/wavefunctioncollapsestrategy.cpp
     net/message/messages.h
     net/yojimboimport.h
     util/idgenerator.h

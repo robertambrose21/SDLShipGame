@@ -196,14 +196,15 @@ void ServerApplication::loadMap(void) {
     auto& context = application->getContext();
     auto grid = context.getGrid();
     // grid->setData(EmptyStrategy(grid->getWidth(), grid->getHeight()).generate());
-    grid->setData(
-        HallStrategy(
-            grid->getWidth(),
-            grid->getHeight(),
-            5000,
-            22
-        ).generate()
-    );
+    // grid->setData(
+    //     HallStrategy(
+    //         grid->getWidth(),
+    //         grid->getHeight(),
+    //         5000,
+    //         22
+    //     ).generate()
+    // );
+    grid->setData(WaveFunctionCollapseStrategy(grid->getWidth(), grid->getHeight()).generate());
 }
 
 void ServerApplication::loadGame(void) {
