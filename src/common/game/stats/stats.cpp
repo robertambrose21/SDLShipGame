@@ -1,5 +1,13 @@
 #include "stats.h"
 
+bool operator==(StatsKey const& lhs, StatsKey const& rhs) {
+    return lhs.keyName == rhs.keyName && lhs.type == rhs.type;
+}
+
+bool operator<(StatsKey const& lhs, StatsKey const& rhs) {
+    return lhs.keyName < rhs.keyName || (lhs.keyName == rhs.keyName && lhs.type < rhs.type);
+}
+
 CommonStats::CommonStats() :
     moves(0),
     hp(0),
@@ -24,13 +32,84 @@ void CommonStats::remove(const CommonStats& other) {
     armour -= other.armour;
 }
 
-std::map<std::string, StatsValue> CommonStats::getValues(void) {
-    std::map<std::string, StatsValue> values;
+std::map<StatsKey, std::string> CommonStats::getValues(void) {
+    std::map<StatsKey, std::string> values;
 
-    if(moves != 0) values["Moves"] = { std::to_string(moves), StatsValue::Common };
-    if(hp != 0) values["HP"] = { std::to_string(hp), StatsValue::Common };
-    if(armour != 0) values["Armour"] = { std::to_string(armour), StatsValue::Common };
+    if(moves != 0) values[{ "Moves", StatsKey::Common }] = std::to_string(moves);
+    if(hp != 0) values[{ "HP", StatsKey::Common }] = std::to_string(hp);
+    if(armour != 0) values[{ "Armour", StatsKey::Common }] = std::to_string(armour);
     
+    return values;
+}
+
+DamageStats::DamageStats() :
+    numDice(0),
+    diceSize(0),
+    flatDamage(0),
+    power(0)
+{ }
+
+DamageStats::DamageStats(int numDice, int diceSize, int flatDamage, int power) :
+    numDice(numDice),
+    diceSize(diceSize),
+    flatDamage(flatDamage),
+    power(power)
+{ }
+
+void DamageStats::add(const DamageStats& other) {
+    numDice += other.numDice;
+    diceSize += other.diceSize;
+    flatDamage += other.flatDamage;
+    power += other.power;
+}
+
+void DamageStats::remove(const DamageStats& other) {
+    numDice -= other.numDice;
+    diceSize -= other.diceSize;
+    flatDamage -= other.flatDamage;
+    power -= other.power;
+}
+
+std::string DamageStats::getDamageString(void) {
+    if(numDice == 0) {
+        return std::to_string(flatDamage);
+    }
+
+    auto base = std::to_string(numDice) + "D" + std::to_string(diceSize);
+
+    if(flatDamage == 0) {
+        return base;
+    }
+
+    if(flatDamage < 0) {
+        return base + std::to_string(flatDamage);
+    }
+
+    return base + "+" + std::to_string(flatDamage);
+}
+
+bool DamageStats::isZero(void) {
+    if(power == 0) {
+        return true;
+    }
+
+    if(numDice == 0 && flatDamage == 0) {
+        return true;
+    }
+
+    if(diceSize == 0 && flatDamage == 0) {
+        return true;
+    }
+
+    return false;
+}
+
+std::map<StatsKey, std::string> DamageStats::getValues(void) {
+    std::map<StatsKey, std::string> values;
+
+    if(!isZero()) values[{ "Damage", StatsKey::Damage }] = getDamageString();
+    if(power != 0) values[{ "Power", StatsKey::Damage }] = std::to_string(power);
+
     return values;
 }
 
@@ -63,24 +142,24 @@ void EffectStats::remove(const EffectStats& other) {
     duration -= other.duration;
 }
 
-std::map<std::string, StatsValue> EffectStats::getValues(void) {
-    std::map<std::string, StatsValue> values;
+std::map<StatsKey, std::string> EffectStats::getValues(void) {
+    std::map<StatsKey, std::string> values;
 
     switch(type) {
         case FREEZE:
-            values["Type"] = { "Freeze", StatsValue::Effect };
+            values[{ "Type", StatsKey::Effect }] = "Freeze";
             break;
 
         case POISON:
-            values["Type"] = { "Poison", StatsValue::Effect };
+            values[{ "Type", StatsKey::Effect }] = "Poison";
             break;
 
         default:
             break;
     }
 
-    if(duration != 0) values["Duration"] = { std::to_string(duration), StatsValue::Effect };
-    if(!damageTicks.empty()) values["Damage per tick"] = { std::to_string(damageTicks[0]), StatsValue::Effect };
+    if(duration != 0) values[{ "Duration", StatsKey::Effect }] = std::to_string(duration);
+    if(!damageTicks.empty()) values[{ "Damage per tick", StatsKey::Effect }] = std::to_string(damageTicks[0]);
 
     return values;
 }
@@ -129,13 +208,13 @@ void AreaOfEffectStats::remove(const AreaOfEffectStats& other) {
     power -= other.power;
 }
 
-std::map<std::string, StatsValue> AreaOfEffectStats::getValues(void) {
-    std::map<std::string, StatsValue> values;
+std::map<StatsKey, std::string> AreaOfEffectStats::getValues(void) {
+    std::map<StatsKey, std::string> values;
 
-    if(radius != 0) values["Radius"] = { std::to_string(radius), StatsValue::AreaOfEffect };
-    if(turns != 0) values["Turns"] = { std::to_string(turns), StatsValue::AreaOfEffect };
-    if(power != 0) values["AoE Power"] = { std::to_string(power), StatsValue::AreaOfEffect };
-    if(!damageSource.isZero()) values["AoE Damage"]  = { damageSource.getDamageString(), StatsValue::AreaOfEffect };
+    if(radius != 0) values[{ "Radius", StatsKey::AreaOfEffect }] = std::to_string(radius);
+    if(turns != 0) values[{ "Turns", StatsKey::AreaOfEffect }] = std::to_string(turns);
+    if(power != 0) values[{ "Power", StatsKey::AreaOfEffect }] = std::to_string(power);
+    if(!damageSource.isZero()) values[{ "Damage", StatsKey::AreaOfEffect }] = damageSource.getDamageString();
 
     return values;
 }
@@ -172,10 +251,10 @@ void ProjectileStats::remove(const ProjectileStats& other) {
     }
 }
 
-std::map<std::string, StatsValue> ProjectileStats::getValues(void) {
-    std::map<std::string, StatsValue> values;
+std::map<StatsKey, std::string> ProjectileStats::getValues(void) {
+    std::map<StatsKey, std::string> values;
 
-    if(speed != 0) values["Speed"] = { std::to_string(speed), StatsValue::Projectile };
+    if(speed != 0) values[{ "Speed", StatsKey::Projectile }] = std::to_string(speed);
 
     for(auto effect : effects) {
         auto effectValues = effect.getValues();
@@ -216,13 +295,13 @@ void WeaponStats::remove(const WeaponStats& other) {
     projectile.remove(other.projectile);
 }
 
-std::map<std::string, StatsValue> WeaponStats::getValues(void) {
-    std::map<std::string, StatsValue> values;
+std::map<StatsKey, std::string> WeaponStats::getValues(void) {
+    std::map<StatsKey, std::string> values;
 
-    if(range != 0) values["Range"] = { std::to_string(range), StatsValue::Weapon };
-    if(uses != 0) values["Uses"] = { std::to_string(uses), StatsValue::Weapon };
-    if(power != 0) values["Weapon Power"] = { std::to_string(power), StatsValue::Weapon };
-    if(!damageSource.isZero()) values["Weapon Damage"]  = { damageSource.getDamageString(), StatsValue::Weapon };
+    if(range != 0) values[{ "Range", StatsKey::Weapon }] = std::to_string(range);
+    if(uses != 0) values[{ "Uses", StatsKey::Weapon }] = std::to_string(uses);
+    if(power != 0) values[{ "Power", StatsKey::Weapon }] = std::to_string(power);
+    if(!damageSource.isZero()) values[{ "Damage", StatsKey::Weapon }]  = damageSource.getDamageString();
 
     auto projectileValues = projectile.getValues();
     values.insert(projectileValues.begin(), projectileValues.end());
@@ -243,8 +322,8 @@ void AllStats::remove(const AllStats& other) {
     weapon.remove(other.weapon);
 }
 
-std::map<std::string, StatsValue> AllStats::getValues(void) {
-    std::map<std::string, StatsValue> values;
+std::map<StatsKey, std::string> AllStats::getValues(void) {
+    std::map<StatsKey, std::string> values;
 
     auto commonValues = common.getValues();
     auto weaponValues = weapon.getValues();

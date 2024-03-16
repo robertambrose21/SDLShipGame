@@ -18,12 +18,13 @@ private:
     Item* item;
     bool isOpen;
 
-    std::map<StatsValue::Type, std::vector<StatsPair>> stats;
+    std::map<StatsKey::Type, std::vector<StatsPair>> stats;
 
-    std::map<StatsValue::Type, std::vector<StatsPair>> buildStats(void);
-    std::string getStatsTypeString(StatsValue::Type type);
 
-    void drawStatsTable(StatsValue::Type type);
+    std::map<StatsKey::Type, std::vector<StatsPair>> buildStats(void);
+    std::string getStatsTypeString(StatsKey::Type type);
+
+    void drawStatsTable(StatsKey::Type type);
 
 public:
     ExamineItemPanel(Item* item);

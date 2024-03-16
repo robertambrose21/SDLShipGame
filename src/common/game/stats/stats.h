@@ -9,9 +9,10 @@
 #include "game/weapons/damagesource.h"
 #include "core/util/gameassert.h"
 
-typedef struct _statsValue {
+typedef struct _statsKey {
     enum Type {
         Common,
+        Damage,
         Effect,
         AreaOfEffect,
         Projectile,
@@ -19,9 +20,12 @@ typedef struct _statsValue {
         All
     };
 
-    std::string value;
+    std::string keyName;
     Type type;
-} StatsValue;
+} StatsKey;
+
+bool operator==(StatsKey const& lhs, StatsKey const& rhs);
+bool operator<(StatsKey const& lhs, StatsKey const& rhs);
 
 template<class T>
 class Stats {
@@ -29,7 +33,7 @@ public:
     virtual void add(const T& other) = 0;
     virtual void remove(const T& other) = 0;
 
-    virtual std::map<std::string, StatsValue> getValues(void) = 0;
+    virtual std::map<StatsKey, std::string> getValues(void) = 0;
 };
 
 class CommonStats : Stats<CommonStats> {
@@ -44,7 +48,26 @@ public:
     void add(const CommonStats& other);
     void remove(const CommonStats& other);
 
-    std::map<std::string, StatsValue> getValues(void);
+    std::map<StatsKey, std::string> getValues(void);
+};
+
+class DamageStats : Stats<DamageStats> {
+public:
+    int numDice;
+    int diceSize;
+    int flatDamage;
+    int power;
+
+    DamageStats();
+    DamageStats(int numDice, int diceSize, int flatDamage, int power);
+
+    void add(const DamageStats& other);
+    void remove(const DamageStats& other);
+
+    std::string getDamageString(void);
+    bool isZero(void);
+
+    std::map<StatsKey, std::string> getValues(void);
 };
 
 class EffectStats : Stats<EffectStats> {
@@ -59,7 +82,7 @@ public:
     void add(const EffectStats& other);
     void remove(const EffectStats& other);
 
-    std::map<std::string, StatsValue> getValues(void);
+    std::map<StatsKey, std::string> getValues(void);
 
     bool operator==(const EffectStats& other);
 };
@@ -77,7 +100,7 @@ public:
     void add(const AreaOfEffectStats& other);
     void remove(const AreaOfEffectStats& other);
 
-    std::map<std::string, StatsValue> getValues(void);
+    std::map<StatsKey, std::string> getValues(void);
 };
 
 class ProjectileStats : Stats<ProjectileStats> {
@@ -92,7 +115,7 @@ public:
     void add(const ProjectileStats& other);
     void remove(const ProjectileStats& other);
 
-    std::map<std::string, StatsValue> getValues(void);
+    std::map<StatsKey, std::string> getValues(void);
 };
 
 class WeaponStats : Stats<WeaponStats> {
@@ -109,7 +132,7 @@ public:
     void add(const WeaponStats& other);
     void remove(const WeaponStats& other);
 
-    std::map<std::string, StatsValue> getValues(void);
+    std::map<StatsKey, std::string> getValues(void);
 };
 
 class AllStats : Stats<AllStats> {
@@ -122,5 +145,5 @@ public:
     void add(const AllStats& other);
     void remove(const AllStats& other);
 
-    std::map<std::string, StatsValue> getValues(void);
+    std::map<StatsKey, std::string> getValues(void);
 };

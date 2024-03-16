@@ -7,11 +7,11 @@ ExamineItemPanel::ExamineItemPanel(Item* item) :
     stats = buildStats();
 }
 
-std::map<StatsValue::Type, std::vector<ExamineItemPanel::StatsPair>> ExamineItemPanel::buildStats(void) {
-    std::map<StatsValue::Type, std::vector<StatsPair>> stats;
+std::map<StatsKey::Type, std::vector<ExamineItemPanel::StatsPair>> ExamineItemPanel::buildStats(void) {
+    std::map<StatsKey::Type, std::vector<StatsPair>> stats;
 
-    for(auto& [name, value] : item->getStats().getValues()) {
-        stats[value.type].push_back({ name, value.value });
+    for(auto& [key, value] : item->getStats().getValues()) {
+        stats[key.type].push_back({ key.keyName, value });
     }
 
     return stats;
@@ -37,15 +37,15 @@ void ExamineItemPanel::draw(GraphicsContext& graphicsContext) {
     ImGui::Separator();
 
     ImGui::BeginChild("Stats");
-    drawStatsTable(StatsValue::Weapon);
-    drawStatsTable(StatsValue::Projectile);
-    drawStatsTable(StatsValue::AreaOfEffect);
+    drawStatsTable(StatsKey::Weapon);
+    drawStatsTable(StatsKey::Projectile);
+    drawStatsTable(StatsKey::AreaOfEffect);
     ImGui::EndChild();
 
     ImGui::End();
 }
 
-void ExamineItemPanel::drawStatsTable(StatsValue::Type type) {
+void ExamineItemPanel::drawStatsTable(StatsKey::Type type) {
     if(!stats.contains(type)) {
         return;
     }
@@ -70,19 +70,19 @@ void ExamineItemPanel::drawStatsTable(StatsValue::Type type) {
     }
 }
 
-std::string ExamineItemPanel::getStatsTypeString(StatsValue::Type type) {
+std::string ExamineItemPanel::getStatsTypeString(StatsKey::Type type) {
     switch(type) {
-        case StatsValue::Common:
+        case StatsKey::Common:
             return "Common";
-        case StatsValue::Effect:
+        case StatsKey::Effect:
             return "Effect";
-        case StatsValue::AreaOfEffect:
+        case StatsKey::AreaOfEffect:
             return "Area of Effect";
-        case StatsValue::Projectile:
+        case StatsKey::Projectile:
             return "Projectile";
-        case StatsValue::Weapon:
+        case StatsKey::Weapon:
             return "Weapon";
-        case StatsValue::All:
+        case StatsKey::All:
             return "All";
         default:
             return "Unknown";
