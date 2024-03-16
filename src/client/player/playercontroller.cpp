@@ -334,7 +334,7 @@ void PlayerController::setHoverTiles(void) {
     auto entity = selectedEntities[0];
     auto weapon = entity->getCurrentWeapon();
 
-    if(weapon->getType() != Weapon::PROJECTILE) {
+    if(weapon == nullptr || weapon->getType() != Weapon::PROJECTILE) {
         return;
     }
 
