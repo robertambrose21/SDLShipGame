@@ -266,21 +266,18 @@ std::map<StatsKey, std::string> ProjectileStats::getValues(void) {
 
 WeaponStats::WeaponStats() :
     range(0),
-    uses(0),
-    power(0)
+    uses(0)
 { }
 
-WeaponStats::WeaponStats(int range, int uses, int power, const DamageStats& damage) :
+WeaponStats::WeaponStats(int range, int uses, const DamageStats& damage) :
     range(range),
     uses(uses),
-    power(power),
     damage(damage)
 { }
 
 void WeaponStats::add(const WeaponStats& other) {
     range += other.range;
     uses += other.uses;
-    power += other.power;
     damage.add(other.damage);
     projectile.add(other.projectile);
 }
@@ -288,7 +285,6 @@ void WeaponStats::add(const WeaponStats& other) {
 void WeaponStats::remove(const WeaponStats& other) {
     range -= other.range;
     uses -= other.uses;
-    power -= other.power;
     damage.remove(other.damage);
     projectile.remove(other.projectile);
 }
@@ -298,7 +294,7 @@ std::map<StatsKey, std::string> WeaponStats::getValues(void) {
 
     if(range != 0) values[{ "Range", StatsKey::Weapon }] = std::to_string(range);
     if(uses != 0) values[{ "Uses", StatsKey::Weapon }] = std::to_string(uses);
-    if(power != 0) values[{ "Power", StatsKey::Weapon }] = std::to_string(power);
+    if(damage.power != 0) values[{ "Power", StatsKey::Weapon }] = std::to_string(damage.power);
     if(!damage.isZero()) values[{ "Damage", StatsKey::Weapon }]  = damage.getDamageString();
 
     auto projectileValues = projectile.getValues();

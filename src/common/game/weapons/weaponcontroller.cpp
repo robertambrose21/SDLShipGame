@@ -96,7 +96,7 @@ AllStats WeaponController::buildProjectileWeaponStats(
     Item* item
 ) {
     auto stats = AllStats();
-    stats.weapon = WeaponStats(definition.range, definition.uses, definition.power, damageSource.getStats());
+    stats.weapon = WeaponStats(definition.range, definition.uses, damageSource.getStats());
     stats.weapon.projectile = projectileBlueprint.stats;
     
     synchronizeWithItemStats(item, stats);
@@ -110,7 +110,7 @@ AllStats WeaponController::buildMeleeWeaponStats(
     Item* item
 ) {
     auto stats = AllStats();
-    stats.weapon = WeaponStats(definition.range, definition.uses, definition.power, damageSource.getStats());
+    stats.weapon = WeaponStats(definition.range, definition.uses, damageSource.getStats());
 
     synchronizeWithItemStats(item, stats);
 

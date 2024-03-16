@@ -120,12 +120,11 @@ class WeaponStats : Stats<WeaponStats> {
 public:
     int range;
     int uses;
-    int power;
     DamageStats damage;
     ProjectileStats projectile;
 
     WeaponStats();
-    WeaponStats(int range, int uses, int power, const DamageStats& damage);
+    WeaponStats(int range, int uses, const DamageStats& damage);
 
     void add(const WeaponStats& other);
     void remove(const WeaponStats& other);
