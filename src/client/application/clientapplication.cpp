@@ -70,7 +70,20 @@ void ClientApplication::initialise(void) {
     window->initialiseWindow();
 
     window->setGridTileTexture(1, 4);
-    window->setGridTileTexture(2, 5);
+    window->setGridTileTexture(2, 25);
+    window->setGridTileTexture(3, 26);
+    window->setGridTileTexture(4, 27);
+    window->setGridTileTexture(5, 28);
+    window->setGridTileTexture(6, 29);
+    window->setGridTileTexture(7, 30);
+    window->setGridTileTexture(8, 31);
+    window->setGridTileTexture(9, 32);
+    window->setGridTileTexture(10, 33);
+    window->setGridTileTexture(11, 34);
+    window->setGridTileTexture(12, 35);
+    window->setGridTileTexture(13, 36);
+    window->setGridTileTexture(14, 37);
+    window->setGridTileTexture(15, 38);
     
     for(auto i = 0; i < grid->getWidth(); i++) {
         for(auto j = 0; j < grid->getHeight(); j++) {
@@ -96,7 +109,7 @@ void ClientApplication::initialise(void) {
         playerController->handleMouseEvent(e);
     });
     window->addUiWorker([&](auto graphicsContext) {
-        // ImGui::ShowDemoWindow();
+        ImGui::ShowDemoWindow();
         playerController->drawUI(graphicsContext);
     });
 
