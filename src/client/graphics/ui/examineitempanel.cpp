@@ -37,6 +37,8 @@ void ExamineItemPanel::draw(GraphicsContext& graphicsContext) {
     ImGui::Separator();
 
     ImGui::BeginChild("Stats");
+    drawStatsTable(StatsKey::Common);
+    drawStatsTable(StatsKey::Effect);
     drawStatsTable(StatsKey::Weapon);
     drawStatsTable(StatsKey::Projectile);
     drawStatsTable(StatsKey::AreaOfEffect);
