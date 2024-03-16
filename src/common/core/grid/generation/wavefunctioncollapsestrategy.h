@@ -5,7 +5,8 @@
 #include <ranges>
 
 #include "generationstrategy.h"
-#include "core/util/randomrolls.h"
+#include "core/util/randomutils.h"
+#include "core/util/vectorutils.h"
 
 class WaveFunctionCollapseStrategy : public GenerationStrategy {
 private:

@@ -9,7 +9,7 @@
 
 #include "game/entities/entity.h"
 #include "core/util/gameassert.h"
-#include "core/util/randomrolls.h"
+#include "core/util/randomutils.h"
 #include "core/event/eventpublisher.h"
 #include "game/entities/behaviour/behaviourstrategy.h"
 #include "game/application/applicationcontext.h"

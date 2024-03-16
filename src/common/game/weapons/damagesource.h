@@ -5,7 +5,7 @@
 #include <iterator>
 #include <stdexcept>
 
-#include "core/util/randomrolls.h"
+#include "core/util/randomutils.h"
 #include "game/stats/stats.h"
 
 class Entity;

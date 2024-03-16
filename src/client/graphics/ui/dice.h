@@ -8,7 +8,7 @@
 
 #include "core/glmimport.h"
 #include "core/util/gameassert.h"
-#include "core/util/randomrolls.h"
+#include "core/util/randomutils.h"
 #include "../sdlimport.h"
 #include "../graphicscontext.h"
 #include "actionbutton.h"

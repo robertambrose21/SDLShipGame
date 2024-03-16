@@ -7,6 +7,7 @@
 
 #include "game/effects/effecttypes.h"
 #include "core/util/gameassert.h"
+#include "core/util/vectorutils.h"
 
 typedef struct _statsKey {
     enum Type {
@@ -82,9 +83,9 @@ public:
     void remove(const EffectStats& other);
 
     std::map<StatsKey, std::string> getValues(void);
-
-    bool operator==(const EffectStats& other);
 };
+
+bool operator==(EffectStats const& lhs, EffectStats const& rhs);
 
 class AreaOfEffectStats : Stats<AreaOfEffectStats> {
 public:

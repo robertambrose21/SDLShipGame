@@ -65,9 +65,7 @@ bool WaveFunctionCollapseStrategy::reduceTile(WFTile* tile, const std::vector<in
 
     std::vector<int> connectors;
     for(auto neighbourPossiblity : neighbourPossiblities) {
-        auto choices = allPossibilities[neighbourPossiblity][direction];
-        auto choice = choices[randomRange(0, choices.size() - 1)];
-        connectors.push_back(choice);
+        connectors.push_back(randomChoice(allPossibilities[neighbourPossiblity][direction]));
     }
 
     Direction opposite;
@@ -77,12 +75,7 @@ bool WaveFunctionCollapseStrategy::reduceTile(WFTile* tile, const std::vector<in
     if(direction == WEST) opposite = EAST;
 
     std::erase_if(tile->possibilities, [&](const auto& possiblity) {
-        if(std::find(connectors.begin(), connectors.end(), allPossibilities[possiblity][opposite][0]) == connectors.end() &&
-            std::find(connectors.begin(), connectors.end(), allPossibilities[possiblity][opposite][1]) == connectors.end()) {
-            return true;
-        }
-
-        return false;
+        return !containsAny(connectors, allPossibilities[possiblity][opposite]);
     });
 
     tile->entropy = tile->possibilities.size();
@@ -126,7 +119,7 @@ bool WaveFunctionCollapseStrategy::collapse(void) {
     }
 
     // TODO: Random vector choice
-    auto tileToCollapse = lowestEntropyTiles[randomRange(0, lowestEntropyTiles.size() - 1)];
+    auto tileToCollapse = randomChoice(lowestEntropyTiles);
     collapseTile(tileToCollapse);
 
     std::stack<WFTile*> stack;

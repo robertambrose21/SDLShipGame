@@ -164,17 +164,17 @@ std::map<StatsKey, std::string> EffectStats::getValues(void) {
     return values;
 }
 
-bool EffectStats::operator==(const EffectStats& other) {
-    if(type != other.type || duration != other.duration) {
+bool operator==(EffectStats const& lhs, EffectStats const& rhs) {
+    if(lhs.type != rhs.type || lhs.duration != rhs.duration) {
         return false;
     }
 
-    if(damageTicks.size() != other.damageTicks.size()) {
+    if(lhs.damageTicks.size() != rhs.damageTicks.size()) {
         return false;
     }
 
-    for(int i = 0; i < damageTicks.size(); i++) {
-        if(damageTicks[i] != other.damageTicks[i]) {
+    for(int i = 0; i < lhs.damageTicks.size(); i++) {
+        if(lhs.damageTicks[i] != rhs.damageTicks[i]) {
             return false;
         }
     }
@@ -229,7 +229,7 @@ void ProjectileStats::add(const ProjectileStats& other) {
     speed += other.speed;
 
     for(auto effect : other.effects) {
-        if(std::find(effects.begin(), effects.end(), effect) == effects.end()) {
+        if(!contains(effects, effect)) {
             effects.push_back(effect);
         }
     }

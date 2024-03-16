@@ -30,3 +30,8 @@ inline uint32_t randomDN(uint32_t n) {
 inline uint32_t randomD6(void) {
     return randomDN(6);
 }
+
+template<typename T>
+inline T randomChoice(const std::vector<T>& vec) {
+    return vec[randomRange(0, vec.size() - 1)];
+}

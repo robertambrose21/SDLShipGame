@@ -1,6 +1,6 @@
 #pragma once
 
-#include "core/util/randomrolls.h"
+#include "core/util/randomutils.h"
 #include "generationstrategy.h"
 
 class HallStrategy : public GenerationStrategy {

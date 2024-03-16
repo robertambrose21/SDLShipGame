@@ -4,7 +4,7 @@
 #include <map>
 
 #include "item.h"
-#include "core/util/randomrolls.h"
+#include "core/util/randomutils.h"
 #include "core/util/gameassert.h"
 
 typedef struct _lootTableWeightedItem {
