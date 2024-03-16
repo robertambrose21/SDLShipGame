@@ -85,6 +85,24 @@ std::map<std::string, StatsValue> EffectStats::getValues(void) {
     return values;
 }
 
+bool EffectStats::operator==(const EffectStats& other) {
+    if(type != other.type || duration != other.duration) {
+        return false;
+    }
+
+    if(damageTicks.size() != other.damageTicks.size()) {
+        return false;
+    }
+
+    for(int i = 0; i < damageTicks.size(); i++) {
+        if(damageTicks[i] != other.damageTicks[i]) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 AreaOfEffectStats::AreaOfEffectStats() :
     radius(0),
     turns(0),
@@ -135,7 +153,9 @@ void ProjectileStats::add(const ProjectileStats& other) {
     speed += other.speed;
 
     for(auto effect : other.effects) {
-        effects.push_back(effect);
+        if(std::find(effects.begin(), effects.end(), effect) == effects.end()) {
+            effects.push_back(effect);
+        }
     }
 
     aoe.add(other.aoe);
@@ -144,7 +164,12 @@ void ProjectileStats::add(const ProjectileStats& other) {
 void ProjectileStats::remove(const ProjectileStats& other) {
     speed -= other.speed;
     aoe.remove(other.aoe);
-    // Deliberately do not remove effects
+    
+    for(auto otherEffect : other.effects) {
+        std::erase_if(effects, [&](const auto& effect) {
+            return effect == otherEffect;
+        });
+    }
 }
 
 std::map<std::string, StatsValue> ProjectileStats::getValues(void) {

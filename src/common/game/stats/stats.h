@@ -60,6 +60,8 @@ public:
     void remove(const EffectStats& other);
 
     std::map<std::string, StatsValue> getValues(void);
+
+    bool operator==(const EffectStats& other);
 };
 
 class AreaOfEffectStats : Stats<AreaOfEffectStats> {
