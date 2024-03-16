@@ -3,7 +3,10 @@ assets/
 
 *.cmake
 *.a
+*.zip
 **/CMakeFiles
 CMakeCache.txt
 Makefile
 yojimbo/
+imgui/
+stduuid/
