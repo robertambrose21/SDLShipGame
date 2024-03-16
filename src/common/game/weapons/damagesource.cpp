@@ -1,19 +1,12 @@
 #include "damagesource.h"
 #include "game/entities/entity.h" // Fuck you C++ circular dependency shenanigans
 
-DamageSource::DamageSource() :
-    numDice(0),
-    diceSize(0),
-    flatDamage(0),
-    power(0)
+DamageSource::DamageSource()
 { }
 
 
-DamageSource::DamageSource(int numDice, int diceSize, int flatDamage, int power) :
-    numDice(numDice),
-    diceSize(diceSize),
-    flatDamage(flatDamage),
-    power(power)
+DamageSource::DamageSource(const DamageStats& stats) :
+    stats(stats)
 { }
 
 DamageSource DamageSource::parse(const std::string& value, int power) {
@@ -23,9 +16,9 @@ DamageSource DamageSource::parse(const std::string& value, int power) {
 
     DamageSource damageSource;
 
-    parseValues(value, damageSource.numDice, damageSource.diceSize, damageSource.flatDamage);
+    parseValues(value, damageSource.stats.numDice, damageSource.stats.diceSize, damageSource.stats.flatDamage);
 
-    damageSource.power = power;
+    damageSource.stats.power = power;
 
     return damageSource;
 }
@@ -77,81 +70,27 @@ int DamageSource::getFlatDamageModifier(const std::string& value) {
 }
 
 int DamageSource::apply(Entity* entity) {
-    int damage = flatDamage;
+    int damage = stats.flatDamage;
 
-    for(int i = 0; i < numDice; i++) {
-        damage += randomDN(diceSize);
+    for(int i = 0; i < stats.numDice; i++) {
+        damage += randomDN(stats.diceSize);
     }
 
-    damage *= (power / entity->getCurrentStats().common.armour);
+    damage *= (stats.power / entity->getCurrentStats().common.armour);
 
     entity->takeDamage(damage);
 
     return damage;
 }
 
-int DamageSource::getNumDice(void) const {
-    return numDice;
-}
-
-void DamageSource::setNumDice(int numDice) {
-    this->numDice = numDice;
-}
-
-int DamageSource::getDiceSize(void) const {
-    return diceSize;
-}
-
-void DamageSource::setDiceSize(int diceSize) {
-    this->diceSize = diceSize;
-}
-
-int DamageSource::getFlatDamage(void) const {
-    return flatDamage;
-}
-
-void DamageSource::setFlatDamage(int flatDamage) {
-    this->flatDamage = flatDamage;
-}
-
-int DamageSource::getPower(void) const {
-    return power;
-}
-
-void DamageSource::setPower(int power) {
-    this->power = power;
+DamageStats DamageSource::getStats(void) const {
+    return stats;
 }
 
 bool DamageSource::isZero(void) {
-    if(power == 0) {
-        return true;
-    }
-
-    if(numDice == 0 && flatDamage == 0) {
-        return true;
-    }
-
-    if(diceSize == 0 && flatDamage == 0) {
-        return true;
-    }
-
-    return false;
+    return stats.isZero();
 }
 
 std::string DamageSource::getDamageString(void) {
-    if(numDice == 0) {
-        return std::to_string(flatDamage);
-    }
-
-    auto base = std::to_string(numDice) + "D" + std::to_string(diceSize);
-
-    if(flatDamage == 0) {
-        return base;
-    }
-
-    if(flatDamage < 0) {
-        return base + std::to_string(flatDamage);
-    }
-
-    return base + "+" + std::to_string(flatDamage);
+    return stats.getDamageString();
 }

@@ -188,24 +188,25 @@ AreaOfEffectStats::AreaOfEffectStats() :
     power(0)
 { }
 
-AreaOfEffectStats::AreaOfEffectStats(float radius, int turns, int power, const DamageSource& damageSource) :
+AreaOfEffectStats::AreaOfEffectStats(float radius, int turns, int power, const DamageStats& damage) :
     radius(radius),
     turns(turns),
     power(power),
-    damageSource(damageSource)
+    damage(damage)
 { }
 
 void AreaOfEffectStats::add(const AreaOfEffectStats& other) {
     radius += other.radius;
     turns += other.turns;
     power += other.power;
-    damageSource = other.damageSource;
+    damage.add(other.damage);
 }
 
 void AreaOfEffectStats::remove(const AreaOfEffectStats& other) {
     radius -= other.radius;
     turns -= other.turns;
     power -= other.power;
+    damage.remove(other.damage);
 }
 
 std::map<StatsKey, std::string> AreaOfEffectStats::getValues(void) {
@@ -214,7 +215,7 @@ std::map<StatsKey, std::string> AreaOfEffectStats::getValues(void) {
     if(radius != 0) values[{ "Radius", StatsKey::AreaOfEffect }] = std::to_string(radius);
     if(turns != 0) values[{ "Turns", StatsKey::AreaOfEffect }] = std::to_string(turns);
     if(power != 0) values[{ "Power", StatsKey::AreaOfEffect }] = std::to_string(power);
-    if(!damageSource.isZero()) values[{ "Damage", StatsKey::AreaOfEffect }] = damageSource.getDamageString();
+    if(!damage.isZero()) values[{ "Damage", StatsKey::AreaOfEffect }] = damage.getDamageString();
 
     return values;
 }
@@ -273,18 +274,18 @@ WeaponStats::WeaponStats() :
     power(0)
 { }
 
-WeaponStats::WeaponStats(int range, int uses, int power, const DamageSource& damageSource) :
+WeaponStats::WeaponStats(int range, int uses, int power, const DamageStats& damage) :
     range(range),
     uses(uses),
     power(power),
-    damageSource(damageSource)
+    damage(damage)
 { }
 
 void WeaponStats::add(const WeaponStats& other) {
     range += other.range;
     uses += other.uses;
     power += other.power;
-    damageSource = other.damageSource;
+    damage.add(other.damage);
     projectile.add(other.projectile);
 }
 
@@ -292,6 +293,7 @@ void WeaponStats::remove(const WeaponStats& other) {
     range -= other.range;
     uses -= other.uses;
     power -= other.power;
+    damage.remove(other.damage);
     projectile.remove(other.projectile);
 }
 
@@ -301,7 +303,7 @@ std::map<StatsKey, std::string> WeaponStats::getValues(void) {
     if(range != 0) values[{ "Range", StatsKey::Weapon }] = std::to_string(range);
     if(uses != 0) values[{ "Uses", StatsKey::Weapon }] = std::to_string(uses);
     if(power != 0) values[{ "Power", StatsKey::Weapon }] = std::to_string(power);
-    if(!damageSource.isZero()) values[{ "Damage", StatsKey::Weapon }]  = damageSource.getDamageString();
+    if(!damage.isZero()) values[{ "Damage", StatsKey::Weapon }]  = damage.getDamageString();
 
     auto projectileValues = projectile.getValues();
     values.insert(projectileValues.begin(), projectileValues.end());

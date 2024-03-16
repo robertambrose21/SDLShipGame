@@ -62,7 +62,7 @@ std::unique_ptr<Weapon> WeaponController::createWeapon(
         auto projectileBlueprint = context->getProjectilePool()->create(definition.projectile);
 
         auto stats = AllStats();
-        stats.weapon = WeaponStats(definition.range, definition.uses, definition.power, damageSource);
+        stats.weapon = WeaponStats(definition.range, definition.uses, definition.power, damageSource.getStats());
         stats.weapon.projectile = projectileBlueprint.stats;
         if(item != nullptr) {
             item->addStats(stats);
@@ -77,12 +77,13 @@ std::unique_ptr<Weapon> WeaponController::createWeapon(
             id,
             definition.name,
             stats,
+            damageSource,
             projectileBlueprint
         );
     }
     else if(definition.weaponClass == "Melee") {
         auto stats = AllStats();
-        stats.weapon = WeaponStats(definition.range, definition.uses, definition.power, damageSource);
+        stats.weapon = WeaponStats(definition.range, definition.uses, definition.power, damageSource.getStats());
         if(item != nullptr) {
             item->addStats(stats);
             stats.common = item->getStats().common;
@@ -95,6 +96,7 @@ std::unique_ptr<Weapon> WeaponController::createWeapon(
             *this,
             id,
             definition.name,
+            damageSource,
             stats
         );
     }

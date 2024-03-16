@@ -15,7 +15,8 @@ public:
         Item* item,
         EventPublisher<MeleeWeaponEventData>& publisher,
         const UUID& id,
-        const std::string& name, 
+        const std::string& name,
+        const DamageSource& damageSource,
         const AllStats& stats
     );
 
@@ -24,7 +25,8 @@ public:
         ApplicationContext* context,
         Item* item,
         EventPublisher<MeleeWeaponEventData>& publisher,
-        const std::string& name, 
+        const std::string& name,
+        const DamageSource& damageSource, 
         const AllStats& stats
     );
 

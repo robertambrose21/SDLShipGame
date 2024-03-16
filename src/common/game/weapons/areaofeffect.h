@@ -23,6 +23,7 @@ private:
     int liveTurn;
     bool isAnimationOnly;
     glm::ivec2 position;
+    DamageSource damageSource;
     AreaOfEffectStats stats;
 
 public:
@@ -34,7 +35,8 @@ public:
         int ownerId,
         int liveTurn,
         bool isAnimationOnly,
-        const glm::ivec2& position, 
+        const glm::ivec2& position,
+        const DamageSource& damageSource,
         const AreaOfEffectStats& stats
     );
 

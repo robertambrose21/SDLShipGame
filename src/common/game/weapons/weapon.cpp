@@ -6,7 +6,8 @@ Weapon::Weapon(
     Item* item,
     EventPublisher<MeleeWeaponEventData>& publisher,
     const UUID& id,
-    const std::string& name, 
+    const std::string& name,
+    const DamageSource& damageSource,
     const AllStats& stats
 ) :
     id(id),
@@ -15,6 +16,7 @@ Weapon::Weapon(
     item(item),
     publisher(publisher),
     name(name),
+    damageSource(damageSource),
     stats(stats),
     usesLeft(0)
 {
@@ -26,10 +28,11 @@ Weapon::Weapon(
     ApplicationContext* context,
     Item* item,
     EventPublisher<MeleeWeaponEventData>& publisher,
-    const std::string& name, 
+    const std::string& name,
+    const DamageSource& damageSource,
     const AllStats& stats
 ) :
-    Weapon(owner, context, item, publisher, UUID::getNewUUID(), name, stats)
+    Weapon(owner, context, item, publisher, UUID::getNewUUID(), name, damageSource, stats)
 { }
 
 void Weapon::use(const glm::ivec2& position, const glm::ivec2& target, bool isAnimationOnly) {
@@ -89,7 +92,7 @@ Entity* Weapon::getOwner(void) {
 }
 
 DamageSource Weapon::getDamageSource(void) const {
-    return stats.weapon.damageSource;
+    return damageSource;
 }
 
 Item* Weapon::getItem(void) {

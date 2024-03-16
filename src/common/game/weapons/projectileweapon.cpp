@@ -8,9 +8,10 @@ ProjectileWeapon::ProjectileWeapon(
     const UUID& id,
     const std::string& name, 
     const AllStats& stats,
+    const DamageSource& damageSource,
     const Projectile::Blueprint& projectileBlueprint
 ) :
-    Weapon(owner, context, item, publisher, id, name, stats),
+    Weapon(owner, context, item, publisher, id, name, damageSource, stats),
     projectileBlueprint(projectileBlueprint)
 { }
 
@@ -21,9 +22,10 @@ ProjectileWeapon::ProjectileWeapon(
     EventPublisher<MeleeWeaponEventData>& publisher,
     const std::string& name, 
     const AllStats& stats,
+    const DamageSource& damageSource,
     const Projectile::Blueprint& projectileBlueprint
 ) :
-    ProjectileWeapon(owner, context, item, publisher, UUID::getNewUUID(), name, stats, projectileBlueprint)
+    ProjectileWeapon(owner, context, item, publisher, UUID::getNewUUID(), name, stats, damageSource, projectileBlueprint)
 { }
 
 bool ProjectileWeapon::onUse(const glm::ivec2& position, const glm::ivec2& target, bool isAnimationOnly) {
@@ -39,7 +41,7 @@ bool ProjectileWeapon::onUse(const glm::ivec2& position, const glm::ivec2& targe
             projectileBlueprint, 
             position, 
             target,
-            stats.weapon.damageSource,
+            damageSource,
             isAnimationOnly
         ), 
         owner

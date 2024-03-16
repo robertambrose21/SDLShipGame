@@ -6,7 +6,6 @@
 #include <algorithm>
 
 #include "game/effects/effecttypes.h"
-#include "game/weapons/damagesource.h"
 #include "core/util/gameassert.h"
 
 typedef struct _statsKey {
@@ -92,10 +91,10 @@ public:
     float radius;
     int turns;
     int power;
-    DamageSource damageSource;
+    DamageStats damage;
 
     AreaOfEffectStats();
-    AreaOfEffectStats(float radius, int turns, int power, const DamageSource& damageSource);
+    AreaOfEffectStats(float radius, int turns, int power, const DamageStats& damage);
 
     void add(const AreaOfEffectStats& other);
     void remove(const AreaOfEffectStats& other);
@@ -123,11 +122,11 @@ public:
     int range;
     int uses;
     int power;
-    DamageSource damageSource;
+    DamageStats damage;
     ProjectileStats projectile;
 
     WeaponStats();
-    WeaponStats(int range, int uses, int power, const DamageSource& damageSource);
+    WeaponStats(int range, int uses, int power, const DamageStats& damage);
 
     void add(const WeaponStats& other);
     void remove(const WeaponStats& other);
