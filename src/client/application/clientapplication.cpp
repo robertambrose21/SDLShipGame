@@ -84,6 +84,10 @@ void ClientApplication::initialise(void) {
     window->setGridTileTexture(13, 36);
     window->setGridTileTexture(14, 37);
     window->setGridTileTexture(15, 38);
+    window->setGridTileTexture(16, 4);
+    window->setGridTileTexture(17, 4);
+    window->setGridTileTexture(18, 4);
+    window->setGridTileTexture(19, 4);
     
     for(auto i = 0; i < grid->getWidth(); i++) {
         for(auto j = 0; j < grid->getHeight(); j++) {

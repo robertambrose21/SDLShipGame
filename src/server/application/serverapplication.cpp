@@ -100,7 +100,7 @@ void ServerApplication::run(void) {
 void ServerApplication::onClientConnect(int clientIndex) {
     auto& context = application->getContext();
 
-    auto player = addPlayer(false);
+    auto player = addPlayer(true);
     auto participantId = context.getTurnController()->addParticipant(true, { player })->id;
     context.getTurnController()->reset();
 

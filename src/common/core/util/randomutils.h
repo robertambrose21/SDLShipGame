@@ -35,3 +35,13 @@ template<typename T>
 inline T randomChoice(const std::vector<T>& vec) {
     return vec[randomRange(0, vec.size() - 1)];
 }
+
+template<typename T>
+inline T randomChoice(const std::vector<T>& vec, const std::vector<int> weights) {
+    game_assert(vec.size() == weights.size());
+    
+    static std::default_random_engine generator;
+    std::discrete_distribution<int> dist(weights.begin(), weights.end());
+
+    return vec[dist(generator)];
+}

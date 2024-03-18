@@ -8,6 +8,14 @@
 #include "core/util/randomutils.h"
 #include "core/util/vectorutils.h"
 
+typedef struct _possibility {
+    int id;
+    int weight = 1;
+} Possibility;
+
+bool operator<(Possibility const& lhs, Possibility const& rhs);
+bool operator==(Possibility const& lhs, Possibility const& rhs);
+
 class WaveFunctionCollapseStrategy : public GenerationStrategy {
 private:
     enum Direction {

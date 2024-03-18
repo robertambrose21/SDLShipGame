@@ -1,9 +1,91 @@
 #include "wavefunctioncollapsestrategy.h"
 
-std::map<int, std::vector<std::vector<int>>> allPossibilities = {
-    { 1, { { 1 ,2 }, { 1 ,2 }, { 1 ,2 }, { 1 ,2 } } },
-    { 2, { { 1 ,2 }, { 1 ,2 }, { 1 ,2 }, { 1 ,2 } } },
+bool operator<(Possibility const& lhs, Possibility const& rhs) {
+    return lhs.id < rhs.id || (lhs.id == rhs.id && lhs.weight < rhs.weight);
+}
+
+bool operator==(Possibility const& lhs, Possibility const& rhs) {
+    return lhs.id == rhs.id && lhs.weight == rhs.weight;
+}
+
+// std::map<int, int> allWeights = {
+//     { 1, 8 },
+//     { 2, 1 }
+// };
+
+// std::map<int, std::vector<std::vector<int>>> allPossibilities = {
+//     { 1, { { 1, 2 }, { 1, 2 }, { 1, 2 }, { 1, 2 } } },
+//     { 2, { { 1, 2 }, { 1, 2 }, { 1, 2 }, { 1, 2 } } },
+// };
+
+std::map<int, int> allWeights = {
+    { 1, 16 },
+    { 2, 8 },
+    // { 3, 1 },
+    { 4, 4 },
+    { 5, 4 },
+    { 6, 4 },
+    { 7, 4 },
+    { 8, 2 },
+    { 9, 2 },
+    { 10, 2 },
+    { 11, 2 },
+    // { 12, 1 },
+    // { 13, 1 },
+    // { 14, 1 },
+    // { 15, 1 }
+    { 16, 4 },
+    { 17, 4 },
+    { 18, 4 },
+    { 19, 4 }
 };
+
+// NORTH, SOUTH, EAST, WEST
+// std::map<int, std::vector<std::vector<int>>> rules = {
+//     { 1, { { 1 }, { 1 }, { 1 }, { 1 } } },      // GRASS
+//     { 2, { { 2 }, { 2 }, { 2 }, { 2 } } },      // WALL
+//     // { 3, { { 1 }, { 1 }, { 1 }, { 1 } } },      // WALL_C
+//     { 4, { { 1 }, { 2 }, { 4 }, { 4 } } },      // WALL_N
+//     { 5, { { 2 }, { 1 }, { 5 }, { 5 } } },      // WALL_S
+//     { 6, { { 6 }, { 6 }, { 1 }, { 2 } } },      // WALL_E
+//     { 7, { { 7 }, { 7 }, { 2 }, { 1 } } },      // WALL_W
+//     { 8, { { 1 }, { 6 }, { 1 }, { 4 } } },      // WALL_NE
+//     { 9, { { 1 }, { 7 }, { 4 }, { 1 } } },      // WALL_NW
+//     { 10, { { 6 }, { 1 }, { 1 }, { 5 } } },     // WALL_SE
+//     { 11, { { 7 }, { 1 }, { 5 }, { 1 } } }//,     // WALL_SW
+//     // { 12, { { 1 }, { 2 }, { 1 }, { 1 } } },     // WALL_NC
+//     // { 13, { { 2 }, { 1 }, { 1 }, { 1 } } },     // WALL_SC
+//     // { 14, { { 1 }, { 1 }, { 1 }, { 2 } } },     // WALL_EC
+// };
+
+// This is just fucked lol - enum it all otherwise it's just fucking hell
+// NORTH, SOUTH, EAST, WEST
+std::map<int, std::vector<std::vector<int>>> rules = {
+    { 1, { { 1 }, { 1 }, { 1 }, { 1 } } },      // GRASS
+    { 2, { { 2 }, { 2 }, { 2 }, { 2 } } },      // WALL
+    // { 3, { { 1 }, { 1 }, { 1 }, { 1 } } },      // WALL_C
+    { 4, { { 16 }, { 2 }, { 4 }, { 4 } } },      // WALL_N
+    { 5, { { 2 }, { 17 }, { 5 }, { 5 } } },      // WALL_S
+    { 6, { { 6 }, { 6 }, { 18 }, { 2 } } },      // WALL_E
+    { 7, { { 7 }, { 7 }, { 2 }, { 19 } } },      // WALL_W
+    { 8, { { 16 }, { 6 }, { 16 }, { 4 } } },     // WALL_NE
+    { 9, { { 17 }, { 7 }, { 4 }, { 17 } } },     // WALL_NW
+    { 10, { { 6 }, { 18 }, { 18 }, { 5 } } },    // WALL_SE
+    { 11, { { 7 }, { 19 }, { 5 }, { 19 } } },    // WALL_SW
+    // { 12, { { 1 }, { 2 }, { 1 }, { 1 } } },     // WALL_NC
+    // { 13, { { 2 }, { 1 }, { 1 }, { 1 } } },     // WALL_SC
+    // { 14, { { 1 }, { 1 }, { 1 }, { 2 } } },     // WALL_EC
+    // { 15, { { 1 }, { 1 }, { 2 }, { 1 } } },     // WALL_WC
+    { 16, { { 1 }, { 5 }, { 16 }, { 16 } } },    // GRASS_N
+    { 17, { { 4 }, { 1 }, { 17 }, { 17 } } },    // GRASS_S
+    { 18, { { 18 }, { 18 }, { 1 }, { 7 } } },    // GRASS_E
+    { 19, { { 19 }, { 19 }, { 6 }, { 1 } } },    // GRASS_W
+    { 16, { { 1 }, { 18 }, { 1 }, { 16 } } },    // GRASS_NE
+    { 17, { { 1 }, { 16 }, { 19 }, { 1 } } },    // GRASS_NW
+    { 18, { { 18 }, { 1 }, { 1 }, { 17 } } },    // GRASS_SE
+    { 19, { { 19 }, { 1 }, { 17 }, { 1 } } }     // GRASS_SW
+};
+
 
 WaveFunctionCollapseStrategy::WaveFunctionCollapseStrategy(int width, int height) :
     GenerationStrategy(width, height)
@@ -16,8 +98,8 @@ WaveFunctionCollapseStrategy::WaveFunctionCollapseStrategy(int width, int height
 
             tile.x = x;
             tile.y = y;
-            tile.entropy = allPossibilities.size();
-            auto kv = std::views::keys(allPossibilities);
+            tile.entropy = rules.size();
+            auto kv = std::views::keys(rules);
             tile.possibilities = { kv.begin(), kv.end() };
 
             addTileNeighbours(x, y, &tiles[y][x]);
@@ -52,20 +134,31 @@ void WaveFunctionCollapseStrategy::addTileNeighbours(int x, int y, WFTile* tile)
 
 void WaveFunctionCollapseStrategy::collapseTile(WFTile* tile) {
     tile->entropy = 0;
-    auto choice = tile->possibilities[randomRange(0, tile->possibilities.size() - 1)];
-    tile->possibilities = { choice };
+
+    std::vector<int> weights;
+    for(auto possiblity : tile->possibilities) {
+        weights.push_back(allWeights[possiblity]);
+    }
+
+    tile->possibilities = { randomChoice(tile->possibilities, weights) };
 }
 
-bool WaveFunctionCollapseStrategy::reduceTile(WFTile* tile, const std::vector<int>& neighbourPossiblities, Direction direction) {
+bool WaveFunctionCollapseStrategy::reduceTile(
+    WFTile* tile, 
+    const std::vector<int>& neighbourPossiblities, 
+    Direction direction
+) {
     if(tile->entropy <= 0) {
-        return false;
+        return false;  
     }
 
     bool reduced = false;
 
     std::vector<int> connectors;
     for(auto neighbourPossiblity : neighbourPossiblities) {
-        connectors.push_back(randomChoice(allPossibilities[neighbourPossiblity][direction]));
+        for(auto possibility : rules[neighbourPossiblity][direction]) {
+            connectors.push_back(possibility);
+        }
     }
 
     Direction opposite;
@@ -74,8 +167,11 @@ bool WaveFunctionCollapseStrategy::reduceTile(WFTile* tile, const std::vector<in
     if(direction == EAST) opposite = WEST;
     if(direction == WEST) opposite = EAST;
 
+    // std::erase_if(tile->possibilities, [&](const auto& possiblity) {
+    //     return !containsAny(connectors, rules[possiblity][opposite]);
+    // });
     std::erase_if(tile->possibilities, [&](const auto& possiblity) {
-        return !containsAny(connectors, allPossibilities[possiblity][opposite]);
+        return !containsAny(connectors, rules[possiblity][opposite]);
     });
 
     tile->entropy = tile->possibilities.size();
@@ -85,7 +181,7 @@ bool WaveFunctionCollapseStrategy::reduceTile(WFTile* tile, const std::vector<in
 
 std::vector<WaveFunctionCollapseStrategy::WFTile*> WaveFunctionCollapseStrategy::getLowestEntropyTiles(void) {
     std::vector<WFTile*> lowestEntropyTiles;
-    auto lowestEntropy = allPossibilities.size();
+    auto lowestEntropy = rules.size();
 
     for(auto y = 0; y < getHeight(); y++) {
         for(auto x = 0; x < getWidth(); x++) {
@@ -118,7 +214,6 @@ bool WaveFunctionCollapseStrategy::collapse(void) {
         return true;
     }
 
-    // TODO: Random vector choice
     auto tileToCollapse = randomChoice(lowestEntropyTiles);
     collapseTile(tileToCollapse);
 
@@ -139,7 +234,10 @@ bool WaveFunctionCollapseStrategy::collapse(void) {
         }
 
         auto tileId = tile->possibilities[0];
-        setTile(tile->x, tile->y, { tileId, tileId == 1 }); // TODO: Better way of assessing whether a tile is walkable
+        if(tileId == 0) {
+            std::cout << "Literally not possible lol" << std::endl;
+        }
+        setTile(tile->x, tile->y, { tileId, tileId == 1, false }); // TODO: Better way of assessing whether a tile is walkable
     }
 
     return false;
