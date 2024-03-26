@@ -14,7 +14,7 @@ void ClientApplication::initialise(void) {
     }
 
     application = std::make_unique<Application>(
-        std::make_unique<Grid>(25, 25), // TODO: This should be defined by the server
+        std::make_unique<Grid>(100, 100), // TODO: This should be defined by the server
         std::make_unique<EntityPool>(),
         std::make_unique<WeaponController>(),
         std::make_unique<ProjectilePool>(),

@@ -14,7 +14,7 @@ void ServerApplication::initialise(void) {
     }
 
     application = std::make_unique<Application>(
-        std::make_unique<Grid>(25, 25),
+        std::make_unique<Grid>(100, 100),
         std::make_unique<EntityPool>(),
         std::make_unique<WeaponController>(),
         std::make_unique<ProjectilePool>(),
@@ -204,7 +204,7 @@ void ServerApplication::loadMap(void) {
     //         22
     //     ).generate()
     // );
-    grid->setData(WaveFunctionCollapseStrategy(grid->getWidth(), grid->getHeight()).generate());
+    grid->setData(WaveFunctionCollapseStrategy(grid).generate());
 }
 
 void ServerApplication::loadGame(void) {

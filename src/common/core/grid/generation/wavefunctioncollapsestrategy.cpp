@@ -27,10 +27,6 @@ const int TILE_WALL_NE2 = 20;
 const int TILE_WALL_NW2 = 21;
 const int TILE_WALL_SE2 = 22;
 const int TILE_WALL_SW2 = 23;
-    // TILE_WALL_NC,
-    // TILE_WALL_SC,
-    // TILE_WALL_EC,
-    // TILE_WALL_WC
 
 enum TileEdge {
     GRASS,
@@ -48,12 +44,7 @@ enum TileEdge {
 // NORTH, SOUTH, EAST, WEST
 std::map<int, std::vector<int>> rules = {
     { TILE_GRASS,       { GRASS, GRASS, GRASS, GRASS } },
-    // { TILE_GRASS_N, { } },
-    // { TILE_GRASS_S, { } },
-    // { TILE_GRASS_E, { } },
-    // { TILE_GRASS_W, { } },
     { TILE_WALL,        { WALL, WALL, WALL, WALL } },
-    // { TILE_WALL_C,      { GRASS, GRASS, GRASS, GRASS } },
     { TILE_WALL_N,      { GRASS, WALL, WALL_N, WALL_N } },
     { TILE_WALL_S,      { WALL, GRASS, WALL_S, WALL_S } },
     { TILE_WALL_E,      { WALL_E, WALL_E, GRASS, WALL } },
@@ -69,17 +60,13 @@ std::map<int, std::vector<int>> rules = {
 };
 
 std::map<int, int> allWeights = {
-    { TILE_GRASS, 16 },
-    { TILE_GRASS_N, 1 },
-    { TILE_GRASS_S, 1 },
-    { TILE_GRASS_E, 1 },
-    { TILE_GRASS_W, 1 },
-    { TILE_WALL, 1 },
+    { TILE_GRASS, 4 },
+    { TILE_WALL, 8 },
     { TILE_WALL_C, 1 },
-    { TILE_WALL_N, 4 },
-    { TILE_WALL_S, 4 },
-    { TILE_WALL_E, 4 },
-    { TILE_WALL_W, 4 },
+    { TILE_WALL_N, 2 },
+    { TILE_WALL_S, 2 },
+    { TILE_WALL_E, 2 },
+    { TILE_WALL_W, 2 },
     { TILE_WALL_NE, 2 },
     { TILE_WALL_NW, 2 },
     { TILE_WALL_SE, 2 },
@@ -90,113 +77,94 @@ std::map<int, int> allWeights = {
     { TILE_WALL_SW2, 2}
 };
 
-// std::map<int, int> allWeights = {
-//     { 1, 8 },
-//     { 2, 1 }
-// };
-
-// std::map<int, std::vector<std::vector<int>>> allPossibilities = {
-//     { 1, { { 1, 2 }, { 1, 2 }, { 1, 2 }, { 1, 2 } } },
-//     { 2, { { 1, 2 }, { 1, 2 }, { 1, 2 }, { 1, 2 } } },
-// };
-
-// std::map<int, int> allWeights = {
-//     { 1, 16 },
-//     { 2, 8 },
-//     // { 3, 1 },
-//     { 4, 4 },
-//     { 5, 4 },
-//     { 6, 4 },
-//     { 7, 4 },
-//     { 8, 2 },
-//     { 9, 2 },
-//     { 10, 2 },
-//     { 11, 2 },
-//     // { 12, 1 },
-//     // { 13, 1 },
-//     // { 14, 1 },
-//     // { 15, 1 }
-//     { 16, 4 },
-//     { 17, 4 },
-//     { 18, 4 },
-//     { 19, 4 }
-// };
-
-// NORTH, SOUTH, EAST, WEST
-// std::map<int, std::vector<std::vector<int>>> rules = {
-//     { 1, { { 1 }, { 1 }, { 1 }, { 1 } } },      // GRASS
-//     { 2, { { 2 }, { 2 }, { 2 }, { 2 } } },      // WALL
-//     // { 3, { { 1 }, { 1 }, { 1 }, { 1 } } },      // WALL_C
-//     { 4, { { 1 }, { 2 }, { 4 }, { 4 } } },      // WALL_N
-//     { 5, { { 2 }, { 1 }, { 5 }, { 5 } } },      // WALL_S
-//     { 6, { { 6 }, { 6 }, { 1 }, { 2 } } },      // WALL_E
-//     { 7, { { 7 }, { 7 }, { 2 }, { 1 } } },      // WALL_W
-//     { 8, { { 1 }, { 6 }, { 1 }, { 4 } } },      // WALL_NE
-//     { 9, { { 1 }, { 7 }, { 4 }, { 1 } } },      // WALL_NW
-//     { 10, { { 6 }, { 1 }, { 1 }, { 5 } } },     // WALL_SE
-//     { 11, { { 7 }, { 1 }, { 5 }, { 1 } } }//,     // WALL_SW
-//     // { 12, { { 1 }, { 2 }, { 1 }, { 1 } } },     // WALL_NC
-//     // { 13, { { 2 }, { 1 }, { 1 }, { 1 } } },     // WALL_SC
-//     // { 14, { { 1 }, { 1 }, { 1 }, { 2 } } },     // WALL_EC
-// };
-
-// This is just fucked lol - enum it all otherwise it's just fucking hell
-// NORTH, SOUTH, EAST, WEST
-// std::map<int, std::vector<std::vector<int>>> rules = {
-//     { 1, { { 1 }, { 1 }, { 1 }, { 1 } } },      // GRASS
-//     { 2, { { 2 }, { 2 }, { 2 }, { 2 } } },      // WALL
-//     // { 3, { { 1 }, { 1 }, { 1 }, { 1 } } },      // WALL_C
-//     { 4, { { 16 }, { 2 }, { 4 }, { 4 } } },      // WALL_N
-//     { 5, { { 2 }, { 17 }, { 5 }, { 5 } } },      // WALL_S
-//     { 6, { { 6 }, { 6 }, { 18 }, { 2 } } },      // WALL_E
-//     { 7, { { 7 }, { 7 }, { 2 }, { 19 } } },      // WALL_W
-//     { 8, { { 16 }, { 6 }, { 16 }, { 4 } } },     // WALL_NE
-//     { 9, { { 17 }, { 7 }, { 4 }, { 17 } } },     // WALL_NW
-//     { 10, { { 6 }, { 18 }, { 18 }, { 5 } } },    // WALL_SE
-//     { 11, { { 7 }, { 19 }, { 5 }, { 19 } } },    // WALL_SW
-//     // { 12, { { 1 }, { 2 }, { 1 }, { 1 } } },     // WALL_NC
-//     // { 13, { { 2 }, { 1 }, { 1 }, { 1 } } },     // WALL_SC
-//     // { 14, { { 1 }, { 1 }, { 1 }, { 2 } } },     // WALL_EC
-//     // { 15, { { 1 }, { 1 }, { 2 }, { 1 } } },     // WALL_WC
-//     { 16, { { 1 }, { 5 }, { 16 }, { 16 } } },    // GRASS_N
-//     { 17, { { 4 }, { 1 }, { 17 }, { 17 } } },    // GRASS_S
-//     { 18, { { 18 }, { 18 }, { 1 }, { 7 } } },    // GRASS_E
-//     { 19, { { 19 }, { 19 }, { 6 }, { 1 } } },    // GRASS_W
-//     { 16, { { 1 }, { 18 }, { 1 }, { 16 } } },    // GRASS_NE
-//     { 17, { { 1 }, { 16 }, { 19 }, { 1 } } },    // GRASS_NW
-//     { 18, { { 18 }, { 1 }, { 1 }, { 17 } } },    // GRASS_SE
-//     { 19, { { 19 }, { 1 }, { 17 }, { 1 } } }     // GRASS_SW
-// };
-
-
-WaveFunctionCollapseStrategy::WaveFunctionCollapseStrategy(int width, int height) :
-    GenerationStrategy(width, height)
+WaveFunctionCollapseStrategy::WaveFunctionCollapseStrategy(Grid* grid) :
+    GenerationStrategy(grid->getWidth(), grid->getHeight()),
+    grid(grid)
 {
-    tiles.resize(height, std::vector<WFTile>(width));
+    tiles.resize(grid->getWidth(), std::vector<WFTile>(grid->getHeight()));
+}
 
+std::vector<std::vector<Grid::Tile>> WaveFunctionCollapseStrategy::generate(void) {
     for(auto y = 0; y < getHeight(); y++) {
         for(auto x = 0; x < getWidth(); x++) {
             auto& tile = tiles[y][x];
 
+            if(x == 0 || x == getWidth() - 1 || y == 0 || y == getHeight() - 1) {
+                tile.entropy = 1;
+                tile.possibilities = { TILE_WALL };
+            }
+            else {
+                tile.entropy = rules.size();
+                auto kv = std::views::keys(rules);
+                tile.possibilities = { kv.begin(), kv.end() };
+            }
+
             tile.x = x;
             tile.y = y;
-            tile.entropy = rules.size();
-            auto kv = std::views::keys(rules);
-            tile.possibilities = { kv.begin(), kv.end() };
 
             addTileNeighbours(x, y, &tiles[y][x]);
         }
     }
-}
 
-std::vector<std::vector<Grid::Tile>> WaveFunctionCollapseStrategy::generate(void) {
+    std::stack<WFTile*> stack;
+
+    std::vector<glm::ivec2> points;
+    for(int i = 0; i < 20; i++) {
+        points.push_back(addRoom(stack));
+    }
+
+    std::sort(points.begin(), points.end());
+
+    for(int i = 1; i < points.size(); i++) {
+        auto p1 = points[i-1];
+        auto p2 = points[i];
+        auto intersections = grid->getIntersections(points[i-1], points[i]);
+
+        for(auto intersection : intersections) {
+            tiles[intersection.y][intersection.x].entropy = 1;
+            tiles[intersection.y][intersection.x].possibilities = { TILE_GRASS };
+            stack.push(&tiles[intersection.y][intersection.x]);
+        }
+    }
+
     bool collapsed = false;
 
     while(!collapsed) {
-        collapsed = collapse();
+        collapsed = collapse(stack);
     }
 
+    for(auto y = 0; y < getHeight(); y++) {
+        for(auto x = 0; x < getWidth(); x++) {
+            overrideTileId(&tiles[y][x]);
+
+            auto tileId = tiles[y][x].possibilities[0];
+            setTile(x, y, { tileId, tileId == 1, false }); // TODO: Better way of assessing whether a tile is walkable
+        }
+    }
+
+    std::cout << "Done" << std::endl;
+
     return getData();
+}
+
+glm::ivec2 WaveFunctionCollapseStrategy::addRoom(std::stack<WFTile*>& stack) {
+    int roomSizeX = randomRange(6, 15);
+    int roomSizeY = randomRange(6, 15);
+    int roomX = randomRange(2, getWidth() - roomSizeX - 2);
+    int roomY = randomRange(2, getHeight() - roomSizeY - 2);
+
+    for(int x = roomX; x < roomX + roomSizeX; x++) {
+        for(int y = roomY; y < roomY + roomSizeY; y++) {
+            tiles[y][x].entropy = 1;
+            tiles[y][x].possibilities = { TILE_GRASS };
+            stack.push(&tiles[y][x]);
+        }
+    }
+
+    int centerX = randomRange(roomX, roomX + roomSizeX);
+    int centerY = randomRange(roomY, roomY + roomSizeY);
+
+    return glm::ivec2(centerX, centerY);
 }
 
 void WaveFunctionCollapseStrategy::addTileNeighbours(int x, int y, WFTile* tile) {
@@ -239,9 +207,6 @@ bool WaveFunctionCollapseStrategy::reduceTile(
     std::vector<int> connectors;
     for(auto neighbourPossiblity : neighbourPossiblities) {
         connectors.push_back(rules[neighbourPossiblity][direction]);
-        // for(auto possibility : rules[neighbourPossiblity][direction]) {
-        //     connectors.push_back(possibility);
-        // }
     }
 
     Direction opposite;
@@ -250,12 +215,9 @@ bool WaveFunctionCollapseStrategy::reduceTile(
     if(direction == EAST) opposite = WEST;
     if(direction == WEST) opposite = EAST;
 
-    // std::erase_if(tile->possibilities, [&](const auto& possiblity) {
-    //     return !containsAny(connectors, rules[possiblity][opposite]);
-    // });
     std::erase_if(tile->possibilities, [&](const auto& possiblity) {
-        // return !containsAny(connectors, rules[possiblity][opposite]);
-        return !contains(connectors, rules[possiblity][opposite]);
+        bool reduced = !contains(connectors, rules[possiblity][opposite]);
+        return reduced;
     });
 
     tile->entropy = tile->possibilities.size();
@@ -289,10 +251,10 @@ std::vector<WaveFunctionCollapseStrategy::WFTile*> WaveFunctionCollapseStrategy:
     return lowestEntropyTiles;
 }
 
-bool WaveFunctionCollapseStrategy::collapse(void) {
+bool WaveFunctionCollapseStrategy::collapse(std::stack<WFTile*>& stack) {
     auto lowestEntropyTiles = getLowestEntropyTiles();
 
-    std::cout << "Processing " << lowestEntropyTiles.size() << " tiles" << std::endl;
+    // std::cout << "Processing " << lowestEntropyTiles.size() << " tiles" << std::endl;
 
     if(lowestEntropyTiles.empty()) {
         return true;
@@ -301,7 +263,6 @@ bool WaveFunctionCollapseStrategy::collapse(void) {
     auto tileToCollapse = randomChoice(lowestEntropyTiles);
     collapseTile(tileToCollapse);
 
-    std::stack<WFTile*> stack;
     stack.push(tileToCollapse);
 
     while(!stack.empty()) {
@@ -316,13 +277,37 @@ bool WaveFunctionCollapseStrategy::collapse(void) {
                 }
             }
         }
-
-        auto tileId = tile->possibilities[0];
-        if(tileId == 0) {
-            std::cout << "Literally not possible lol" << std::endl;
-        }
-        setTile(tile->x, tile->y, { tileId, tileId == 1, false }); // TODO: Better way of assessing whether a tile is walkable
     }
 
     return false;
+}
+
+void WaveFunctionCollapseStrategy::overrideTileId(WFTile* tile) {
+    if(tile->x == 0 || tile->y == 0 || tile->x == getWidth() - 1 || tile->y == getHeight() - 1) {
+        return;
+    }
+
+    if(tile->possibilities[0] == TILE_GRASS) {
+        return;
+    }
+
+    auto n = tile->neighbours[NORTH]->possibilities[0];
+    auto s = tile->neighbours[SOUTH]->possibilities[0];
+    auto e = tile->neighbours[EAST]->possibilities[0];
+    auto w = tile->neighbours[WEST]->possibilities[0];
+
+
+    if(n == TILE_GRASS && s == TILE_GRASS && e == TILE_GRASS && w == TILE_GRASS) tile->possibilities[0] = TILE_WALL_C;
+
+    else if(n != TILE_GRASS && s != TILE_GRASS && e != TILE_GRASS && w != TILE_GRASS) tile->possibilities[0] = TILE_WALL;
+
+    else if(n == TILE_GRASS && s != TILE_GRASS && e != TILE_GRASS && w != TILE_GRASS) tile->possibilities[0] = TILE_WALL_N;
+    else if(n != TILE_GRASS && s == TILE_GRASS && e != TILE_GRASS && w != TILE_GRASS) tile->possibilities[0] = TILE_WALL_S;
+    else if(n != TILE_GRASS && s != TILE_GRASS && e == TILE_GRASS && w != TILE_GRASS) tile->possibilities[0] = TILE_WALL_E;
+    else if(n != TILE_GRASS && s != TILE_GRASS && e != TILE_GRASS && w == TILE_GRASS) tile->possibilities[0] = TILE_WALL_W;
+    
+    else if(n == TILE_GRASS && s != TILE_GRASS && e != TILE_GRASS && w == TILE_GRASS) tile->possibilities[0] = TILE_WALL_NW;
+    else if(n == TILE_GRASS && s != TILE_GRASS && e == TILE_GRASS && w != TILE_GRASS) tile->possibilities[0] = TILE_WALL_NE;
+    else if(n != TILE_GRASS && s == TILE_GRASS && e != TILE_GRASS && w == TILE_GRASS) tile->possibilities[0] = TILE_WALL_SW;
+    else if(n != TILE_GRASS && s == TILE_GRASS && e == TILE_GRASS && w != TILE_GRASS) tile->possibilities[0] = TILE_WALL_SE;
 }

@@ -164,6 +164,30 @@ bool Grid::isTileInBounds(int x, int y) {
     return x >= 0 && y >= 0 && x < getWidth() && y < getHeight();
 }
 
+std::vector<glm::ivec2> Grid::getIntersections(const glm::vec2& p1, const glm::vec2& p2) {
+    std::vector<glm::ivec2> intersections;
+
+    // TODO: Move to common function
+    // Offset so we get the center of the tile
+    auto op1 = p1 + glm::vec2(.5f, .5f);
+    auto op2 = p2 + glm::vec2(.5f, .5f);
+
+    int xMin = std::max(0, (int) std::floor(std::min(op1.x, op2.x)));
+    int xMax = std::min(getWidth(), (int) std::ceil(std::max(op1.x, op2.x)));
+    int yMin = std::max(0, (int) std::floor(std::min(op1.y, op2.y)));
+    int yMax = std::min(getHeight(), (int) std::ceil(std::max(op1.y, op2.y)));
+
+    for(int x = xMin; x < xMax; x++) {
+        for(int y = yMin; y < yMax; y++) {
+            if(hasTileIntersection(op1, op2, x, y)) {
+                intersections.push_back(glm::ivec2(x, y));
+            }
+        }
+    }
+
+    return intersections;
+}
+
 bool Grid::hasIntersection(const glm::vec2& p1, const glm::vec2& p2) {
     // Offset so we get the center of the tile
     auto op1 = p1 + glm::vec2(.5f, .5f);

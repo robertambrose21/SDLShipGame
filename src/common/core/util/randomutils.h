@@ -2,8 +2,11 @@
 
 #include <cstdint>
 #include <random>
+#include "gameassert.h"
 
+// TODO: Template
 inline uint32_t randomRange(uint32_t lower, uint32_t upper) {
+    game_assert(upper >= lower);
     std::random_device dev;
     std::mt19937 rng(dev());
     std::uniform_int_distribution<std::mt19937::result_type> dist(lower, upper);
@@ -12,6 +15,7 @@ inline uint32_t randomRange(uint32_t lower, uint32_t upper) {
 }
 
 inline double randomRangeDouble(double lower, double upper) {
+    game_assert(upper >= lower);
     std::random_device dev;
     std::mt19937 rng(dev());
     std::uniform_real_distribution<> dist(lower, upper);
