@@ -204,7 +204,9 @@ void ServerApplication::loadMap(void) {
     //         22
     //     ).generate()
     // );
-    grid->setData(WaveFunctionCollapseStrategy(grid).generate());
+    grid->setData(WaveFunctionCollapseStrategy(
+        grid, { 20, glm::ivec2(6, 6), glm::ivec2(15, 15) }
+    ).generate());
 }
 
 void ServerApplication::loadGame(void) {

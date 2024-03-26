@@ -32,23 +32,36 @@ private:
         std::map<Direction, _wfTile*> neighbours;
     } WFTile;
 
-    Grid* grid;
+    typedef struct _roomConfiguration {
+        int numRooms;
+        glm::ivec2 minRoomSize;
+        glm::ivec2 maxRoomSize;
+    } RoomConfiguration;
 
+    Grid* grid;
     std::vector<std::vector<WFTile>> tiles;
+    std::stack<WFTile*> tilesToCollapse;
+    RoomConfiguration roomConfiguration;
+
+    bool isCollapsed;
 
     void addTileNeighbours(int x, int y, WFTile* tile);
     void collapseTile(WFTile* tile);
     bool reduceTile(WFTile* tile, const std::vector<int>& possibilities, Direction direction);
 
     std::vector<WFTile*> getLowestEntropyTiles(void);
-    bool collapse(std::stack<WFTile*>& stack);
+    bool collapse(void);
 
-    glm::ivec2 addRoom(std::stack<WFTile*>& stack);
+    void generateWallsAndNeighbours(void);
+    void generateRoomsAndPaths(void);
+    
+    glm::ivec2 addRoom(void);
 
+    void overrideTiles(void);
     void overrideTileId(WFTile* tile);
 
 public:
-    WaveFunctionCollapseStrategy(Grid* grid);
+    WaveFunctionCollapseStrategy(Grid* grid, const RoomConfiguration& roomConfiguration);
 
     std::vector<std::vector<Grid::Tile>> generate(void);
 };
