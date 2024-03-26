@@ -273,10 +273,8 @@ bool WaveFunctionCollapseStrategy::collapse(void) {
         tilesToCollapse.pop();
 
         for(auto& [direction, neighbour] : tile->neighbours) {
-            if(neighbour->entropy != 0) {
-                if(reduceTile(neighbour, tilePossibilities, direction)) {
-                    tilesToCollapse.push(neighbour);
-                }
+            if(neighbour->entropy != 0 && reduceTile(neighbour, tilePossibilities, direction)) {
+                tilesToCollapse.push(neighbour);
             }
         }
     }
