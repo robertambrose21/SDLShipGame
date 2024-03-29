@@ -3,18 +3,14 @@
 #include <map>
 #include <stack>
 #include <ranges>
+#include <fstream>
 
+#include "core/json.hpp"
 #include "generationstrategy.h"
 #include "core/util/randomutils.h"
 #include "core/util/vectorutils.h"
 
-typedef struct _possibility {
-    int id;
-    int weight = 1;
-} Possibility;
-
-bool operator<(Possibility const& lhs, Possibility const& rhs);
-bool operator==(Possibility const& lhs, Possibility const& rhs);
+using json = nlohmann::json;
 
 class WaveFunctionCollapseStrategy : public GenerationStrategy {
 private:
@@ -27,7 +23,7 @@ private:
 
     typedef struct _wfTile {
         int x, y;
-        int entropy; // This could maybe just be driven off possibilities.size()?
+        int entropy;
         std::vector<int> possibilities;
         std::map<Direction, _wfTile*> neighbours;
     } WFTile;
@@ -38,10 +34,23 @@ private:
         glm::ivec2 maxRoomSize;
     } RoomConfiguration;
 
+    typedef struct _tileSet {
+        typedef struct _type {
+            std::string type;
+            int textureId;
+            int weight;
+        } Type;
+
+        // std::vector<int> edges;
+        std::map<int, Type> types;
+        std::map<int, std::vector<int>> rules;
+    } TileSet;
+
     Grid* grid;
     std::vector<std::vector<WFTile>> tiles;
     std::stack<WFTile*> tilesToCollapse;
     RoomConfiguration roomConfiguration;
+    TileSet tileSet;
 
     bool isCollapsed;
 
@@ -59,6 +68,8 @@ private:
 
     void overrideTiles(void);
     void overrideTileId(WFTile* tile);
+
+    void loadTileSet(const std::string& path);
 
 public:
     WaveFunctionCollapseStrategy(Grid* grid, const RoomConfiguration& roomConfiguration);

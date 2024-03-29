@@ -1,13 +1,5 @@
 #include "wavefunctioncollapsestrategy.h"
 
-bool operator<(Possibility const& lhs, Possibility const& rhs) {
-    return lhs.id < rhs.id || (lhs.id == rhs.id && lhs.weight < rhs.weight);
-}
-
-bool operator==(Possibility const& lhs, Possibility const& rhs) {
-    return lhs.id == rhs.id && lhs.weight == rhs.weight;
-}
-
 const int TILE_GRASS = 1;
 const int TILE_GRASS_N = 0;
 const int TILE_GRASS_S = 0;
@@ -30,10 +22,6 @@ const int TILE_WALL_SW2 = 23;
 
 enum TileEdge {
     GRASS,
-    GRASS_N,
-    GRASS_S,
-    GRASS_E,
-    GRASS_W,
     WALL,
     WALL_N,
     WALL_S,
@@ -74,7 +62,7 @@ std::map<int, int> allWeights = {
     { TILE_WALL_NE2, 2 },
     { TILE_WALL_NW2, 2 },
     { TILE_WALL_SE2, 2 },
-    { TILE_WALL_SW2, 2}
+    { TILE_WALL_SW2, 2 }
 };
 
 WaveFunctionCollapseStrategy::WaveFunctionCollapseStrategy(Grid* grid, const RoomConfiguration& roomConfiguration) :
@@ -82,7 +70,49 @@ WaveFunctionCollapseStrategy::WaveFunctionCollapseStrategy(Grid* grid, const Roo
     grid(grid),
     roomConfiguration(roomConfiguration),
     isCollapsed(false)
-{ }
+{
+    loadTileSet("../assets/data/tilesets/grass_and_rocks/rules.json");
+}
+
+void WaveFunctionCollapseStrategy::loadTileSet(const std::string& path) {
+    std::ifstream f(path); // TODO: Check exists
+    json data = json::parse(f);
+
+    // TileSet tileSet;
+
+    int numEdges = 0;
+    std::map<std::string, int> edges;
+
+    for(auto const& edgeData : data["edges"].get<std::vector<std::string>>()) {
+        edges[edgeData] = numEdges++;
+    }
+
+    int numTypes = 0;
+    std::map<std::string, int> types;
+
+    for(auto const& typeData : data["types"].get<std::vector<json>>()) {
+        auto key = typeData.items().begin().key();
+
+        TileSet::Type type;
+        type.type = typeData[key]["type"].get<std::string>();
+        type.textureId = typeData[key]["textureId"].get<int>();
+        type.weight = typeData[key]["weight"].get<int>();
+
+        tileSet.types[numTypes] = type;
+        types[key] = numTypes++;
+    }
+
+    int numRules = 0;
+    for(auto const& ruleData : data["rules"].get<std::vector<json>>()) {
+        auto key = ruleData.items().begin().key();
+
+        auto ruleEdges = ruleData[key].get<std::vector<std::string>>();
+
+        for(auto const& ruleEdge : ruleEdges) {
+            tileSet.rules[types[key]].push_back(edges[ruleEdge]);
+        }
+    }
+}
 
 std::vector<std::vector<Grid::Tile>> WaveFunctionCollapseStrategy::generate(void) {
     bool isCollapsed = false;
@@ -293,8 +323,15 @@ void WaveFunctionCollapseStrategy::overrideTiles(void) {
     }
 }
 
+// TODO: It's possible that some tiles haven't collapsed properly at this stage.
+// This still seems to mostly work but it just ignores the uncollapsed-ness of the tile and takes it's first possibility.
+// If a tile's neighbour also isn't collapsed we might see some incorrect tile overrides.
 void WaveFunctionCollapseStrategy::overrideTileId(WFTile* tile) {
     if(tile->x == 0 || tile->y == 0 || tile->x == getWidth() - 1 || tile->y == getHeight() - 1) {
+        return;
+    }
+
+    if(tile->possibilities.size() > 1) {
         return;
     }
 
