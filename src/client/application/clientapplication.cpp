@@ -69,29 +69,45 @@ void ClientApplication::initialise(void) {
     window = std::make_unique<Window>(1920, 1080, grid);
     window->initialiseWindow();
 
-    window->setGridTileTexture(1, 4);
-    window->setGridTileTexture(2, 25);
-    window->setGridTileTexture(3, 26);
-    window->setGridTileTexture(4, 27);
-    window->setGridTileTexture(5, 28);
-    window->setGridTileTexture(6, 29);
-    window->setGridTileTexture(7, 30);
-    window->setGridTileTexture(8, 31);
-    window->setGridTileTexture(9, 32);
-    window->setGridTileTexture(10, 33);
-    window->setGridTileTexture(11, 34);
-    window->setGridTileTexture(12, 35);
-    window->setGridTileTexture(13, 36);
-    window->setGridTileTexture(14, 37);
-    window->setGridTileTexture(15, 38);
-    window->setGridTileTexture(16, 4);
-    window->setGridTileTexture(17, 4);
-    window->setGridTileTexture(18, 4);
-    window->setGridTileTexture(19, 4);
-    window->setGridTileTexture(20, 25);
-    window->setGridTileTexture(21, 25);
-    window->setGridTileTexture(22, 25);
-    window->setGridTileTexture(23, 25);
+    // window->setGridTileTexture(1, 4);
+    // window->setGridTileTexture(2, 25);
+    // window->setGridTileTexture(3, 26);
+    // window->setGridTileTexture(4, 27);
+    // window->setGridTileTexture(5, 28);
+    // window->setGridTileTexture(6, 29);
+    // window->setGridTileTexture(7, 30);
+    // window->setGridTileTexture(8, 31);
+    // window->setGridTileTexture(9, 32);
+    // window->setGridTileTexture(10, 33);
+    // window->setGridTileTexture(11, 34);
+    // window->setGridTileTexture(12, 35);
+    // window->setGridTileTexture(13, 36);
+    // window->setGridTileTexture(14, 37);
+    // window->setGridTileTexture(15, 38);
+    // window->setGridTileTexture(16, 4);
+    // window->setGridTileTexture(17, 4);
+    // window->setGridTileTexture(18, 4);
+    // window->setGridTileTexture(19, 4);
+    // window->setGridTileTexture(20, 25);
+    // window->setGridTileTexture(21, 25);
+    // window->setGridTileTexture(22, 25);
+    // window->setGridTileTexture(23, 25);
+
+    window->setGridTileTexture(0, 4);
+    window->setGridTileTexture(1, 25);
+    window->setGridTileTexture(2, 26);
+    window->setGridTileTexture(3, 27);
+    window->setGridTileTexture(4, 28);
+    window->setGridTileTexture(5, 29);
+    window->setGridTileTexture(6, 30);
+    window->setGridTileTexture(7, 31);
+    window->setGridTileTexture(8, 32);
+    window->setGridTileTexture(9, 33);
+    window->setGridTileTexture(10, 34);
+    window->setGridTileTexture(11, 25);
+    window->setGridTileTexture(12, 25);
+    window->setGridTileTexture(13, 25);
+    window->setGridTileTexture(14, 25);
     
     for(auto i = 0; i < grid->getWidth(); i++) {
         for(auto j = 0; j < grid->getHeight(); j++) {

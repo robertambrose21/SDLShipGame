@@ -1,69 +1,69 @@
 #include "wavefunctioncollapsestrategy.h"
 
-const int TILE_GRASS = 1;
-const int TILE_GRASS_N = 0;
-const int TILE_GRASS_S = 0;
-const int TILE_GRASS_E = 0;
-const int TILE_GRASS_W = 0;
-const int TILE_WALL = 2;
-const int TILE_WALL_C = 3;
-const int TILE_WALL_N = 4;
-const int TILE_WALL_S = 5;
-const int TILE_WALL_E = 6;
-const int TILE_WALL_W = 7;
-const int TILE_WALL_NE = 8;
-const int TILE_WALL_NW = 9;
-const int TILE_WALL_SE = 10;
-const int TILE_WALL_SW = 11;
-const int TILE_WALL_NE2 = 20;
-const int TILE_WALL_NW2 = 21;
-const int TILE_WALL_SE2 = 22;
-const int TILE_WALL_SW2 = 23;
+// const int TILE_GRASS = 1;
+// const int TILE_GRASS_N = 0;
+// const int TILE_GRASS_S = 0;
+// const int TILE_GRASS_E = 0;
+// const int TILE_GRASS_W = 0;
+// const int TILE_WALL = 2;
+// const int TILE_WALL_C = 3;
+// const int TILE_WALL_N = 4;
+// const int TILE_WALL_S = 5;
+// const int TILE_WALL_E = 6;
+// const int TILE_WALL_W = 7;
+// const int TILE_WALL_NE = 8;
+// const int TILE_WALL_NW = 9;
+// const int TILE_WALL_SE = 10;
+// const int TILE_WALL_SW = 11;
+// const int TILE_WALL_NE2 = 20;
+// const int TILE_WALL_NW2 = 21;
+// const int TILE_WALL_SE2 = 22;
+// const int TILE_WALL_SW2 = 23;
 
-enum TileEdge {
-    GRASS,
-    WALL,
-    WALL_N,
-    WALL_S,
-    WALL_E,
-    WALL_W
-};
+// enum TileEdge {
+//     GRASS,
+//     WALL,
+//     WALL_N,
+//     WALL_S,
+//     WALL_E,
+//     WALL_W
+// };
 
-// NORTH, SOUTH, EAST, WEST
-std::map<int, std::vector<int>> rules = {
-    { TILE_GRASS,       { GRASS, GRASS, GRASS, GRASS } },
-    { TILE_WALL,        { WALL, WALL, WALL, WALL } },
-    { TILE_WALL_N,      { GRASS, WALL, WALL_N, WALL_N } },
-    { TILE_WALL_S,      { WALL, GRASS, WALL_S, WALL_S } },
-    { TILE_WALL_E,      { WALL_E, WALL_E, GRASS, WALL } },
-    { TILE_WALL_W,      { WALL_W, WALL_W, WALL, GRASS } },
-    { TILE_WALL_NE,     { GRASS, WALL_E, GRASS, WALL_N } },
-    { TILE_WALL_NW,     { GRASS, WALL_W, WALL_N, GRASS } },
-    { TILE_WALL_SE,     { WALL_E, GRASS, GRASS, WALL_S } },
-    { TILE_WALL_SW,     { WALL_W, GRASS, WALL_S, GRASS } },
-    { TILE_WALL_NE2,    { WALL_E, WALL, WALL_N, WALL } },
-    { TILE_WALL_NW2,    { WALL_W, WALL, WALL, WALL_N } },
-    { TILE_WALL_SE2,    { WALL, WALL_E, WALL_S, WALL } },
-    { TILE_WALL_SW2,    { WALL, WALL_W, WALL, WALL_S } }
-};
+// // NORTH, SOUTH, EAST, WEST
+// std::map<int, std::vector<int>> rules = {
+//     { TILE_GRASS,       { GRASS, GRASS, GRASS, GRASS } },
+//     { TILE_WALL,        { WALL, WALL, WALL, WALL } },
+//     { TILE_WALL_N,      { GRASS, WALL, WALL_N, WALL_N } },
+//     { TILE_WALL_S,      { WALL, GRASS, WALL_S, WALL_S } },
+//     { TILE_WALL_E,      { WALL_E, WALL_E, GRASS, WALL } },
+//     { TILE_WALL_W,      { WALL_W, WALL_W, WALL, GRASS } },
+//     { TILE_WALL_NE,     { GRASS, WALL_E, GRASS, WALL_N } },
+//     { TILE_WALL_NW,     { GRASS, WALL_W, WALL_N, GRASS } },
+//     { TILE_WALL_SE,     { WALL_E, GRASS, GRASS, WALL_S } },
+//     { TILE_WALL_SW,     { WALL_W, GRASS, WALL_S, GRASS } },
+//     { TILE_WALL_NE2,    { WALL_E, WALL, WALL_N, WALL } },
+//     { TILE_WALL_NW2,    { WALL_W, WALL, WALL, WALL_N } },
+//     { TILE_WALL_SE2,    { WALL, WALL_E, WALL_S, WALL } },
+//     { TILE_WALL_SW2,    { WALL, WALL_W, WALL, WALL_S } }
+// };
 
-std::map<int, int> allWeights = {
-    { TILE_GRASS, 4 },
-    { TILE_WALL, 8 },
-    { TILE_WALL_C, 1 },
-    { TILE_WALL_N, 2 },
-    { TILE_WALL_S, 2 },
-    { TILE_WALL_E, 2 },
-    { TILE_WALL_W, 2 },
-    { TILE_WALL_NE, 2 },
-    { TILE_WALL_NW, 2 },
-    { TILE_WALL_SE, 2 },
-    { TILE_WALL_SW, 2 },
-    { TILE_WALL_NE2, 2 },
-    { TILE_WALL_NW2, 2 },
-    { TILE_WALL_SE2, 2 },
-    { TILE_WALL_SW2, 2 }
-};
+// std::map<int, int> allWeights = {
+//     { TILE_GRASS, 4 },
+//     { TILE_WALL, 8 },
+//     { TILE_WALL_C, 1 },
+//     { TILE_WALL_N, 2 },
+//     { TILE_WALL_S, 2 },
+//     { TILE_WALL_E, 2 },
+//     { TILE_WALL_W, 2 },
+//     { TILE_WALL_NE, 2 },
+//     { TILE_WALL_NW, 2 },
+//     { TILE_WALL_SE, 2 },
+//     { TILE_WALL_SW, 2 },
+//     { TILE_WALL_NE2, 2 },
+//     { TILE_WALL_NW2, 2 },
+//     { TILE_WALL_SE2, 2 },
+//     { TILE_WALL_SW2, 2 }
+// };
 
 WaveFunctionCollapseStrategy::WaveFunctionCollapseStrategy(Grid* grid, const RoomConfiguration& roomConfiguration) :
     GenerationStrategy(grid->getWidth(), grid->getHeight()),
@@ -140,11 +140,11 @@ void WaveFunctionCollapseStrategy::generateWallsAndNeighbours(void) {
 
             if(x == 0 || x == getWidth() - 1 || y == 0 || y == getHeight() - 1) {
                 tile.entropy = 1;
-                tile.possibilities = { TILE_WALL };
+                tile.possibilities = { 1 };
             }
             else {
-                tile.entropy = rules.size();
-                auto kv = std::views::keys(rules);
+                tile.entropy = tileSet.rules.size();
+                auto kv = std::views::keys(tileSet.rules);
                 tile.possibilities = { kv.begin(), kv.end() };
             }
 
@@ -173,7 +173,7 @@ void WaveFunctionCollapseStrategy::generateRoomsAndPaths(void) {
 
         for(auto intersection : intersections) {
             tiles[intersection.y][intersection.x].entropy = 1;
-            tiles[intersection.y][intersection.x].possibilities = { TILE_GRASS };
+            tiles[intersection.y][intersection.x].possibilities = { 0 };
             tilesToCollapse.push(&tiles[intersection.y][intersection.x]);
         }
     }
@@ -188,7 +188,7 @@ glm::ivec2 WaveFunctionCollapseStrategy::addRoom(void) {
     for(int x = roomX; x < roomX + roomSizeX; x++) {
         for(int y = roomY; y < roomY + roomSizeY; y++) {
             tiles[y][x].entropy = 1;
-            tiles[y][x].possibilities = { TILE_GRASS };
+            tiles[y][x].possibilities = { 0 };
             tilesToCollapse.push(&tiles[y][x]);
         }
     }
@@ -219,7 +219,7 @@ void WaveFunctionCollapseStrategy::collapseTile(WFTile* tile) {
 
     std::vector<int> weights;
     for(auto possiblity : tile->possibilities) {
-        weights.push_back(allWeights[possiblity]);
+        weights.push_back(tileSet.types[possiblity].weight);
     }
 
     tile->possibilities = { randomChoice(tile->possibilities, weights) };
@@ -238,7 +238,7 @@ bool WaveFunctionCollapseStrategy::reduceTile(
 
     std::vector<int> connectors;
     for(auto neighbourPossiblity : neighbourPossiblities) {
-        connectors.push_back(rules[neighbourPossiblity][direction]);
+        connectors.push_back(tileSet.rules[neighbourPossiblity][direction]);
     }
 
     Direction opposite;
@@ -248,7 +248,7 @@ bool WaveFunctionCollapseStrategy::reduceTile(
     if(direction == WEST) opposite = EAST;
 
     std::erase_if(tile->possibilities, [&](const auto& possiblity) {
-        bool reduced = !contains(connectors, rules[possiblity][opposite]);
+        bool reduced = !contains(connectors, tileSet.rules[possiblity][opposite]);
         return reduced;
     });
 
@@ -259,7 +259,7 @@ bool WaveFunctionCollapseStrategy::reduceTile(
 
 std::vector<WaveFunctionCollapseStrategy::WFTile*> WaveFunctionCollapseStrategy::getLowestEntropyTiles(void) {
     std::vector<WFTile*> lowestEntropyTiles;
-    auto lowestEntropy = rules.size();
+    auto lowestEntropy = tileSet.rules.size();
 
     for(auto y = 0; y < getHeight(); y++) {
         for(auto x = 0; x < getWidth(); x++) {
@@ -326,6 +326,41 @@ void WaveFunctionCollapseStrategy::overrideTiles(void) {
 // TODO: It's possible that some tiles haven't collapsed properly at this stage.
 // This still seems to mostly work but it just ignores the uncollapsed-ness of the tile and takes it's first possibility.
 // If a tile's neighbour also isn't collapsed we might see some incorrect tile overrides.
+// void WaveFunctionCollapseStrategy::overrideTileId(WFTile* tile) {
+//     if(tile->x == 0 || tile->y == 0 || tile->x == getWidth() - 1 || tile->y == getHeight() - 1) {
+//         return;
+//     }
+
+//     if(tile->possibilities.size() > 1) {
+//         return;
+//     }
+
+//     if(tile->possibilities[0] == TILE_GRASS) {
+//         return;
+//     }
+
+//     auto n = tile->neighbours[NORTH]->possibilities[0];
+//     auto s = tile->neighbours[SOUTH]->possibilities[0];
+//     auto e = tile->neighbours[EAST]->possibilities[0];
+//     auto w = tile->neighbours[WEST]->possibilities[0];
+
+
+//     if(n == TILE_GRASS && s == TILE_GRASS && e == TILE_GRASS && w == TILE_GRASS) tile->possibilities[0] = TILE_WALL_C;
+
+//     else if(n != TILE_GRASS && s != TILE_GRASS && e != TILE_GRASS && w != TILE_GRASS) tile->possibilities[0] = TILE_WALL;
+
+//     else if(n == TILE_GRASS && s != TILE_GRASS && e != TILE_GRASS && w != TILE_GRASS) tile->possibilities[0] = TILE_WALL_N;
+//     else if(n != TILE_GRASS && s == TILE_GRASS && e != TILE_GRASS && w != TILE_GRASS) tile->possibilities[0] = TILE_WALL_S;
+//     else if(n != TILE_GRASS && s != TILE_GRASS && e == TILE_GRASS && w != TILE_GRASS) tile->possibilities[0] = TILE_WALL_E;
+//     else if(n != TILE_GRASS && s != TILE_GRASS && e != TILE_GRASS && w == TILE_GRASS) tile->possibilities[0] = TILE_WALL_W;
+    
+//     else if(n == TILE_GRASS && s != TILE_GRASS && e != TILE_GRASS && w == TILE_GRASS) tile->possibilities[0] = TILE_WALL_NW;
+//     else if(n == TILE_GRASS && s != TILE_GRASS && e == TILE_GRASS && w != TILE_GRASS) tile->possibilities[0] = TILE_WALL_NE;
+//     else if(n != TILE_GRASS && s == TILE_GRASS && e != TILE_GRASS && w == TILE_GRASS) tile->possibilities[0] = TILE_WALL_SW;
+//     else if(n != TILE_GRASS && s == TILE_GRASS && e == TILE_GRASS && w != TILE_GRASS) tile->possibilities[0] = TILE_WALL_SE;
+
+//     // TODO: Other possible configurations
+// }
 void WaveFunctionCollapseStrategy::overrideTileId(WFTile* tile) {
     if(tile->x == 0 || tile->y == 0 || tile->x == getWidth() - 1 || tile->y == getHeight() - 1) {
         return;
@@ -335,7 +370,7 @@ void WaveFunctionCollapseStrategy::overrideTileId(WFTile* tile) {
         return;
     }
 
-    if(tile->possibilities[0] == TILE_GRASS) {
+    if(tile->possibilities[0] == 0) {
         return;
     }
 
@@ -345,19 +380,19 @@ void WaveFunctionCollapseStrategy::overrideTileId(WFTile* tile) {
     auto w = tile->neighbours[WEST]->possibilities[0];
 
 
-    if(n == TILE_GRASS && s == TILE_GRASS && e == TILE_GRASS && w == TILE_GRASS) tile->possibilities[0] = TILE_WALL_C;
+    if(n == 0 && s == 0 && e == 0 && w == 0) tile->possibilities[0] = 2;
 
-    else if(n != TILE_GRASS && s != TILE_GRASS && e != TILE_GRASS && w != TILE_GRASS) tile->possibilities[0] = TILE_WALL;
+    else if(n != 0 && s != 0 && e != 0 && w != 0) tile->possibilities[0] = 1;
 
-    else if(n == TILE_GRASS && s != TILE_GRASS && e != TILE_GRASS && w != TILE_GRASS) tile->possibilities[0] = TILE_WALL_N;
-    else if(n != TILE_GRASS && s == TILE_GRASS && e != TILE_GRASS && w != TILE_GRASS) tile->possibilities[0] = TILE_WALL_S;
-    else if(n != TILE_GRASS && s != TILE_GRASS && e == TILE_GRASS && w != TILE_GRASS) tile->possibilities[0] = TILE_WALL_E;
-    else if(n != TILE_GRASS && s != TILE_GRASS && e != TILE_GRASS && w == TILE_GRASS) tile->possibilities[0] = TILE_WALL_W;
+    else if(n == 0 && s != 0 && e != 0 && w != 0) tile->possibilities[0] = 3;
+    else if(n != 0 && s == 0 && e != 0 && w != 0) tile->possibilities[0] = 4;
+    else if(n != 0 && s != 0 && e == 0 && w != 0) tile->possibilities[0] = 5;
+    else if(n != 0 && s != 0 && e != 0 && w == 0) tile->possibilities[0] = 6;
     
-    else if(n == TILE_GRASS && s != TILE_GRASS && e != TILE_GRASS && w == TILE_GRASS) tile->possibilities[0] = TILE_WALL_NW;
-    else if(n == TILE_GRASS && s != TILE_GRASS && e == TILE_GRASS && w != TILE_GRASS) tile->possibilities[0] = TILE_WALL_NE;
-    else if(n != TILE_GRASS && s == TILE_GRASS && e != TILE_GRASS && w == TILE_GRASS) tile->possibilities[0] = TILE_WALL_SW;
-    else if(n != TILE_GRASS && s == TILE_GRASS && e == TILE_GRASS && w != TILE_GRASS) tile->possibilities[0] = TILE_WALL_SE;
+    else if(n == 0 && s != 0 && e == 0 && w != 0) tile->possibilities[0] = 7;
+    else if(n == 0 && s != 0 && e != 0 && w == 0) tile->possibilities[0] = 8;
+    else if(n != 0 && s == 0 && e == 0 && w != 0) tile->possibilities[0] = 9;
+    else if(n != 0 && s == 0 && e != 0 && w == 0) tile->possibilities[0] = 10;
 
     // TODO: Other possible configurations
 }
