@@ -78,8 +78,6 @@ void WaveFunctionCollapseStrategy::loadTileSet(const std::string& path) {
     std::ifstream f(path); // TODO: Check exists
     json data = json::parse(f);
 
-    // TileSet tileSet;
-
     int numEdges = 0;
     std::map<std::string, int> edges;
 
@@ -87,31 +85,62 @@ void WaveFunctionCollapseStrategy::loadTileSet(const std::string& path) {
         edges[edgeData] = numEdges++;
     }
 
-    int numTypes = 0;
-    std::map<std::string, int> types;
+    int numTiles = 0;
+    std::map<std::string, int> tiles;
 
-    for(auto const& typeData : data["types"].get<std::vector<json>>()) {
-        auto key = typeData.items().begin().key();
+    for(auto const& typesData : data["types"].get<std::vector<json>>()) {
+        auto key = typesData.items().begin().key();
 
-        TileSet::Type type;
-        type.type = typeData[key]["type"].get<std::string>();
-        type.textureId = typeData[key]["textureId"].get<int>();
-        type.weight = typeData[key]["weight"].get<int>();
+        // TODO: error check variant
+        int variant = 0;
+        for(auto const& typeData : typesData[key].get<json>()) {
+            TileSet::Type type;
+            type.tile = typeData["tile"].get<std::string>();
+            type.type = key;
+            type.variant = (TileSet::Variant) variant++;
+            type.textureId = typeData["textureId"].get<int>();
+            type.weight = typeData["weight"].get<int>();
 
-        tileSet.types[numTypes] = type;
-        types[key] = numTypes++;
+            tileSet.types[numTiles] = type;
+            tiles[type.tile] = numTiles++;
+        }
     }
 
-    int numRules = 0;
     for(auto const& ruleData : data["rules"].get<std::vector<json>>()) {
         auto key = ruleData.items().begin().key();
 
         auto ruleEdges = ruleData[key].get<std::vector<std::string>>();
 
         for(auto const& ruleEdge : ruleEdges) {
-            tileSet.rules[types[key]].push_back(edges[ruleEdge]);
+            tileSet.rules[tiles[key]].push_back(edges[ruleEdge]);
         }
     }
+
+    // int numTypes = 0;
+    // std::map<std::string, int> types;
+
+    // for(auto const& typeData : data["types"].get<std::vector<json>>()) {
+    //     auto key = typeData.items().begin().key();
+
+    //     TileSet::Type type;
+    //     type.type = typeData[key]["type"].get<std::string>();
+    //     type.textureId = typeData[key]["textureId"].get<int>();
+    //     type.weight = typeData[key]["weight"].get<int>();
+
+    //     tileSet.types[numTypes] = type;
+    //     types[key] = numTypes++;
+    // }
+
+    // int numRules = 0;
+    // for(auto const& ruleData : data["rules"].get<std::vector<json>>()) {
+    //     auto key = ruleData.items().begin().key();
+
+    //     auto ruleEdges = ruleData[key].get<std::vector<std::string>>();
+
+    //     for(auto const& ruleEdge : ruleEdges) {
+    //         tileSet.rules[types[key]].push_back(edges[ruleEdge]);
+    //     }
+    // }
 }
 
 std::vector<std::vector<Grid::Tile>> WaveFunctionCollapseStrategy::generate(void) {

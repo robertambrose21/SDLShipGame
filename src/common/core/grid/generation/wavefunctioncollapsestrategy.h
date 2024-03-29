@@ -34,14 +34,44 @@ private:
         glm::ivec2 maxRoomSize;
     } RoomConfiguration;
 
+    // typedef struct _tileSet {
+    //     typedef struct _type {
+    //         std::string type;
+    //         int textureId;
+    //         int weight;
+    //     } Type;
+
+    //     // std::vector<int> edges;
+    //     std::map<int, Type> types;
+    //     std::map<int, std::vector<int>> rules;
+    // } TileSet;
+
     typedef struct _tileSet {
+        enum Variant {
+            MIDDLE, 
+            CENTER,
+            NORTH,
+            SOUTH,
+            EAST,
+            WEST,
+            NORTH_EAST,
+            NORTH_WEST,
+            SOUTH_EAST,
+            SOUTH_WEST,
+            NORTH_EAST_2,
+            NORTH_WEST_2,
+            SOUTH_EAST_2,
+            SOUTH_WEST_2
+        };
+
         typedef struct _type {
+            std::string tile;
             std::string type;
+            Variant variant;
             int textureId;
             int weight;
         } Type;
 
-        // std::vector<int> edges;
         std::map<int, Type> types;
         std::map<int, std::vector<int>> rules;
     } TileSet;
