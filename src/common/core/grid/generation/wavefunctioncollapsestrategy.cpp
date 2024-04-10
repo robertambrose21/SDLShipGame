@@ -1,56 +1,16 @@
 #include "wavefunctioncollapsestrategy.h"
 
-WaveFunctionCollapseStrategy::WaveFunctionCollapseStrategy(Grid* grid, const RoomConfiguration& roomConfiguration) :
+WaveFunctionCollapseStrategy::WaveFunctionCollapseStrategy(
+    Grid* grid,
+    const TileSet& tileSet,
+    const RoomConfiguration& roomConfiguration
+) :
     GenerationStrategy(grid->getWidth(), grid->getHeight()),
     grid(grid),
     roomConfiguration(roomConfiguration),
-    isCollapsed(false)
-{
-    loadTileSet("../assets/data/tilesets/grass_and_rocks/rules.json");
-}
-
-void WaveFunctionCollapseStrategy::loadTileSet(const std::string& path) {
-    std::ifstream f(path); // TODO: Check exists
-    json data = json::parse(f);
-
-    int numEdges = 0;
-    std::map<std::string, int> edges;
-
-    for(auto const& edgeData : data["edges"].get<std::vector<std::string>>()) {
-        edges[edgeData] = numEdges++;
-    }
-
-    int numTiles = 0;
-    std::map<std::string, int> tiles;
-
-    for(auto const& typesData : data["types"].get<std::vector<json>>()) {
-        auto key = typesData.items().begin().key();
-
-        // TODO: error check variant
-        int variant = 0;
-        for(auto const& typeData : typesData[key].get<json>()) {
-            TileSet::Type type;
-            type.tile = typeData["tile"].get<std::string>();
-            type.type = key;
-            type.textureId = typeData["textureId"].get<int>();
-            type.weight = typeData["weight"].get<int>();
-
-            tileSet.types[numTiles] = type;
-            tileSet.variants[key][(TileSet::Variant) variant++] = numTiles;
-            tiles[type.tile] = numTiles++;
-        }
-    }
-
-    for(auto const& ruleData : data["rules"].get<std::vector<json>>()) {
-        auto key = ruleData.items().begin().key();
-
-        auto ruleEdges = ruleData[key].get<std::vector<std::string>>();
-
-        for(auto const& ruleEdge : ruleEdges) {
-            tileSet.rules[tiles[key]].push_back(edges[ruleEdge]);
-        }
-    }
-}
+    isCollapsed(false),
+    tileSet(tileSet)
+{ }
 
 std::vector<std::vector<Grid::Tile>> WaveFunctionCollapseStrategy::generate(void) {
     bool isCollapsed = false;
@@ -81,8 +41,8 @@ void WaveFunctionCollapseStrategy::generateWallsAndNeighbours(void) {
                 tile.possibilities = { 1 };
             }
             else {
-                tile.entropy = tileSet.rules.size();
-                auto kv = std::views::keys(tileSet.rules);
+                tile.entropy = tileSet.getRules().size();
+                auto kv = std::views::keys(tileSet.getRules());
                 tile.possibilities = { kv.begin(), kv.end() };
             }
 
@@ -157,7 +117,7 @@ void WaveFunctionCollapseStrategy::collapseTile(WFTile* tile) {
 
     std::vector<int> weights;
     for(auto possiblity : tile->possibilities) {
-        weights.push_back(tileSet.types[possiblity].weight);
+        weights.push_back(tileSet.getTile(possiblity).weight);
     }
 
     tile->possibilities = { randomChoice(tile->possibilities, weights) };
@@ -176,7 +136,7 @@ bool WaveFunctionCollapseStrategy::reduceTile(
 
     std::vector<int> connectors;
     for(auto neighbourPossiblity : neighbourPossiblities) {
-        connectors.push_back(tileSet.rules[neighbourPossiblity][direction]);
+        connectors.push_back(tileSet.getRule(neighbourPossiblity, direction));
     }
 
     Direction opposite;
@@ -186,7 +146,7 @@ bool WaveFunctionCollapseStrategy::reduceTile(
     if(direction == WEST) opposite = EAST;
 
     std::erase_if(tile->possibilities, [&](const auto& possiblity) {
-        bool reduced = !contains(connectors, tileSet.rules[possiblity][opposite]);
+        bool reduced = !contains(connectors, tileSet.getRule(possiblity, opposite));
         return reduced;
     });
 
@@ -197,7 +157,7 @@ bool WaveFunctionCollapseStrategy::reduceTile(
 
 std::vector<WaveFunctionCollapseStrategy::WFTile*> WaveFunctionCollapseStrategy::getLowestEntropyTiles(void) {
     std::vector<WFTile*> lowestEntropyTiles;
-    auto lowestEntropy = tileSet.rules.size();
+    auto lowestEntropy = tileSet.getRules().size();
 
     for(auto y = 0; y < getHeight(); y++) {
         for(auto x = 0; x < getWidth(); x++) {
@@ -270,30 +230,30 @@ void WaveFunctionCollapseStrategy::overrideTileId(WFTile* tile) {
         return;
     }
 
-    auto type = tileSet.types[tile->possibilities[0]].type;
+    auto type = tileSet.getTile(tile->possibilities[0]).type;
 
-    if(tileSet.variants[type].size() < TileSet::Variant::COUNT) {
+    if(tileSet.getNumVariantsForType(type) < TileSet::Variant::COUNT) {
         return;
     }
 
-    auto n = tileSet.types[tile->neighbours[NORTH]->possibilities[0]].type;
-    auto s = tileSet.types[tile->neighbours[SOUTH]->possibilities[0]].type;
-    auto e = tileSet.types[tile->neighbours[EAST]->possibilities[0]].type;
-    auto w = tileSet.types[tile->neighbours[WEST]->possibilities[0]].type;
+    auto n = tileSet.getTile(tile->neighbours[NORTH]->possibilities[0]).type;
+    auto s = tileSet.getTile(tile->neighbours[SOUTH]->possibilities[0]).type;
+    auto e = tileSet.getTile(tile->neighbours[EAST]->possibilities[0]).type;
+    auto w = tileSet.getTile(tile->neighbours[WEST]->possibilities[0]).type;
 
-    if(n != type && s != type && e != type && w != type) tile->possibilities[0] = tileSet.variants[type][TileSet::CENTER];
+    if(n != type && s != type && e != type && w != type) tile->possibilities[0] = tileSet.getTileVariantIdForType(type, TileSet::CENTER);
 
-    else if(n == type && s == type && e == type && w == type) tile->possibilities[0] = tileSet.variants[type][TileSet::MIDDLE];
+    else if(n == type && s == type && e == type && w == type) tile->possibilities[0] = tileSet.getTileVariantIdForType(type, TileSet::MIDDLE);
 
-    else if(n != type && s == type && e == type && w == type) tile->possibilities[0] = tileSet.variants[type][TileSet::NORTH];
-    else if(n == type && s != type && e == type && w == type) tile->possibilities[0] = tileSet.variants[type][TileSet::SOUTH];
-    else if(n == type && s == type && e != type && w == type) tile->possibilities[0] = tileSet.variants[type][TileSet::EAST];
-    else if(n == type && s == type && e == type && w != type) tile->possibilities[0] = tileSet.variants[type][TileSet::WEST];
+    else if(n != type && s == type && e == type && w == type) tile->possibilities[0] = tileSet.getTileVariantIdForType(type, TileSet::NORTH);
+    else if(n == type && s != type && e == type && w == type) tile->possibilities[0] = tileSet.getTileVariantIdForType(type, TileSet::SOUTH);
+    else if(n == type && s == type && e != type && w == type) tile->possibilities[0] = tileSet.getTileVariantIdForType(type, TileSet::EAST);
+    else if(n == type && s == type && e == type && w != type) tile->possibilities[0] = tileSet.getTileVariantIdForType(type, TileSet::WEST);
     
-    else if(n != type && s == type && e != type && w == type) tile->possibilities[0] = tileSet.variants[type][TileSet::NORTH_EAST];
-    else if(n != type && s == type && e == type && w != type) tile->possibilities[0] = tileSet.variants[type][TileSet::NORTH_WEST];
-    else if(n == type && s != type && e != type && w == type) tile->possibilities[0] = tileSet.variants[type][TileSet::SOUTH_EAST];
-    else if(n == type && s != type && e == type && w != type) tile->possibilities[0] = tileSet.variants[type][TileSet::SOUTH_WEST];
+    else if(n != type && s == type && e != type && w == type) tile->possibilities[0] = tileSet.getTileVariantIdForType(type, TileSet::NORTH_EAST);
+    else if(n != type && s == type && e == type && w != type) tile->possibilities[0] = tileSet.getTileVariantIdForType(type, TileSet::NORTH_WEST);
+    else if(n == type && s != type && e != type && w == type) tile->possibilities[0] = tileSet.getTileVariantIdForType(type, TileSet::SOUTH_EAST);
+    else if(n == type && s != type && e == type && w != type) tile->possibilities[0] = tileSet.getTileVariantIdForType(type, TileSet::SOUTH_WEST);
 
     // TODO: Other possible configurations
 }

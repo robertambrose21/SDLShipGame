@@ -14,6 +14,7 @@
 #include "graphics/drawstrategies/itemdrawstrategy.h"
 #include "game/application/stdoutsubscriber.h"
 #include "clientturncontroller.h"
+#include "core/grid/generation/tileset.h"
 
 class ClientApplication {
 private:

@@ -9,6 +9,7 @@
 #include "generationstrategy.h"
 #include "core/util/randomutils.h"
 #include "core/util/vectorutils.h"
+#include "tileset.h"
 
 using json = nlohmann::json;
 
@@ -34,37 +35,6 @@ private:
         glm::ivec2 maxRoomSize;
     } RoomConfiguration;
 
-    typedef struct _tileSet {
-        enum Variant {
-            MIDDLE, 
-            CENTER,
-            NORTH,
-            SOUTH,
-            EAST,
-            WEST,
-            NORTH_EAST,
-            NORTH_WEST,
-            SOUTH_EAST,
-            SOUTH_WEST,
-            NORTH_EAST_2,
-            NORTH_WEST_2,
-            SOUTH_EAST_2,
-            SOUTH_WEST_2,
-            COUNT
-        };
-
-        typedef struct _type {
-            std::string tile;
-            std::string type;
-            int textureId;
-            int weight;
-        } Type;
-
-        std::map<std::string, std::map<Variant, int>> variants;
-        std::map<int, Type> types;
-        std::map<int, std::vector<int>> rules;
-    } TileSet;
-
     Grid* grid;
     std::vector<std::vector<WFTile>> tiles;
     std::stack<WFTile*> tilesToCollapse;
@@ -88,10 +58,12 @@ private:
     void overrideTiles(void);
     void overrideTileId(WFTile* tile);
 
-    void loadTileSet(const std::string& path);
-
 public:
-    WaveFunctionCollapseStrategy(Grid* grid, const RoomConfiguration& roomConfiguration);
+    WaveFunctionCollapseStrategy(
+        Grid* grid,
+        const TileSet& tileSet,
+        const RoomConfiguration& roomConfiguration
+    );
 
     std::vector<std::vector<Grid::Tile>> generate(void);
 };
