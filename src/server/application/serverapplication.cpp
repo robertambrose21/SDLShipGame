@@ -100,7 +100,7 @@ void ServerApplication::run(void) {
 void ServerApplication::onClientConnect(int clientIndex) {
     auto& context = application->getContext();
 
-    auto player = addPlayer(true);
+    auto player = addPlayer(false);
     auto participantId = context.getTurnController()->addParticipant(true, { player })->id;
     context.getTurnController()->reset();
 
@@ -273,8 +273,8 @@ Entity* ServerApplication::addPlayer(bool hasFreezeGun) {
     while(isWalkable > 0) {
         // x = randomRange(0, 5);
         // y = randomRange(0, 5);
-        x = randomRange(0, 9);
-        y = randomRange(context.getGrid()->getHeight() - 6, context.getGrid()->getHeight() - 1);
+        x = randomRange(2, 19);
+        y = randomRange(context.getGrid()->getHeight() - 16, context.getGrid()->getHeight() - 1);
         auto tile = context.getGrid()->getTileAt(x, y);
         isWalkable = tile.isWalkable ? 0 : isWalkable - 1;
     }

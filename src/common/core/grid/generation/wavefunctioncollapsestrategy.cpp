@@ -216,7 +216,7 @@ void WaveFunctionCollapseStrategy::overrideTiles(void) {
             overrideTileId(&tiles[y][x]);
 
             auto tileId = tiles[y][x].possibilities[0];
-            setTile(x, y, { tileId, tileId == 1, false }); // TODO: Better way of assessing whether a tile is walkable
+            setTile(x, y, { tileId, tileSet.isWalkable(tileId), false });
         }
     }
 }

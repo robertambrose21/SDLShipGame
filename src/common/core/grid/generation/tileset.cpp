@@ -23,13 +23,16 @@ void TileSet::load(const std::string& path) {
         edges[edgeData] = numEdges++;
     }
 
+    auto walkableTypes = data["walkableTypes"].get<std::vector<std::string>>();
+
     int numTiles = 0;
     std::map<std::string, int> tileNames;
 
     for(auto const& typesData : data["types"].get<std::vector<json>>()) {
         auto key = typesData.items().begin().key();
 
-        // TODO: error check variant
+        bool isWalkable = contains(walkableTypes, key);
+
         int variant = 0;
         for(auto const& typeData : typesData[key].get<json>()) {
             if(variant >= Variant::COUNT) {
@@ -37,6 +40,8 @@ void TileSet::load(const std::string& path) {
                 return;
             }
 
+            walkabaleTileIds[numTiles] = isWalkable;
+            
             Tile tile;
             tile.name = typeData["tile"].get<std::string>();
             tile.type = key;
@@ -77,8 +82,12 @@ const std::map<int, TileSet::Tile>& TileSet::getTiles(void) const {
     return tiles;
 }
 
-const std::map<int, std::vector<int>>& TileSet::getRules(void) {
+const std::map<int, std::vector<int>>& TileSet::getRules(void) const {
     return rules;
+}
+
+const std::map<int, bool>& TileSet::getWalkableTileIds(void) const {
+    return walkabaleTileIds;
 }
 
 int TileSet::getNumVariantsForType(const std::string& type) {
@@ -95,4 +104,8 @@ const TileSet::Tile TileSet::getTile(int id) {
 
 const int TileSet::getRule(int neighbourId, int direction) {
     return rules[neighbourId][direction];
+}
+
+bool TileSet::isWalkable(int tileId) {
+    return walkabaleTileIds[tileId];
 }

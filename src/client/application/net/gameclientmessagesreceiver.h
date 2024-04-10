@@ -18,6 +18,7 @@ private:
     ApplicationContext& context;
     GameClientMessagesTransmitter* transmitter;
     PlayerController* playerController;
+    std::map<int, bool> walkableTileIds;
 
     void receiveTestMessage(int data);
     void receiveGameStateUpdate(const GameStateUpdate& update);
@@ -55,7 +56,7 @@ private:
     void receiveApplyGridEffectMessage(uint8_t type, int x, int y, uint8_t duration);
 
 public:
-    GameClientMessagesReceiver(ApplicationContext& context);
+    GameClientMessagesReceiver(ApplicationContext& context, const std::map<int, bool>& walkableTileIds);
 
     void setPlayerController(PlayerController* playerController);
     void setTransmitter(GameClientMessagesTransmitter* transmitter);

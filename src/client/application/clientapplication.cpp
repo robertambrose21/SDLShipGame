@@ -49,10 +49,13 @@ void ClientApplication::initialise(void) {
     areaOfEffectDrawStrategy = std::make_unique<AreaOfEffectDrawStrategy>();
     itemDrawStrategy = std::make_unique<ItemDrawStrategy>();
 
+    // TODO: The tileset to use should come from the server
+    auto tileSet = TileSet("../assets/data/tilesets/grass_and_rocks/rules.json");
+
     clientStateMachine = std::make_unique<ClientStateMachine>();
     clientStateMachine->setState(std::make_unique<ClientLoadingState>());
 
-    clientMessagesReceiver = std::make_unique<GameClientMessagesReceiver>(application->getContext());
+    clientMessagesReceiver = std::make_unique<GameClientMessagesReceiver>(application->getContext(), tileSet.getWalkableTileIds());
 
     client = std::make_unique<GameClient>(*clientMessagesReceiver, yojimbo::Address("127.0.0.1", 8081));
     clientMessagesTransmitter = std::make_unique<GameClientMessagesTransmitter>(*client);
@@ -69,15 +72,13 @@ void ClientApplication::initialise(void) {
     window = std::make_unique<Window>(1920, 1080, grid);
     window->initialiseWindow();
 
-    // TODO: The tileset to use should come from the server
-    auto tileSet = TileSet("../assets/data/tilesets/grass_and_rocks/rules.json");
     for(auto& [tileId, textureId] : tileSet.getTextureIds()) {
         window->setGridTileTexture(tileId, textureId);
     }
     
     for(auto i = 0; i < grid->getWidth(); i++) {
         for(auto j = 0; j < grid->getHeight(); j++) {
-            grid->setTile(i, j, { 1, true });
+            grid->setTile(i, j, { 1, true, false });
         }
     }
 
@@ -131,7 +132,6 @@ void ClientApplication::drawGameLoop(GraphicsContext& graphicsContext) {
     auto areaOfEffectPool = context.getAreaOfEffectPool();
     auto itemController = context.getItemController();
 
-    // for(auto& [_, item] : itemController->getItems()) {
     for(auto& item : itemController->getWorldItems()) {
         itemDrawStrategy->draw(item, graphicsContext);
     }
