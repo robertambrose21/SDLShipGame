@@ -13,7 +13,7 @@ void TileSet::load(const std::string& path) {
         return;
     }
 
-    std::ifstream f(path); // TODO: Check exists
+    std::ifstream f(path);
     json data = json::parse(f);
 
     int numEdges = 0;
