@@ -209,9 +209,6 @@ void ServerApplication::loadMap(void) {
         TileSet("../assets/data/tilesets/grass_and_rocks/rules.json"),
         { 20, glm::ivec2(6, 6), glm::ivec2(15, 15) }
     ).generate());
-
-    // WaveFunctionCollapseStrategy(
-    //     grid, { 20, glm::ivec2(6, 6), glm::ivec2(15, 15) });
 }
 
 void ServerApplication::loadGame(void) {
