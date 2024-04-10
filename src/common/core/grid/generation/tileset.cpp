@@ -8,6 +8,11 @@ TileSet::TileSet(const std::string& path) {
 }
 
 void TileSet::load(const std::string& path) {
+    if(!std::filesystem::exists(path)) {
+        std::cout << "Cannot load tileset, path \"" << path << "\" does not exist";
+        return;
+    }
+
     std::ifstream f(path); // TODO: Check exists
     json data = json::parse(f);
 
@@ -27,13 +32,18 @@ void TileSet::load(const std::string& path) {
         // TODO: error check variant
         int variant = 0;
         for(auto const& typeData : typesData[key].get<json>()) {
-            TileSet::Tile tile;
+            if(variant >= Variant::COUNT) {
+                std::cout << "Error: Too many variants for type " << key << std::endl;
+                return;
+            }
+
+            Tile tile;
             tile.name = typeData["tile"].get<std::string>();
             tile.type = key;
             tile.weight = typeData["weight"].get<int>();
 
             tiles[numTiles] = tile;
-            variants[key][(TileSet::Variant) variant++] = numTiles;
+            variants[key][(Variant) variant++] = numTiles;
             textureIds[numTiles] = typeData["textureId"].get<int>();
             tileNames[tile.name] = numTiles++;
         }
@@ -43,6 +53,11 @@ void TileSet::load(const std::string& path) {
         auto key = ruleData.items().begin().key();
 
         auto ruleEdges = ruleData[key].get<std::vector<std::string>>();
+
+        if(ruleEdges.size() != 4) {
+            std::cout << "Error: rule for " << key << " has " << ruleEdges.size() << "edges, should have 4" << std::endl;
+            return;
+        }
 
         for(auto const& ruleEdge : ruleEdges) {
             rules[tileNames[key]].push_back(edges[ruleEdge]);

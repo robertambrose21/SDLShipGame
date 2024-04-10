@@ -5,6 +5,8 @@
 #include <string>
 #include <cstdint>
 #include <fstream>
+#include <filesystem>
+#include <iostream>
 
 #include "core/json.hpp"
 
