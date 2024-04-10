@@ -69,6 +69,7 @@ void ClientApplication::initialise(void) {
     window = std::make_unique<Window>(1920, 1080, grid);
     window->initialiseWindow();
 
+    // TODO: The tileset to use should come from the server
     auto tileSet = TileSet("../assets/data/tilesets/grass_and_rocks/rules.json");
     for(auto& [tileId, textureId] : tileSet.getTextureIds()) {
         window->setGridTileTexture(tileId, textureId);

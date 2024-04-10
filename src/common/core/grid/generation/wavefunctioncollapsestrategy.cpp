@@ -13,6 +13,8 @@ WaveFunctionCollapseStrategy::WaveFunctionCollapseStrategy(
 { }
 
 std::vector<std::vector<Grid::Tile>> WaveFunctionCollapseStrategy::generate(void) {
+    std::cout << "Generating map... ";
+
     bool isCollapsed = false;
     tiles.resize(grid->getWidth(), std::vector<WFTile>(grid->getHeight()));
     tilesToCollapse = {};
