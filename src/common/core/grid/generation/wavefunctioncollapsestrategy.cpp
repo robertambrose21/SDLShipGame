@@ -186,8 +186,6 @@ std::vector<WaveFunctionCollapseStrategy::WFTile*> WaveFunctionCollapseStrategy:
 bool WaveFunctionCollapseStrategy::collapse(void) {
     auto lowestEntropyTiles = getLowestEntropyTiles();
 
-    // std::cout << "Processing " << lowestEntropyTiles.size() << " tiles" << std::endl;
-
     if(lowestEntropyTiles.empty()) {
         return true;
     }

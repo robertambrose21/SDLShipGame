@@ -41,7 +41,7 @@ inline T randomChoice(const std::vector<T>& vec) {
 }
 
 template<typename T>
-inline T randomChoice(const std::vector<T>& vec, const std::vector<int> weights) {
+inline T randomChoice(const std::vector<T>& vec, const std::vector<int>& weights) {
     game_assert(vec.size() == weights.size());
     
     static std::default_random_engine generator;
