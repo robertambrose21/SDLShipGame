@@ -1,18 +1,5 @@
 #include "wavefunctioncollapsestrategy.h"
 
-// TILE_FORESTN : [FOREST, GRASS, FOREST_N, FOREST_N],
-// TILE_FORESTS : [GRASS, FOREST, FOREST_S, FOREST_S],
-// TILE_FORESTE : [FOREST_E, FOREST_E, FOREST,  GRASS],
-// TILE_FORESTW : [FOREST_W, FOREST_W, GRASS, FOREST],
-// TILE_FORESTNE: [FOREST_E, GRASS, FOREST_N, GRASS],
-// TILE_FORESTNW: [FOREST_W, GRASS, GRASS, FOREST_N],
-// TILE_FORESTSE: [GRASS, FOREST_E, FOREST_S, GRASS],
-// TILE_FORESTSW: [GRASS, FOREST_W, GRASS, FOREST_S],
-// TILE_FORESTNE2: [FOREST, FOREST_E, FOREST, FOREST_N],
-// TILE_FORESTNW2: [FOREST, FOREST_W, FOREST_N, FOREST],
-// TILE_FORESTSE2: [FOREST_E, FOREST, FOREST, FOREST_S],
-// TILE_FORESTSW2: [FOREST_W, FOREST, FOREST_S, FOREST],
-
 WaveFunctionCollapseStrategy::WaveFunctionCollapseStrategy(
     Grid* grid,
     const TileSet& tileSet,
@@ -26,33 +13,7 @@ WaveFunctionCollapseStrategy::WaveFunctionCollapseStrategy(
 { }
 
 std::vector<std::vector<Grid::Tile>> WaveFunctionCollapseStrategy::generate(void) {
-    // int retries = 0;
-    // int tilesToGenerate = getWidth() * getHeight();
-
-    // while(tilesCollapsed < tilesToGenerate && retries < 50) {
-    //     std::cout << "Generating map... ";
-
-    //     tilesCollapsed = 0;
-
-    //     bool isCollapsed = false;
-    //     tiles.resize(grid->getWidth(), std::vector<WFTile>(grid->getHeight()));
-    //     tilesToCollapse = {};
-        
-    //     generateWallsAndNeighbours();
-    //     // generateRoomsAndPaths();
-
-    //     while(!isCollapsed) {
-    //         isCollapsed = collapse({0, 0, 25, 25});
-    //     }
-
-    //     overrideTiles();
-
-    //     std::cout << "Done: " << tilesCollapsed << "/" << tilesToGenerate << " retries " << (retries++) << std::endl;
-    // }
-
     std::cout << "Generating map... " << std::endl;;
-
-    // tiles.resize(grid->getWidth(), std::vector<WFTile>(grid->getHeight()));
 
     int chunkSize = 8;
     int numRetries = 100;
@@ -82,7 +43,6 @@ std::vector<std::vector<Grid::Tile>> WaveFunctionCollapseStrategy::generate(void
         else {
             isDone = true;
         }
-        // isDone = true;
     }
 
     overrideTiles();
@@ -100,9 +60,7 @@ bool WaveFunctionCollapseStrategy::subgenerate(
 ) {
     bool failed = false;
     int retries = 0;
-    // int tilesToGenerate = chunkSize * chunkSize;
     int tilesToGenerate = ((chunk.xMax - chunk.xMin) + 1) * ((chunk.yMax - chunk.yMin) + 1);
-    // int tilesToGenerate = 36;//((chunk.xMax - chunk.xMin)) * ((chunk.yMax - chunk.yMin));
     int initialCollapse = 0;
     tilesCollapsed = 0;
 
@@ -110,11 +68,6 @@ bool WaveFunctionCollapseStrategy::subgenerate(
         for(auto x = chunk.xMin; x <= chunk.xMax; x++) {
             auto& tile = tiles[y][x];
 
-            // if(x == 0 || x == getWidth() - 1 || y == 0 || y == getHeight() - 1) {
-            //     tile.entropy = tileSet.getRules().size();
-            //     auto kv = std::views::keys(tileSet.getRules());
-            //     tile.possibilities = { kv.begin(), kv.end() };
-            // }
             if(x == chunk.xMin || x == chunk.xMax || y == chunk.yMin || y == chunk.yMax) {
                 tile.entropy = 1; // Reopen borders
             }
@@ -126,15 +79,8 @@ bool WaveFunctionCollapseStrategy::subgenerate(
                 auto kv = std::views::keys(tileSet.getRules());
                 tile.possibilities = { kv.begin(), kv.end() };
             }
-
-            // if(tile.entropy == 0) {
-            //     std::cout << "hooted" << std::endl;
-            //     initialCollapse++;
-            // }
         }
     }
-
-    // std::cout << "(" << chunk.xMin << ", " << chunk.yMin << ") (" << chunk.xMax << ", " << chunk.yMax << ")" << std::endl;
 
     while (tilesCollapsed < tilesToGenerate && retries < numRetries) {
         tilesSnapshot = tiles;
@@ -145,17 +91,6 @@ bool WaveFunctionCollapseStrategy::subgenerate(
         while (!isCollapsed) {
             isCollapsed = collapse(chunk);
         }
-
-        // std::cout
-        //     << "Chunk ["
-        //     << numChunks
-        //     << "] done: "
-        //     << tilesCollapsed
-        //     << "/"
-        //     << tilesToGenerate
-        //     << " retries "
-        //     << (retries++)
-        //     << std::endl;
 
         retries++;
 
@@ -182,31 +117,6 @@ bool WaveFunctionCollapseStrategy::subgenerate(
 }
 
 std::vector<WaveFunctionCollapseStrategy::WFChunk> WaveFunctionCollapseStrategy::generateChunks(int chunkSize) {
-    // std::vector<WFChunk> chunks;
-
-    // int chunksX = getWidth() / chunkSize;
-    // int chunksY = getHeight() / chunkSize;
-
-    // int lastChunkX = getWidth() % chunkSize;
-    // int lastChunkY = getHeight() % chunkSize;
-
-    // if(lastChunkX > 0) chunksX++;
-    // if(lastChunkY > 0) chunksY++;
-
-    // for(int i = 0; i < chunksX; i++) {
-    //     int xMin = i * chunkSize;
-    //     int xMax = std::min(xMin + (chunkSize - 1), getWidth() - 1);
-
-    //     for(int j = 0; j < chunksY; j++) {
-    //         int yMin = j * chunkSize;
-    //         int yMax = std::min(yMin + (chunkSize - 1), getHeight() - 1);
-
-    //         chunks.push_back({ xMin, xMax, yMin, yMax });
-    //     }
-    // }
-
-    // return chunks;
-
     std::vector<WFChunk> chunks;
 
     int chunksX = getWidth() / chunkSize;
@@ -238,52 +148,6 @@ void WaveFunctionCollapseStrategy::generateWallsAndNeighbours(void) {
     for(auto y = 0; y < getHeight(); y++) {
         for(auto x = 0; x < getWidth(); x++) {
             auto& tile = tiles[y][x];
-
-            // if(x == 0 || x == getWidth() - 1 || y == 0 || y == getHeight() - 1) {
-            //     tile.entropy = 1;
-            //     tile.possibilities = { 14 };
-            // }
-            // else {
-            //     tile.entropy = tileSet.getRules().size();
-            //     auto kv = std::views::keys(tileSet.getRules());
-            //     tile.possibilities = { kv.begin(), kv.end() };
-            // }
-
-            // if(x == 0 && y == 0) tile.possibilities = { 18 };
-            // else if(x == 0) tile.possibilities = { 18 };
-            // else tile.possibilities = { 4 };
-
-            // if(x == 0 || x == getWidth() - 1 || y == 0 || y == getHeight() - 1) {
-            //     tile.entropy = 1;
-            //     tile.possibilities = { 14 };
-            // }
-
-            // if(x == 0 && y == 0) tile.possibilities = { 26 };
-            // else if(x == getWidth() - 1 && y == 0) tile.possibilities = { 27 };
-            // else if(x == 0 && y == getHeight() - 1) tile.possibilities = { 24 };
-            // else if(x == getWidth() - 1 && y == getHeight() - 1) tile.possibilities = { 25 };
-
-            // else if(x == 1 && y == 1) tile.possibilities = { 12 };
-            // else if(x == getWidth() - 2 && y == 1) tile.possibilities = { 13 };
-            // else if(x == 1 && y == getHeight() - 2) tile.possibilities = { 10 };
-            // else if(x == getWidth() - 2 && y == getHeight() - 2) tile.possibilities = { 11 };
-
-            // else if(x == 0) tile.possibilities = { 18 };
-            // else if(x == getWidth() - 1) tile.possibilities = { 19 };
-            // else if(y == 0) tile.possibilities = { 17 };
-            // else if(y == getHeight() - 1) tile.possibilities = { 16 };
-            // else if(x == 1) tile.possibilities = { 4 };
-            // else if(y == 1) tile.possibilities = { 3 };
-            // else if(x == getWidth() - 2) tile.possibilities = { 5 };
-            // else if(y == getHeight() - 2) tile.possibilities = { 2 };
-            // else tile.possibilities = { 0 };
-
-            // Generate wall edges and fill in dirt for the rest.
-            // TODO: We should add some config to rules.json:
-            // - Determine what the base tile type is
-            // - Determine what the border tile type is
-            // - Figure out what the id's of edges/corners are from config
-            // - Config may need to be improved to determine what orientation a specific tile is, e.g. N, NE, SW etc.
 
             if(x == 0 && y == 0) tile.possibilities = { 26 };
             else if(x == getWidth() - 1 && y == 0) tile.possibilities = { 27 };
@@ -332,57 +196,29 @@ void WaveFunctionCollapseStrategy::generateRoomsAndPaths(void) {
             tiles[intersection.y][intersection.x].entropy = 0;
             tiles[intersection.y][intersection.x].possibilities = { 1 };
             tiles[intersection.y][intersection.x].seeded = true;
-            // tilesToCollapse.push(&tiles[intersection.y][intersection.x]);
         }
     }
 }
 
 WaveFunctionCollapseStrategy::Room WaveFunctionCollapseStrategy::addRoom(const std::vector<Room>& existingRooms) {
-    // int roomSizeX = randomRange(roomConfiguration.minRoomSize.x, roomConfiguration.maxRoomSize.x);
-    // int roomSizeY = randomRange(roomConfiguration.minRoomSize.y, roomConfiguration.maxRoomSize.y);
-
-    // std::cout << "Room size: (" << roomSizeX << ", " << roomSizeY << ")" << std::endl;
-
-    // int roomX = randomRange(4, getWidth() - roomSizeX - 4);
-    // int roomY = randomRange(4, getHeight() - roomSizeY - 4);
-
     auto room = createRandomRoom();
 
     for(int x = room.position.x; x < room.position.x + room.size.x; x++) {
         for(int y = room.position.y; y < room.position.y + room.size.y; y++) {
             auto& tile = tiles[y][x];
 
-            // if(x == room.position.x && y == room.position.y) tile.possibilities = { 12 };
-            // else if(x == (room.position.x + room.size.x - 1) && y == room.position.y) tile.possibilities = { 13 };
-            // else if(x == room.position.x && y == (room.position.y + room.size.y - 1)) tile.possibilities = { 10 };
-            // else if(x == (room.position.x + room.size.x - 1) && y == (room.position.y + room.size.y - 1)) tile.possibilities = { 11 };
-            // else if(x == room.position.x) tile.possibilities = { 4 };
-            // else if(x == (room.position.x + room.size.x - 1)) tile.possibilities = { 5 };
-            // else if(y == room.position.y) tile.possibilities = { 3 };
-            // else if(y == (room.position.y + room.size.y - 1)) tile.possibilities = { 2 };
-            // else tile.possibilities = { 0 };
-
             tile.possibilities = { 1 };
             tile.entropy = 0;
-            // tile.possibilities = { 0 };
             tile.seeded = true;
-            // tilesToCollapse.push(&tiles[y][x]);
         }
     }
 
-    // int centerX = randomRange(room.position.x, room.position.x + room.size.x);
-    // int centerY = randomRange(room.position.y, room.position.y + room.size.y);
-
-    // return glm::ivec2(centerX, centerY);
-    // return { glm::ivec2(roomX, roomY),  glm::ivec2(roomSizeX, roomSizeY) };
     return room;
 }
 
 WaveFunctionCollapseStrategy::Room WaveFunctionCollapseStrategy::createRandomRoom(void) {
     int roomSizeX = randomRange(roomConfiguration.minRoomSize.x, roomConfiguration.maxRoomSize.x);
     int roomSizeY = randomRange(roomConfiguration.minRoomSize.y, roomConfiguration.maxRoomSize.y);
-
-    std::cout << "Room size: (" << roomSizeX << ", " << roomSizeY << ")" << std::endl;
 
     int roomX = randomRange(4, getWidth() - roomSizeX - 4);
     int roomY = randomRange(4, getHeight() - roomSizeY - 4);
@@ -416,16 +252,12 @@ void WaveFunctionCollapseStrategy::addTileNeighbours(int x, int y, WFTile* tile)
 void WaveFunctionCollapseStrategy::collapseTile(WFTile* tile) {
     tile->entropy = 0;
 
-    // static int tilesCollapsed = 0;
-
     std::vector<int> weights;
     for(auto possiblity : tile->possibilities) {
         weights.push_back(tileSet.getTile(possiblity).weight);
     }
 
     tilesCollapsed++;
-    // std::cout << tilesCollapsed << std::endl;
-
     tile->possibilities = { randomChoice(tile->possibilities, weights) };
 }
 
@@ -458,10 +290,6 @@ bool WaveFunctionCollapseStrategy::reduceTile(
 
     tile->entropy = tile->possibilities.size();
 
-    // if(tile->entropy == 0) {
-    //     std::cout << "Bad: " << std::endl;
-    // }
-
     return reduced;
 }
 
@@ -469,8 +297,6 @@ std::vector<WaveFunctionCollapseStrategy::WFTile*> WaveFunctionCollapseStrategy:
     std::vector<WFTile*> lowestEntropyTiles;
     auto lowestEntropy = tileSet.getRules().size();
 
-    // for(auto y = 0; y < getHeight(); y++) {
-    //     for(auto x = 0; x < getWidth(); x++) {
     for(auto y = chunk.yMin; y <= chunk.yMax; y++) {
         for(auto x = chunk.xMin; x <= chunk.xMax; x++) {
             auto entropy = tiles[y][x].entropy;
@@ -511,20 +337,8 @@ bool WaveFunctionCollapseStrategy::collapse(const WFChunk& chunk) {
         tilesToCollapse.pop();
 
         for(auto& [direction, neighbour] : tile->neighbours) {
-            // if(neighbour->x < chunk.xMin || neighbour->y < chunk.yMin || neighbour->x > chunk.xMax || neighbour->y > chunk.yMax) {
-            //     continue;
-            // }
-            // if(neighbour->x < chunk.xMin - 1 || neighbour->y < chunk.yMin - 1 || neighbour->x > chunk.xMax + 1 || neighbour->y > chunk.yMax + 1) {
-            //     continue;
-            // }
-
             if(neighbour->entropy != 0 && reduceTile(neighbour, tilePossibilities, direction)) {
-                // if(neighbour->x < chunk.xMin || neighbour->y < chunk.yMin || neighbour->x > chunk.xMax || neighbour->y > chunk.yMax) {
-                //     //
-                // }
-                // else {
-                    tilesToCollapse.push(neighbour);
-                // }
+                tilesToCollapse.push(neighbour);
             }
         }
     }
@@ -541,7 +355,6 @@ void WaveFunctionCollapseStrategy::overrideTiles(void) {
 
             if(tiles[y][x].possibilities.size() > 1) {
                 setTile(x, y, { 1, true, false });
-                // std::cout << "What" << std::endl;
                 continue;
             }
 
@@ -592,8 +405,6 @@ void WaveFunctionCollapseStrategy::overrideTileId(WFTile* tile) {
     else if(sw != type && s == type && w == type) tile->possibilities[0] = tileSet.getTileVariantIdForType(type, TileSet::SOUTH_WEST_2);
 
     else if(n == type && s == type && e == type && w == type) tile->possibilities[0] = tileSet.getTileVariantIdForType(type, TileSet::MIDDLE);
-    
-    
 
     // TODO: Other possible configurations
 }
