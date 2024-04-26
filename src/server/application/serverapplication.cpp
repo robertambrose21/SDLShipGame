@@ -14,7 +14,7 @@ void ServerApplication::initialise(void) {
     }
 
     application = std::make_unique<Application>(
-        std::make_unique<Grid>(100, 100),
+        std::make_unique<Grid>(200, 200),
         std::make_unique<EntityPool>(),
         std::make_unique<WeaponController>(),
         std::make_unique<ProjectilePool>(),
@@ -207,7 +207,7 @@ void ServerApplication::loadMap(void) {
     grid->setData(WaveFunctionCollapseStrategy(
         grid,
         TileSet("../assets/data/tilesets/grass_and_rocks/rules.json"),
-        { 20, glm::ivec2(6, 6), glm::ivec2(15, 15) }
+        { 12, glm::ivec2(6, 6), glm::ivec2(15, 15) }
     ).generate());
 }
 

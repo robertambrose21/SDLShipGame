@@ -22,9 +22,15 @@ private:
         WEST
     };
 
+    typedef struct _wfChunk {
+        int xMin, xMax;
+        int yMin, yMax;
+    } WFChunk;
+
     typedef struct _wfTile {
         int x, y;
         int entropy;
+        bool seeded;
         std::vector<int> possibilities;
         std::map<Direction, _wfTile*> neighbours;
     } WFTile;
@@ -35,11 +41,18 @@ private:
         glm::ivec2 maxRoomSize;
     } RoomConfiguration;
 
+    typedef struct _room {
+        glm::ivec2 position;
+        glm::ivec2 size;
+    } Room;
+
     Grid* grid;
     std::vector<std::vector<WFTile>> tiles;
+    std::vector<std::vector<WFTile>> tilesSnapshot;
     std::stack<WFTile*> tilesToCollapse;
     RoomConfiguration roomConfiguration;
     TileSet tileSet;
+    int tilesCollapsed;
 
     bool isCollapsed;
 
@@ -47,16 +60,23 @@ private:
     void collapseTile(WFTile* tile);
     bool reduceTile(WFTile* tile, const std::vector<int>& possibilities, Direction direction);
 
-    std::vector<WFTile*> getLowestEntropyTiles(void);
-    bool collapse(void);
+    std::vector<WFTile*> getLowestEntropyTiles(const WFChunk& chunk);
+    bool collapse(const WFChunk& chunk);
 
+    std::vector<WFChunk> generateChunks(int chunkSize);
     void generateWallsAndNeighbours(void);
     void generateRoomsAndPaths(void);
+    bool subgenerate(int chunkSize, int numRetries, WFChunk& chunk, int numChunks);
     
-    glm::ivec2 addRoom(void);
+    Room addRoom(const std::vector<Room>& existingRooms);
+    Room createRandomRoom(void);
+    bool hasCollision(const Room& roomA, const Room& roomB);
 
     void overrideTiles(void);
     void overrideTileId(WFTile* tile);
+    bool overrideCornerTileId(WFTile* tile, const std::string& type);
+    bool overrideEdgeTileId(WFTile* tile, const std::string& type);
+
 
 public:
     WaveFunctionCollapseStrategy(
