@@ -36,6 +36,7 @@ private:
 
     std::vector<std::unique_ptr<Chunk>> createChunks(void);
     void buildChunkTexture(GraphicsContext& graphicsContext, Chunk* chunk);
+    bool isTileInChunk(Chunk* chunk, int x, int y);
 
     // TODO: Why on earth is the camera on the GridRenderer???? Move this!
     std::unique_ptr<Camera> camera;

@@ -80,6 +80,10 @@ void GridRenderer::buildChunkTexture(GraphicsContext& graphicsContext, Chunk* ch
     chunk->textureNeedsRebuilding = false;
 }
 
+bool GridRenderer::isTileInChunk(Chunk* chunk, int x, int y) {
+    return x >= chunk->min.x && x <= chunk->max.x && y >= chunk->min.y && y <= chunk->max.y;
+}
+
 void GridRenderer::draw(GraphicsContext& graphicsContext) {
     for(auto& chunk : chunks) {
         if(chunk->textureNeedsRebuilding) {
@@ -126,7 +130,7 @@ void GridRenderer::draw(
 
 void GridRenderer::onPublish(const Event<TileEventData>& event) {
     for(auto& chunk : chunks) {
-        chunk->textureNeedsRebuilding = true;
+        chunk->textureNeedsRebuilding = chunk->textureNeedsRebuilding || isTileInChunk(chunk.get(), event.data.x, event.data.y);
     }
 }
 
