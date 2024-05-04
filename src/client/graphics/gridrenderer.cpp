@@ -3,37 +3,66 @@
 GridRenderer::GridRenderer(Grid* grid, int windowHeight) :
     grid(grid),
     windowHeight(windowHeight),
-    tileSize(32),
-    textureNeedsRebuilding(true)
+    tileSize(32)
 {
     camera = std::make_unique<Camera>(glm::ivec2(0, 0));
     grid->subscribe<TileEventData>(this);
+    chunks = createChunks();
 }
 
 void GridRenderer::setTileTexture(int tileId, uint32_t textureId) {
     game_assert(tileId >= 0);
     tileTexturesIds[tileId] = textureId;
-    textureNeedsRebuilding = true;
 }
 
-void GridRenderer::buildTexture(GraphicsContext& graphicsContext) {
+std::vector<std::unique_ptr<GridRenderer::Chunk>> GridRenderer::createChunks(void) {
+    std::vector<std::unique_ptr<Chunk>> chunks;
+
+    int chunksX = grid->getWidth() / ChunkSize;
+    int chunksY = grid->getHeight() / ChunkSize;
+
+    int lastChunkX = grid->getWidth() % ChunkSize;
+    int lastChunkY = grid->getHeight() % ChunkSize;
+
+    if(lastChunkX > 0) chunksX++;
+    if(lastChunkY > 0) chunksY++;
+
+    for(int x = 0; x < chunksX; x++) {
+        for(int y = 0; y < chunksY; y++) {
+            int xMin = x * ChunkSize;
+            int xMax = std::min(grid->getWidth() - 1, ((x + 1) * ChunkSize) - 1);
+            int yMin = y * ChunkSize;
+            int yMax = std::min(grid->getHeight() - 1, ((y + 1) * ChunkSize) - 1);
+
+            Chunk chunk;
+            chunk.min = glm::ivec2(xMin, yMin);
+            chunk.max = glm::ivec2(xMax, yMax);
+            chunk.texture = nullptr;
+            chunk.textureNeedsRebuilding = true;
+
+            chunks.push_back(std::make_unique<Chunk>(std::move(chunk)));
+        }
+    }
+
+    return chunks;
+}
+
+void GridRenderer::buildChunkTexture(GraphicsContext& graphicsContext, Chunk* chunk) {
     auto renderer = graphicsContext.getRenderer();
 
     auto const& data = grid->getData();
-    auto const& width = grid->getWidth();
-    auto const& height = grid->getHeight();
 
     auto target = std::unique_ptr<SDL_Texture, Texture::sdl_deleter>(
-        SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, tileSize * width, tileSize * height), 
+        SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, tileSize * ChunkSize, tileSize * ChunkSize), 
         Texture::sdl_deleter()
     );
 
     SDL_SetRenderTarget(renderer, target.get());
     SDL_RenderClear(renderer);
 
-    for(auto y = 0; y < height; y++) {
-        for(auto x = 0; x < width; x++) {
-            auto const& realPosition = getTilePosition(x, y);
+    for(auto y = chunk->min.y; y <= chunk->max.y; y++) {
+        for(auto x = chunk->min.x; x <= chunk->max.x; x++) {
+            auto const& realPosition = getTilePosition(x - chunk->min.x, y - chunk->min.y);
             SDL_Rect dst = { realPosition.x, realPosition.y, getTileSize(), getTileSize() };
             graphicsContext.getTextureLoader().loadTexture(tileTexturesIds[data[y][x].id])->draw(renderer, NULL, &dst);
 
@@ -47,19 +76,20 @@ void GridRenderer::buildTexture(GraphicsContext& graphicsContext) {
 
     SDL_SetRenderTarget(renderer, NULL);
     
-    texture = Texture(std::move(target));
-
-    textureNeedsRebuilding = false;
+    chunk->texture = std::make_unique<Texture>(Texture(std::move(target)));
+    chunk->textureNeedsRebuilding = false;
 }
 
 void GridRenderer::draw(GraphicsContext& graphicsContext) {
-    if(textureNeedsRebuilding) {
-        buildTexture(graphicsContext);
-    }
+    for(auto& chunk : chunks) {
+        if(chunk->textureNeedsRebuilding) {
+            buildChunkTexture(graphicsContext, chunk.get());    
+        }
 
-    auto camPos = camera->getPosition();
-    SDL_Rect dst = { camPos.x, camPos.y, tileSize * grid->getWidth(), tileSize * grid->getHeight() };
-    texture.draw(graphicsContext.getRenderer(), NULL, &dst);
+        auto camPos = camera->getPosition();
+        SDL_Rect dst = { camPos.x + (chunk->min.x * tileSize), camPos.y + (chunk->min.y * tileSize), tileSize * ChunkSize, tileSize * ChunkSize };
+        chunk->texture->draw(graphicsContext.getRenderer(), NULL, &dst);
+    }
 }
 
 void GridRenderer::draw(
@@ -95,16 +125,24 @@ void GridRenderer::draw(
 }
 
 void GridRenderer::onPublish(const Event<TileEventData>& event) {
-    textureNeedsRebuilding = true;
+    for(auto& chunk : chunks) {
+        chunk->textureNeedsRebuilding = true;
+    }
 }
 
 void GridRenderer::onPublish(const Event<GridEffectEvent>& event) {
-    textureNeedsRebuilding = true;
+    for(auto& chunk : chunks) {
+        chunk->textureNeedsRebuilding = true;
+    }
 }
 
 void GridRenderer::onPublish(const Event<GridDirtyEventData>& event) {
-    if(event.data.isGridDirty) {
-        textureNeedsRebuilding = true;
+    if(!event.data.isGridDirty) {
+        return;
+    }
+
+    for(auto& chunk : chunks) {
+        chunk->textureNeedsRebuilding = true;
     }
 }
 
