@@ -1,8 +1,9 @@
 #include "generationstrategy.h"
 
-GenerationStrategy::GenerationStrategy(int width, int height) :
+GenerationStrategy::GenerationStrategy(int width, int height, const RoomConfiguration& roomConfiguration) :
     width(width),
-    height(height)
+    height(height),
+    roomConfiguration(roomConfiguration)
 {
     data.resize(height, std::vector<Grid::Tile>(width));
 }
@@ -25,6 +26,19 @@ int GenerationStrategy::getWidth(void) const {
 int GenerationStrategy::getHeight(void) const {
     return height;
 }
+
+GenerationStrategy::RoomConfiguration GenerationStrategy::getRoomConfiguration(void) const {
+    return roomConfiguration;
+}
+
+void GenerationStrategy::addRoom(const Room& room) {
+    rooms.push_back(room);
+}
+
+const std::vector<GenerationStrategy::Room>& GenerationStrategy::getRooms(void) const {
+    return rooms;
+}
+
 
 const std::vector<std::vector<Grid::Tile>>& GenerationStrategy::getData(void) const {
     return data;

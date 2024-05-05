@@ -5,9 +5,8 @@ WaveFunctionCollapseStrategy::WaveFunctionCollapseStrategy(
     const TileSet& tileSet,
     const RoomConfiguration& roomConfiguration
 ) :
-    GenerationStrategy(grid->getWidth(), grid->getHeight()),
+    GenerationStrategy(grid->getWidth(), grid->getHeight(), roomConfiguration),
     grid(grid),
-    roomConfiguration(roomConfiguration),
     isCollapsed(false),
     tileSet(tileSet)
 { }
@@ -172,15 +171,15 @@ void WaveFunctionCollapseStrategy::generateWallsAndNeighbours(void) {
 // TODO: Better way of finding paths between rooms
 void WaveFunctionCollapseStrategy::generateRoomsAndPaths(void) {
     std::vector<glm::ivec2> roomCenterPoints;
-    std::vector<Room> rooms;
 
-    for(int i = 0; i < roomConfiguration.numRooms; i++) {
-        auto room = addRoom(rooms);
-        rooms.push_back(room);
+    for(int i = 0; i < getRoomConfiguration().numRooms; i++) {
+        auto room = generateRoom(getRooms());
+        addRoom(room);
+
         roomCenterPoints.push_back(
             glm::ivec2(
-                randomRange(room.position.x, room.position.x + room.size.x),
-                randomRange(room.position.y, room.position.y + room.size.y)
+                randomRange(room.min.x, room.max.x),
+                randomRange(room.min.y, room.max.y)
             )
         );
     }
@@ -200,11 +199,11 @@ void WaveFunctionCollapseStrategy::generateRoomsAndPaths(void) {
     }
 }
 
-WaveFunctionCollapseStrategy::Room WaveFunctionCollapseStrategy::addRoom(const std::vector<Room>& existingRooms) {
+WaveFunctionCollapseStrategy::Room WaveFunctionCollapseStrategy::generateRoom(const std::vector<Room>& existingRooms) {
     auto room = createRandomRoom();
 
-    for(int x = room.position.x; x < room.position.x + room.size.x; x++) {
-        for(int y = room.position.y; y < room.position.y + room.size.y; y++) {
+    for(int x = room.min.x; x <= room.max.x; x++) {
+        for(int y = room.min.y; y <= room.max.y; y++) {
             auto& tile = tiles[y][x];
 
             tile.possibilities = { 1 };
@@ -217,21 +216,22 @@ WaveFunctionCollapseStrategy::Room WaveFunctionCollapseStrategy::addRoom(const s
 }
 
 WaveFunctionCollapseStrategy::Room WaveFunctionCollapseStrategy::createRandomRoom(void) {
-    int roomSizeX = randomRange(roomConfiguration.minRoomSize.x, roomConfiguration.maxRoomSize.x);
-    int roomSizeY = randomRange(roomConfiguration.minRoomSize.y, roomConfiguration.maxRoomSize.y);
+    int roomSizeX = randomRange(getRoomConfiguration().minRoomSize.x, getRoomConfiguration().maxRoomSize.x);
+    int roomSizeY = randomRange(getRoomConfiguration().minRoomSize.y, getRoomConfiguration().maxRoomSize.y);
 
+    // TODO: Hardcoded 4 is a bit weird
     int roomX = randomRange(4, getWidth() - roomSizeX - 4);
     int roomY = randomRange(4, getHeight() - roomSizeY - 4);
 
-    return { glm::ivec2(roomX, roomY),  glm::ivec2(roomSizeX, roomSizeY) };
+    return { glm::ivec2(roomX, roomY), glm::ivec2(roomX + roomSizeX, roomY + roomSizeY) };
 }
 
 bool WaveFunctionCollapseStrategy::hasCollision(const Room& roomA, const Room& roomB) {
     return
-        roomA.position.x < roomB.position.x + roomB.size.x &&
-        roomA.position.x + roomA.size.x > roomB.position.x &&
-        roomA.position.y < roomB.position.y + roomB.size.y &&
-        roomA.position.y + roomA.size.y > roomB.position.y;
+        roomA.min.x < roomB.max.x &&
+        roomA.max.x > roomB.min.x &&
+        roomA.min.y < roomB.max.y &&
+        roomA.max.y > roomB.min.y;
 }
 
 void WaveFunctionCollapseStrategy::addTileNeighbours(int x, int y, WFTile* tile) {

@@ -1,7 +1,7 @@
 #include "hallstrategy.h"
 
 HallStrategy::HallStrategy(int width, int height, int maxTunnels, int maxTunnelLength) :
-    GenerationStrategy(width, height),
+    GenerationStrategy(width, height, RoomConfiguration()),
     maxTunnels(maxTunnels),
     maxTunnelLength(maxTunnelLength)
 { }

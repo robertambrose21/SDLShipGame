@@ -35,22 +35,10 @@ private:
         std::map<Direction, _wfTile*> neighbours;
     } WFTile;
 
-    typedef struct _roomConfiguration {
-        int numRooms;
-        glm::ivec2 minRoomSize;
-        glm::ivec2 maxRoomSize;
-    } RoomConfiguration;
-
-    typedef struct _room {
-        glm::ivec2 position;
-        glm::ivec2 size;
-    } Room;
-
     Grid* grid;
     std::vector<std::vector<WFTile>> tiles;
     std::vector<std::vector<WFTile>> tilesSnapshot;
     std::stack<WFTile*> tilesToCollapse;
-    RoomConfiguration roomConfiguration;
     TileSet tileSet;
     int tilesCollapsed;
 
@@ -68,7 +56,7 @@ private:
     void generateRoomsAndPaths(void);
     bool subgenerate(int chunkSize, int numRetries, WFChunk& chunk, int numChunks);
     
-    Room addRoom(const std::vector<Room>& existingRooms);
+    Room generateRoom(const std::vector<Room>& existingRooms);
     Room createRandomRoom(void);
     bool hasCollision(const Room& roomA, const Room& roomB);
 
