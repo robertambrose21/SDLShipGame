@@ -34,9 +34,9 @@ public:
     void run(void);
 
     // Temp
-    void loadMap(void);
+    std::vector<GenerationStrategy::Room> loadMap(void);
     // Temp
-    void loadGame(void);
+    void loadGame(const std::vector<GenerationStrategy::Room>& rooms);
     // Temp
     Entity* addPlayer(bool hasFreezeGun);
 };

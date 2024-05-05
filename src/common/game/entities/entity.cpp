@@ -14,6 +14,7 @@ Entity::Entity(
     baseStats(stats),
     currentStats(stats),
     grid(grid),
+    currentWeapon(nullptr),
     position({ 0, 0 }),
     timeSinceLastMoved(0),
     selected(false),
