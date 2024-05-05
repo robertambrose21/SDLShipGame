@@ -40,6 +40,7 @@ add_library(
     actions/equipweaponaction.cpp
     event/events.h
     stats/stats.cpp
+    spawn/spawncontroller.cpp
 )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX CXX_STANDARD 20)

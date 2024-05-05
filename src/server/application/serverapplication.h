@@ -9,6 +9,7 @@
 #include "core/grid/generation/wavefunctioncollapsestrategy.h"
 #include "game/application/application.h"
 #include "game/application/stdoutsubscriber.h"
+#include "game/spawn/spawncontroller.h"
 #include "serverturncontroller.h"
 
 class ServerApplication {

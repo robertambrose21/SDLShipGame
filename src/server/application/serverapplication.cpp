@@ -14,14 +14,15 @@ void ServerApplication::initialise(void) {
     }
 
     application = std::make_unique<Application>(
-        std::make_unique<Grid>(200, 200),
+        std::make_unique<Grid>(128, 128),
         std::make_unique<EntityPool>(),
         std::make_unique<WeaponController>(),
         std::make_unique<ProjectilePool>(),
         std::make_unique<AreaOfEffectPool>(),
         std::make_unique<ServerTurnController>(),
         std::make_unique<ItemController>(),
-        std::make_unique<EffectController>()
+        std::make_unique<EffectController>(),
+        std::make_unique<SpawnController>()
     );
 
     auto& context = application->getContext();
@@ -32,6 +33,7 @@ void ServerApplication::initialise(void) {
     context.getWeaponController()->initialise(application->getContext());
     context.getEntityPool()->initialise(application->getContext());
     context.getItemController()->initialise(application->getContext());
+    context.getSpawnController()->initialise(application->getContext());
 
     context.getTurnController()->subscribe<TurnEventData>(&stdoutSubscriber);
     context.getEntityPool()->subscribe<EntityEventData>(&stdoutSubscriber);
