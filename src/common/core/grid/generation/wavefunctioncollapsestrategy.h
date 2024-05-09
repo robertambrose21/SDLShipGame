@@ -58,7 +58,6 @@ private:
     
     Room generateRoom(const std::vector<Room>& existingRooms);
     Room createRandomRoom(void);
-    bool hasCollision(const Room& roomA, const Room& roomB);
 
     void overrideTiles(void);
     void overrideTileId(WFTile* tile);

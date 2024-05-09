@@ -94,7 +94,8 @@ bool ChaseAndAttackStrategy::endTurnCondition(void) {
 
 Entity* ChaseAndAttackStrategy::findClosestTarget(Entity* attacker, int participantId) {
     Entity* closestEntity = nullptr;
-    auto shortestDistance = std::numeric_limits<float>::max();
+    // auto shortestDistance = std::numeric_limits<float>::max();
+    auto shortestDistance = attacker->getAggroRange();
     
     for(auto entity : context.getEntityPool()->getEntities()) {
         if(entity->getParticipantId() == participantId) {

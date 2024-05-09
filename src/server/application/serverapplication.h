@@ -26,6 +26,8 @@ private:
 
     void onClientConnect(int clientIndex);
 
+    std::vector<GenerationStrategy::Room> unfilledRooms;
+
 public:
     ServerApplication();
     ~ServerApplication();

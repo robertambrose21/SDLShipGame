@@ -200,7 +200,16 @@ void WaveFunctionCollapseStrategy::generateRoomsAndPaths(void) {
 }
 
 WaveFunctionCollapseStrategy::Room WaveFunctionCollapseStrategy::generateRoom(const std::vector<Room>& existingRooms) {
-    auto room = createRandomRoom();
+    Room room;
+    bool isValid = false;
+
+    while(!isValid) {
+        room = createRandomRoom();
+
+        if(!hasCollision(room, existingRooms) && isSparse(room, existingRooms)) {
+            isValid = true;
+        }
+    }
 
     for(int x = room.min.x; x <= room.max.x; x++) {
         for(int y = room.min.y; y <= room.max.y; y++) {
@@ -220,18 +229,10 @@ WaveFunctionCollapseStrategy::Room WaveFunctionCollapseStrategy::createRandomRoo
     int roomSizeY = randomRange(getRoomConfiguration().minRoomSize.y, getRoomConfiguration().maxRoomSize.y);
 
     // TODO: Hardcoded 4 is a bit weird
-    int roomX = randomRange(4, getWidth() - roomSizeX - 4);
-    int roomY = randomRange(4, getHeight() - roomSizeY - 4);
+    int roomX = randomRange(1, getWidth() - roomSizeX - 1);
+    int roomY = randomRange(1, getHeight() - roomSizeY - 1);
 
     return { glm::ivec2(roomX, roomY), glm::ivec2(roomX + roomSizeX, roomY + roomSizeY) };
-}
-
-bool WaveFunctionCollapseStrategy::hasCollision(const Room& roomA, const Room& roomB) {
-    return
-        roomA.min.x < roomB.max.x &&
-        roomA.max.x > roomB.min.x &&
-        roomA.min.y < roomB.max.y &&
-        roomA.max.y > roomB.min.y;
 }
 
 void WaveFunctionCollapseStrategy::addTileNeighbours(int x, int y, WFTile* tile) {

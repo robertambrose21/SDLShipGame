@@ -210,7 +210,7 @@ std::vector<GenerationStrategy::Room> ServerApplication::loadMap(void) {
     auto wfc = WaveFunctionCollapseStrategy(
         grid,
         TileSet("../assets/data/tilesets/grass_and_rocks/rules.json"),
-        { 12, glm::ivec2(6, 6), glm::ivec2(15, 15) }
+        { 12, glm::ivec2(6, 6), glm::ivec2(15, 15), 1 }
     );
 
     grid->setData(wfc.generate());
@@ -218,11 +218,17 @@ std::vector<GenerationStrategy::Room> ServerApplication::loadMap(void) {
     return wfc.getRooms();
 }
 
+// TODO: Eventually move to some kind of map generator class
 void ServerApplication::loadGame(const std::vector<GenerationStrategy::Room>& rooms) {
     auto& context = application->getContext();
     std::vector<Entity*> enemies;
 
     for(auto& room : rooms) {
+        if(randomD6() > 3) {
+            unfilledRooms.push_back(room);
+            continue;
+        }
+
         auto entities = context.getSpawnController()->spawnEntities(
             {
                 {
@@ -246,32 +252,47 @@ void ServerApplication::loadGame(const std::vector<GenerationStrategy::Room>& ro
 
 Entity* ServerApplication::addPlayer(bool hasFreezeGun) {
     auto& context = application->getContext();
-    Entity* player;
 
-    auto isWalkable = 1000;
-    int x = 0;
-    int y = 0;
+    auto room = randomChoice(unfilledRooms);
+    auto entities = context.getSpawnController()->spawnEntities(
+        {
+            {
+                { "Player", { "Grenade Launcher" } }
+            }
+        },
+        { room.min, room.max }
+    );
 
-    while(isWalkable > 0) {
-        // x = randomRange(0, 5);
-        // y = randomRange(0, 5);
-        x = randomRange(2, 19);
-        y = randomRange(context.getGrid()->getHeight() - 16, context.getGrid()->getHeight() - 1);
-        auto tile = context.getGrid()->getTileAt(x, y);
-        isWalkable = tile.isWalkable ? 0 : isWalkable - 1;
-    }
+    return entities.front();
 
-    if(hasFreezeGun) {
-        player = context.getEntityPool()->addEntity("Player FreezeGun");
-        player->setPosition(glm::ivec2(x, y));
-        auto freezeGun = player->addWeapon(context.getWeaponController()->createWeapon("Freeze Gun", player));
-        player->setCurrentWeapon(freezeGun->getId());
-    }
-    else {
-        player = context.getEntityPool()->addEntity("Player");
-        player->setPosition(glm::ivec2(x, y));
-        auto grenadeLauncher = player->addWeapon(context.getWeaponController()->createWeapon("Grenade Launcher", player));
-        player->setCurrentWeapon(grenadeLauncher->getId());
-    }
-    return player;
+
+    // Entity* player;
+
+    // auto isWalkable = 1000;
+    // int x = 0;
+    // int y = 0;
+
+    // while(isWalkable > 0) {
+    //     // x = randomRange(0, 5);
+    //     // y = randomRange(0, 5);
+    //     x = randomRange(2, 19);
+    //     y = randomRange(context.getGrid()->getHeight() - 16, context.getGrid()->getHeight() - 1);
+    //     auto tile = context.getGrid()->getTileAt(x, y);
+    //     isWalkable = tile.isWalkable ? 0 : isWalkable - 1;
+    // }
+
+    // if(hasFreezeGun) {
+    //     player = context.getEntityPool()->addEntity("Player FreezeGun");
+    //     player->setPosition(glm::ivec2(x, y));
+    //     auto freezeGun = player->addWeapon(context.getWeaponController()->createWeapon("Freeze Gun", player));
+    //     player->setCurrentWeapon(freezeGun->getId());
+    // }
+    // else {
+    //     player = context.getEntityPool()->addEntity("Player");
+    //     player->setPosition(glm::ivec2(x, y));
+    //     auto grenadeLauncher = player->addWeapon(context.getWeaponController()->createWeapon("Grenade Launcher", player));
+    //     player->setCurrentWeapon(grenadeLauncher->getId());
+    // }
+
+    // return player;
 }

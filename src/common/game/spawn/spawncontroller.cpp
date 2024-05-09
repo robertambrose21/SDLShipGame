@@ -29,7 +29,13 @@ std::vector<Entity*> SpawnController::spawnEntities(const SpawnableEntities& spa
     std::vector<Entity*> entities;
 
     for(auto i = 0; i < count; i++) {
-        auto spawnable = randomChoice(spawnables.entities, spawnables.weights);
+        SpawnableEntity spawnable;
+        if(spawnables.weights.empty()) {
+            spawnable = randomChoice(spawnables.entities);
+        }
+        else {
+            spawnable = randomChoice(spawnables.entities, spawnables.weights);
+        }
 
         auto entity = spawnEntity(spawnable.name, getRandomPositionFromSpawnBox(spawnBox));
 
