@@ -60,7 +60,7 @@ void TileSet::load(const std::string& path) {
         auto ruleEdges = ruleData[key].get<std::vector<std::string>>();
 
         if(ruleEdges.size() != 4) {
-            std::cout << "Error: rule for " << key << " has " << ruleEdges.size() << "edges, should have 4" << std::endl;
+            std::cout << "Error: rule for " << key << " has " << ruleEdges.size() << " edges, should have 4" << std::endl;
             return;
         }
 

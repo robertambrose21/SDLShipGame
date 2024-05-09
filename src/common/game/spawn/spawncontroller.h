@@ -37,7 +37,7 @@ public:
 
     void initialise(ApplicationContext& context);
 
-    std::vector<Entity*> spawnEntities(const std::string& name, const SpawnBox spawnBox, int count = 1);
-    std::vector<Entity*> spawnEntities(const SpawnableEntities& spawnables, const SpawnBox spawnBox, int count = 1);
+    std::vector<Entity*> spawnEntities(const std::string& name, const SpawnBox& spawnBox, int count = 1);
+    std::vector<Entity*> spawnEntities(const SpawnableEntities& spawnables, const SpawnBox& spawnBox, int count = 1);
     Entity* spawnEntity(const std::string& name, const glm::ivec2& position);
 };

@@ -9,7 +9,7 @@ void SpawnController::initialise(ApplicationContext& context) {
     initialised = true;
 }
 
-std::vector<Entity*> SpawnController::spawnEntities(const std::string& name, const SpawnBox spawnBox, int count) {
+std::vector<Entity*> SpawnController::spawnEntities(const std::string& name, const SpawnBox& spawnBox, int count) {
     game_assert(count >= 1);
 
     std::vector<Entity*> entities;
@@ -23,7 +23,7 @@ std::vector<Entity*> SpawnController::spawnEntities(const std::string& name, con
     return entities;
 }
 
-std::vector<Entity*> SpawnController::spawnEntities(const SpawnableEntities& spawnables, const SpawnBox spawnBox, int count) {
+std::vector<Entity*> SpawnController::spawnEntities(const SpawnableEntities& spawnables, const SpawnBox& spawnBox, int count) {
     game_assert(count >= 1);
 
     std::vector<Entity*> entities;
