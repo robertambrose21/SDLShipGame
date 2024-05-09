@@ -83,8 +83,10 @@ public:
 
     const std::vector<Entity*>& getSelectedEntities(void) const;
     void setParticipant(TurnController::Participant* participant);
+    TurnController::Participant* getParticipant(void);
 
     void toggleSelection(const std::vector<Entity*>& entities);
+    void selectAll(void);
     void deselectAll(void);
 
     PlayerPanel* getPlayerPanel(void);
