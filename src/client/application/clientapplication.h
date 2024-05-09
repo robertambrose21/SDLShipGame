@@ -38,6 +38,8 @@ private:
 
     void drawGameLoop(GraphicsContext& graphicsContext);
 
+    void selectEntityOnStartupHack(void);
+
 public:
     ClientApplication();
     ~ClientApplication();

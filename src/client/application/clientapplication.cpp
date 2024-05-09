@@ -153,6 +153,19 @@ void ClientApplication::drawGameLoop(GraphicsContext& graphicsContext) {
     playerController->draw(graphicsContext);
 }
 
+void ClientApplication::selectEntityOnStartupHack(void) {
+    static bool isSelected = false;
+
+    if(isSelected) {
+        return;
+    }
+
+    if(playerController->getParticipant() != nullptr && !playerController->getParticipant()->entities.empty()) {
+        playerController->selectAll();
+        isSelected = true;
+    }
+}
+
 void ClientApplication::update(int64_t timeSinceLastFrame, bool& quit) {
     auto& context = application->getContext();
     auto grid = context.getGrid();
@@ -162,6 +175,7 @@ void ClientApplication::update(int64_t timeSinceLastFrame, bool& quit) {
     auto turnController = context.getTurnController();
 
     client->update(timeSinceLastFrame);
+    selectEntityOnStartupHack();
     
     switch(clientStateMachine->getCurrentState()->GetType()) {
         case ClientStateMachine::Loading:

@@ -291,6 +291,10 @@ void PlayerController::toggleSelection(const std::vector<Entity*>& entities) {
     }
 }
 
+void PlayerController::selectAll(void) {
+    toggleSelection(participant->entities);
+}
+
 void PlayerController::deselectAll(void) {
     for(auto entity : selectedEntities) {
         entity->setSelected(false);
@@ -411,6 +415,10 @@ void PlayerController::setParticipant(TurnController::Participant* participant) 
     game_assert(participant != nullptr);
     game_assert(participant->isPlayer);
     this->participant = participant;
+}
+
+TurnController::Participant* PlayerController::getParticipant(void) {
+    return participant;
 }
 
 PlayerPanel* PlayerController::getPlayerPanel(void) {
