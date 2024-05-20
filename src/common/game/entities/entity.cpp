@@ -326,6 +326,10 @@ int Entity::getAggroRange(void) const {
     return 10; // temp hardcoded for now
 }
 
+int Entity::getDisengagementRange(void) const {
+    return 15; // temp hardcoded for now
+}
+
 bool Entity::isTurnInProgress(void) {
     return (getCurrentWeapon() != nullptr && !getCurrentWeapon()->hasFinished()) || getMovesLeft() > 0;
 }

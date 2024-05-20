@@ -1,5 +1,6 @@
 #include "playercontroller.h"
 
+// TODO: Disengage if the player is out of aggro range
 PlayerController::PlayerController(
     GameClientMessagesTransmitter& clientMessagesTransmitter,
     ApplicationContext& context,

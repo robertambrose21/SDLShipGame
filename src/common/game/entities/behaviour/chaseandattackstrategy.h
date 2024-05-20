@@ -15,14 +15,17 @@ class GameServerMessagesTransmitter;
 
 class ChaseAndAttackStrategy : public BehaviourStrategy {
 private:
-    ApplicationContext& context;
+    typedef struct _entityTurnResult {
+        bool canPass, canDisengage;
+    } EntityTurnResult;
+
     GameServerMessagesTransmitter* transmitter;
 
     bool canPassTurn;
+    bool canDisengage;
 
-    Entity* findClosestTarget(Entity* attacker, int participantId);
     Weapon* getBestInRangeWeapon(Entity* attacker, const glm::ivec2& target);
-    bool doTurnForEntity(Entity* entity, int participantId);
+    EntityTurnResult doTurnForEntity(Entity* entity, int participantId);
 
 public:
     ChaseAndAttackStrategy(ApplicationContext& context);
@@ -30,4 +33,5 @@ public:
     void onUpdate(int participantId, int64_t timeSinceLastFrame, bool& quit);
     void onNextTurn(void);
     bool endTurnCondition(void);
+    bool disengageCondition(void);
 };

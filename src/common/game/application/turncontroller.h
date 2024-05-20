@@ -23,6 +23,8 @@
 #include "game/items/itemcontroller.h"
 #include "game/effects/effectcontroller.h"
 
+class BehaviourStrategy;
+
 class TurnController : 
     public EventPublisher<
         TurnEventData, 

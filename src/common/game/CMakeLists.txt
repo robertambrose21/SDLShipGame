@@ -12,7 +12,7 @@ add_library(
     effects/effectcontroller.cpp
     entities/entity.cpp 
     entities/entitypool.cpp 
-    entities/behaviour/behaviourstrategy.h
+    entities/behaviour/behaviourstrategy.cpp
     entities/behaviour/chaseandattackstrategy.cpp
     items/item.cpp
     items/loottable.cpp
