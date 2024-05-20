@@ -19,15 +19,24 @@ class GridRenderer :
     public EventSubscriber<GridDirtyEventData>
 {
 private:
+    typedef struct _chunk {
+        glm::ivec2 min, max;
+        std::unique_ptr<Texture> texture;
+        bool textureNeedsRebuilding;
+    } Chunk;
+
+    const int ChunkSize = 32;
+
     int windowHeight;
     int tileSize;
 
-    Texture texture;
-    bool textureNeedsRebuilding;
     std::map<int, uint32_t> tileTexturesIds;
+    std::vector<std::unique_ptr<Chunk>> chunks;
     Grid* grid;
 
-    void buildTexture(GraphicsContext& graphicsContext);
+    std::vector<std::unique_ptr<Chunk>> createChunks(void);
+    void buildChunkTexture(GraphicsContext& graphicsContext, Chunk* chunk);
+    bool isTileInChunk(Chunk* chunk, int x, int y);
 
     // TODO: Why on earth is the camera on the GridRenderer???? Move this!
     std::unique_ptr<Camera> camera;

@@ -1,8 +1,9 @@
 #include "gameclientmessagesreceiver.h"
 
 // Handle with events?
-GameClientMessagesReceiver::GameClientMessagesReceiver(ApplicationContext& context) :
-    context(context)
+GameClientMessagesReceiver::GameClientMessagesReceiver(ApplicationContext& context, const std::map<int, bool>& walkableTileIds) :
+    context(context),
+    walkableTileIds(walkableTileIds)
 { }
 
 void GameClientMessagesReceiver::setTransmitter(GameClientMessagesTransmitter* transmitter) {
@@ -176,7 +177,7 @@ void GameClientMessagesReceiver::receiveLoadMap(const MapBlock& block) {
         auto y = (i + offset) % block.width;
         auto id = block.data[i];
 
-        grid->setTile(x, y, { id, id == 1 });
+        grid->setTile(x, y, { id, walkableTileIds[id], false });
     }
 
     std::cout 

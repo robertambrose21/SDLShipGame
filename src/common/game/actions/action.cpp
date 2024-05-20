@@ -15,6 +15,10 @@ bool Action::validate(ApplicationContext* context) {
         return false;
     }
 
+    if(!passesPrecondition()) {
+        return false;
+    }
+
     return onValidate(context);
 }
 

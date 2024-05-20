@@ -30,11 +30,15 @@ bool AttackAction::getIsAnimationOnly(void) const {
 }
 
 bool AttackAction::passesPrecondition(void) {
-    return weapon->isInRange(target);
+    return weapon != nullptr && weapon->isInRange(target);
 }
 
 bool AttackAction::onValidate(ApplicationContext* context) {
     if(weapon == nullptr) {
+        return false;
+    }
+
+    if(!weapon->isInRange(target)) {
         return false;
     }
 

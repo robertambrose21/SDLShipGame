@@ -40,6 +40,7 @@ const std::map<int, int>& ServerTurnController::getAllAttachedClients(void) cons
 
 void ServerTurnController::additionalUpdate(int64_t timeSinceLastFrame, bool& quit) {
     for(auto& [participantId, _] : participants) {
+        // TODO: This should be called on end of turn, not every update tick
         assignEngagements(participantId);
     }
 
@@ -110,6 +111,8 @@ void ServerTurnController::checkForItems(void) {
 }
 
 void ServerTurnController::assignEngagements(int participantIdToCheck) {
+    auto& behaviour = participants[participantIdToCheck]->behaviourStrategy;
+
     for(auto& [participantId, participant] : participants) {
         compareAndEngagementParticipants(participant.get(), participants[participantIdToCheck].get());
     }

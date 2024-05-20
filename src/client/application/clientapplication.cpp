@@ -14,14 +14,15 @@ void ClientApplication::initialise(void) {
     }
 
     application = std::make_unique<Application>(
-        std::make_unique<Grid>(25, 25), // TODO: This should be defined by the server
+        std::make_unique<Grid>(128, 128), // TODO: This should be defined by the server
         std::make_unique<EntityPool>(),
         std::make_unique<WeaponController>(),
         std::make_unique<ProjectilePool>(),
         std::make_unique<AreaOfEffectPool>(),
         std::make_unique<ClientTurnController>(),
         std::make_unique<ItemController>(),
-        std::make_unique<EffectController>()
+        std::make_unique<EffectController>(),
+        std::make_unique<SpawnController>()
     );
 
     auto& context = application->getContext();
@@ -32,6 +33,7 @@ void ClientApplication::initialise(void) {
     context.getWeaponController()->initialise(application->getContext());
     context.getEntityPool()->initialise(application->getContext());
     context.getItemController()->initialise(application->getContext());
+    context.getSpawnController()->initialise(application->getContext());
 
     context.getTurnController()->subscribe<TurnEventData>(&stdoutSubscriber);
     context.getEntityPool()->subscribe<EntityEventData>(&stdoutSubscriber);
@@ -49,10 +51,13 @@ void ClientApplication::initialise(void) {
     areaOfEffectDrawStrategy = std::make_unique<AreaOfEffectDrawStrategy>();
     itemDrawStrategy = std::make_unique<ItemDrawStrategy>();
 
+    // TODO: The tileset to use should come from the server
+    auto tileSet = TileSet("../assets/data/tilesets/grass_and_rocks/rules.json");
+
     clientStateMachine = std::make_unique<ClientStateMachine>();
     clientStateMachine->setState(std::make_unique<ClientLoadingState>());
 
-    clientMessagesReceiver = std::make_unique<GameClientMessagesReceiver>(application->getContext());
+    clientMessagesReceiver = std::make_unique<GameClientMessagesReceiver>(application->getContext(), tileSet.getWalkableTileIds());
 
     client = std::make_unique<GameClient>(*clientMessagesReceiver, yojimbo::Address("127.0.0.1", 8081));
     clientMessagesTransmitter = std::make_unique<GameClientMessagesTransmitter>(*client);
@@ -69,25 +74,13 @@ void ClientApplication::initialise(void) {
     window = std::make_unique<Window>(1920, 1080, grid);
     window->initialiseWindow();
 
-    window->setGridTileTexture(1, 4);
-    window->setGridTileTexture(2, 25);
-    window->setGridTileTexture(3, 26);
-    window->setGridTileTexture(4, 27);
-    window->setGridTileTexture(5, 28);
-    window->setGridTileTexture(6, 29);
-    window->setGridTileTexture(7, 30);
-    window->setGridTileTexture(8, 31);
-    window->setGridTileTexture(9, 32);
-    window->setGridTileTexture(10, 33);
-    window->setGridTileTexture(11, 34);
-    window->setGridTileTexture(12, 35);
-    window->setGridTileTexture(13, 36);
-    window->setGridTileTexture(14, 37);
-    window->setGridTileTexture(15, 38);
+    for(auto& [tileId, textureId] : tileSet.getTextureIds()) {
+        window->setGridTileTexture(tileId, textureId);
+    }
     
     for(auto i = 0; i < grid->getWidth(); i++) {
         for(auto j = 0; j < grid->getHeight(); j++) {
-            grid->setTile(i, j, { 1, true });
+            grid->setTile(i, j, { 1, true, false });
         }
     }
 
@@ -141,7 +134,6 @@ void ClientApplication::drawGameLoop(GraphicsContext& graphicsContext) {
     auto areaOfEffectPool = context.getAreaOfEffectPool();
     auto itemController = context.getItemController();
 
-    // for(auto& [_, item] : itemController->getItems()) {
     for(auto& item : itemController->getWorldItems()) {
         itemDrawStrategy->draw(item, graphicsContext);
     }
@@ -161,6 +153,19 @@ void ClientApplication::drawGameLoop(GraphicsContext& graphicsContext) {
     playerController->draw(graphicsContext);
 }
 
+void ClientApplication::selectEntityOnStartupHack(void) {
+    static bool isSelected = false;
+
+    if(isSelected) {
+        return;
+    }
+
+    if(playerController->getParticipant() != nullptr && !playerController->getParticipant()->entities.empty()) {
+        playerController->selectAll();
+        isSelected = true;
+    }
+}
+
 void ClientApplication::update(int64_t timeSinceLastFrame, bool& quit) {
     auto& context = application->getContext();
     auto grid = context.getGrid();
@@ -170,6 +175,7 @@ void ClientApplication::update(int64_t timeSinceLastFrame, bool& quit) {
     auto turnController = context.getTurnController();
 
     client->update(timeSinceLastFrame);
+    selectEntityOnStartupHack();
     
     switch(clientStateMachine->getCurrentState()->GetType()) {
         case ClientStateMachine::Loading:

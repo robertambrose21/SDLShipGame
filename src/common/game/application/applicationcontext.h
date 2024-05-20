@@ -12,6 +12,7 @@ class AreaOfEffectPool;
 class TurnController;
 class ItemController;
 class EffectController;
+class SpawnController;
 
 class ApplicationContext {
 private:
@@ -23,6 +24,7 @@ private:
     TurnController* turnController;
     ItemController* itemController;
     EffectController* effectController;
+    SpawnController* spawnController;
     ServerMessagesTransmitter* transmitter;
 
 public:
@@ -34,7 +36,8 @@ public:
         AreaOfEffectPool* areaOfEffectPool,
         TurnController* turnController,
         ItemController* itemController,
-        EffectController* effectController
+        EffectController* effectController,
+        SpawnController* SpawnController
     );
 
     Grid* getGrid(void);
@@ -45,6 +48,7 @@ public:
     TurnController* getTurnController(void);
     ItemController* getItemController(void);
     EffectController* getEffectController(void);
+    SpawnController* getSpawnController(void);
 
     void setServerMessagesTransmitter(ServerMessagesTransmitter* transmitter);
     ServerMessagesTransmitter* getServerMessagesTransmitter(void);

@@ -63,5 +63,7 @@ public:
     Entity* getEntity(uint32_t id);
     bool hasEntity(uint32_t id);
 
+    Entity* findClosestTarget(Entity* attacker, int participantId);
+
     LootTable getLootTable(const std::string& entityName);
 };

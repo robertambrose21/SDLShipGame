@@ -247,6 +247,26 @@ bool EntityPool::hasEntity(uint32_t id) {
     return entities.contains(id);
 }
 
+Entity* EntityPool::findClosestTarget(Entity* attacker, int participantId) {
+    Entity* closestEntity = nullptr;
+    auto shortestDistance = attacker->getDisengagementRange();
+    
+    for(auto& [_, entity] : entities) {
+        if(entity->getParticipantId() == participantId) {
+            continue;
+        }
+
+        auto distance = glm::distance(glm::vec2(attacker->getPosition()), glm::vec2(entity->getPosition()));
+
+        if(distance < shortestDistance) {
+            shortestDistance = distance;
+            closestEntity = entity.get();
+        }
+    }
+
+    return closestEntity;
+}
+
 LootTable EntityPool::getLootTable(const std::string& entityName) {
     return entityDefinitions[entityName].lootTable;
 }

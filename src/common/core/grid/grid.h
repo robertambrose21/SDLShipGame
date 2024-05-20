@@ -76,6 +76,7 @@ public:
     // o o o
     // Where x are the tiles checked and o are unchecked tiles
     bool hasIntersection(const glm::vec2& p1, const glm::vec2& p2);
+    std::vector<glm::ivec2> getIntersections(const glm::vec2& p1, const glm::vec2& p2);
 
     void setData(const std::vector<std::vector<Tile>>& data);
     const std::vector<std::vector<Tile>>& getData(void) const;

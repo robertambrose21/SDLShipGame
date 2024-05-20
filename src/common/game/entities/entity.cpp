@@ -14,6 +14,7 @@ Entity::Entity(
     baseStats(stats),
     currentStats(stats),
     grid(grid),
+    currentWeapon(nullptr),
     position({ 0, 0 }),
     timeSinceLastMoved(0),
     selected(false),
@@ -323,6 +324,10 @@ void Entity::setMovesLeft(int movesLeft) {
 
 int Entity::getAggroRange(void) const {
     return 10; // temp hardcoded for now
+}
+
+int Entity::getDisengagementRange(void) const {
+    return 15; // temp hardcoded for now
 }
 
 bool Entity::isTurnInProgress(void) {

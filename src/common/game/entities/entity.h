@@ -205,6 +205,7 @@ public:
     int getMovesLeft(void) const;
     void setMovesLeft(int movesLeft);
     int getAggroRange(void) const;
+    int getDisengagementRange(void) const;
     bool isTurnInProgress(void);
     bool hasAnimationsInProgress(void);
     void useMoves(int numMoves);

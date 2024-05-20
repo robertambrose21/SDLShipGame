@@ -12,7 +12,7 @@ add_library(
     effects/effectcontroller.cpp
     entities/entity.cpp 
     entities/entitypool.cpp 
-    entities/behaviour/behaviourstrategy.h
+    entities/behaviour/behaviourstrategy.cpp
     entities/behaviour/chaseandattackstrategy.cpp
     items/item.cpp
     items/loottable.cpp
@@ -40,6 +40,7 @@ add_library(
     actions/equipweaponaction.cpp
     event/events.h
     stats/stats.cpp
+    spawn/spawncontroller.cpp
 )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX CXX_STANDARD 20)

@@ -14,6 +14,8 @@
 #include "graphics/drawstrategies/itemdrawstrategy.h"
 #include "game/application/stdoutsubscriber.h"
 #include "clientturncontroller.h"
+#include "core/grid/generation/tileset.h"
+#include "game/spawn/spawncontroller.h"
 
 class ClientApplication {
 private:
@@ -35,6 +37,8 @@ private:
     std::unique_ptr<ItemDrawStrategy> itemDrawStrategy;
 
     void drawGameLoop(GraphicsContext& graphicsContext);
+
+    void selectEntityOnStartupHack(void);
 
 public:
     ClientApplication();

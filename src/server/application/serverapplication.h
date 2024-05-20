@@ -9,6 +9,7 @@
 #include "core/grid/generation/wavefunctioncollapsestrategy.h"
 #include "game/application/application.h"
 #include "game/application/stdoutsubscriber.h"
+#include "game/spawn/spawncontroller.h"
 #include "serverturncontroller.h"
 
 class ServerApplication {
@@ -25,6 +26,8 @@ private:
 
     void onClientConnect(int clientIndex);
 
+    std::vector<GenerationStrategy::Room> unfilledRooms;
+
 public:
     ServerApplication();
     ~ServerApplication();
@@ -33,9 +36,9 @@ public:
     void run(void);
 
     // Temp
-    void loadMap(void);
+    std::vector<GenerationStrategy::Room> loadMap(void);
     // Temp
-    void loadGame(void);
+    void loadGame(const std::vector<GenerationStrategy::Room>& rooms);
     // Temp
     Entity* addPlayer(bool hasFreezeGun);
 };

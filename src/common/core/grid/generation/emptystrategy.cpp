@@ -1,7 +1,7 @@
 #include "emptystrategy.h"
 
 EmptyStrategy::EmptyStrategy(int width, int height) :
-    GenerationStrategy(width, height)
+    GenerationStrategy(width, height, RoomConfiguration())
 { }
 
 std::vector<std::vector<Grid::Tile>> EmptyStrategy::generate(void) {
