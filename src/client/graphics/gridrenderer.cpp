@@ -50,7 +50,8 @@ std::vector<std::unique_ptr<GridRenderer::Chunk>> GridRenderer::createChunks(voi
 void GridRenderer::buildChunkTexture(GraphicsContext& graphicsContext, Chunk* chunk) {
     auto renderer = graphicsContext.getRenderer();
 
-    auto const& data = grid->getData();
+    // auto const& data = grid->getData();
+    auto const& data = grid->getRevealedTiles(1);
 
     auto target = std::unique_ptr<SDL_Texture, Texture::sdl_deleter>(
         SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, tileSize * ChunkSize, tileSize * ChunkSize), 
@@ -60,19 +61,41 @@ void GridRenderer::buildChunkTexture(GraphicsContext& graphicsContext, Chunk* ch
     SDL_SetRenderTarget(renderer, target.get());
     SDL_RenderClear(renderer);
 
-    for(auto y = chunk->min.y; y <= chunk->max.y; y++) {
-        for(auto x = chunk->min.x; x <= chunk->max.x; x++) {
-            auto const& realPosition = getTilePosition(x - chunk->min.x, y - chunk->min.y);
-            SDL_Rect dst = { realPosition.x, realPosition.y, getTileSize(), getTileSize() };
-            graphicsContext.getTextureLoader().loadTexture(tileTexturesIds[data[y][x].id])->draw(renderer, NULL, &dst);
+    for(auto& revealedTile : data) {
+        auto [x, y, isVisible, tile] = revealedTile;
 
-            if(grid->getTileAt(x, y).isFrozen) {
-                SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-                SDL_SetRenderDrawColor(renderer, 0x00, 0xFF, 0xFF, 0x7F);
-                SDL_RenderFillRect(renderer, &dst);
-            }
+        if(x < chunk->min.x || x > chunk->max.x || y < chunk->min.y || y > chunk->max.y) {
+            continue;
+        }
+
+        auto colour = isVisible ? Texture::Colour { 0xFF, 0xFF, 0xFF } : Texture::Colour { 0x7F, 0x7F, 0x7F };
+
+        auto const& realPosition = getTilePosition(x - chunk->min.x, y - chunk->min.y);
+        SDL_Rect dst = { realPosition.x, realPosition.y, getTileSize(), getTileSize() };
+        graphicsContext.getTextureLoader().loadTexture(tileTexturesIds[tile.id])
+            ->draw(renderer, colour, 0xFF, NULL, &dst);
+
+        if(grid->getTileAt(x, y).isFrozen) {
+            SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+            SDL_SetRenderDrawColor(renderer, 0x00, 0xFF, 0xFF, 0x7F);
+            SDL_RenderFillRect(renderer, &dst);
         }
     }
+
+    // for(auto y = chunk->min.y; y <= chunk->max.y; y++) {
+    //     for(auto x = chunk->min.x; x <= chunk->max.x; x++) {
+    //         auto const& realPosition = getTilePosition(x - chunk->min.x, y - chunk->min.y);
+    //         SDL_Rect dst = { realPosition.x, realPosition.y, getTileSize(), getTileSize() };
+    //         graphicsContext.getTextureLoader().loadTexture(tileTexturesIds[data[y][x].id])
+    //             ->draw(renderer, NULL, &dst);
+
+    //         if(grid->getTileAt(x, y).isFrozen) {
+    //             SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+    //             SDL_SetRenderDrawColor(renderer, 0x00, 0xFF, 0xFF, 0x7F);
+    //             SDL_RenderFillRect(renderer, &dst);
+    //         }
+    //     }
+    // }
 
     SDL_SetRenderTarget(renderer, NULL);
     

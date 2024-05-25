@@ -14,7 +14,7 @@ void ServerApplication::initialise(void) {
     }
 
     application = std::make_unique<Application>(
-        std::make_unique<Grid>(128, 128),
+        std::make_unique<Grid>(64, 64),
         std::make_unique<EntityPool>(),
         std::make_unique<WeaponController>(),
         std::make_unique<ProjectilePool>(),

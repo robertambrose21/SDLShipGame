@@ -4,7 +4,7 @@
 #include <vector>
 #include <iostream>
 #include <map>
-#include <set>  
+#include <set>
 #include <deque>
 #include <limits.h>
 #include <algorithm>
@@ -21,12 +21,24 @@ public:
         bool isWalkable = true;
         bool isFrozen = false;
     } Tile;
+
+    typedef struct _revealedTile {
+        int x, y;
+        bool isVisible;
+        Tile tile;
+
+        bool operator<(const _revealedTile& other) const {
+            return x < other.x || (x == other.x && y < other.y);
+        }
+    } RevealedTile;
+
 private:
     int width;
     int height;
 
     std::vector<std::vector<Tile>> data;
     std::vector<Tile> walkableTiles;
+    std::map<int, std::set<RevealedTile>> revealedTiles;
     bool isDirty;
 
     // Path finding
@@ -80,11 +92,15 @@ public:
 
     void setData(const std::vector<std::vector<Tile>>& data);
     const std::vector<std::vector<Tile>>& getData(void) const;
+    const std::map<int, std::set<RevealedTile>>& getRevealedTiles(void) const;
+    const std::set<RevealedTile>& getRevealedTiles(int participantId);
     std::vector<Tile> getWalkableTiles(void);
     // TODO: Throw exception if x/y are out of bounds
     const Tile& getTileAt(int x, int y) const;
     std::vector<glm::ivec2> getTilesInCircle(int x, int y, float radius);
     std::vector<glm::ivec2> getTilesInSquare(int x, int y, int w, int h);
+
+    void revealTilesInCircle(int participantId, int x, int y, float radius, bool clearVisibleTiles = true);
 
     std::deque<glm::ivec2> findPath(const glm::ivec2& source, const glm::ivec2& destination);
 };
