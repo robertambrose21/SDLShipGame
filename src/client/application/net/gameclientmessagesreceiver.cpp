@@ -1,7 +1,10 @@
 #include "gameclientmessagesreceiver.h"
 
 // Handle with events?
-GameClientMessagesReceiver::GameClientMessagesReceiver(ApplicationContext& context, const std::map<int, bool>& walkableTileIds) :
+GameClientMessagesReceiver::GameClientMessagesReceiver(
+    ApplicationContext& context, 
+    const std::map<int, bool>& walkableTileIds
+) :
     context(context),
     walkableTileIds(walkableTileIds)
 { }
@@ -31,7 +34,6 @@ void GameClientMessagesReceiver::receiveMessage(yojimbo::Message* message) {
         case (int) GameMessageType::APPLY_GRID_EFFECT:      { receiveApplyGridEffectMessage((ApplyGridEffectMessage*) message); break; }
 
         default:
-            std::cout << "Received unhandled message: " << message << std::endl;
             break;
     }
 }

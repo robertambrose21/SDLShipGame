@@ -14,7 +14,7 @@ void ServerApplication::initialise(void) {
     }
 
     application = std::make_unique<Application>(
-        std::make_unique<Grid>(64, 64),
+        std::make_unique<Grid>(128, 128),
         std::make_unique<EntityPool>(),
         std::make_unique<WeaponController>(),
         std::make_unique<ProjectilePool>(),
@@ -45,7 +45,10 @@ void ServerApplication::initialise(void) {
     context.getTurnController()->subscribe<EngagementEventData>(&stdoutSubscriber);
     context.getTurnController()->subscribe<EquipItemActionEventData>(&stdoutSubscriber);
 
-    server = std::make_unique<GameServer>(yojimbo::Address("127.0.0.1", 8081));
+    server = std::make_unique<GameServer>(
+        std::make_unique<GameMessageLogger>("server_messages.log"),
+        yojimbo::Address("127.0.0.1", 8081)
+    );
 
     receiver = std::make_unique<GameServerMessagesReceiver>(application->getContext());
     transmitter = std::make_unique<GameServerMessagesTransmitter>(

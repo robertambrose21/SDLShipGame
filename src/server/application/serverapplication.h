@@ -11,6 +11,7 @@
 #include "game/application/stdoutsubscriber.h"
 #include "game/spawn/spawncontroller.h"
 #include "serverturncontroller.h"
+#include "game/net/gamemessagelogger.h"
 
 class ServerApplication {
 private:

@@ -16,8 +16,8 @@ enum class GameMessageType {
     SET_PARTICIPANT_ACK,
     PASS_PARTICIPANT_TURN,
     LOAD_MAP,
-    ACTIONS_ROLL,
-    ACTIONS_ROLL_RESPONSE,
+    ACTIONS_ROLL, // remove
+    ACTIONS_ROLL_RESPONSE, // remove
     NEXT_TURN,
     SPAWN_ITEMS,
     TAKE_ITEMS,

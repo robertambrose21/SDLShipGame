@@ -9,6 +9,7 @@
 #include "player/playercontroller.h"
 #include "application/clientturncontroller.h"
 #include "game/actions/attackaction.h"
+#include "game/net/gamemessagelogger.h"
 
 class GameClientMessagesReceiver :
     public ClientMessagesReceiver,
@@ -35,7 +36,10 @@ private:
     void receiveApplyGridEffectMessage(ApplyGridEffectMessage* message);
 
 public:
-    GameClientMessagesReceiver(ApplicationContext& context, const std::map<int, bool>& walkableTileIds);
+    GameClientMessagesReceiver(
+        ApplicationContext& context, 
+        const std::map<int, bool>& walkableTileIds
+    );
 
     void setPlayerController(PlayerController* playerController);
     void setTransmitter(GameClientMessagesTransmitter* transmitter);

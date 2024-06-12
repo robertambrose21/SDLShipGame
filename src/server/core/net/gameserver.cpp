@@ -1,7 +1,8 @@
 #include "gameserver.h"
 
-GameServer::GameServer(const yojimbo::Address& address) :
+GameServer::GameServer(std::unique_ptr<MessageLogger> messageLogger, const yojimbo::Address& address) :
     adapter(this),
+    messageLogger(std::move(messageLogger)),
     address(address),
     server(
         yojimbo::GetDefaultAllocator(), 
@@ -64,6 +65,7 @@ void GameServer::processMessages(void) {
 
 void GameServer::processMessage(int clientIndex, yojimbo::Message* message) {
     receiver->receiveMessage(clientIndex, message);
+    messageLogger->logMessage(message, true);
 }
 
 void GameServer::clientConnected(int clientIndex) {
@@ -83,8 +85,8 @@ yojimbo::Message* GameServer::createMessage(int clientIndex, const GameMessageTy
 
 // TODO: Choose the channel
 void GameServer::sendMessage(int clientIndex, yojimbo::Message* message) {
-    // std::cout << "Sending message: \"" << typeid(*message).name() << "\"" << std::endl;
     server.SendMessage(clientIndex, (int) GameChannel::RELIABLE, message);
+    messageLogger->logMessage(message, false); // TODO: client index
 }
 
 yojimbo::Address GameServer::getAddress(void) const {
