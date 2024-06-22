@@ -16,10 +16,12 @@ class GraphicsContext;
 class GridRenderer : 
     public EventSubscriber<TileEventData>, 
     public EventSubscriber<GridEffectEvent>,
-    public EventSubscriber<GridDirtyEventData>
+    public EventSubscriber<GridDirtyEventData>,
+    public EventSubscriber<TilesRevealedEventData>
 {
 private:
     typedef struct _chunk {
+        int id;
         glm::ivec2 min, max;
         std::unique_ptr<Texture> texture;
         bool textureNeedsRebuilding;
@@ -58,6 +60,7 @@ public:
     void onPublish(const Event<TileEventData>& event);
     void onPublish(const Event<GridEffectEvent>& event);
     void onPublish(const Event<GridDirtyEventData>& event);
+    void onPublish(const Event<TilesRevealedEventData>& event);
 
     Grid* getGrid(void);
     Camera& getCamera(void);

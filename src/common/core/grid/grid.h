@@ -14,7 +14,7 @@
 #include "core/event/eventpublisher.h"
 #include "game/event/events.h"
 
-class Grid : public EventPublisher<TileEventData, GridDirtyEventData> {
+class Grid : public EventPublisher<TileEventData, GridDirtyEventData, TilesRevealedEventData> {
 public:
     typedef struct _tile {
         int id;

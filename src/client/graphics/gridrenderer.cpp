@@ -7,6 +7,8 @@ GridRenderer::GridRenderer(Grid* grid, int windowHeight) :
 {
     camera = std::make_unique<Camera>(glm::ivec2(0, 0));
     grid->subscribe<TileEventData>(this);
+    grid->subscribe<TilesRevealedEventData>(this);
+    grid->subscribe<GridDirtyEventData>(this);
     chunks = createChunks();
 }
 
@@ -27,6 +29,8 @@ std::vector<std::unique_ptr<GridRenderer::Chunk>> GridRenderer::createChunks(voi
     if(lastChunkX > 0) chunksX++;
     if(lastChunkY > 0) chunksY++;
 
+    int chunkId = 0;
+
     for(int x = 0; x < chunksX; x++) {
         for(int y = 0; y < chunksY; y++) {
             int xMin = x * ChunkSize;
@@ -35,6 +39,7 @@ std::vector<std::unique_ptr<GridRenderer::Chunk>> GridRenderer::createChunks(voi
             int yMax = std::min(grid->getHeight() - 1, ((y + 1) * ChunkSize) - 1);
 
             Chunk chunk;
+            chunk.id = chunkId++;
             chunk.min = glm::ivec2(xMin, yMin);
             chunk.max = glm::ivec2(xMax, yMax);
             chunk.texture = nullptr;
@@ -170,6 +175,19 @@ void GridRenderer::onPublish(const Event<GridDirtyEventData>& event) {
 
     for(auto& chunk : chunks) {
         chunk->textureNeedsRebuilding = true;
+    }
+}
+
+void GridRenderer::onPublish(const Event<TilesRevealedEventData>& event) {
+    // TODO: Handle properly
+    if(event.data.participantId != 1) {
+        return;
+    }
+
+    for(auto& tile : event.data.tiles) {
+        for(auto& chunk : chunks) {
+            chunk->textureNeedsRebuilding = chunk->textureNeedsRebuilding || isTileInChunk(chunk.get(), tile.x, tile.y);
+        }
     }
 }
 

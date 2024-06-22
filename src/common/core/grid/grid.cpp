@@ -142,26 +142,29 @@ std::vector<glm::ivec2> Grid::getTilesInCircle(int x, int y, float radius) {
 void Grid::revealTilesInCircle(int participantId, int x, int y, float radius, bool clearVisibleTiles) {
     auto tiles = getTilesInCircle(x, y, radius);
 
-    auto thing = std::set<int>();
+    // auto thing = std::set<int>();
 
-    for(auto& blah : thing) {
-        
-    }
+    // if(clearVisibleTiles) {
+    //     auto& s = revealedTiles[participantId];
 
-    if(clearVisibleTiles) {
-        auto& s = revealedTiles[participantId];
+    //     for(auto& tile : revealedTiles[participantId]) {
+    //         // tile.isVisible = false; frick you
+    //     }
+    // }
 
-        for(auto& tile : revealedTiles[participantId]) {
-            // tile.isVisible = false; frick you
+    std::vector<glm::ivec2> newTiles;
+
+    for(auto& tile : tiles) {
+        auto [_, isNew] = revealedTiles[participantId].insert({ tile.x, tile.y, true, getTileAt(tile.x, tile.y) });
+
+        if(isNew) {
+            newTiles.push_back(tile);
         }
     }
 
-    for(auto& tile : tiles) {
-        revealedTiles[participantId].insert({ tile.x, tile.y, true, getTileAt(tile.x, tile.y) });
+    if(!newTiles.empty()) {
+        publish<TilesRevealedEventData>({ participantId, newTiles });
     }
-
-    // Should send a dirty chunk instead
-    publish<GridDirtyEventData>({ true });
 }
 
 std::vector<glm::ivec2> Grid::getTilesInSquare(int x, int y, int w, int h) {

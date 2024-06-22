@@ -92,7 +92,6 @@ void ClientApplication::initialise(void) {
     }
 
     context.getEffectController()->subscribe<GridEffectEvent>(&window->getGraphicsContext().getGridRenderer());
-    grid->subscribe<GridDirtyEventData>(&window->getGraphicsContext().getGridRenderer());
 
     playerController = std::make_unique<PlayerController>(
         *clientMessagesTransmitter,
