@@ -166,18 +166,14 @@ void GameClientMessagesReceiver::receiveTakeItems(TakeItemsMessage* message) {
 }
 
 void GameClientMessagesReceiver::receiveEngagement(EngagementMessage* message) {
-    switch(message->type) {
-        case EngagementEventData::ENGAGED:
-            context.getTurnController()->engage(message->participantIdA, message->participantIdB);
-            break;
-
-        case EngagementEventData::DISENGAGED:
-            context.getTurnController()->disengage(message->participantIdA, message->participantIdB);
-            break;
-
-        default:
-            break;
-    }
+    context.getTurnController()->queueEngagement(
+        message->turnToEngageOn, 
+        { 
+            message->participantIdA, 
+            message->participantIdB, 
+            message->type == EngagementEventData::DISENGAGED 
+        }
+    );
 }
 
 void GameClientMessagesReceiver::receiveApplyDamageMessage(ApplyDamageMessage* message) {

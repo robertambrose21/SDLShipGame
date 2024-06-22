@@ -390,11 +390,13 @@ public:
     int participantIdA;
     int participantIdB;
     int type;
+    int turnToEngageOn;
 
     EngagementMessage() :
         participantIdA(0),
         participantIdB(0),
-        type(0)
+        type(0),
+        turnToEngageOn(0)
     { }
 
     template <typename Stream>
@@ -402,6 +404,7 @@ public:
         serialize_int(stream, participantIdA, 0, 64);
         serialize_int(stream, participantIdB, 0, 64);
         serialize_int(stream, type, 0, 64);
+        serialize_int(stream, turnToEngageOn, 0, 512);
         return true;
     }
 

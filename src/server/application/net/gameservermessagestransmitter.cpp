@@ -106,6 +106,7 @@ void GameServerMessagesTransmitter::onPublish(const Event<EngagementEventData>& 
         message->participantIdA = event.data.participantIdA;
         message->participantIdB = event.data.participantIdB;
         message->type = event.data.type;
+        message->turnToEngageOn = turnController->getTurnNumber();
 
         server.sendMessage(clientIndex, message);
     }

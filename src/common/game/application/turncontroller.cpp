@@ -19,6 +19,7 @@ void TurnController::update(int64_t timeSinceLastFrame, bool& quit) {
         return;
     }
 
+    processEngagements();
     additionalUpdate(timeSinceLastFrame, quit);
     executeActions(currentParticipantId);
 
@@ -26,6 +27,22 @@ void TurnController::update(int64_t timeSinceLastFrame, bool& quit) {
         endCurrentParticipantTurn();
         nextParticipantTurn();
     }
+}
+
+void TurnController::processEngagements() {
+    if (engagementsQueue[turnNumber].empty()) {
+        return; 
+    }
+
+    for (auto& engagement : engagementsQueue[turnNumber]) {
+        if (engagement.isDisengage) {
+            disengage(engagement.participantIdA, engagement.participantIdB);
+        } else {
+            engage(engagement.participantIdA, engagement.participantIdB);
+        }
+    }
+
+    engagementsQueue[turnNumber].clear();
 }
 
 TurnController::Participant* TurnController::addParticipant(
@@ -138,6 +155,10 @@ void TurnController::engage(int participantIdA, int participantIdB) {
     }
 
     publish<EngagementEventData>({ participantIdA, participantIdB, EngagementEventData::Type::ENGAGED });
+}
+
+void TurnController::queueEngagement(int turnNumber, const Engagement& engagement) {
+    engagementsQueue[turnNumber].push_back(engagement);
 }
 
 void TurnController::disengage(int participantIdA, int participantIdB) {

@@ -51,11 +51,19 @@ public:
     } Participant;
 
 protected:
+    typedef struct _engagement {
+        int participantIdA;
+        int participantIdB;
+        bool isDisengage;
+    } Engagement;
+
     ApplicationContext* context;
     bool initialised;
 
     int turnNumber;
     int currentParticipantId;
+
+    std::map<int, std::vector<Engagement>> engagementsQueue;
 
     std::map<int, std::unique_ptr<Participant>> participants;
     std::vector<std::function<void(int, int)>> onNextTurnWorkers;
@@ -68,6 +76,8 @@ protected:
     void incrementTurn(void);
     void publishAction(Action& action);
 
+    void processEngagements();
+
     virtual bool canProgressToNextTurn(int participantId) = 0;
     virtual void additionalUpdate(int64_t timeSinceLastFrame, bool& quit) = 0;
 
@@ -79,10 +89,9 @@ public:
 
     Participant* addParticipant(
         bool isPlayer,
-        const std::vector<Entity*>& entities, 
+        const std::vector<Entity*>& entities,
         std::unique_ptr<BehaviourStrategy> behaviourStrategy = nullptr,
-        bool isReady = true
-    );
+        bool isReady = true);
     Participant* addParticipant(
         int id,
         bool isPlayer,
@@ -93,6 +102,8 @@ public:
     void addEntityToParticipant(int participantId, Entity* entity);
     Participant* getParticipant(int id);
     std::vector<Participant*> getParticipants(void);
+
+    void queueEngagement(int turnNumber, const Engagement& engagement);
 
     void engage(int participantIdA, int participantIdB);
     void disengage(int participantIdA, int participantIdB);
