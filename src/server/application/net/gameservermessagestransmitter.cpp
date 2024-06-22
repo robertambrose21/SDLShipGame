@@ -191,13 +191,13 @@ void GameServerMessagesTransmitter::onPublish(const Event<GridEffectEvent>& even
 
 void GameServerMessagesTransmitter::sendSetParticipant(
     int clientIndex, 
-    TurnController::Participant* participant
+    Participant* participant
 ) {
     SetParticipantMessage* message = (SetParticipantMessage*) server.createMessage(clientIndex, GameMessageType::SET_PARTICIPANT);
 
-    message->participantId = participant->id;
+    message->participantId = participant->getId();
     message->numParticipantsToSet = turnController->getParticipants().size();
-    message->isPlayer = participant->isPlayer;
+    message->isPlayer = participant->getIsPlayer();
 
     server.sendMessage(clientIndex, message);
 }

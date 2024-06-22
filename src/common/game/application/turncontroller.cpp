@@ -45,7 +45,7 @@ void TurnController::processEngagements() {
     engagementsQueue[turnNumber].clear();
 }
 
-TurnController::Participant* TurnController::addParticipant(
+Participant* TurnController::addParticipant(
     bool isPlayer,
     const std::vector<Entity*>& entities, 
     std::unique_ptr<BehaviourStrategy> behaviourStrategy,
@@ -58,7 +58,7 @@ TurnController::Participant* TurnController::addParticipant(
     return addParticipant(id++, isPlayer, entities, std::move(behaviourStrategy), isReady);
 }
 
-TurnController::Participant* TurnController::addParticipant(
+Participant* TurnController::addParticipant(
     int id,
     bool isPlayer,
     const std::vector<Entity*>& entities, 
@@ -67,16 +67,14 @@ TurnController::Participant* TurnController::addParticipant(
 ) {
     game_assert(initialised);
 
-    Participant participant;
-    participant.id = id;
-    participant.isReady = isReady;
-    participant.entities = entities;
-    participant.isPlayer = isPlayer;
-    participant.passNextTurn = false;
-    participant.behaviourStrategy = std::move(behaviourStrategy);
+    Participant participant(id);
+    participant.setIsReady(isReady);
+    participant.setIsPlayer(isPlayer);
+    participant.setBehaviourStrategy(std::move(behaviourStrategy));
+    participant.addEntities(entities);
 
     for(auto const& entity : entities) {
-        entity->setParticipantId(participant.id);
+        entity->setParticipantId(participant.getId());
     }
 
     participants[id] = std::make_unique<Participant>(std::move(participant));
@@ -98,20 +96,20 @@ void TurnController::addEntityToParticipant(int participantId, Entity* entity) {
 
     entity->setParticipantId(participantId);
 
-    if(!participants[participantId]->engagements.empty()) {
+    if(!participants[participantId]->getEngagements().empty()) {
         entity->engage();
     }
 
-    participants[participantId]->entities.push_back(entity);
+    participants[participantId]->addEntity(entity);
 }
 
-TurnController::Participant* TurnController::getParticipant(int id) {
+Participant* TurnController::getParticipant(int id) {
     game_assert(initialised);
     game_assert(participants.contains(id));
     return participants[id].get();
 }
 
-std::vector<TurnController::Participant*> TurnController::getParticipants(void) {
+std::vector<Participant*> TurnController::getParticipants(void) {
     game_assert(initialised);
 
     std::vector<Participant*> vParticipants;
@@ -129,7 +127,7 @@ void TurnController::reset(void) {
     game_assert(initialised);
 
     for(auto& [participantId, participant] : participants) {
-        for(auto entity : participant->entities) {
+        for(auto entity : participant->getEntities()) {
             entity->nextTurn();
         }
     }
@@ -139,20 +137,8 @@ void TurnController::engage(int participantIdA, int participantIdB) {
     auto& participantA = participants[participantIdA];
     auto& participantB = participants[participantIdB];
 
-    participantA->engagements.insert(participantIdB);
-    participantB->engagements.insert(participantIdA);
-
-    if(participantA->engagements.size() == 1) {
-        for(auto entity : participantA->entities) {
-            entity->engage();
-        }
-    }
-
-    if(participantB->engagements.size() == 1) {
-        for(auto entity : participantB->entities) {
-            entity->engage();
-        }
-    }
+    participantA->engage(participantIdB);
+    participantB->engage(participantIdA);
 
     publish<EngagementEventData>({ participantIdA, participantIdB, EngagementEventData::Type::ENGAGED });
 }
@@ -165,32 +151,15 @@ void TurnController::disengage(int participantIdA, int participantIdB) {
     auto& participantA = participants[participantIdA];
     auto& participantB = participants[participantIdB];
 
-    participantA->engagements.erase(participantIdB);
-    participantB->engagements.erase(participantIdA);
-
-    if(participantA->engagements.empty()) {
-        for(auto entity : participantA->entities) {
-            entity->disengage();
-        }
-    }
-
-    if(participantB->engagements.empty()) {
-        for(auto entity : participantB->entities) {
-            entity->disengage();
-        }
-    }
+    participantA->disengage(participantIdB);
+    participantB->disengage(participantIdA);
 
     publish<EngagementEventData>({ participantIdA, participantIdB, EngagementEventData::Type::DISENGAGED });
 }
 
 void TurnController::endCurrentParticipantTurn(void) {
     auto& participant = participants[currentParticipantId];
-
-    for(auto const& entity : participant->entities) {
-        entity->endTurn();
-    }
-
-    participant->passNextTurn = false;
+    participant->endTurn();
 }
 
 void TurnController::nextParticipantTurn(void) {
@@ -198,7 +167,7 @@ void TurnController::nextParticipantTurn(void) {
 
     currentParticipantId = (currentParticipantId + 1) % participants.size();
 
-    incrementEntitiesTurn(participants[currentParticipantId]->entities);
+    participants[currentParticipantId]->nextTurn();
 
     for(auto const& onNextTurnFunc : onNextTurnWorkers) {
         onNextTurnFunc(currentParticipantId, turnNumber);
@@ -209,24 +178,6 @@ void TurnController::nextParticipantTurn(void) {
     context->getEffectController()->onNextTurn();
 }
 
-void TurnController::incrementEntitiesTurn(std::vector<Entity*> entities) {
-    std::set<Entity*> entitiesForDeletion;
-
-    for(auto const& entity : entities) {
-        entity->nextTurn();
-
-        if(entity->getCurrentHP() <= 0) {
-            entitiesForDeletion.insert(entity);
-        }
-    }
-
-    for(auto const& entity : entitiesForDeletion) {
-        entities.erase(std::find(entities.begin(), entities.end(), entity));
-    }
-    
-    entitiesForDeletion.clear();
-}
-
 void TurnController::incrementTurn(void) {
     turnNumber++;
     context->getGrid()->nextTurn();
@@ -235,8 +186,7 @@ void TurnController::incrementTurn(void) {
 
 void TurnController::passParticipant(int id) {
     game_assert(participants.contains(id));
-
-    participants[id]->passNextTurn = true;
+    participants[id]->passTurn();
 }
 
 void TurnController::setCurrentParticipant(int id) {
@@ -251,7 +201,7 @@ int TurnController::getCurrentParticipant(void) const {
 void TurnController::executeActions(int participantId) {
     game_assert(initialised);
 
-    for(auto entity : participants[currentParticipantId]->entities) {
+    for(auto entity : participants[currentParticipantId]->getEntities()) {
         executeEntityActions(entity);
     }
 }
@@ -361,7 +311,7 @@ void TurnController::setOnAllParticipantsSetFunction(std::function<void()> onAll
 void TurnController::allParticipantsSet(void) {
     onAllParticipantsSet();
     for(auto& [_, participant] : participants) {
-        participant->isReady = true;
+        participant->setIsReady(true);
     }
 }
 

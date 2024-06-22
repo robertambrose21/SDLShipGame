@@ -97,9 +97,7 @@ void EntityPool::updateEntity(Entity* entity, int64_t timeSinceLastFrame, bool& 
 void EntityPool::killEntity(uint32_t entityId) {
     auto entity = getEntity(entityId);
 
-    auto& participantEntities = context->getTurnController()->getParticipant(entity->getParticipantId())->entities;
-    participantEntities.erase(
-        std::remove(participantEntities.begin(), participantEntities.end(), entity), participantEntities.end());
+    context->getTurnController()->getParticipant(entity->getParticipantId())->removeEntity(entity);
 
     publish<EntityEventData>({ entity, "Death" });
 

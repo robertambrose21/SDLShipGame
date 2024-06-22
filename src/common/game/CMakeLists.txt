@@ -43,6 +43,7 @@ add_library(
     stats/stats.cpp
     spawn/spawncontroller.cpp
     net/gamemessagelogger.cpp
+    participant/participant.cpp
 )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX CXX_STANDARD 20)

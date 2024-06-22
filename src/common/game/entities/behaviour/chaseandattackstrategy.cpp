@@ -18,7 +18,7 @@ void ChaseAndAttackStrategy::onUpdate(int participantId, int64_t timeSinceLastFr
     auto entitiesPassed = 0;
     auto entitiesDisengaged = 0;
 
-    for(auto entity : participant->entities) {
+    for(auto entity : participant->getEntities()) {
         auto [canEntityPass, canEntityDisengage] = doTurnForEntity(entity, participantId);
         
         if(canEntityPass) {
@@ -29,15 +29,15 @@ void ChaseAndAttackStrategy::onUpdate(int participantId, int64_t timeSinceLastFr
         }
     }
 
-    canPassTurn = entitiesPassed == participant->entities.size();
-    canDisengage = entitiesDisengaged == participant->entities.size();
+    canPassTurn = entitiesPassed == participant->getEntities().size();
+    canDisengage = entitiesDisengaged == participant->getEntities().size();
 
     if(canDisengage) {
         auto participants = turnController->getParticipants();
 
         for(auto participant : participants) {
-            if(participantId != participant->id) {
-                turnController->disengage(participantId, participant->id);
+            if(participantId != participant->getId()) {
+                turnController->disengage(participantId, participant->getId());
             }
         }
     }

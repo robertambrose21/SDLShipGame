@@ -167,7 +167,7 @@ void ClientApplication::selectEntityOnStartupHack(void) {
         return;
     }
 
-    if(playerController->getParticipant() != nullptr && !playerController->getParticipant()->entities.empty()) {
+    if(playerController->getParticipant() != nullptr && !playerController->getParticipant()->getEntities().empty()) {
         playerController->selectAll();
         isSelected = true;
     }

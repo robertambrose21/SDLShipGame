@@ -16,7 +16,7 @@ bool ClientTurnController::canProgressToNextTurn(int participantId) {
 
     auto& participant = participants[participantId];
 
-    for(auto entity : participant->entities) {
+    for(auto entity : participant->getEntities()) {
         if(entity->hasAnimationsInProgress() || !entity->getActionsChain(turnNumber).empty()) {
             return false;
         }

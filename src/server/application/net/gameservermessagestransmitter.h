@@ -49,7 +49,7 @@ public:
     void onPublish(const Event<EntityEffectEvent>& event);
     void onPublish(const Event<GridEffectEvent>& event);
 
-    void sendSetParticipant(int clientIndex, TurnController::Participant* participant);
+    void sendSetParticipant(int clientIndex, Participant* participant);
     void sendGameStateUpdate(int clientIndex, const GameStateUpdate& update);
     void sendLoadMap(int clientIndex, const MapBlock& block);
     void sendActionsRollResponse(int clientIndex, int participantId, const std::vector<DiceActionResult>& dice);

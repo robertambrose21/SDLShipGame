@@ -22,8 +22,10 @@
 #include "game/actions/equipweaponaction.h"
 #include "game/items/itemcontroller.h"
 #include "game/effects/effectcontroller.h"
+#include "game/participant/participant.h"
 
 class BehaviourStrategy;
+class Participant;
 
 class TurnController : 
     public EventPublisher<
@@ -36,19 +38,6 @@ class TurnController :
         EquipWeaponActionEventData
     >
 {
-public:
-    // TODO: This should probably be moved to a separate class soon
-    // TODO: Consider making entities a map rather than a set
-    typedef struct _participant {
-        int id;
-        bool isReady;
-        bool isPlayer;
-        std::vector<Entity*> entities;
-        std::vector<Item*> items;
-        bool passNextTurn;
-        std::unique_ptr<BehaviourStrategy> behaviourStrategy;
-        std::set<int> engagements;
-    } Participant;
 
 protected:
     typedef struct _engagement {
@@ -72,7 +61,6 @@ protected:
     void endCurrentParticipantTurn(void);
     void nextParticipantTurn(void);
     void executeEntityActions(Entity* entity);
-    void incrementEntitiesTurn(std::vector<Entity*> entities);
     void incrementTurn(void);
     void publishAction(Action& action);
 

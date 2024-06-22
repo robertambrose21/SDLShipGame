@@ -35,7 +35,7 @@ private:
 
     GameClientMessagesTransmitter& clientMessagesTransmitter;
 
-    TurnController::Participant* participant;
+    Participant* participant;
 
     std::vector<Entity*> selectedEntities;
     GridRenderer& gridRenderer;
@@ -82,8 +82,8 @@ public:
     void handleMouseEvent(const SDL_Event& event);
 
     const std::vector<Entity*>& getSelectedEntities(void) const;
-    void setParticipant(TurnController::Participant* participant);
-    TurnController::Participant* getParticipant(void);
+    void setParticipant(Participant* participant);
+    Participant* getParticipant(void);
 
     void toggleSelection(const std::vector<Entity*>& entities);
     void selectAll(void);

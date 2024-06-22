@@ -49,7 +49,7 @@ void GameClientMessagesReceiver::receiveTestMessage(GameTestMessage* message) {
 
 void GameClientMessagesReceiver::receiveSetParticipant(SetParticipantMessage* message) {
     auto turnController = context.getTurnController();
-    auto const& participant = turnController->addParticipant(message->participantId, message->isPlayer, { }, nullptr, false);
+    auto participant = turnController->addParticipant(message->participantId, message->isPlayer, { }, nullptr, false);
 
     if(message->isPlayer) {
         playerController->setParticipant(participant);

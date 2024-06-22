@@ -106,7 +106,7 @@ void ServerApplication::onClientConnect(int clientIndex) {
     auto& context = application->getContext();
 
     auto player = addPlayer(false);
-    auto participantId = context.getTurnController()->addParticipant(true, { player })->id;
+    auto participantId = context.getTurnController()->addParticipant(true, { player })->getId();
     context.getTurnController()->reset();
 
     // TODO: Set this up so players are assigned properly.
