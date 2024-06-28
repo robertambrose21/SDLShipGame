@@ -216,6 +216,7 @@ void TurnController::executeEntityActions(Entity* entity) {
             entity->popAction(turnNumber);
             moreActionsToProcess = !entity->getActionsChain(turnNumber).empty();
         }
+        // TODO: If precondition fails - just drop?
         else if(action->passesPrecondition() && !action->isExecuted()) {
             action->execute(context);
             moreActionsToProcess = false;

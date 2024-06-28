@@ -1,8 +1,7 @@
 #include "clientturncontroller.h"
 
 ClientTurnController::ClientTurnController() :
-    TurnController(),
-    receivedValidNextTurnFlag(false)
+    TurnController()
 { }
 
 void ClientTurnController::additionalUpdate(int64_t timeSinceLastFrame, bool& quit) {
@@ -10,7 +9,7 @@ void ClientTurnController::additionalUpdate(int64_t timeSinceLastFrame, bool& qu
 }
 
 bool ClientTurnController::canProgressToNextTurn(int participantId) {
-    if(!receivedValidNextTurnFlag) {
+    if(nextTurnFlags.empty()) {
         return false;
     }
 
@@ -22,10 +21,10 @@ bool ClientTurnController::canProgressToNextTurn(int participantId) {
         }
     }
 
-    receivedValidNextTurnFlag = false;
+    nextTurnFlags.pop();
     return true;
 }
 
-void ClientTurnController::receiveSetNextTurnFlag(int participantId, int turnNumber) {
-    receivedValidNextTurnFlag = true;
+void ClientTurnController::receiveSetNextTurnFlag(int participantId, int receivedTurnNumber) {
+    nextTurnFlags.push(receivedTurnNumber);
 }

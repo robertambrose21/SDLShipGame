@@ -1,11 +1,13 @@
 #pragma once
 
+#include <queue>
+
 #include "game/application/turncontroller.h"
 
 // TODO: Handle turn/participant # desync
 class ClientTurnController : public TurnController {
 private:
-    bool receivedValidNextTurnFlag;
+    std::queue<int> nextTurnFlags;
 
     bool canProgressToNextTurn(int participantId);
     void additionalUpdate(int64_t timeSinceLastFrame, bool& quit);
@@ -13,5 +15,5 @@ private:
 public:
     ClientTurnController();
 
-    void receiveSetNextTurnFlag(int participantId, int turnNumber);
+    void receiveSetNextTurnFlag(int participantId, int receivedTurnNumber);
 };
