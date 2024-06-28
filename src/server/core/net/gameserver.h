@@ -8,6 +8,7 @@
 #include "servermessagesreceiver.h"
 #include "servermessagestransmitter.h"
 #include "core/util/gameassert.h"
+#include "core/net/messagelogger.h"
 
 class GameServer {
 private:
@@ -19,13 +20,15 @@ private:
     ServerMessagesReceiver* receiver;
     ServerMessagesTransmitter* transmitter;
 
+    std::unique_ptr<MessageLogger> messageLogger;
+
     void processMessages(void);
     void processMessage(int clientIndex, yojimbo::Message* message);
 
 public:
     const int MaxClientConnections = 64;
 
-    GameServer(const yojimbo::Address& address);
+    GameServer(std::unique_ptr<MessageLogger> messageLogger, const yojimbo::Address& address);
 
     void setReceiver(ServerMessagesReceiver* receiver);
     void setTransmitter(ServerMessagesTransmitter* transmitter);

@@ -22,8 +22,8 @@ private:
     std::function<void(Weapon* weapon)> onUnequipWeaponClicked;
     std::function<void(Item* item)> onExamineClicked;
 
-    void drawEquipment(GraphicsContext& graphicsContext, TurnController::Participant* participant);
-    void drawWeapons(GraphicsContext& graphicsContext, TurnController::Participant* participant);
+    void drawEquipment(GraphicsContext& graphicsContext, Participant* participant);
+    void drawWeapons(GraphicsContext& graphicsContext, Participant* participant);
     void drawInventoryItem(GraphicsContext& graphicsContext, Item* item);
     void drawEquippedItem(GraphicsContext& graphicsContext, Item* item);
     void drawEquippedWeapon(GraphicsContext& graphicsContext, Weapon* weapon);
@@ -31,7 +31,7 @@ private:
 public:
     InventoryPanel(int width, int height);
 
-    void draw(GraphicsContext& graphicsContext, TurnController::Participant* participant);
+    void draw(GraphicsContext& graphicsContext, Participant* participant);
     void show(void);
     void hide(void);
     void toggle(void);

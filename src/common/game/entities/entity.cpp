@@ -258,6 +258,7 @@ bool Entity::isOnTile(int x, int y) {
 
 void Entity::setPosition(const glm::ivec2& position) {
     this->position = position;
+    grid->revealTilesInCircle(participantId, position.x, position.y, getAggroRange());
 }
 
 // TODO: use calculatePath

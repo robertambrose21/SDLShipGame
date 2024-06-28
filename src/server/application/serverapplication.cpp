@@ -45,7 +45,10 @@ void ServerApplication::initialise(void) {
     context.getTurnController()->subscribe<EngagementEventData>(&stdoutSubscriber);
     context.getTurnController()->subscribe<EquipItemActionEventData>(&stdoutSubscriber);
 
-    server = std::make_unique<GameServer>(yojimbo::Address("127.0.0.1", 8081));
+    server = std::make_unique<GameServer>(
+        std::make_unique<GameMessageLogger>("server_messages.log"),
+        yojimbo::Address("127.0.0.1", 8081)
+    );
 
     receiver = std::make_unique<GameServerMessagesReceiver>(application->getContext());
     transmitter = std::make_unique<GameServerMessagesTransmitter>(
@@ -103,7 +106,7 @@ void ServerApplication::onClientConnect(int clientIndex) {
     auto& context = application->getContext();
 
     auto player = addPlayer(false);
-    auto participantId = context.getTurnController()->addParticipant(true, { player })->id;
+    auto participantId = context.getTurnController()->addParticipant(true, { player })->getId();
     context.getTurnController()->reset();
 
     // TODO: Set this up so players are assigned properly.

@@ -23,7 +23,7 @@ bool EquipWeaponAction::onValidate(ApplicationContext* context) {
 
     bool hasItem = false;   
 
-    for(auto itemInInventory : participant->items) {
+    for(auto itemInInventory : participant->getItems()) {
         if(item->getId() == itemInInventory->getId()) {
             hasItem = true;
         }
@@ -36,12 +36,12 @@ void EquipWeaponAction::onExecute(ApplicationContext* context) {
     auto participant = context->getTurnController()->getParticipant(entity->getParticipantId());
 
     if(entity->hasWeapon(weaponId)) {
-        participant->items.push_back(item);
+        participant->addItem(item);
         entity->removeWeapon(weaponId);
     }
     else {
         entity->addWeapon(context->getWeaponController()->createWeapon(weaponId, item->getName(), entity));
-        std::erase(participant->items, item);
+        participant->removeItem(item);
     }
 }
 

@@ -25,13 +25,13 @@ bool TakeItemAction::onValidate(ApplicationContext* context) {
 void TakeItemAction::onExecute(ApplicationContext* context) {
     auto participant = context->getTurnController()->getParticipant(entity->getParticipantId());
 
-    if(!participant->isPlayer) {
+    if(!participant->getIsPlayer()) {
         return;
     }
 
     for(auto item : items) {
-        item->setParticipantId(participant->id);
-        participant->items.push_back(item);
+        item->setParticipantId(participant->getId());
+        participant->addItem(item);
     }
     
     context->getItemController()->flagWorldItemsDirty();

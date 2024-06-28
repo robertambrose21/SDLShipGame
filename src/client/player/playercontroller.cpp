@@ -113,8 +113,8 @@ void PlayerController::handleKeyPress(const SDL_Event& event) {
     if(event.type == SDL_KEYDOWN && event.key.repeat == 0) {
         switch(event.key.keysym.sym) {
             case SDLK_p: {
-                clientMessagesTransmitter.sendPassParticipantTurnMessage(participant->id);
-                turnController->passParticipant(participant->id);
+                clientMessagesTransmitter.sendPassParticipantTurnMessage(participant->getId());
+                turnController->passParticipant(participant->getId());
                 break;
             }
             
@@ -215,7 +215,7 @@ void PlayerController::handleMouseDown(const SDL_Event& event) {
                 break;
             }
 
-            auto entity = Entity::filterByTile(x, y, participant->entities);
+            auto entity = Entity::filterByTile(x, y, participant->getEntities());
 
             if(entity != nullptr) {
                 toggleSelection({ entity });
@@ -267,7 +267,7 @@ void PlayerController::handleMouseUp(const SDL_Event& event) {
 
                 auto tiles = gridRenderer.getGrid()->getTilesInSquare(x, y, sizeX, sizeY);
                 
-                toggleSelection(Entity::filterByTiles(tiles, participant->entities));
+                toggleSelection(Entity::filterByTiles(tiles, participant->getEntities()));
             }
             break;
         }
@@ -293,7 +293,7 @@ void PlayerController::toggleSelection(const std::vector<Entity*>& entities) {
 }
 
 void PlayerController::selectAll(void) {
-    toggleSelection(participant->entities);
+    toggleSelection(participant->getEntities());
 }
 
 void PlayerController::deselectAll(void) {
@@ -412,13 +412,13 @@ const std::vector<Entity*>& PlayerController::getSelectedEntities(void) const {
     return selectedEntities;
 }
 
-void PlayerController::setParticipant(TurnController::Participant* participant) {
+void PlayerController::setParticipant(Participant* participant) {
     game_assert(participant != nullptr);
-    game_assert(participant->isPlayer);
+    game_assert(participant->getIsPlayer());
     this->participant = participant;
 }
 
-TurnController::Participant* PlayerController::getParticipant(void) {
+Participant* PlayerController::getParticipant(void) {
     return participant;
 }
 

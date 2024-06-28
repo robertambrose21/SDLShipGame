@@ -117,7 +117,7 @@ void Window::update(int64_t timeSinceLastFrame, bool& quit) {
 
     SDL_SetRenderDrawColor(renderer.get(), 0x00, 0x00, 0x00, 0xFF);
 
-    ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData());
+    ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData(), renderer.get());
 
     SDL_RenderPresent(renderer.get());
 }
