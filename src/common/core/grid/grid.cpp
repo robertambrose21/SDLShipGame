@@ -139,6 +139,22 @@ std::vector<glm::ivec2> Grid::getTilesInCircle(int x, int y, float radius) {
     return tilePositions;
 }
 
+void Grid::revealTiles(int participantId, const std::vector<glm::ivec2>& tiles) {
+    std::vector<TilesRevealedEventData::RevealedTile> tilesForEventData;
+
+    for(auto& tile : tiles) {
+        auto [t, isNew] = revealedTiles[participantId].insert({ tile.x, tile.y, true, getTileAt(tile.x, tile.y) });
+
+        if(isNew) {
+            tilesForEventData.push_back({ t->tile.id, t->x, t->y });
+        }
+    }
+
+    if(!tilesForEventData.empty()) {
+        publish<TilesRevealedEventData>({ participantId, tilesForEventData });
+    }
+}
+
 void Grid::revealTilesInCircle(int participantId, int x, int y, float radius, bool clearVisibleTiles) {
     auto tiles = getTilesInCircle(x, y, radius);
 
@@ -152,19 +168,7 @@ void Grid::revealTilesInCircle(int participantId, int x, int y, float radius, bo
     //     }
     // }
 
-    std::vector<glm::ivec2> newTiles;
-
-    for(auto& tile : tiles) {
-        auto [_, isNew] = revealedTiles[participantId].insert({ tile.x, tile.y, true, getTileAt(tile.x, tile.y) });
-
-        if(isNew) {
-            newTiles.push_back(tile);
-        }
-    }
-
-    if(!newTiles.empty()) {
-        publish<TilesRevealedEventData>({ participantId, newTiles });
-    }
+    revealTiles(participantId, tiles);
 }
 
 std::vector<glm::ivec2> Grid::getTilesInSquare(int x, int y, int w, int h) {
@@ -432,4 +436,9 @@ std::deque<glm::ivec2> Grid::buildPath(
     }
 
     return path;
+}
+
+void Grid::onPublish(const Event<EntitySetPositionEventData>& event) {
+    auto entity = event.data.entity;
+    revealTilesInCircle(entity->getParticipantId(), event.data.position.x, event.data.position.y, entity->getAggroRange());
 }

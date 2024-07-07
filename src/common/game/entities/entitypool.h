@@ -19,7 +19,7 @@ using json = nlohmann::json;
 
 struct GameStateUpdate;
 
-class EntityPool : public EventPublisher<EntityEventData> {
+class EntityPool : public EventPublisher<EntityEventData, EntitySetPositionEventData> {
 private:
     typedef struct _entityDefinition {
         std::string filename;

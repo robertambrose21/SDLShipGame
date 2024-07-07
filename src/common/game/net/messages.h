@@ -1,3 +1,4 @@
+// TODO: It's odd having this class and the other messages.h - consider consolodating or coming up with a different strategy
 #pragma once
 
 #include <cstdint>

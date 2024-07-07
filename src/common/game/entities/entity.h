@@ -56,7 +56,7 @@ private:
     bool engaged;
 
     Grid* grid;
-    EventPublisher<EntityEventData>& publisher;
+    EventPublisher<EntityEventData, EntitySetPositionEventData>& publisher;
 
     glm::ivec2 position;
     std::deque<glm::ivec2> path;
@@ -88,14 +88,14 @@ public:
     Entity(
         Grid* grid,
         uint32_t id,
-        EventPublisher<EntityEventData>& publisher,
+        EventPublisher<EntityEventData, EntitySetPositionEventData>& publisher,
         const std::string& name,
         const AllStats& stats
     );
 
     Entity(
         Grid* grid,
-        EventPublisher<EntityEventData>& publisher,
+        EventPublisher<EntityEventData, EntitySetPositionEventData>& publisher,
         const std::string& name,
         const AllStats& stats
     );

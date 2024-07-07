@@ -3,7 +3,6 @@
 #include "core/net/yojimboimport.h"
 #include "game/net/messages.h"
 
-// TODO: Move this file to game project
 // Note: Yojimbo seems to have a limit on the size of the messages which can be sent
 // be careful about how big some of these messages are
 enum class GameMessageType {
@@ -27,6 +26,7 @@ enum class GameMessageType {
     APPLY_DAMAGE,
     APPLY_ENTITY_EFFECT,
     APPLY_GRID_EFFECT,
+    TILES_REVEALED,
     COUNT
 };
 
@@ -542,6 +542,41 @@ public:
     YOJIMBO_VIRTUAL_SERIALIZE_FUNCTIONS();
 };
 
+class TilesRevealedMessage : public yojimbo::Message {
+public:
+    // TODO: Common item
+    struct Tile {
+        uint16_t id;
+        uint16_t x, y;
+        // is frozen needed?
+    };
+
+    uint8_t participantId;
+    uint8_t numRevealedTiles;
+    Tile revealedTiles[64];
+
+    TilesRevealedMessage() :
+        participantId(0),
+        numRevealedTiles(0)
+    { }
+
+    template <typename Stream>
+    bool Serialize(Stream& stream) {
+        serialize_bits(stream, participantId, 8);
+        serialize_bits(stream, numRevealedTiles, 8);
+
+        for(int i = 0; i < numRevealedTiles; i++) {
+            serialize_bits(stream, revealedTiles[i].id, 8);
+            serialize_bits(stream, revealedTiles[i].x, 16);
+            serialize_bits(stream, revealedTiles[i].y, 16);
+        }
+
+        return true;
+    }
+
+    YOJIMBO_VIRTUAL_SERIALIZE_FUNCTIONS();
+};
+
 YOJIMBO_MESSAGE_FACTORY_START(GameMessageFactory, (int)GameMessageType::COUNT);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::FIND_PATH, FindPathMessage);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::SELECT_ENTITY, SelectEntityMessage);
@@ -563,4 +598,5 @@ YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::EQUIP_WEAPON, EquipWeaponMess
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::APPLY_DAMAGE, ApplyDamageMessage);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::APPLY_ENTITY_EFFECT, ApplyEntityEffectMessage);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::APPLY_GRID_EFFECT, ApplyGridEffectMessage);
+YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::TILES_REVEALED, TilesRevealedMessage);
 YOJIMBO_MESSAGE_FACTORY_FINISH();

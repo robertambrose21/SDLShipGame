@@ -32,8 +32,10 @@ void GameClientMessagesReceiver::receiveMessage(yojimbo::Message* message) {
         case (int) GameMessageType::APPLY_DAMAGE:           { receiveApplyDamageMessage((ApplyDamageMessage*) message); break; }
         case (int) GameMessageType::APPLY_ENTITY_EFFECT:    { receiveApplyEntityEffectMessage((ApplyEntityEffectMessage*) message); break; }
         case (int) GameMessageType::APPLY_GRID_EFFECT:      { receiveApplyGridEffectMessage((ApplyGridEffectMessage*) message); break; }
+        case (int) GameMessageType::TILES_REVEALED:         { receiveTilesRevealedMessage((TilesRevealedMessage*) message); break; }
 
         default:
+            std::cout << "Received unhandled message: " << message->GetType() << std::endl;
             break;
     }
 }
@@ -234,4 +236,14 @@ void GameClientMessagesReceiver::receiveApplyGridEffectMessage(ApplyGridEffectMe
         default:
             break;
     }
+}
+
+void GameClientMessagesReceiver::receiveTilesRevealedMessage(TilesRevealedMessage* message) {
+    std::vector<glm::ivec2> tiles;
+
+    for(int i = 0; i < message->numRevealedTiles; i++) {
+        tiles.push_back({ message->revealedTiles[i].x, message->revealedTiles[i].y });
+    }
+
+    context.getGrid()->revealTiles(message->participantId, tiles);
 }

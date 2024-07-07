@@ -4,7 +4,7 @@
 Entity::Entity(
     Grid* grid,
     uint32_t id,
-    EventPublisher<EntityEventData>& publisher,
+    EventPublisher<EntityEventData, EntitySetPositionEventData>& publisher,
     const std::string& name,
     const AllStats& stats
 ) :
@@ -26,7 +26,7 @@ Entity::Entity(
 
 Entity::Entity(
     Grid* grid,
-    EventPublisher<EntityEventData>& publisher,
+    EventPublisher<EntityEventData, EntitySetPositionEventData>& publisher,
     const std::string& name,
     const AllStats& stats
 ) : 
@@ -258,7 +258,7 @@ bool Entity::isOnTile(int x, int y) {
 
 void Entity::setPosition(const glm::ivec2& position) {
     this->position = position;
-    grid->revealTilesInCircle(participantId, position.x, position.y, getAggroRange());
+    publisher.publish<EntitySetPositionEventData>({ this, position });
 }
 
 // TODO: use calculatePath

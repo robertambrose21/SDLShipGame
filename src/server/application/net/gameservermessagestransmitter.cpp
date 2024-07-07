@@ -189,6 +189,42 @@ void GameServerMessagesTransmitter::onPublish(const Event<GridEffectEvent>& even
     }
 }
 
+void GameServerMessagesTransmitter::onPublish(const Event<TilesRevealedEventData>& event) {
+    auto clientIndex = turnController->getAttachedClient(event.data.participantId);
+
+    if(clientIndex == -1) {
+        return;
+    }
+
+    // TODO: Generic block message structure
+    auto totalTiles = event.data.tiles.size();
+    auto numMessagesToSend = totalTiles / 64;
+    auto numTilesLastMessage = totalTiles % 64;
+
+    if(numTilesLastMessage > 0) {
+        numMessagesToSend++;
+    }
+    else {
+        numTilesLastMessage = 64;
+    }
+
+    for(int i = 0; i < numMessagesToSend; i++) {
+        TilesRevealedMessage* message = (TilesRevealedMessage*) server.createMessage(clientIndex, GameMessageType::TILES_REVEALED);
+        message->participantId = event.data.participantId;
+        message->numRevealedTiles = (i == numMessagesToSend - 1) ? numTilesLastMessage : 64;
+
+        for(int j = 0; j < message->numRevealedTiles; j++) {
+            auto tilesIndex = (i * 64) + j;
+
+            message->revealedTiles[j].id = event.data.tiles[tilesIndex].id;
+            message->revealedTiles[j].x = event.data.tiles[tilesIndex].x;
+            message->revealedTiles[j].y = event.data.tiles[tilesIndex].y;
+        }
+
+        server.sendMessage(clientIndex, message);
+    }
+}
+
 void GameServerMessagesTransmitter::sendSetParticipant(
     int clientIndex, 
     Participant* participant

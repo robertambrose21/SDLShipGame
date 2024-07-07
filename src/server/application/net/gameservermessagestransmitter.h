@@ -21,7 +21,8 @@ class GameServerMessagesTransmitter :
     public EventSubscriber<ProjectileEventData>,
     public EventSubscriber<MeleeWeaponEventData>,
     public EventSubscriber<EntityEffectEvent>,
-    public EventSubscriber<GridEffectEvent>
+    public EventSubscriber<GridEffectEvent>,
+    public EventSubscriber<TilesRevealedEventData>
 {
 private:
     GameServer& server;
@@ -48,6 +49,7 @@ public:
     void onPublish(const Event<MeleeWeaponEventData>& event);
     void onPublish(const Event<EntityEffectEvent>& event);
     void onPublish(const Event<GridEffectEvent>& event);
+    void onPublish(const Event<TilesRevealedEventData>& event);
 
     void sendSetParticipant(int clientIndex, Participant* participant);
     void sendGameStateUpdate(int clientIndex, const GameStateUpdate& update);

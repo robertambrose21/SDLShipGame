@@ -132,6 +132,16 @@ struct GridDirtyEventData {
 };
 
 struct TilesRevealedEventData {
+    struct RevealedTile {
+        int id;
+        int x, y;
+    };
+
     int participantId;
-    std::vector<glm::ivec2> tiles;
+    std::vector<RevealedTile> tiles;
+};
+
+struct EntitySetPositionEventData {
+    Entity* entity;
+    glm::ivec2 position;
 };

@@ -76,6 +76,8 @@ void ServerApplication::initialise(void) {
     context.getWeaponController()->subscribe<MeleeWeaponEventData>(transmitter.get());
     context.getEffectController()->subscribe<EntityEffectEvent>(transmitter.get());
     context.getEffectController()->subscribe<GridEffectEvent>(transmitter.get());
+    context.getGrid()->subscribe<TilesRevealedEventData>(transmitter.get());
+    context.getEntityPool()->subscribe<EntitySetPositionEventData>(context.getGrid());
 
     application->addLogicWorker([&](ApplicationContext& c, auto const& timeSinceLastFrame, auto& quit) {
         server->update(timeSinceLastFrame);

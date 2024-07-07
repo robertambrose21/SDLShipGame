@@ -34,6 +34,7 @@ private:
     void receiveApplyDamageMessage(ApplyDamageMessage* message);
     void receiveApplyEntityEffectMessage(ApplyEntityEffectMessage* message);
     void receiveApplyGridEffectMessage(ApplyGridEffectMessage* message);
+    void receiveTilesRevealedMessage(TilesRevealedMessage* message);
 
 public:
     GameClientMessagesReceiver(

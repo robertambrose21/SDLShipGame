@@ -13,8 +13,12 @@
 #include "core/util/timing.h"
 #include "core/event/eventpublisher.h"
 #include "game/event/events.h"
+#include "game/entities/entity.h"
 
-class Grid : public EventPublisher<TileEventData, GridDirtyEventData, TilesRevealedEventData> {
+class Grid : 
+    public EventPublisher<TileEventData, GridDirtyEventData, TilesRevealedEventData>,
+    public EventSubscriber<EntitySetPositionEventData>
+{
 public:
     typedef struct _tile {
         int id;
@@ -100,7 +104,10 @@ public:
     std::vector<glm::ivec2> getTilesInCircle(int x, int y, float radius);
     std::vector<glm::ivec2> getTilesInSquare(int x, int y, int w, int h);
 
+    void revealTiles(int participantId, const std::vector<glm::ivec2>& tiles);
     void revealTilesInCircle(int participantId, int x, int y, float radius, bool clearVisibleTiles = true);
 
     std::deque<glm::ivec2> findPath(const glm::ivec2& source, const glm::ivec2& destination);
+
+    void onPublish(const Event<EntitySetPositionEventData>& event);
 };
