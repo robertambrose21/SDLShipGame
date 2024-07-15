@@ -107,19 +107,21 @@ void ServerApplication::run(void) {
 void ServerApplication::onClientConnect(int clientIndex) {
     auto& context = application->getContext();
 
-    auto player = addPlayer(false);
-    auto participantId = context.getTurnController()->addParticipant(true, { player })->getId();
+    auto clientParticipant = context.getTurnController()->addParticipant(true, { addPlayer(false) });
     context.getTurnController()->reset();
 
-    // TODO: Set this up so players are assigned properly.
-    // Currently participant "0" is the player
-    dynamic_cast<ServerTurnController*>(context.getTurnController())->attachParticipantToClient(participantId, clientIndex);
+    dynamic_cast<ServerTurnController*>(context.getTurnController())->attachParticipantToClient(clientParticipant->getId(), clientIndex);
 
     for(auto& participant : context.getTurnController()->getParticipants()) {
         transmitter->sendSetParticipant(clientIndex, participant);
     }
     
     sendLoadMapToClient(clientIndex);
+
+    // Temp hack to trigger a grid tile reveal
+    for(auto entity : clientParticipant->getEntities()) {
+        entity->setPosition(entity->getPosition());
+    }
 }
 
 void ServerApplication::sendLoadMapToClient(int clientIndex) {
