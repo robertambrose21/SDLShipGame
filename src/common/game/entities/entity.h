@@ -222,6 +222,7 @@ public:
 
     void setParticipantId(int participantId);
     int getParticipantId(void) const;
+    bool hasParticipant(void) const;
 
     void nextTurn(void);
     void endTurn(void);

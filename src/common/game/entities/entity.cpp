@@ -21,7 +21,8 @@ Entity::Entity(
     engaged(false),
     isFrozen(false),
     isPoisoned(false),
-    externalActionsChainNeedsRecalculating(true)
+    externalActionsChainNeedsRecalculating(true),
+    participantId(-1)
 { }
 
 Entity::Entity(
@@ -435,6 +436,10 @@ void Entity::setParticipantId(int participantId) {
 
 int Entity::getParticipantId(void) const {
     return participantId;
+}
+
+bool Entity::hasParticipant(void) const {
+    return participantId != -1;
 }
 
 bool Entity::getIsFrozen(void) const {

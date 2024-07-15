@@ -84,17 +84,21 @@ const std::vector<Entity*>& Participant::getEntities(void) const {
 }
 
 void Participant::addEntity(Entity* entity) {
+    game_assert(!entity->hasParticipant());
+
+    entity->setParticipantId(id);
     entities.push_back(entity);
 }
 
 void Participant::addEntities(const std::vector<Entity*>& entities) {
     for(auto entity : entities) {
-        this->entities.push_back(entity);
+        addEntity(entity);
     }
 }
 
 void Participant::removeEntity(Entity* entity) {
     entities.erase(std::remove(entities.begin(), entities.end(), entity), entities.end());
+    entity->setParticipantId(-1);
 }
 
 const std::vector<Item*>& Participant::getItems(void) const {

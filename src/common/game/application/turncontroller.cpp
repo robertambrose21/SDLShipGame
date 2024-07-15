@@ -73,10 +73,6 @@ Participant* TurnController::addParticipant(
     participant.setBehaviourStrategy(std::move(behaviourStrategy));
     participant.addEntities(entities);
 
-    for(auto const& entity : entities) {
-        entity->setParticipantId(participant.getId());
-    }
-
     participants[id] = std::make_unique<Participant>(std::move(participant));
 
     return participants[id].get();
@@ -94,13 +90,11 @@ void TurnController::addEntityToParticipant(int participantId, Entity* entity) {
         );
     }
 
-    entity->setParticipantId(participantId);
+    participants[participantId]->addEntity(entity);
 
     if(!participants[participantId]->getEngagements().empty()) {
         entity->engage();
     }
-
-    participants[participantId]->addEntity(entity);
 }
 
 Participant* TurnController::getParticipant(int id) {

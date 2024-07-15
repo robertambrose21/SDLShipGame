@@ -440,5 +440,10 @@ std::deque<glm::ivec2> Grid::buildPath(
 
 void Grid::onPublish(const Event<EntitySetPositionEventData>& event) {
     auto entity = event.data.entity;
+
+    if(!entity->hasParticipant()) {
+        return;
+    }
+
     revealTilesInCircle(entity->getParticipantId(), event.data.position.x, event.data.position.y, entity->getAggroRange());
 }
