@@ -38,7 +38,7 @@ private:
     void initialiseImgui(void);
     
 public:
-    Window(int width, int height, Grid* grid);
+    Window(int width, int height, Grid* grid, VisiblityController* visiblityController);
     ~Window();
  
     bool initialiseWindow(void);

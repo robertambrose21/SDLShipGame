@@ -33,6 +33,7 @@ add_library(
     weapons/damagesource.cpp
     application/turncontroller.cpp
     application/stdoutsubscriber.cpp
+    application/visibilitycontroller.cpp
     actions/action.cpp
     actions/moveaction.cpp
     actions/attackaction.cpp

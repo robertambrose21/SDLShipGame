@@ -15,26 +15,23 @@
 #include "game/event/events.h"
 #include "game/entities/entity.h"
 
-class Grid : 
-    public EventPublisher<TileEventData, GridDirtyEventData, TilesRevealedEventData>,
-    public EventSubscriber<EntitySetPositionEventData>
+class Grid : public EventPublisher<TileEventData, GridDirtyEventData>
 {
 public:
     typedef struct _tile {
-        int id;
+        int id = -1;
         bool isWalkable = true;
         bool isFrozen = false;
     } Tile;
 
-    typedef struct _revealedTile {
-        int x, y;
-        bool isVisible;
-        Tile tile;
+    // typedef struct _line {
+    //     glm::ivec2 p1, p2;
+    // } Line;
 
-        bool operator<(const _revealedTile& other) const {
-            return x < other.x || (x == other.x && y < other.y);
-        }
-    } RevealedTile;
+    // typedef struct _bbox {
+    //     int xMin, xMax;
+    //     int yMin, yMax;
+    // } BBox;
 
 private:
     int width;
@@ -42,7 +39,6 @@ private:
 
     std::vector<std::vector<Tile>> data;
     std::vector<Tile> walkableTiles;
-    std::map<int, std::set<RevealedTile>> revealedTiles;
     bool isDirty;
 
     // Path finding
@@ -79,7 +75,7 @@ public:
     int getWidth(void) const;
     int getHeight(void) const;
 
-    void setTile(int x, int y, const Tile& tile);
+    void setTile(int x, int y, const Tile& tile, bool fireEvent = true);
     void setTileWalkable(int x, int y, bool isWalkable);
     void setTileFrozen(int x, int y, bool isFrozen);
 
@@ -96,18 +92,11 @@ public:
 
     void setData(const std::vector<std::vector<Tile>>& data);
     const std::vector<std::vector<Tile>>& getData(void) const;
-    const std::map<int, std::set<RevealedTile>>& getRevealedTiles(void) const;
-    const std::set<RevealedTile>& getRevealedTiles(int participantId);
     std::vector<Tile> getWalkableTiles(void);
     // TODO: Throw exception if x/y are out of bounds
     const Tile& getTileAt(int x, int y) const;
     std::vector<glm::ivec2> getTilesInCircle(int x, int y, float radius);
     std::vector<glm::ivec2> getTilesInSquare(int x, int y, int w, int h);
 
-    void revealTiles(int participantId, const std::vector<glm::ivec2>& tiles);
-    void revealTilesInCircle(int participantId, int x, int y, float radius, bool clearVisibleTiles = true);
-
     std::deque<glm::ivec2> findPath(const glm::ivec2& source, const glm::ivec2& destination);
-
-    void onPublish(const Event<EntitySetPositionEventData>& event);
 };

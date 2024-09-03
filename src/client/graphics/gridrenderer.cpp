@@ -1,13 +1,14 @@
 #include "gridrenderer.h"
 
-GridRenderer::GridRenderer(Grid* grid, int windowHeight) :
+GridRenderer::GridRenderer(Grid* grid, VisiblityController* visiblityController, int windowHeight) :
     grid(grid),
+    visiblityController(visiblityController),
     windowHeight(windowHeight),
     tileSize(32)
 {
     camera = std::make_unique<Camera>(glm::ivec2(0, 0));
     grid->subscribe<TileEventData>(this);
-    grid->subscribe<TilesRevealedEventData>(this);
+    visiblityController->subscribe<TilesRevealedEventData>(this);
     grid->subscribe<GridDirtyEventData>(this);
     chunks = createChunks();
 }
@@ -56,7 +57,7 @@ void GridRenderer::buildChunkTexture(GraphicsContext& graphicsContext, Chunk* ch
     auto renderer = graphicsContext.getRenderer();
 
     // auto const& data = grid->getData();
-    auto const& data = grid->getRevealedTiles(1);
+    auto const& data = visiblityController->getRevealedTiles(1);
 
     auto target = std::unique_ptr<SDL_Texture, Texture::sdl_deleter>(
         SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, tileSize * ChunkSize, tileSize * ChunkSize), 

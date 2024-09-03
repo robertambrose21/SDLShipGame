@@ -22,7 +22,8 @@ void ClientApplication::initialise(void) {
         std::make_unique<ClientTurnController>(),
         std::make_unique<ItemController>(),
         std::make_unique<EffectController>(),
-        std::make_unique<SpawnController>()
+        std::make_unique<SpawnController>(),
+        std::make_unique<VisiblityController>()
     );
 
     auto& context = application->getContext();
@@ -34,6 +35,7 @@ void ClientApplication::initialise(void) {
     context.getEntityPool()->initialise(application->getContext());
     context.getItemController()->initialise(application->getContext());
     context.getSpawnController()->initialise(application->getContext());
+    context.getVisibilityController()->initialise(application->getContext());
 
     context.getTurnController()->subscribe<TurnEventData>(&stdoutSubscriber);
     context.getEntityPool()->subscribe<EntityEventData>(&stdoutSubscriber);
@@ -78,7 +80,7 @@ void ClientApplication::initialise(void) {
 
     auto grid = context.getGrid();
 
-    window = std::make_unique<Window>(1920, 1080, grid);
+    window = std::make_unique<Window>(1920, 1080, grid, context.getVisibilityController());
     window->initialiseWindow();
 
     for(auto& [tileId, textureId] : tileSet.getTextureIds()) {
@@ -87,7 +89,7 @@ void ClientApplication::initialise(void) {
     
     for(auto i = 0; i < grid->getWidth(); i++) {
         for(auto j = 0; j < grid->getHeight(); j++) {
-            grid->setTile(i, j, { 1, true, false });
+            grid->setTile(i, j, { 1, false, false });
         }
     }
 
@@ -166,7 +168,10 @@ void ClientApplication::selectEntityOnStartupHack(void) {
         return;
     }
 
-    if(playerController->getParticipant() != nullptr && !playerController->getParticipant()->getEntities().empty()) {
+    if(
+        playerController->getParticipant() != nullptr && 
+        !playerController->getParticipant()->getEntities().empty()
+    ) {
         playerController->selectAll();
         isSelected = true;
     }

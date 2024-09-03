@@ -75,7 +75,7 @@ void GameClientMessagesReceiver::receiveLoadMap(LoadMapMessage* message) {
         auto y = (i + offset) % block.width;
         auto id = block.data[i];
 
-        grid->setTile(x, y, { id, walkableTileIds[id], false });
+        // grid->setTile(x, y, { id, walkableTileIds[id], false }, false);
     }
 
     std::cout 
@@ -241,9 +241,16 @@ void GameClientMessagesReceiver::receiveApplyGridEffectMessage(ApplyGridEffectMe
 void GameClientMessagesReceiver::receiveTilesRevealedMessage(TilesRevealedMessage* message) {
     std::vector<glm::ivec2> tiles;
 
+    auto grid = context.getGrid();
+
     for(int i = 0; i < message->numRevealedTiles; i++) {
-        tiles.push_back({ message->revealedTiles[i].x, message->revealedTiles[i].y });
+        auto tile = message->revealedTiles[i];
+
+        tiles.push_back({ tile.x, tile.y });
+        grid->setTile(tile.x, tile.y, { tile.id, walkableTileIds[tile.id], false }, false);
     }
 
-    context.getGrid()->revealTiles(message->participantId, tiles);
+    context.getVisibilityController()->revealTiles(message->participantId, tiles);
+
+    // grid->revealTiles(message->participantId, tiles);
 }

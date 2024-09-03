@@ -12,6 +12,7 @@
 #include "game/spawn/spawncontroller.h"
 #include "serverturncontroller.h"
 #include "game/net/gamemessagelogger.h"
+#include "game/application/visibilitycontroller.h"
 
 class ServerApplication {
 private:

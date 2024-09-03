@@ -32,12 +32,14 @@ int Grid::getHeight(void) const {
     return height;
 }
 
-void Grid::setTile(int x, int y, const Tile& tile) {
+void Grid::setTile(int x, int y, const Tile& tile, bool fireEvent) {
     game_assert(x < getWidth() && y < getHeight());
     data[y][x] = tile;
     setDirty(true);
 
-    publish<TileEventData>({ x, y, tile.id, tile.isWalkable, tile.isFrozen });
+    if(fireEvent) {
+        publish<TileEventData>({ x, y, tile.id, tile.isWalkable, tile.isFrozen });
+    }
 }
 
 void Grid::setTileWalkable(int x, int y, bool isWalkable) {
@@ -68,18 +70,6 @@ void Grid::setData(const std::vector<std::vector<Tile>>& data) {
 
 const std::vector<std::vector<Grid::Tile>>& Grid::getData(void) const {
     return data;
-}
-
-const std::map<int, std::set<Grid::RevealedTile>>& Grid::getRevealedTiles(void) const {
-    return revealedTiles;
-}
-
-const std::set<Grid::RevealedTile>& Grid::getRevealedTiles(int participantId) {
-    if(!revealedTiles.contains(participantId)) {
-        revealedTiles[participantId] = std::set<RevealedTile>();
-    }
-
-    return revealedTiles.at(participantId);
 }
 
 std::vector<Grid::Tile> Grid::getWalkableTiles(void) {
@@ -137,38 +127,6 @@ std::vector<glm::ivec2> Grid::getTilesInCircle(int x, int y, float radius) {
     }
 
     return tilePositions;
-}
-
-void Grid::revealTiles(int participantId, const std::vector<glm::ivec2>& tiles) {
-    std::vector<TilesRevealedEventData::RevealedTile> tilesForEventData;
-
-    for(auto& tile : tiles) {
-        auto [t, isNew] = revealedTiles[participantId].insert({ tile.x, tile.y, true, getTileAt(tile.x, tile.y) });
-
-        if(isNew) {
-            tilesForEventData.push_back({ t->tile.id, t->x, t->y });
-        }
-    }
-
-    if(!tilesForEventData.empty()) {
-        publish<TilesRevealedEventData>({ participantId, tilesForEventData });
-    }
-}
-
-void Grid::revealTilesInCircle(int participantId, int x, int y, float radius, bool clearVisibleTiles) {
-    auto tiles = getTilesInCircle(x, y, radius);
-
-    // auto thing = std::set<int>();
-
-    // if(clearVisibleTiles) {
-    //     auto& s = revealedTiles[participantId];
-
-    //     for(auto& tile : revealedTiles[participantId]) {
-    //         // tile.isVisible = false; frick you
-    //     }
-    // }
-
-    revealTiles(participantId, tiles);
 }
 
 std::vector<glm::ivec2> Grid::getTilesInSquare(int x, int y, int w, int h) {
@@ -436,14 +394,4 @@ std::deque<glm::ivec2> Grid::buildPath(
     }
 
     return path;
-}
-
-void Grid::onPublish(const Event<EntitySetPositionEventData>& event) {
-    auto entity = event.data.entity;
-
-    if(!entity->hasParticipant()) {
-        return;
-    }
-
-    revealTilesInCircle(entity->getParticipantId(), event.data.position.x, event.data.position.y, entity->getAggroRange());
 }

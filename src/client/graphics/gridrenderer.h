@@ -9,6 +9,7 @@
 #include "core/grid/grid.h"
 #include "core/event/eventsubscriber.h"
 #include "game/event/events.h"
+#include "game/application/visibilitycontroller.h"
 
 class GraphicsContext;
 
@@ -35,6 +36,7 @@ private:
     std::map<int, uint32_t> tileTexturesIds;
     std::vector<std::unique_ptr<Chunk>> chunks;
     Grid* grid;
+    VisiblityController* visiblityController;
 
     std::vector<std::unique_ptr<Chunk>> createChunks(void);
     void buildChunkTexture(GraphicsContext& graphicsContext, Chunk* chunk);
@@ -44,7 +46,7 @@ private:
     std::unique_ptr<Camera> camera;
 
 public:
-    GridRenderer(Grid* grid, int windowHeight);
+    GridRenderer(Grid* grid, VisiblityController* visiblityController, int windowHeight);
 
     void setTileTexture(int tileId, uint32_t textureId);
     void draw(GraphicsContext& graphicsContext);

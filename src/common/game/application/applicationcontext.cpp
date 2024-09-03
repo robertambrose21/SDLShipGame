@@ -9,7 +9,8 @@ ApplicationContext::ApplicationContext(
     TurnController* turnController,
     ItemController* itemController,
     EffectController* effectController,
-    SpawnController* spawnController
+    SpawnController* spawnController,
+    VisiblityController* visiblityController
 ) :
     grid(grid),
     entityPool(entityPool),
@@ -19,7 +20,8 @@ ApplicationContext::ApplicationContext(
     turnController(turnController),
     itemController(itemController),
     effectController(effectController),
-    spawnController(spawnController)
+    spawnController(spawnController),
+    visiblityController(visiblityController)
 { }
 
 EntityPool* ApplicationContext::getEntityPool(void) {
@@ -52,6 +54,10 @@ EffectController* ApplicationContext::getEffectController(void) {
 
 SpawnController* ApplicationContext::getSpawnController(void) {
     return spawnController;
+}
+
+VisiblityController* ApplicationContext::getVisibilityController(void) {
+    return visiblityController;
 }
 
 Grid* ApplicationContext::getGrid(void) {

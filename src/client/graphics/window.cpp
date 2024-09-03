@@ -1,10 +1,10 @@
 #include "window.h"
 
-Window::Window(int width, int height, Grid* grid) :
+Window::Window(int width, int height, Grid* grid, VisiblityController* visiblityController) :
     width(width),
     height(height)
 {
-    gridRenderer = std::make_unique<GridRenderer>(grid, height);
+    gridRenderer = std::make_unique<GridRenderer>(grid, visiblityController, height);
 }
 
 Window::~Window() {

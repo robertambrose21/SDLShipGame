@@ -22,7 +22,8 @@ void ServerApplication::initialise(void) {
         std::make_unique<ServerTurnController>(),
         std::make_unique<ItemController>(),
         std::make_unique<EffectController>(),
-        std::make_unique<SpawnController>()
+        std::make_unique<SpawnController>(),
+        std::make_unique<VisiblityController>()
     );
 
     auto& context = application->getContext();
@@ -34,6 +35,7 @@ void ServerApplication::initialise(void) {
     context.getEntityPool()->initialise(application->getContext());
     context.getItemController()->initialise(application->getContext());
     context.getSpawnController()->initialise(application->getContext());
+    context.getVisibilityController()->initialise(application->getContext());
 
     context.getTurnController()->subscribe<TurnEventData>(&stdoutSubscriber);
     context.getEntityPool()->subscribe<EntityEventData>(&stdoutSubscriber);
@@ -76,8 +78,10 @@ void ServerApplication::initialise(void) {
     context.getWeaponController()->subscribe<MeleeWeaponEventData>(transmitter.get());
     context.getEffectController()->subscribe<EntityEffectEvent>(transmitter.get());
     context.getEffectController()->subscribe<GridEffectEvent>(transmitter.get());
-    context.getGrid()->subscribe<TilesRevealedEventData>(transmitter.get());
-    context.getEntityPool()->subscribe<EntitySetPositionEventData>(context.getGrid());
+    // context.getGrid()->subscribe<TilesRevealedEventData>(transmitter.get());
+    // context.getEntityPool()->subscribe<EntitySetPositionEventData>(context.getGrid());
+    context.getVisibilityController()->subscribe<TilesRevealedEventData>(transmitter.get());
+    context.getEntityPool()->subscribe<EntitySetPositionEventData>(context.getVisibilityController());
 
     application->addLogicWorker([&](ApplicationContext& c, auto const& timeSinceLastFrame, auto& quit) {
         server->update(timeSinceLastFrame);
@@ -110,7 +114,8 @@ void ServerApplication::onClientConnect(int clientIndex) {
     auto clientParticipant = context.getTurnController()->addParticipant(true, { addPlayer(false) });
     context.getTurnController()->reset();
 
-    dynamic_cast<ServerTurnController*>(context.getTurnController())->attachParticipantToClient(clientParticipant->getId(), clientIndex);
+    dynamic_cast<ServerTurnController*>(context.getTurnController())
+        ->attachParticipantToClient(clientParticipant->getId(), clientIndex);
 
     for(auto& participant : context.getTurnController()->getParticipants()) {
         transmitter->sendSetParticipant(clientIndex, participant);
@@ -180,6 +185,10 @@ void ServerApplication::sendGameStateUpdatesToClients(void) {
     std::vector<Entity*> entitiesBlock;
 
     for(auto entity : allEntities) {
+        if(entity->getCurrentStats().common.hp <= 0) {
+            std::cout << "Entity with 0 hp, should not happen" << std::endl;
+        }
+
         entitiesBlock.push_back(entity);
 
         if(entitiesBlock.size() == MaxEntities) {
