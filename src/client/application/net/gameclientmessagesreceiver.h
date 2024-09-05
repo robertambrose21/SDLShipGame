@@ -35,6 +35,7 @@ private:
     void receiveApplyEntityEffectMessage(ApplyEntityEffectMessage* message);
     void receiveApplyGridEffectMessage(ApplyGridEffectMessage* message);
     void receiveTilesRevealedMessage(TilesRevealedMessage* message);
+    void receiveSetEntityPositionMessage(SetEntityPositionMessage* message);
 
 public:
     GameClientMessagesReceiver(

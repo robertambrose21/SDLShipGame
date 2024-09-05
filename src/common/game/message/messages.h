@@ -27,6 +27,7 @@ enum class GameMessageType {
     APPLY_ENTITY_EFFECT,
     APPLY_GRID_EFFECT,
     TILES_REVEALED,
+    SET_ENTITY_POSITION,
     COUNT
 };
 
@@ -577,6 +578,29 @@ public:
     YOJIMBO_VIRTUAL_SERIALIZE_FUNCTIONS();
 };
 
+class SetEntityPositionMessage : public yojimbo::Message {
+public:
+    uint32_t entityId;
+    uint16_t x, y;
+
+    SetEntityPositionMessage() :
+        entityId(0),
+        x(0),
+        y(0)
+    { }
+
+    template <typename Stream>
+    bool Serialize(Stream& stream) {
+        serialize_uint32(stream, entityId);
+        serialize_bits(stream, x, 16);
+        serialize_bits(stream, y, 16);
+
+        return true;
+    }
+
+    YOJIMBO_VIRTUAL_SERIALIZE_FUNCTIONS();
+};
+
 YOJIMBO_MESSAGE_FACTORY_START(GameMessageFactory, (int)GameMessageType::COUNT);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::FIND_PATH, FindPathMessage);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::SELECT_ENTITY, SelectEntityMessage);
@@ -599,4 +623,5 @@ YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::APPLY_DAMAGE, ApplyDamageMess
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::APPLY_ENTITY_EFFECT, ApplyEntityEffectMessage);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::APPLY_GRID_EFFECT, ApplyGridEffectMessage);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::TILES_REVEALED, TilesRevealedMessage);
+YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::SET_ENTITY_POSITION, SetEntityPositionMessage);
 YOJIMBO_MESSAGE_FACTORY_FINISH();

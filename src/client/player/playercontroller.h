@@ -41,6 +41,7 @@ private:
     GridRenderer& gridRenderer;
     TurnController* turnController;
     EntityPool* entityPool;
+    Grid* grid;
     GraphicsContext& graphicsContext;
 
     std::unique_ptr<Dice> dice;

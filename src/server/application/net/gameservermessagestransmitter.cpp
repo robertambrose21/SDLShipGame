@@ -60,7 +60,7 @@ void GameServerMessagesTransmitter::onPublish(const Event<MoveActionEventData>& 
         message->shortStopSteps = event.data.shortStopSteps;
         message->turnNumber = event.data.turnNumber;
 
-        server.sendMessage(clientIndex, message);
+        // server.sendMessage(clientIndex, message);
     }
 }
 
@@ -220,6 +220,19 @@ void GameServerMessagesTransmitter::onPublish(const Event<TilesRevealedEventData
             message->revealedTiles[j].x = event.data.tiles[tilesIndex].x;
             message->revealedTiles[j].y = event.data.tiles[tilesIndex].y;
         }
+
+        server.sendMessage(clientIndex, message);
+    }
+}
+
+void GameServerMessagesTransmitter::onPublish(const Event<EntitySetPositionEventData>& event) {
+    for(auto [participantId, clientIndex] : turnController->getAllAttachedClients()) {
+        SetEntityPositionMessage* message =
+            (SetEntityPositionMessage*) server.createMessage(clientIndex, GameMessageType::SET_ENTITY_POSITION);
+
+        message->entityId = event.data.entity->getId();
+        message->x = event.data.position.x;
+        message->y = event.data.position.y;
 
         server.sendMessage(clientIndex, message);
     }

@@ -82,6 +82,7 @@ void ServerApplication::initialise(void) {
     // context.getEntityPool()->subscribe<EntitySetPositionEventData>(context.getGrid());
     context.getVisibilityController()->subscribe<TilesRevealedEventData>(transmitter.get());
     context.getEntityPool()->subscribe<EntitySetPositionEventData>(context.getVisibilityController());
+    context.getEntityPool()->subscribe<EntitySetPositionEventData>(transmitter.get());
 
     application->addLogicWorker([&](ApplicationContext& c, auto const& timeSinceLastFrame, auto& quit) {
         server->update(timeSinceLastFrame);

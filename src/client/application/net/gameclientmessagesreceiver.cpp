@@ -33,6 +33,7 @@ void GameClientMessagesReceiver::receiveMessage(yojimbo::Message* message) {
         case (int) GameMessageType::APPLY_ENTITY_EFFECT:    { receiveApplyEntityEffectMessage((ApplyEntityEffectMessage*) message); break; }
         case (int) GameMessageType::APPLY_GRID_EFFECT:      { receiveApplyGridEffectMessage((ApplyGridEffectMessage*) message); break; }
         case (int) GameMessageType::TILES_REVEALED:         { receiveTilesRevealedMessage((TilesRevealedMessage*) message); break; }
+        case (int) GameMessageType::SET_ENTITY_POSITION:    { receiveSetEntityPositionMessage((SetEntityPositionMessage*) message); break; }
 
         default:
             std::cout << "Received unhandled message: " << message->GetType() << std::endl;
@@ -251,6 +252,15 @@ void GameClientMessagesReceiver::receiveTilesRevealedMessage(TilesRevealedMessag
     }
 
     context.getVisibilityController()->revealTiles(message->participantId, tiles);
+}
 
-    // grid->revealTiles(message->participantId, tiles);
+void GameClientMessagesReceiver::receiveSetEntityPositionMessage(SetEntityPositionMessage* message) {
+    if(!context.getEntityPool()->hasEntity(message->entityId)) {
+        std::cout << "Cannot set position for unrecognized entity with id " << message->entityId << std::endl;
+        return;
+    }
+
+    auto entity = context.getEntityPool()->getEntity(message->entityId);
+
+    entity->setPosition(glm::ivec2(message->x, message->y));
 }

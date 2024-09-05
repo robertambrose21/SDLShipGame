@@ -11,6 +11,7 @@ PlayerController::PlayerController(
     gridRenderer(graphicsContext.getGridRenderer()),
     turnController(context.getTurnController()),
     entityPool(context.getEntityPool()),
+    grid(context.getGrid()),
     camera(graphicsContext.getGridRenderer().getCamera()),
     isLeftShiftPressed(false),
     isCurrentWeaponInRange(true),
@@ -306,7 +307,7 @@ void PlayerController::deselectAll(void) {
 
 void PlayerController::move(const glm::ivec2& position) {
     for(auto const& entity : selectedEntities) {
-        if(turnController->queueAction(std::make_unique<MoveAction>(turnController->getTurnNumber(), entity, position))) {
+        if(!grid->findPath(entity->getPosition(), position).empty()) {
             dice->clickAction(0);
             clientMessagesTransmitter.sendFindPathMessage(entity->getId(), position, 0);
         }
