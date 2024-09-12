@@ -145,3 +145,8 @@ struct EntitySetPositionEventData {
     Entity* entity;
     glm::ivec2 position;
 };
+
+struct EntityVisibilityToParticipantData {
+    Entity* entity;
+    int participantId;
+};

@@ -167,6 +167,14 @@ void EntityPool::synchronize() {
         }
     }
 
+    std::cout 
+        << "Sync "
+        << updatedEntities.size() 
+        << " updated " 
+        << entitiesForDeletion.size() 
+        << " removed" 
+        << std::endl;
+
     pendingUpdates.clear();
 }
 

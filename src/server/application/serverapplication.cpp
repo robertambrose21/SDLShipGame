@@ -197,6 +197,7 @@ void ServerApplication::sendGameStateUpdatesToClients(void) {
                 0, 
                 GameStateUpdate::serialize(currentParticipantId, entitiesBlock)
             );
+            std::cout << "Sent GameStateUpdate ["  << entitiesBlock.size() << "]" << std::endl;
             entitiesBlock.clear();
         }
     }
@@ -206,9 +207,10 @@ void ServerApplication::sendGameStateUpdatesToClients(void) {
             0, 
             GameStateUpdate::serialize(currentParticipantId, entitiesBlock)
         );
+        std::cout << "Sent GameStateUpdate ["  << entitiesBlock.size() << "]" << std::endl;
     }
 
-    // std::cout << "Sent GameStateUpdate" << std::endl;
+    std::cout << "Total entities " << allEntities.size() << std::endl;
 }
 
 std::vector<GenerationStrategy::Room> ServerApplication::loadMap(void) {

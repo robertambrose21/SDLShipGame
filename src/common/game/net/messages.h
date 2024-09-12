@@ -60,6 +60,8 @@ struct GameStateUpdate {
     int numEntities;
     EntityStateUpdate entities[MaxEntities];
     int currentParticipantId;
+    uint8_t sequence;
+    uint8_t numSequences;
 
     GameStateUpdate() {
         memset(this, 0, sizeof(GameStateUpdate));
