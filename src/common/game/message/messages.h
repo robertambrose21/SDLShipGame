@@ -148,6 +148,8 @@ public:
         }
         
         serialize_int(stream, gameStateUpdate.currentParticipantId, 0, 64);
+        serialize_bits(stream, gameStateUpdate.numExpectedChunks, 8);
+        serialize_uint32(stream, gameStateUpdate.chunkId);
 
         return true;
     }
