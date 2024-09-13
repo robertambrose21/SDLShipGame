@@ -60,8 +60,8 @@ struct GameStateUpdate {
     int numEntities;
     EntityStateUpdate entities[MaxEntities];
     int currentParticipantId;
-    uint8_t sequence;
-    uint8_t numSequences;
+    uint8_t numExpectedChunks;
+    uint32_t chunkId;
 
     GameStateUpdate() {
         memset(this, 0, sizeof(GameStateUpdate));
@@ -69,7 +69,9 @@ struct GameStateUpdate {
 
     static GameStateUpdate serialize(
         int currentParticipantId, 
-        const std::vector<Entity*>& entities
+        const std::vector<Entity*>& entities,
+        uint32_t chunkId,
+        uint8_t numExpectedChunks = 1
     ) {
         GameStateUpdate update;
         update.numEntities = entities.size();
@@ -80,6 +82,7 @@ struct GameStateUpdate {
         }
 
         update.currentParticipantId = currentParticipantId;
+        update.numExpectedChunks = numExpectedChunks;
 
         return update;
     }

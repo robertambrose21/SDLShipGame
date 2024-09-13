@@ -33,12 +33,17 @@ private:
         LootTable lootTable;
     } EntityDefinition;
 
+    typedef struct _chunkedGameStateUpdate {
+        std::vector<GameStateUpdate> pendingUpdates;
+        int numExpectedChunks;        
+    } ChunkedGameStateUpdate;
+
     std::map<std::string, EntityDefinition> entityDefinitions;
 
     std::set<uint32_t> entitiesForDeletion;
     std::map<uint32_t, std::unique_ptr<Entity>> entities;
 
-    std::vector<GameStateUpdate> pendingUpdates;
+    std::map<uint8_t, ChunkedGameStateUpdate> pendingChunkedUpdates;
 
     ApplicationContext* context;
     bool initialised;
@@ -46,6 +51,7 @@ private:
     void updateEntity(Entity* entity, int64_t timeSinceLastFrame, bool& quit);
     void loadEntityDefinitions(void);
     void synchronize(void);
+    bool applyChunkedGameStateUpdate(const ChunkedGameStateUpdate& chunked);
     void killEntity(uint32_t entityId);
 
 public:

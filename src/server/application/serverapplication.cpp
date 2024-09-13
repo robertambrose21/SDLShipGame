@@ -181,9 +181,18 @@ void ServerApplication::sendLoadMapToClient(int clientIndex) {
 
 void ServerApplication::sendGameStateUpdatesToClients(void) {
     auto& context = application->getContext();
+
+    auto chunkId = getNewId();
+
     auto currentParticipantId = context.getTurnController()->getCurrentParticipant();
     auto allEntities = context.getEntityPool()->getEntities();
     std::vector<Entity*> entitiesBlock;
+
+    // TODO: Handle overflow?
+    uint8_t expectedNumChunks = allEntities.size() / MaxEntities;
+    if(allEntities.size() % MaxEntities > 0) {
+        expectedNumChunks++;
+    }
 
     for(auto entity : allEntities) {
         if(entity->getCurrentStats().common.hp <= 0) {
@@ -195,7 +204,7 @@ void ServerApplication::sendGameStateUpdatesToClients(void) {
         if(entitiesBlock.size() == MaxEntities) {
             transmitter->sendGameStateUpdate(
                 0, 
-                GameStateUpdate::serialize(currentParticipantId, entitiesBlock)
+                GameStateUpdate::serialize(currentParticipantId, entitiesBlock, chunkId, expectedNumChunks)
             );
             std::cout << "Sent GameStateUpdate ["  << entitiesBlock.size() << "]" << std::endl;
             entitiesBlock.clear();
@@ -205,7 +214,7 @@ void ServerApplication::sendGameStateUpdatesToClients(void) {
     if(!entitiesBlock.empty()) {
         transmitter->sendGameStateUpdate(
             0, 
-            GameStateUpdate::serialize(currentParticipantId, entitiesBlock)
+            GameStateUpdate::serialize(currentParticipantId, entitiesBlock, chunkId, expectedNumChunks)
         );
         std::cout << "Sent GameStateUpdate ["  << entitiesBlock.size() << "]" << std::endl;
     }
