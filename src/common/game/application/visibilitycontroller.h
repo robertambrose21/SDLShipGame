@@ -5,9 +5,10 @@
 #include "core/grid/grid.h"
 #include "game/event/events.h"
 #include "applicationcontext.h"
+#include "game/entities/entitypool.h"
 
 class VisiblityController : 
-    public EventPublisher<TilesRevealedEventData>, 
+    public EventPublisher<TilesRevealedEventData, EntityVisibilityToParticipantData>, 
     public EventSubscriber<EntitySetPositionEventData>
 {
 public:

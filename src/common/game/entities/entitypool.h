@@ -19,8 +19,7 @@ using json = nlohmann::json;
 
 struct GameStateUpdate;
 
-class EntityPool : 
-    public EventPublisher<EntityEventData, EntitySetPositionEventData, EntityVisibilityToParticipantData> {
+class EntityPool : public EventPublisher<EntityEventData, EntitySetPositionEventData> {
 private:
     typedef struct _entityDefinition {
         std::string filename;
@@ -66,6 +65,7 @@ public:
     Entity* addEntity(std::unique_ptr<Entity> entity);
     Entity* addEntity(const std::string& name);
     Entity* addEntity(const std::string& name, uint32_t id);
+    void removeEntity(uint32_t id);
     std::vector<Entity*> getEntities(void);
     Entity* getEntity(uint32_t id);
     bool hasEntity(uint32_t id);

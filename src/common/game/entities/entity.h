@@ -56,7 +56,7 @@ private:
     bool engaged;
 
     Grid* grid;
-    EventPublisher<EntityEventData, EntitySetPositionEventData, EntityVisibilityToParticipantData>& publisher;
+    EventPublisher<EntityEventData, EntitySetPositionEventData>& publisher;
 
     glm::ivec2 position;
     std::deque<glm::ivec2> path;
@@ -76,7 +76,6 @@ private:
     std::string name;
 
     int participantId;
-    std::set<int> visibleTo;
 
     bool isFrozen;
     bool isPoisoned;
@@ -89,14 +88,14 @@ public:
     Entity(
         Grid* grid,
         uint32_t id,
-        EventPublisher<EntityEventData, EntitySetPositionEventData, EntityVisibilityToParticipantData>& publisher,
+        EventPublisher<EntityEventData, EntitySetPositionEventData>& publisher,
         const std::string& name,
         const AllStats& stats
     );
 
     Entity(
         Grid* grid,
-        EventPublisher<EntityEventData, EntitySetPositionEventData, EntityVisibilityToParticipantData>& publisher,
+        EventPublisher<EntityEventData, EntitySetPositionEventData>& publisher,
         const std::string& name,
         const AllStats& stats
     );
@@ -224,8 +223,6 @@ public:
     void setParticipantId(int participantId);
     int getParticipantId(void) const;
     bool hasParticipant(void) const;
-    void setVisibleTo(int participantId);
-    void removeVisiblityFrom(int participantId);
 
     void nextTurn(void);
     void endTurn(void);

@@ -283,6 +283,13 @@ Entity* EntityPool::addEntity(const std::string& name) {
     return addEntity(name, getNewId());
 }
 
+void EntityPool::removeEntity(uint32_t id) {
+    auto participant = context->getTurnController()->getParticipant(entities[id]->getParticipantId());
+    
+    participant->removeEntity(entities[id].get());
+    entities.erase(id);
+}
+
 std::vector<Entity*> EntityPool::getEntities(void) {
     game_assert(initialised);
     std::vector<Entity*> vEntities;

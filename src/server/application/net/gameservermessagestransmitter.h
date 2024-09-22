@@ -23,7 +23,8 @@ class GameServerMessagesTransmitter :
     public EventSubscriber<EntityEffectEvent>,
     public EventSubscriber<GridEffectEvent>,
     public EventSubscriber<TilesRevealedEventData>,
-    public EventSubscriber<EntitySetPositionEventData>
+    public EventSubscriber<EntitySetPositionEventData>,
+    public EventSubscriber<EntityVisibilityToParticipantData>
 {
 private:
     GameServer& server;
@@ -52,6 +53,7 @@ public:
     void onPublish(const Event<GridEffectEvent>& event);
     void onPublish(const Event<TilesRevealedEventData>& event);
     void onPublish(const Event<EntitySetPositionEventData>& event);
+    void onPublish(const Event<EntityVisibilityToParticipantData>& event);
 
     void sendSetParticipant(int clientIndex, Participant* participant);
     void sendGameStateUpdate(int clientIndex, const GameStateUpdate& update);

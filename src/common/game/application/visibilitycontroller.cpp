@@ -47,6 +47,13 @@ void VisiblityController::onPublish(const Event<EntitySetPositionEventData>& eve
         return;
     }
 
+    // TODO: This is the server participant so nothing to do here, might be a nicer way to do this
+    if(entity->getParticipantId() == 0) {
+        return;
+    }
+
+    auto participant = context->getTurnController()->getParticipant(entity->getParticipantId());
+
     auto tiles = context->getGrid()->getTilesInCircle(
         event.data.position.x, 
         event.data.position.y, 
@@ -55,12 +62,23 @@ void VisiblityController::onPublish(const Event<EntitySetPositionEventData>& eve
 
     revealTiles(entity->getParticipantId(), tiles);
 
-    // TODO: Reveal entities
+    auto entities = context->getEntityPool()->getEntities();
 
-    // revealTilesInCircle(
-    //     entity->getParticipantId(), 
-    //     event.data.position.x, 
-    //     event.data.position.y, 
-    //     entity->getAggroRange()
-    // );
+    for(auto other : entities) {
+        if(other->getParticipantId() == entity->getParticipantId()) {
+            continue;
+        }
+
+        auto distance = glm::distance(glm::vec2(entity->getPosition()), glm::vec2(other->getPosition()));
+        bool isVisible = distance < entity->getAggroRange();
+
+        if(!participant->hasVisibleEntity(other->getId()) && isVisible) {
+            participant->addVisibleEntity(other->getId());
+            publish<EntityVisibilityToParticipantData>({ other, participant->getId(), true });
+        }
+        else if(participant->hasVisibleEntity(other->getId()) && !isVisible) {
+            participant->removeVisibleEntity(other->getId());
+            publish<EntityVisibilityToParticipantData>({ other, participant->getId(), false });
+        }
+    }
 }
