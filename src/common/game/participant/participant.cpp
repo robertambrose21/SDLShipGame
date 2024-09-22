@@ -124,3 +124,23 @@ void Participant::setBehaviourStrategy(std::unique_ptr<BehaviourStrategy> behavi
 const std::set<int>& Participant::getEngagements(void) const {
     return engagements;
 }
+
+void Participant::setVisibleEntities(const std::set<uint32_t>& visibleEntities) {
+    this->visibleEntities = visibleEntities;
+}
+
+const std::set<uint32_t>& Participant::getVisibleEntities(void) const {
+    return visibleEntities;
+}
+
+void Participant::addVisibleEntity(uint32_t entityId) {
+    visibleEntities.insert(entityId);
+}
+
+void Participant::removeVisibleEntity(uint32_t entityId) {
+    visibleEntities.erase(entityId);
+}
+
+bool Participant::hasVisibleEntity(uint32_t entityId) {
+    return visibleEntities.contains(entityId);
+}

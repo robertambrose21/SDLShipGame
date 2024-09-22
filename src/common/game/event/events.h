@@ -149,4 +149,5 @@ struct EntitySetPositionEventData {
 struct EntityVisibilityToParticipantData {
     Entity* entity;
     int participantId;
+    bool isVisible;
 };

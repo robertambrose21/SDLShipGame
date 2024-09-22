@@ -4,7 +4,7 @@
 Entity::Entity(
     Grid* grid,
     uint32_t id,
-    EventPublisher<EntityEventData, EntitySetPositionEventData, EntityVisibilityToParticipantData>& publisher,
+    EventPublisher<EntityEventData, EntitySetPositionEventData>& publisher,
     const std::string& name,
     const AllStats& stats
 ) :
@@ -27,7 +27,7 @@ Entity::Entity(
 
 Entity::Entity(
     Grid* grid,
-    EventPublisher<EntityEventData, EntitySetPositionEventData, EntityVisibilityToParticipantData>& publisher,
+    EventPublisher<EntityEventData, EntitySetPositionEventData>& publisher,
     const std::string& name,
     const AllStats& stats
 ) : 
@@ -440,14 +440,6 @@ int Entity::getParticipantId(void) const {
 
 bool Entity::hasParticipant(void) const {
     return participantId != -1;
-}
-
-void Entity::setVisibleTo(int participantId) {
-    visibleTo.insert(participantId);
-}
-
-void Entity::removeVisiblityFrom(int participantId) {
-    visibleTo.erase(participantId);
 }
 
 bool Entity::getIsFrozen(void) const {

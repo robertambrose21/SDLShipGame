@@ -238,6 +238,28 @@ void GameServerMessagesTransmitter::onPublish(const Event<EntitySetPositionEvent
     }
 }
 
+void GameServerMessagesTransmitter::onPublish(const Event<EntityVisibilityToParticipantData>& event) {
+    int clientIndex = turnController->getAttachedClient(event.data.participantId);
+
+    if(event.data.isVisible) {
+        AddEntityVisibilityMessage* message =
+            (AddEntityVisibilityMessage*) server.createMessage(clientIndex, GameMessageType::ADD_ENTITY_VISIBILITY);
+
+        message->entity = EntityStateUpdate::serialize(event.data.entity);
+        message->participantId = event.data.participantId;
+        server.sendMessage(clientIndex, message);
+    } 
+    else{
+        RemoveEntityVisibilityMessage* message = 
+            (RemoveEntityVisibilityMessage*) server.createMessage(clientIndex, GameMessageType::REMOVE_ENTITY_VISIBILITY);
+
+        message->entityId = event.data.entity->getId();
+        message->participantId = event.data.participantId;
+
+        server.sendMessage(clientIndex, message);
+    }
+}
+
 void GameServerMessagesTransmitter::sendSetParticipant(
     int clientIndex, 
     Participant* participant

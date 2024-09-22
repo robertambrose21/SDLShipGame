@@ -78,11 +78,10 @@ void ServerApplication::initialise(void) {
     context.getWeaponController()->subscribe<MeleeWeaponEventData>(transmitter.get());
     context.getEffectController()->subscribe<EntityEffectEvent>(transmitter.get());
     context.getEffectController()->subscribe<GridEffectEvent>(transmitter.get());
-    // context.getGrid()->subscribe<TilesRevealedEventData>(transmitter.get());
-    // context.getEntityPool()->subscribe<EntitySetPositionEventData>(context.getGrid());
     context.getVisibilityController()->subscribe<TilesRevealedEventData>(transmitter.get());
     context.getEntityPool()->subscribe<EntitySetPositionEventData>(context.getVisibilityController());
     context.getEntityPool()->subscribe<EntitySetPositionEventData>(transmitter.get());
+    context.getVisibilityController()->subscribe<EntityVisibilityToParticipantData>(transmitter.get());
 
     application->addLogicWorker([&](ApplicationContext& c, auto const& timeSinceLastFrame, auto& quit) {
         server->update(timeSinceLastFrame);
