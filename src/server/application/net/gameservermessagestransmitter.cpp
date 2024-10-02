@@ -46,6 +46,7 @@ void GameServerMessagesTransmitter::onPublish(const Event<ItemEventData>& event)
     }
 }
 
+// TODO: Remove?
 void GameServerMessagesTransmitter::onPublish(const Event<MoveActionEventData>& event) {
     for(auto [participantId, clientIndex] : turnController->getAllAttachedClients()) {
         if(turnController->getAttachedClient(event.data.entity->getParticipantId()) == clientIndex) {
@@ -234,12 +235,17 @@ void GameServerMessagesTransmitter::onPublish(const Event<EntitySetPositionEvent
         message->x = event.data.position.x;
         message->y = event.data.position.y;
 
+        // TODO: Only send if entity is visible to the participant, same with attack?
         server.sendMessage(clientIndex, message);
     }
 }
 
 void GameServerMessagesTransmitter::onPublish(const Event<EntityVisibilityToParticipantData>& event) {
     int clientIndex = turnController->getAttachedClient(event.data.participantId);
+
+    if(clientIndex == -1) {
+        return;
+    }
 
     if(event.data.isVisible) {
         AddEntityVisibilityMessage* message =
@@ -249,7 +255,7 @@ void GameServerMessagesTransmitter::onPublish(const Event<EntityVisibilityToPart
         message->participantId = event.data.participantId;
         server.sendMessage(clientIndex, message);
     } 
-    else{
+    else {
         RemoveEntityVisibilityMessage* message = 
             (RemoveEntityVisibilityMessage*) server.createMessage(clientIndex, GameMessageType::REMOVE_ENTITY_VISIBILITY);
 

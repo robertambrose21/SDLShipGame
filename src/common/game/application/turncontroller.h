@@ -100,7 +100,7 @@ public:
     
     void passParticipant(int id);
     void setCurrentParticipant(int id);
-    int getCurrentParticipant(void) const;
+    int getCurrentParticipantId(void) const;
 
     bool queueAction(std::unique_ptr<Action> action);
     void executeActions(int participantId);
