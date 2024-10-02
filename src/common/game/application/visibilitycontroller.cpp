@@ -47,13 +47,6 @@ void VisiblityController::onPublish(const Event<EntitySetPositionEventData>& eve
         return;
     }
 
-    // TODO: This is the server participant so nothing to do here, might be a nicer way to do this
-    if(entity->getParticipantId() == 0) {
-        return;
-    }
-
-    auto participant = context->getTurnController()->getParticipant(entity->getParticipantId());
-
     auto tiles = context->getGrid()->getTilesInCircle(
         event.data.position.x, 
         event.data.position.y, 
@@ -70,15 +63,22 @@ void VisiblityController::onPublish(const Event<EntitySetPositionEventData>& eve
         }
 
         auto distance = glm::distance(glm::vec2(entity->getPosition()), glm::vec2(other->getPosition()));
-        bool isVisible = distance < entity->getAggroRange();
 
-        if(!participant->hasVisibleEntity(other->getId()) && isVisible) {
-            participant->addVisibleEntity(other->getId());
-            publish<EntityVisibilityToParticipantData>({ other, participant->getId(), true });
-        }
-        else if(participant->hasVisibleEntity(other->getId()) && !isVisible) {
-            participant->removeVisibleEntity(other->getId());
-            publish<EntityVisibilityToParticipantData>({ other, participant->getId(), false });
-        }
+        assignVisibility(entity, other, distance);
+        assignVisibility(other, entity, distance);
+    }
+}
+
+void VisiblityController::assignVisibility(Entity* entity, Entity* other, float distanceBetweenEntities) {
+    auto participant = context->getTurnController()->getParticipant(entity->getParticipantId());
+    bool isVisible = distanceBetweenEntities < entity->getAggroRange();
+
+    if(!participant->hasVisibleEntity(other) && isVisible) {
+        participant->addVisibleEntity(other);
+        publish<EntityVisibilityToParticipantData>({ other, participant->getId(), true });
+    }
+    else if(participant->hasVisibleEntity(other) && !isVisible) {
+        participant->removeVisibleEntity(other);
+        publish<EntityVisibilityToParticipantData>({ other, participant->getId(), false });
     }
 }

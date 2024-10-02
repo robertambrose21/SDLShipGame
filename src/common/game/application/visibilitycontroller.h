@@ -37,4 +37,6 @@ private:
     bool initialised;
 
     std::map<int, std::set<RevealedTile>> revealedTiles;
+
+    void assignVisibility(Entity* entityA, Entity* entityB, float distanceBetweenEntities);
 };

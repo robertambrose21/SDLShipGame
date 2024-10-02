@@ -187,7 +187,7 @@ void TurnController::setCurrentParticipant(int id) {
     throw std::runtime_error("not implemented");
 }
 
-int TurnController::getCurrentParticipant(void) const {
+int TurnController::getCurrentParticipantId(void) const {
     game_assert(initialised);
     return currentParticipantId;
 }

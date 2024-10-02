@@ -87,7 +87,9 @@ void Participant::addEntity(Entity* entity) {
     game_assert(!entity->hasParticipant());
 
     entity->setParticipantId(id);
+    
     entities.push_back(entity);
+    addVisibleEntity(entity);
 }
 
 void Participant::addEntities(const std::vector<Entity*>& entities) {
@@ -125,22 +127,22 @@ const std::set<int>& Participant::getEngagements(void) const {
     return engagements;
 }
 
-void Participant::setVisibleEntities(const std::set<uint32_t>& visibleEntities) {
+void Participant::setVisibleEntities(const std::set<Entity*>& visibleEntities) {
     this->visibleEntities = visibleEntities;
 }
 
-const std::set<uint32_t>& Participant::getVisibleEntities(void) const {
+const std::set<Entity*>& Participant::getVisibleEntities(void) const {
     return visibleEntities;
 }
 
-void Participant::addVisibleEntity(uint32_t entityId) {
-    visibleEntities.insert(entityId);
+void Participant::addVisibleEntity(Entity* entity) {
+    visibleEntities.insert(entity);
 }
 
-void Participant::removeVisibleEntity(uint32_t entityId) {
-    visibleEntities.erase(entityId);
+void Participant::removeVisibleEntity(Entity* entity) {
+    visibleEntities.erase(entity);
 }
 
-bool Participant::hasVisibleEntity(uint32_t entityId) {
-    return visibleEntities.contains(entityId);
+bool Participant::hasVisibleEntity(Entity* entity) {
+    return visibleEntities.contains(entity);
 }

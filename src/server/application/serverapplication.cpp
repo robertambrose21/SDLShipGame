@@ -127,8 +127,11 @@ void ServerApplication::onClientConnect(int clientIndex) {
     for(auto entity : clientParticipant->getEntities()) {
         entity->setPosition(entity->getPosition());
     }
+
+    // sendGameStateUpdatesToClients();
 }
 
+// TODO: Send only blocks which the client can see
 void ServerApplication::sendLoadMapToClient(int clientIndex) {
     auto& context = application->getContext();
     auto grid = context.getGrid();
@@ -183,17 +186,18 @@ void ServerApplication::sendGameStateUpdatesToClients(void) {
 
     auto chunkId = getNewId();
 
-    auto currentParticipantId = context.getTurnController()->getCurrentParticipant();
-    auto allEntities = context.getEntityPool()->getEntities();
+    // auto currentParticipantId = context.getTurnController()->getCurrentParticipant();
+    auto currentParticipantId = 1; // TODO: This should be mapped to the client index
+    auto visibleEntities = context.getTurnController()->getParticipant(currentParticipantId)->getVisibleEntities();
     std::vector<Entity*> entitiesBlock;
 
     // TODO: Handle overflow?
-    uint8_t expectedNumChunks = allEntities.size() / MaxEntities;
-    if(allEntities.size() % MaxEntities > 0) {
+    uint8_t expectedNumChunks = visibleEntities.size() / MaxEntities;
+    if(visibleEntities.size() % MaxEntities > 0) {
         expectedNumChunks++;
     }
 
-    for(auto entity : allEntities) {
+    for(auto entity : visibleEntities) {
         if(entity->getCurrentStats().common.hp <= 0) {
             std::cout << "Entity with 0 hp, should not happen" << std::endl;
         }
@@ -218,7 +222,7 @@ void ServerApplication::sendGameStateUpdatesToClients(void) {
         std::cout << "Sent GameStateUpdate ["  << entitiesBlock.size() << "]" << std::endl;
     }
 
-    std::cout << "Total entities " << allEntities.size() << std::endl;
+    std::cout << "Total entities " << visibleEntities.size() << std::endl;
 }
 
 std::vector<GenerationStrategy::Room> ServerApplication::loadMap(void) {

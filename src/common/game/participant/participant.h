@@ -20,7 +20,7 @@ private:
     bool passNextTurn;
     std::unique_ptr<BehaviourStrategy> behaviourStrategy;
     std::set<int> engagements;
-    std::set<uint32_t> visibleEntities;
+    std::set<Entity*> visibleEntities;
 
 public:
     Participant(int id);
@@ -55,10 +55,10 @@ public:
 
     const std::set<int>& getEngagements(void) const;
 
-    void setVisibleEntities(const std::set<uint32_t>& visibleEntities);
-    const std::set<uint32_t>& getVisibleEntities(void) const;
+    void setVisibleEntities(const std::set<Entity*>& visibleEntities);
+    const std::set<Entity*>& getVisibleEntities(void) const;
     
-    void addVisibleEntity(uint32_t entityId);
-    void removeVisibleEntity(uint32_t entityId);
-    bool hasVisibleEntity(uint32_t entityId);
+    void addVisibleEntity(Entity* entity);
+    void removeVisibleEntity(Entity* entity);
+    bool hasVisibleEntity(Entity* entity);
 };
