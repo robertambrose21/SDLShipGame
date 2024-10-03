@@ -1,10 +1,15 @@
 #include "gridrenderer.h"
 
-GridRenderer::GridRenderer(Grid* grid, VisiblityController* visiblityController, int windowHeight) :
+GridRenderer::GridRenderer(
+    Grid* grid, 
+    VisiblityController* visiblityController,
+    int windowHeight
+) :
     grid(grid),
     visiblityController(visiblityController),
     windowHeight(windowHeight),
-    tileSize(32)
+    tileSize(32),
+    participant(nullptr)
 {
     camera = std::make_unique<Camera>(glm::ivec2(0, 0));
     grid->subscribe<TileEventData>(this);
@@ -109,20 +114,54 @@ void GridRenderer::buildChunkTexture(GraphicsContext& graphicsContext, Chunk* ch
     chunk->textureNeedsRebuilding = false;
 }
 
+void GridRenderer::buildFogTexture(GraphicsContext& graphicsContext) {
+    auto renderer = graphicsContext.getRenderer();
+
+    auto target = std::unique_ptr<SDL_Texture, Texture::sdl_deleter>(
+        SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 4096, 4096), 
+        Texture::sdl_deleter()
+    );
+
+    SDL_SetRenderTarget(renderer, target.get());
+    SDL_RenderClear(renderer);
+
+    SDL_Rect dst = { 0, 0, 4096, 4096 };
+    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0xFF);
+    SDL_RenderFillRect(renderer, &dst);
+
+    SDL_SetRenderTarget(renderer, NULL);
+    
+    fogTexture = std::make_unique<Texture>(Texture(std::move(target)));
+}
+
 bool GridRenderer::isTileInChunk(Chunk* chunk, int x, int y) {
     return x >= chunk->min.x && x <= chunk->max.x && y >= chunk->min.y && y <= chunk->max.y;
 }
 
 void GridRenderer::draw(GraphicsContext& graphicsContext) {
+    auto camPos = camera->getPosition();
+
     for(auto& chunk : chunks) {
         if(chunk->textureNeedsRebuilding) {
             buildChunkTexture(graphicsContext, chunk.get());    
         }
 
-        auto camPos = camera->getPosition();
-        SDL_Rect dst = { camPos.x + (chunk->min.x * tileSize), camPos.y + (chunk->min.y * tileSize), tileSize * ChunkSize, tileSize * ChunkSize };
+        SDL_Rect dst = { 
+            camPos.x + (chunk->min.x * tileSize), 
+            camPos.y + (chunk->min.y * tileSize), 
+            tileSize * ChunkSize, 
+            tileSize * ChunkSize 
+        };
         chunk->texture->draw(graphicsContext.getRenderer(), NULL, &dst);
     }
+
+    if(fogTexture == nullptr) {
+        buildFogTexture(graphicsContext);
+    }
+
+    SDL_Rect fogDst = { camPos.x, camPos.y, 4096, 4096 };
+    fogTexture->draw(graphicsContext.getRenderer(), { 0xFF, 0xFF, 0xFF }, 0x7F, NULL, &fogDst);
 }
 
 void GridRenderer::draw(
@@ -194,6 +233,16 @@ void GridRenderer::onPublish(const Event<TilesRevealedEventData>& event) {
 
 Camera& GridRenderer::getCamera(void) {
     return *camera;
+}
+
+void GridRenderer::setParticipant(Participant* participant) {
+    game_assert(participant != nullptr);
+    game_assert(participant->getIsPlayer());
+    this->participant = participant;
+}
+
+Participant* GridRenderer::getParticipant(void) {
+    return participant;
 }
 
 glm::ivec2 GridRenderer::getTilePosition(int x, int y) const {

@@ -11,7 +11,7 @@ class VisiblityController :
     public EventPublisher<TilesRevealedEventData, EntityVisibilityToParticipantData>, 
     public EventSubscriber<EntitySetPositionEventData>
 {
-public:
+private:
     typedef struct _revealedTile {
         int x, y;
         bool isVisible;
@@ -22,6 +22,15 @@ public:
         }
     } RevealedTile;
 
+    ApplicationContext* context;
+    bool initialised;
+
+    std::map<int, std::set<RevealedTile>> revealedTiles;
+
+    void assignVisibility(Entity* entityA, Entity* entityB, float distanceBetweenEntities);
+
+public:
+
     VisiblityController();
 
     void initialise(ApplicationContext& context);
@@ -31,12 +40,4 @@ public:
 
     const std::map<int, std::set<RevealedTile>>& getRevealedTiles(void) const;
     const std::set<RevealedTile>& getRevealedTiles(int participantId);
-
-private:
-    ApplicationContext* context;
-    bool initialised;
-
-    std::map<int, std::set<RevealedTile>> revealedTiles;
-
-    void assignVisibility(Entity* entityA, Entity* entityB, float distanceBetweenEntities);
 };

@@ -10,10 +10,12 @@
 #include "core/event/eventsubscriber.h"
 #include "game/event/events.h"
 #include "game/application/visibilitycontroller.h"
+#include "game/participant/participant.h"
 
 class GraphicsContext;
 
 // TODO: This is potentially overloaded - entities/projectiles and everything else call the 'draw' function
+// This is currently the 'GameRenderer' not the grid renderer. Split up at some point
 class GridRenderer : 
     public EventSubscriber<TileEventData>, 
     public EventSubscriber<GridEffectEvent>,
@@ -33,6 +35,8 @@ private:
     int windowHeight;
     int tileSize;
 
+    std::unique_ptr<Texture> fogTexture;
+
     std::map<int, uint32_t> tileTexturesIds;
     std::vector<std::unique_ptr<Chunk>> chunks;
     Grid* grid;
@@ -42,11 +46,18 @@ private:
     void buildChunkTexture(GraphicsContext& graphicsContext, Chunk* chunk);
     bool isTileInChunk(Chunk* chunk, int x, int y);
 
+    void buildFogTexture(GraphicsContext& graphicsContext);
+
     // TODO: Why on earth is the camera on the GridRenderer???? Move this!
     std::unique_ptr<Camera> camera;
+    Participant* participant;
 
 public:
-    GridRenderer(Grid* grid, VisiblityController* visiblityController, int windowHeight);
+    GridRenderer(
+        Grid* grid, 
+        VisiblityController* visiblityController, 
+        int windowHeight
+    );
 
     void setTileTexture(int tileId, uint32_t textureId);
     void draw(GraphicsContext& graphicsContext);
@@ -66,6 +77,9 @@ public:
 
     Grid* getGrid(void);
     Camera& getCamera(void);
+
+    void setParticipant(Participant* participant);
+    Participant* getParticipant(void);
 
     glm::ivec2 getTilePosition(int x, int y) const;
     std::pair<int, int> getTileIndices(const glm::ivec2& position);
