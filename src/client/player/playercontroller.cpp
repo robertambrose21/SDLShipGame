@@ -416,6 +416,7 @@ void PlayerController::setParticipant(Participant* participant) {
     game_assert(participant != nullptr);
     game_assert(participant->getIsPlayer());
     this->participant = participant;
+    gridRenderer.setParticipant(participant);
 }
 
 Participant* PlayerController::getParticipant(void) {
