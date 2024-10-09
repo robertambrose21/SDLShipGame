@@ -191,18 +191,17 @@ std::vector<glm::ivec2> Grid::getIntersections(const glm::vec2& p1, const glm::v
 }
 
 bool Grid::hasIntersection(const glm::vec2& p1, const glm::vec2& p2) {
-    // Offset so we get the center of the tile
-    auto op1 = p1 + glm::vec2(.5f, .5f);
-    auto op2 = p2 + glm::vec2(.5f, .5f);
-
-    int xMin = std::max(0, (int) std::floor(std::min(op1.x, op2.x)));
-    int xMax = std::min(getWidth(), (int) std::ceil(std::max(op1.x, op2.x)));
-    int yMin = std::max(0, (int) std::floor(std::min(op1.y, op2.y)));
-    int yMax = std::min(getHeight(), (int) std::ceil(std::max(op1.y, op2.y)));
+    int xMin = std::max(0, (int) std::floor(std::min(p1.x, p2.x)));
+    int xMax = std::min(getWidth(), (int) std::ceil(std::max(p1.x, p2.x)));
+    int yMin = std::max(0, (int) std::floor(std::min(p1.y, p2.y)));
+    int yMax = std::min(getHeight(), (int) std::ceil(std::max(p1.y, p2.y)));
 
     for(int x = xMin; x < xMax; x++) {
         for(int y = yMin; y < yMax; y++) {
-            if(!data[y][x].isWalkable && hasTileIntersection(op1, op2, x, y)) {
+            bool isWalkable = data[y][x].isWalkable;
+
+            // Offset so we get the center of the tile
+            if(!isWalkable && intersect(x + .5f, y + .5f, 1, p2, p1 - p2)) {
                 return true;
             }
         }
@@ -255,6 +254,33 @@ bool Grid::hasPointsOnDifferentSides(const glm::vec2& p1, const glm::vec2& p2, c
 
 float Grid::pointOnLineSide(const glm::vec2& p1, const glm::vec2& p2, const glm::vec2& point) {
     return ((p2.y - p1.y) * point.x) + ((p1.x - p2.x) * point.y) + (p2.x * p1.y - p1.x * p2.y); 
+}
+
+// https://noonat.github.io/intersect/#aabb-vs-segment
+bool Grid::intersect(float x, float y, int tileSize, const glm::vec2& point, const glm::vec2& delta) {
+    float halfSize = tileSize / 2.0f;
+
+    float scaleX = 1.0f / delta.x;
+    float scaleY = 1.0f / delta.y;
+    int signX = scaleX < 0 ? -1 : 1;
+    int signY = scaleY < 0 ? -1 : 1;
+    float nearX = (x - signX * halfSize - point.x) * scaleX;
+    float nearY = (y - signY * halfSize - point.y) * scaleY;
+    float farX = (x + signX * halfSize - point.x) * scaleX;
+    float farY = (y + signY * halfSize - point.y) * scaleY;
+
+    if(nearX > farY || nearY > farX) {
+        return false;
+    }
+
+    auto near = nearX > nearY ? nearX : nearY;
+    auto far = farX < farY ? farX : farY;
+
+    if(near >= 1 || far <= 0) {
+        return false;
+    }
+
+    return true;
 }
 
 std::deque<glm::ivec2> Grid::findPath(const glm::ivec2& source, const glm::ivec2& destination) {
