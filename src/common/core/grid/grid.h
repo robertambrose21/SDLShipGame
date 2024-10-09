@@ -24,15 +24,6 @@ public:
         bool isFrozen = false;
     } Tile;
 
-    // typedef struct _line {
-    //     glm::ivec2 p1, p2;
-    // } Line;
-
-    // typedef struct _bbox {
-    //     int xMin, xMax;
-    //     int yMin, yMax;
-    // } BBox;
-
 private:
     int width;
     int height;
@@ -64,6 +55,8 @@ private:
     float pointOnLineSide(const glm::vec2& p1, const glm::vec2& p2, const glm::vec2& point);
     bool hasPointsOnDifferentSides(const glm::vec2& p1, const glm::vec2& p2, const std::vector<glm::vec2>& corners);
     bool hasTileIntersection(const glm::vec2& p1, const glm::vec2& p2, int x, int y);
+
+    bool intersect(float x, float y, int tileSize, const glm::vec2& point, const glm::vec2& delta);
 
     void setDirty(bool isDirty);
 
