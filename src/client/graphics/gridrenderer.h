@@ -11,6 +11,7 @@
 #include "game/event/events.h"
 #include "game/application/visibilitycontroller.h"
 #include "game/participant/participant.h"
+#include "ui/text.h"
 
 class GraphicsContext;
 
@@ -36,6 +37,10 @@ private:
     int tileSize;
 
     std::unique_ptr<Texture> fogTexture;
+    std::unique_ptr<Texture> debugTexture;
+
+    std::vector<std::unique_ptr<Text>> coords;
+
 
     std::map<int, uint32_t> tileTexturesIds;
     std::vector<std::unique_ptr<Chunk>> chunks;
@@ -47,6 +52,8 @@ private:
     bool isTileInChunk(Chunk* chunk, int x, int y);
 
     void buildFogTexture(GraphicsContext& graphicsContext);
+    void buildDebugTexture(GraphicsContext& graphicsContext);
+    void drawDebugTexture(GraphicsContext& graphicsContext);
 
     // TODO: Why on earth is the camera on the GridRenderer???? Move this!
     std::unique_ptr<Camera> camera;

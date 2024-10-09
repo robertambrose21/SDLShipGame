@@ -135,6 +135,70 @@ void GridRenderer::buildFogTexture(GraphicsContext& graphicsContext) {
     fogTexture = std::make_unique<Texture>(Texture(std::move(target)));
 }
 
+void GridRenderer::buildDebugTexture(GraphicsContext& graphicsContext) {
+    auto renderer = graphicsContext.getRenderer();
+
+    auto target = std::unique_ptr<SDL_Texture, Texture::sdl_deleter>(
+        SDL_CreateTexture(
+            renderer, 
+            SDL_PIXELFORMAT_RGBA8888, 
+            SDL_TEXTUREACCESS_TARGET, 
+            tileSize * grid->getWidth(),
+            tileSize * grid->getHeight()
+        ), 
+        Texture::sdl_deleter()
+    );
+
+    SDL_SetRenderTarget(renderer, target.get());
+    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0x00);
+    SDL_RenderClear(renderer);
+
+    for(int x = 0; x < grid->getWidth(); x++) {
+        auto p1 = glm::ivec2(x * tileSize, 0);
+        auto p2 = glm::ivec2(x * tileSize, grid->getHeight() * tileSize);
+        SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+        SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0x00, 0xFF);
+        SDL_RenderDrawLine(graphicsContext.getRenderer(), p1.x, p1.y, p2.x, p2.y);
+
+        for(int y = 0; y < grid->getHeight(); y++) {
+            auto const& realPosition = getTilePosition(x, y);
+
+            auto font = Font::loadFromFile("../assets/fonts/RobotoMono-SemiBold.ttf", 10);
+            auto text = Text(
+                std::move(font), 
+                realPosition,
+                glm::ivec2(tileSize, tileSize), 
+                { 0xFF, 0xFF, 0x00, 0xFF }
+            );
+            text.draw(renderer, std::format("{}\n{}", x, y));
+        }
+    }
+
+    for(int y = 0; y < grid->getHeight(); y++) {
+        auto p1 = glm::ivec2(0, y * tileSize);
+        auto p2 = glm::ivec2(grid->getWidth() * tileSize, y * tileSize);
+        SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+        SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0x00, 0xFF);
+        SDL_RenderDrawLine(graphicsContext.getRenderer(), p1.x, p1.y, p2.x, p2.y);
+    }
+
+    SDL_SetRenderTarget(renderer, NULL);
+
+    debugTexture = std::make_unique<Texture>(Texture(std::move(target)));
+}
+
+void GridRenderer::drawDebugTexture(GraphicsContext& graphicsContext) {
+    if(debugTexture == nullptr) {
+        buildDebugTexture(graphicsContext);
+    }
+
+    auto camPos = camera->getPosition();
+
+    SDL_Rect debugDst = { camPos.x, camPos.y, tileSize * grid->getWidth(), tileSize * grid->getHeight() };
+    debugTexture->draw(graphicsContext.getRenderer(), { 0xFF, 0xFF, 0xFF }, 0x7F, NULL, &debugDst);
+}
+
 bool GridRenderer::isTileInChunk(Chunk* chunk, int x, int y) {
     return x >= chunk->min.x && x <= chunk->max.x && y >= chunk->min.y && y <= chunk->max.y;
 }
@@ -161,7 +225,9 @@ void GridRenderer::draw(GraphicsContext& graphicsContext) {
     }
 
     SDL_Rect fogDst = { camPos.x, camPos.y, 4096, 4096 };
-    fogTexture->draw(graphicsContext.getRenderer(), { 0xFF, 0xFF, 0xFF }, 0x7F, NULL, &fogDst);
+    // fogTexture->draw(graphicsContext.getRenderer(), { 0xFF, 0xFF, 0xFF }, 0x7F, NULL, &fogDst);
+
+    // drawDebugTexture(graphicsContext);
 }
 
 void GridRenderer::draw(
