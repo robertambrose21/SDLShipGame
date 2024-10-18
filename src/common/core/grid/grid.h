@@ -8,6 +8,7 @@
 #include <deque>
 #include <limits.h>
 #include <algorithm>
+#include <numbers>
 
 #include "core/util/gameassert.h"
 #include "core/util/timing.h"
@@ -20,6 +21,7 @@ class Grid : public EventPublisher<TileEventData, GridDirtyEventData>
 public:
     typedef struct _tile {
         int id = -1;
+        // TODO: Distinguish walkable and visible tiles
         bool isWalkable = true;
         bool isFrozen = false;
     } Tile;
@@ -56,8 +58,16 @@ private:
     bool hasPointsOnDifferentSides(const glm::vec2& p1, const glm::vec2& p2, const std::vector<glm::vec2>& corners);
     bool hasTileIntersection(const glm::vec2& p1, const glm::vec2& p2, int x, int y);
 
-    bool intersect(float x, float y, int tileSize, const glm::vec2& point, const glm::vec2& delta);
-
+    float intersect(float x, float y, const glm::vec2& point, const glm::vec2& delta);
+    std::vector<glm::ivec2> getVisibleTiles(
+        const glm::vec2& p1, 
+        const glm::vec2& p2,
+        int xMin,
+        int xMax,
+        int yMin,
+        int yMax
+    );
+    
     void setDirty(bool isDirty);
 
 public:
@@ -82,6 +92,7 @@ public:
     // Where x are the tiles checked and o are unchecked tiles
     bool hasIntersection(const glm::vec2& p1, const glm::vec2& p2);
     std::vector<glm::ivec2> getIntersections(const glm::vec2& p1, const glm::vec2& p2);
+    std::vector<glm::ivec2> getVisibleTiles(const glm::ivec2& position, float radius);
 
     void setData(const std::vector<std::vector<Tile>>& data);
     const std::vector<std::vector<Tile>>& getData(void) const;

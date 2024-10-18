@@ -46,10 +46,9 @@ void VisiblityController::onPublish(const Event<EntitySetPositionEventData>& eve
     if(!entity->hasParticipant()) {
         return;
     }
-
-    auto tiles = context->getGrid()->getTilesInCircle(
-        event.data.position.x, 
-        event.data.position.y, 
+    
+    auto tiles = context->getGrid()->getVisibleTiles(
+        glm::vec2(event.data.position.x, event.data.position.y),
         entity->getAggroRange()
     );
 
