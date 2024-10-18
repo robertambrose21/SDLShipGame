@@ -190,6 +190,84 @@ std::vector<glm::ivec2> Grid::getIntersections(const glm::vec2& p1, const glm::v
     return intersections;
 }
 
+std::vector<glm::ivec2> Grid::getVisibleTiles(const glm::ivec2& position, float radius) {
+    auto startTime = getCurrentTimeInMicroseconds();
+
+    // This should provide enough rays to cover an entire area
+    int raycasts = std::ceil(2.0f * std::numbers::pi * radius);
+    // Offset so we get the center of the tile
+    glm::vec2 p1(position.x + .5f, position.y + .5f);
+
+    std::vector<glm::ivec2> visibleTiles;
+
+    for(int i = 0; i < raycasts; i++) {
+        float theta = 2.0f * std::numbers::pi * float(i) / float(raycasts);
+        float x = radius * std::cosf(theta);
+        float y = radius * std::sinf(theta);
+
+        glm::vec2 p2(p1.x + x, p1.y + y);
+
+        int xMin = std::max(0, (int) std::floor(std::min(p1.x, p2.x)));
+        int xMax = std::min(getWidth(), (int) std::ceil(std::max(p1.x, p2.x)));
+        int yMin = std::max(0, (int) std::floor(std::min(p1.y, p2.y)));
+        int yMax = std::min(getHeight(), (int) std::ceil(std::max(p1.y, p2.y)));
+
+        auto visibleTilesForSegment = getVisibleTiles(p1, p2, xMin, xMax, yMin, yMax);
+
+        visibleTiles.insert(
+            visibleTiles.end(), 
+            visibleTilesForSegment.begin(), 
+            visibleTilesForSegment.end()
+        );
+    }
+
+    auto timeTaken = getCurrentTimeInMicroseconds() - startTime;
+
+    std::cout << std::format("getVisibleTiles: {}ms", (double) timeTaken / 1000.0) << std::endl;
+
+    return visibleTiles;
+}
+
+std::vector<glm::ivec2> Grid::getVisibleTiles(
+    const glm::vec2& p1, 
+    const glm::vec2& p2,
+    int xMin,
+    int xMax,
+    int yMin,
+    int yMax
+) {
+    // t-values should be unique
+    std::map<float, glm::ivec2> hits;
+
+    for(int x = xMin; x < xMax; x++) {
+        for(int y = yMin; y < yMax; y++) {
+            // Offset so we get the center of the tile
+            float t = intersect(x + .5f, y + .5f, p1, p2 - p1);
+
+            if(t != -1.0f) {
+                hits[t] = glm::ivec2(x, y);
+            }
+        }
+    }
+
+    std::vector<glm::ivec2> visibleTiles;
+
+    // Map keys are sorted so we iterate through all the hits until we reach
+    // a tile which isn't visible
+    for(const auto& [_, tile] : hits) {
+        bool isWalkable = data[tile.y][tile.x].isWalkable;
+
+        visibleTiles.push_back(tile);
+        
+        if(!isWalkable) {
+            // Exit early if we hit a non-visible tile
+            return visibleTiles;
+        }
+    }
+
+    return visibleTiles;
+}
+
 bool Grid::hasIntersection(const glm::vec2& p1, const glm::vec2& p2) {
     int xMin = std::max(0, (int) std::floor(std::min(p1.x, p2.x)));
     int xMax = std::min(getWidth(), (int) std::ceil(std::max(p1.x, p2.x)));
@@ -201,7 +279,7 @@ bool Grid::hasIntersection(const glm::vec2& p1, const glm::vec2& p2) {
             bool isWalkable = data[y][x].isWalkable;
 
             // Offset so we get the center of the tile
-            if(!isWalkable && intersect(x + .5f, y + .5f, 1, p2, p1 - p2)) {
+            if(!isWalkable && intersect(x + .5f, y + .5f, p1, p2 - p1) != -1.0f) {
                 return true;
             }
         }
@@ -257,30 +335,28 @@ float Grid::pointOnLineSide(const glm::vec2& p1, const glm::vec2& p2, const glm:
 }
 
 // https://noonat.github.io/intersect/#aabb-vs-segment
-bool Grid::intersect(float x, float y, int tileSize, const glm::vec2& point, const glm::vec2& delta) {
-    float halfSize = tileSize / 2.0f;
-
+float Grid::intersect(float x, float y, const glm::vec2& point, const glm::vec2& delta) {
     float scaleX = 1.0f / delta.x;
     float scaleY = 1.0f / delta.y;
     int signX = scaleX < 0 ? -1 : 1;
     int signY = scaleY < 0 ? -1 : 1;
-    float nearX = (x - signX * halfSize - point.x) * scaleX;
-    float nearY = (y - signY * halfSize - point.y) * scaleY;
-    float farX = (x + signX * halfSize - point.x) * scaleX;
-    float farY = (y + signY * halfSize - point.y) * scaleY;
+    float nearX = (x - signX * .5f - point.x) * scaleX;
+    float nearY = (y - signY * .5f  - point.y) * scaleY;
+    float farX = (x + signX * .5f  - point.x) * scaleX;
+    float farY = (y + signY * .5f  - point.y) * scaleY;
 
     if(nearX > farY || nearY > farX) {
-        return false;
+        return -1.0f;
     }
 
     auto near = nearX > nearY ? nearX : nearY;
     auto far = farX < farY ? farX : farY;
 
     if(near >= 1 || far <= 0) {
-        return false;
+        return -1.0f;
     }
 
-    return true;
+    return std::clamp(near, 0.0f, 1.0f);
 }
 
 std::deque<glm::ivec2> Grid::findPath(const glm::ivec2& source, const glm::ivec2& destination) {
