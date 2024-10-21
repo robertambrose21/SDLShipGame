@@ -1,10 +1,16 @@
 #include "window.h"
 
-Window::Window(int width, int height, Grid* grid, VisiblityController* visiblityController) :
+Window::Window(
+    int width, 
+    int height, 
+    Grid* grid, 
+    VisiblityController* visiblityController, 
+    EntityPool* entityPool
+) :
     width(width),
     height(height)
 {
-    gridRenderer = std::make_unique<GridRenderer>(grid, visiblityController, height);
+    gridRenderer = std::make_unique<GridRenderer>(grid, visiblityController, entityPool, height);
 }
 
 Window::~Window() {
@@ -60,7 +66,13 @@ bool Window::initialiseWindow(void) {
     }
     
     textureLoader = TextureLoader(renderer.get());
-    graphicsContext = std::make_unique<GraphicsContext>(renderer.get(), textureLoader, *gridRenderer, width, height);
+    graphicsContext = std::make_unique<GraphicsContext>(
+        renderer.get(), 
+        textureLoader, 
+        *gridRenderer, 
+        width, 
+        height
+    );
 
     return true;
 }

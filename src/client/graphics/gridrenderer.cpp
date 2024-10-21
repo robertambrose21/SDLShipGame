@@ -3,18 +3,23 @@
 GridRenderer::GridRenderer(
     Grid* grid, 
     VisiblityController* visiblityController,
+    EntityPool* entityPool,
     int windowHeight
 ) :
     grid(grid),
     visiblityController(visiblityController),
+    entityPool(entityPool),
     windowHeight(windowHeight),
     tileSize(32),
-    participant(nullptr)
+    participant(nullptr),
+    fogTextureNeedsRebuilding(true)
 {
-    camera = std::make_unique<Camera>(glm::ivec2(0, 0));
     grid->subscribe<TileEventData>(this);
-    visiblityController->subscribe<TilesRevealedEventData>(this);
     grid->subscribe<GridDirtyEventData>(this);
+    visiblityController->subscribe<TilesRevealedEventData>(this);
+    entityPool->subscribe<EntitySetPositionEventData>(this);
+
+    camera = std::make_unique<Camera>(glm::ivec2(0, 0));
     chunks = createChunks();
 }
 
@@ -65,7 +70,13 @@ void GridRenderer::buildChunkTexture(GraphicsContext& graphicsContext, Chunk* ch
     auto const& data = visiblityController->getRevealedTiles(1);
 
     auto target = std::unique_ptr<SDL_Texture, Texture::sdl_deleter>(
-        SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, tileSize * ChunkSize, tileSize * ChunkSize), 
+        SDL_CreateTexture(
+            renderer, 
+            SDL_PIXELFORMAT_RGBA8888, 
+            SDL_TEXTUREACCESS_TARGET, 
+            tileSize * ChunkSize, 
+            tileSize * ChunkSize
+        ), 
         Texture::sdl_deleter()
     );
 
@@ -114,27 +125,104 @@ void GridRenderer::buildChunkTexture(GraphicsContext& graphicsContext, Chunk* ch
     chunk->textureNeedsRebuilding = false;
 }
 
+void GridRenderer::buildFogBorders(GraphicsContext& graphicsContext, int xMin, int xMax, int yMin, int yMax) {
+    auto renderer = graphicsContext.getRenderer();
+
+    SDL_Rect left =     { 0, 0, xMin * tileSize, grid->getHeight() * tileSize };
+    SDL_Rect right =    { xMax * tileSize, 0, (grid->getWidth() - xMax) * tileSize, grid->getHeight() * tileSize };
+    SDL_Rect top =      { xMin * tileSize, 0, (xMax - xMin) * tileSize, yMin * tileSize };
+    SDL_Rect bottom =   { xMin * tileSize, yMax * tileSize, (xMax - xMin) * tileSize, (grid->getHeight() - yMax) * tileSize };
+
+    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0xFF);
+    SDL_RenderFillRect(renderer, &left);
+
+    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0xFF);
+    SDL_RenderFillRect(renderer, &right);
+
+    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0xFF);
+    SDL_RenderFillRect(renderer, &top);
+
+    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0xFF);
+    SDL_RenderFillRect(renderer, &bottom);
+}
+
+void GridRenderer::buildFogTiles(
+    GraphicsContext& graphicsContext, 
+    Entity* entity, 
+    int xMin, 
+    int xMax, 
+    int yMin, 
+    int yMax
+) {
+    auto renderer = graphicsContext.getRenderer();
+
+    auto tiles = grid->getVisibleTiles(
+        glm::vec2(entity->getPosition().x, entity->getPosition().y),
+        entity->getAggroRange()
+    );
+
+    for(int x = xMin; x < xMax; x++) {
+        for(int y = yMin; y < yMax; y++) {
+            if(!tiles.contains(glm::ivec2(x, y))) {
+                auto const& realPosition = getTilePosition(x, y);
+                SDL_Rect dst = { realPosition.x, realPosition.y, getTileSize(), getTileSize() };
+
+                SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+                SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0xFF);
+                SDL_RenderFillRect(renderer, &dst);
+            }
+        }
+    }
+}
+
 void GridRenderer::buildFogTexture(GraphicsContext& graphicsContext) {
+    auto startTime = getCurrentTimeInMicroseconds();
+
     auto renderer = graphicsContext.getRenderer();
 
     auto target = std::unique_ptr<SDL_Texture, Texture::sdl_deleter>(
-        SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 4096, 4096), 
+        SDL_CreateTexture(
+            renderer, 
+            SDL_PIXELFORMAT_RGBA8888, 
+            SDL_TEXTUREACCESS_TARGET, 
+            tileSize * grid->getWidth(),
+            tileSize * grid->getHeight()
+        ), 
         Texture::sdl_deleter()
     );
 
     SDL_SetRenderTarget(renderer, target.get());
+    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0x00);
     SDL_RenderClear(renderer);
 
-    SDL_Rect dst = { 0, 0, 4096, 4096 };
-    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-    SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0xFF);
-    SDL_RenderFillRect(renderer, &dst);
+    if(participant != nullptr) {
+        for(auto const& entity : participant->getEntities()) {
+            int xMin = std::max(entity->getPosition().x - entity->getAggroRange() - 1, 0);
+            int xMax = std::min(entity->getPosition().x + entity->getAggroRange() + 1, grid->getWidth());
+            int yMin = std::max(entity->getPosition().y - entity->getAggroRange() - 1, 0);
+            int yMax = std::min(entity->getPosition().y + entity->getAggroRange() + 1, grid->getWidth());
+
+            buildFogBorders(graphicsContext, xMin, xMax, yMin, yMax);
+            buildFogTiles(graphicsContext, entity, xMin, xMax, yMin, yMax);
+        }
+    }
 
     SDL_SetRenderTarget(renderer, NULL);
     
     fogTexture = std::make_unique<Texture>(Texture(std::move(target)));
+    fogTextureNeedsRebuilding = false;
+
+    auto timeTaken = getCurrentTimeInMicroseconds() - startTime;
+
+    std::cout << std::format("buildFogTexture: {}ms", (double) timeTaken / 1000.0) << std::endl;
 }
 
+// TODO: Chunk this
 void GridRenderer::buildDebugTexture(GraphicsContext& graphicsContext) {
     auto renderer = graphicsContext.getRenderer();
 
@@ -220,12 +308,13 @@ void GridRenderer::draw(GraphicsContext& graphicsContext) {
         chunk->texture->draw(graphicsContext.getRenderer(), NULL, &dst);
     }
 
-    if(fogTexture == nullptr) {
+    // TODO: rebuild on entity set position
+    if(fogTextureNeedsRebuilding) {
         buildFogTexture(graphicsContext);
     }
 
     SDL_Rect fogDst = { camPos.x, camPos.y, 4096, 4096 };
-    // fogTexture->draw(graphicsContext.getRenderer(), { 0xFF, 0xFF, 0xFF }, 0x7F, NULL, &fogDst);
+    fogTexture->draw(graphicsContext.getRenderer(), { 0xFF, 0xFF, 0xFF }, 0x7F, NULL, &fogDst);
 
     // drawDebugTexture(graphicsContext);
 }
@@ -295,6 +384,13 @@ void GridRenderer::onPublish(const Event<TilesRevealedEventData>& event) {
             chunk->textureNeedsRebuilding = chunk->textureNeedsRebuilding || isTileInChunk(chunk.get(), tile.x, tile.y);
         }
     }
+
+    fogTextureNeedsRebuilding = true;
+}
+
+void GridRenderer::onPublish(const Event<EntitySetPositionEventData>& event) {
+    std::cout << "Hog status" << std::endl;
+    fogTextureNeedsRebuilding = true;
 }
 
 Camera& GridRenderer::getCamera(void) {
