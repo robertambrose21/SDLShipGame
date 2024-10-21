@@ -190,7 +190,7 @@ std::vector<glm::ivec2> Grid::getIntersections(const glm::vec2& p1, const glm::v
     return intersections;
 }
 
-std::vector<glm::ivec2> Grid::getVisibleTiles(const glm::ivec2& position, float radius) {
+std::map<glm::ivec2, Grid::Tile> Grid::getVisibleTiles(const glm::ivec2& position, float radius) {
     auto startTime = getCurrentTimeInMicroseconds();
 
     // This should provide enough rays to cover an entire area
@@ -198,7 +198,7 @@ std::vector<glm::ivec2> Grid::getVisibleTiles(const glm::ivec2& position, float 
     // Offset so we get the center of the tile
     glm::vec2 p1(position.x + .5f, position.y + .5f);
 
-    std::vector<glm::ivec2> visibleTiles;
+    std::map<glm::ivec2, Grid::Tile> visibleTiles;
 
     for(int i = 0; i < raycasts; i++) {
         float theta = 2.0f * std::numbers::pi * float(i) / float(raycasts);
@@ -214,11 +214,7 @@ std::vector<glm::ivec2> Grid::getVisibleTiles(const glm::ivec2& position, float 
 
         auto visibleTilesForSegment = getVisibleTiles(p1, p2, xMin, xMax, yMin, yMax);
 
-        visibleTiles.insert(
-            visibleTiles.end(), 
-            visibleTilesForSegment.begin(), 
-            visibleTilesForSegment.end()
-        );
+        visibleTiles.insert(visibleTilesForSegment.begin(), visibleTilesForSegment.end());
     }
 
     auto timeTaken = getCurrentTimeInMicroseconds() - startTime;
@@ -228,7 +224,7 @@ std::vector<glm::ivec2> Grid::getVisibleTiles(const glm::ivec2& position, float 
     return visibleTiles;
 }
 
-std::vector<glm::ivec2> Grid::getVisibleTiles(
+std::map<glm::ivec2, Grid::Tile> Grid::getVisibleTiles(
     const glm::vec2& p1, 
     const glm::vec2& p2,
     int xMin,
@@ -250,16 +246,16 @@ std::vector<glm::ivec2> Grid::getVisibleTiles(
         }
     }
 
-    std::vector<glm::ivec2> visibleTiles;
+    std::map<glm::ivec2, Grid::Tile> visibleTiles;
 
     // Map keys are sorted so we iterate through all the hits until we reach
     // a tile which isn't visible
-    for(const auto& [_, tile] : hits) {
-        bool isWalkable = data[tile.y][tile.x].isWalkable;
+    for(const auto& [_, position] : hits) {
+        Tile tile = data[position.y][position.x];
 
-        visibleTiles.push_back(tile);
+        visibleTiles[glm::ivec2(position.x, position.y)] = tile;
         
-        if(!isWalkable) {
+        if(!tile.isWalkable) {
             // Exit early if we hit a non-visible tile
             return visibleTiles;
         }

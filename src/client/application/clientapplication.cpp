@@ -80,7 +80,13 @@ void ClientApplication::initialise(void) {
 
     auto grid = context.getGrid();
 
-    window = std::make_unique<Window>(1920, 1080, grid, context.getVisibilityController());
+    window = std::make_unique<Window>(
+        1920, 
+        1080, 
+        grid, 
+        context.getVisibilityController(),
+        context.getEntityPool()
+    );
     window->initialiseWindow();
 
     for(auto& [tileId, textureId] : tileSet.getTextureIds()) {

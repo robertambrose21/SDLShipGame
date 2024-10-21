@@ -52,7 +52,7 @@ void VisiblityController::onPublish(const Event<EntitySetPositionEventData>& eve
         entity->getAggroRange()
     );
 
-    revealTiles(entity->getParticipantId(), tiles);
+    revealTiles(entity->getParticipantId(), getKeys(tiles));
 
     auto entities = context->getEntityPool()->getEntities();
 
@@ -61,6 +61,7 @@ void VisiblityController::onPublish(const Event<EntitySetPositionEventData>& eve
             continue;
         }
 
+        // TODO: should also check if the entity is on a visible tile
         auto distance = glm::distance(glm::vec2(entity->getPosition()), glm::vec2(other->getPosition()));
 
         assignVisibility(entity, other, distance);

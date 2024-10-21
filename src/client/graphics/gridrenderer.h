@@ -21,7 +21,8 @@ class GridRenderer :
     public EventSubscriber<TileEventData>, 
     public EventSubscriber<GridEffectEvent>,
     public EventSubscriber<GridDirtyEventData>,
-    public EventSubscriber<TilesRevealedEventData>
+    public EventSubscriber<TilesRevealedEventData>,
+    public EventSubscriber<EntitySetPositionEventData>
 {
 private:
     typedef struct _chunk {
@@ -37,20 +38,30 @@ private:
     int tileSize;
 
     std::unique_ptr<Texture> fogTexture;
+    bool fogTextureNeedsRebuilding;
     std::unique_ptr<Texture> debugTexture;
 
     std::vector<std::unique_ptr<Text>> coords;
-
 
     std::map<int, uint32_t> tileTexturesIds;
     std::vector<std::unique_ptr<Chunk>> chunks;
     Grid* grid;
     VisiblityController* visiblityController;
+    EntityPool* entityPool;
 
     std::vector<std::unique_ptr<Chunk>> createChunks(void);
     void buildChunkTexture(GraphicsContext& graphicsContext, Chunk* chunk);
     bool isTileInChunk(Chunk* chunk, int x, int y);
 
+    void buildFogBorders(GraphicsContext& graphicsContext, int xMin, int xMax, int yMin, int yMax);
+    void buildFogTiles(
+        GraphicsContext& graphicsContext, 
+        Entity* entity, 
+        int xMin, 
+        int xMax, 
+        int yMin, 
+        int yMax
+    );
     void buildFogTexture(GraphicsContext& graphicsContext);
     void buildDebugTexture(GraphicsContext& graphicsContext);
     void drawDebugTexture(GraphicsContext& graphicsContext);
@@ -62,7 +73,8 @@ private:
 public:
     GridRenderer(
         Grid* grid, 
-        VisiblityController* visiblityController, 
+        VisiblityController* visiblityController,
+        EntityPool* entityPool,
         int windowHeight
     );
 
@@ -81,6 +93,7 @@ public:
     void onPublish(const Event<GridEffectEvent>& event);
     void onPublish(const Event<GridDirtyEventData>& event);
     void onPublish(const Event<TilesRevealedEventData>& event);
+    void onPublish(const Event<EntitySetPositionEventData>& event);
 
     Grid* getGrid(void);
     Camera& getCamera(void);
