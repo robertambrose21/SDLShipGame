@@ -389,7 +389,6 @@ void GridRenderer::onPublish(const Event<TilesRevealedEventData>& event) {
 }
 
 void GridRenderer::onPublish(const Event<EntitySetPositionEventData>& event) {
-    std::cout << "Hog status" << std::endl;
     fogTextureNeedsRebuilding = true;
 }
 

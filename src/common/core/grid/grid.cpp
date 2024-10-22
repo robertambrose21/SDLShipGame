@@ -232,32 +232,34 @@ std::map<glm::ivec2, Grid::Tile> Grid::getVisibleTiles(
     int yMin,
     int yMax
 ) {
-    // t-values should be unique
-    std::map<float, glm::ivec2> hits;
+    std::vector<std::pair<float, glm::ivec2>> hits;
+    glm::vec2 delta = p2 - p1;
 
-    for(int x = xMin; x < xMax; x++) {
-        for(int y = yMin; y < yMax; y++) {
+    for(int x = xMin; x < xMax; ++x) {
+        for(int y = yMin; y < yMax; ++y) {
             // Offset so we get the center of the tile
-            float t = intersect(x + .5f, y + .5f, p1, p2 - p1);
+            float t = intersect(x + 0.5f, y + 0.5f, p1, delta);
 
             if(t != -1.0f) {
-                hits[t] = glm::ivec2(x, y);
+                hits.emplace_back(t, glm::ivec2(x, y));
             }
         }
     }
 
+    std::sort(hits.begin(), hits.end(), [](const auto& a, const auto& b) {
+        return a.first < b.first;
+    });
+
     std::map<glm::ivec2, Grid::Tile> visibleTiles;
 
-    // Map keys are sorted so we iterate through all the hits until we reach
-    // a tile which isn't visible
     for(const auto& [_, position] : hits) {
-        Tile tile = data[position.y][position.x];
+        Tile& tile = data[position.y][position.x];
 
-        visibleTiles[glm::ivec2(position.x, position.y)] = tile;
-        
+        visibleTiles[position] = tile;
+
         if(!tile.isWalkable) {
             // Exit early if we hit a non-visible tile
-            return visibleTiles;
+            break;
         }
     }
 
