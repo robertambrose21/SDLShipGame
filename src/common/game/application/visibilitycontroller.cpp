@@ -52,7 +52,7 @@ void VisiblityController::onPublish(const Event<EntitySetPositionEventData>& eve
         entity->getAggroRange()
     );
 
-    revealTiles(entity->getParticipantId(), getKeys(tiles));
+    revealTiles(entity->getParticipantId(), tiles);
 
     auto entities = context->getEntityPool()->getEntities();
 

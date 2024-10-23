@@ -135,18 +135,10 @@ void GridRenderer::buildFogBorders(GraphicsContext& graphicsContext, int xMin, i
 
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
     SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0xFF);
+    
     SDL_RenderFillRect(renderer, &left);
-
-    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-    SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0xFF);
     SDL_RenderFillRect(renderer, &right);
-
-    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-    SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0xFF);
-    SDL_RenderFillRect(renderer, &top);
-
-    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-    SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0xFF);
+    SDL_RenderFillRect(renderer, &top);    
     SDL_RenderFillRect(renderer, &bottom);
 }
 
@@ -165,14 +157,17 @@ void GridRenderer::buildFogTiles(
         entity->getAggroRange()
     );
 
+    std::unordered_set<glm::ivec2, glm::ivec2Hash> visibleTiles(tiles.begin(), tiles.end());
+
+    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0xFF);
+
     for(int x = xMin; x < xMax; x++) {
         for(int y = yMin; y < yMax; y++) {
-            if(!tiles.contains(glm::ivec2(x, y))) {
+            if(visibleTiles.find(glm::ivec2(x, y)) == visibleTiles.end()) {
                 auto const& realPosition = getTilePosition(x, y);
                 SDL_Rect dst = { realPosition.x, realPosition.y, getTileSize(), getTileSize() };
 
-                SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-                SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0xFF);
                 SDL_RenderFillRect(renderer, &dst);
             }
         }

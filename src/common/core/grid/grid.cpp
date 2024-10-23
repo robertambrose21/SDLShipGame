@@ -190,7 +190,7 @@ std::vector<glm::ivec2> Grid::getIntersections(const glm::vec2& p1, const glm::v
     return intersections;
 }
 
-std::map<glm::ivec2, Grid::Tile> Grid::getVisibleTiles(const glm::ivec2& position, float radius) {
+std::vector<glm::ivec2> Grid::getVisibleTiles(const glm::ivec2& position, float radius) {
     auto startTime = getCurrentTimeInMicroseconds();
 
     // This should provide enough rays to cover an entire area
@@ -198,10 +198,12 @@ std::map<glm::ivec2, Grid::Tile> Grid::getVisibleTiles(const glm::ivec2& positio
     // Offset so we get the center of the tile
     glm::vec2 p1(position.x + .5f, position.y + .5f);
 
-    std::map<glm::ivec2, Grid::Tile> visibleTiles;
+    std::vector<glm::ivec2> visibleTiles;
+
+    float step = 2.0f * std::numbers::pi / raycasts;
 
     for(int i = 0; i < raycasts; i++) {
-        float theta = 2.0f * std::numbers::pi * float(i) / float(raycasts);
+        float theta = step * float(i);
         float x = radius * std::cosf(theta);
         float y = radius * std::sinf(theta);
 
@@ -212,9 +214,8 @@ std::map<glm::ivec2, Grid::Tile> Grid::getVisibleTiles(const glm::ivec2& positio
         int yMin = std::max(0, (int) std::floor(std::min(p1.y, p2.y)));
         int yMax = std::min(getHeight(), (int) std::ceil(std::max(p1.y, p2.y)));
 
-        auto visibleTilesForSegment = getVisibleTiles(p1, p2, xMin, xMax, yMin, yMax);
-
-        visibleTiles.insert(visibleTilesForSegment.begin(), visibleTilesForSegment.end());
+        auto visibleTilesForSegment = getVisibleTiles(p1, p2, xMin, xMax, yMin, yMax);        
+        visibleTiles.insert(visibleTiles.end(), visibleTilesForSegment.begin(), visibleTilesForSegment.end());
     }
 
     auto timeTaken = getCurrentTimeInMicroseconds() - startTime;
@@ -224,7 +225,7 @@ std::map<glm::ivec2, Grid::Tile> Grid::getVisibleTiles(const glm::ivec2& positio
     return visibleTiles;
 }
 
-std::map<glm::ivec2, Grid::Tile> Grid::getVisibleTiles(
+std::vector<glm::ivec2> Grid::getVisibleTiles(
     const glm::vec2& p1, 
     const glm::vec2& p2,
     int xMin,
@@ -250,12 +251,12 @@ std::map<glm::ivec2, Grid::Tile> Grid::getVisibleTiles(
         return a.first < b.first;
     });
 
-    std::map<glm::ivec2, Grid::Tile> visibleTiles;
+    std::vector<glm::ivec2> visibleTiles;
 
     for(const auto& [_, position] : hits) {
         Tile& tile = data[position.y][position.x];
 
-        visibleTiles[position] = tile;
+        visibleTiles.emplace_back(position);
 
         if(!tile.isWalkable) {
             // Exit early if we hit a non-visible tile

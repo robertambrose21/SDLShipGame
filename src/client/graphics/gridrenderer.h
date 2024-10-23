@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <unordered_set>
 #include <glm/glm.hpp>
 
 #include "graphicscontext.h"
