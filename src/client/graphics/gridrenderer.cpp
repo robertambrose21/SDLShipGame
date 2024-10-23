@@ -135,7 +135,7 @@ void GridRenderer::buildFogBorders(GraphicsContext& graphicsContext, int xMin, i
 
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
     SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0xFF);
-    
+
     SDL_RenderFillRect(renderer, &left);
     SDL_RenderFillRect(renderer, &right);
     SDL_RenderFillRect(renderer, &top);    
@@ -175,7 +175,7 @@ void GridRenderer::buildFogTiles(
 }
 
 void GridRenderer::buildFogTexture(GraphicsContext& graphicsContext) {
-    auto startTime = getCurrentTimeInMicroseconds();
+    // auto startTime = getCurrentTimeInMicroseconds();
 
     auto renderer = graphicsContext.getRenderer();
 
@@ -197,10 +197,10 @@ void GridRenderer::buildFogTexture(GraphicsContext& graphicsContext) {
 
     if(participant != nullptr) {
         for(auto const& entity : participant->getEntities()) {
-            int xMin = std::max(entity->getPosition().x - entity->getAggroRange() - 1, 0);
+            int xMin = std::max(entity->getPosition().x - entity->getAggroRange(), 0);
             int xMax = std::min(entity->getPosition().x + entity->getAggroRange() + 1, grid->getWidth());
-            int yMin = std::max(entity->getPosition().y - entity->getAggroRange() - 1, 0);
-            int yMax = std::min(entity->getPosition().y + entity->getAggroRange() + 1, grid->getWidth());
+            int yMin = std::max(entity->getPosition().y - entity->getAggroRange(), 0);
+            int yMax = std::min(entity->getPosition().y + entity->getAggroRange() + 1, grid->getHeight());
 
             buildFogBorders(graphicsContext, xMin, xMax, yMin, yMax);
             buildFogTiles(graphicsContext, entity, xMin, xMax, yMin, yMax);
@@ -212,9 +212,8 @@ void GridRenderer::buildFogTexture(GraphicsContext& graphicsContext) {
     fogTexture = std::make_unique<Texture>(Texture(std::move(target)));
     fogTextureNeedsRebuilding = false;
 
-    auto timeTaken = getCurrentTimeInMicroseconds() - startTime;
-
-    std::cout << std::format("buildFogTexture: {}ms", (double) timeTaken / 1000.0) << std::endl;
+    // auto timeTaken = getCurrentTimeInMicroseconds() - startTime;
+    // std::cout << std::format("buildFogTexture: {}ms", (double) timeTaken / 1000.0) << std::endl;
 }
 
 // TODO: Chunk this
