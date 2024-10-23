@@ -191,7 +191,7 @@ std::vector<glm::ivec2> Grid::getIntersections(const glm::vec2& p1, const glm::v
 }
 
 std::vector<glm::ivec2> Grid::getVisibleTiles(const glm::ivec2& position, float radius) {
-    auto startTime = getCurrentTimeInMicroseconds();
+    // auto startTime = getCurrentTimeInMicroseconds();
 
     // This should provide enough rays to cover an entire area
     int raycasts = std::ceil(2.0f * std::numbers::pi * radius);
@@ -218,9 +218,8 @@ std::vector<glm::ivec2> Grid::getVisibleTiles(const glm::ivec2& position, float 
         visibleTiles.insert(visibleTiles.end(), visibleTilesForSegment.begin(), visibleTilesForSegment.end());
     }
 
-    auto timeTaken = getCurrentTimeInMicroseconds() - startTime;
-
-    std::cout << std::format("getVisibleTiles: {}ms", (double) timeTaken / 1000.0) << std::endl;
+    // auto timeTaken = getCurrentTimeInMicroseconds() - startTime;
+    // std::cout << std::format("getVisibleTiles: {}ms", (double) timeTaken / 1000.0) << std::endl;
 
     return visibleTiles;
 }
