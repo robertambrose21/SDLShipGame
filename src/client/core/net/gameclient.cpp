@@ -1,9 +1,11 @@
 #include "gameclient.h"
 
 GameClient::GameClient(
+    std::unique_ptr<MessageLogger> messageLogger,
     ClientMessagesReceiver& receiver,
     const yojimbo::Address& serverAddress
 ) :
+    messageLogger(std::move(messageLogger)),
     receiver(receiver),
     adapter(ClientGameAdapter()),
     client(
@@ -29,6 +31,7 @@ void GameClient::update(int64_t timeSinceLastFrame) {
 
         while(!messageQueue.empty()) {
             client.SendMessage((int) ClientGameChannel::RELIABLE, messageQueue.front());
+            messageLogger->logMessage(messageQueue.front(), false);
             messageQueue.pop();
         }
     }
@@ -61,4 +64,5 @@ void GameClient::processMessages(void) {
 
 void GameClient::processMessage(yojimbo::Message* message) {
     receiver.receiveMessage(message);
+    messageLogger->logMessage(message, true);
 }

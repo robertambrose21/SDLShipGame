@@ -1,10 +1,16 @@
 #include "window.h"
 
-Window::Window(int width, int height, Grid* grid) :
+Window::Window(
+    int width, 
+    int height, 
+    Grid* grid, 
+    VisiblityController* visiblityController, 
+    EntityPool* entityPool
+) :
     width(width),
     height(height)
 {
-    gridRenderer = std::make_unique<GridRenderer>(grid, height);
+    gridRenderer = std::make_unique<GridRenderer>(grid, visiblityController, entityPool, height);
 }
 
 Window::~Window() {
@@ -60,7 +66,13 @@ bool Window::initialiseWindow(void) {
     }
     
     textureLoader = TextureLoader(renderer.get());
-    graphicsContext = std::make_unique<GraphicsContext>(renderer.get(), textureLoader, *gridRenderer, width, height);
+    graphicsContext = std::make_unique<GraphicsContext>(
+        renderer.get(), 
+        textureLoader, 
+        *gridRenderer, 
+        width, 
+        height
+    );
 
     return true;
 }
@@ -117,7 +129,7 @@ void Window::update(int64_t timeSinceLastFrame, bool& quit) {
 
     SDL_SetRenderDrawColor(renderer.get(), 0x00, 0x00, 0x00, 0xFF);
 
-    ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData());
+    ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData(), renderer.get());
 
     SDL_RenderPresent(renderer.get());
 }

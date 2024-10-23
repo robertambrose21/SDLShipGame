@@ -19,7 +19,7 @@ using json = nlohmann::json;
 
 struct GameStateUpdate;
 
-class EntityPool : public EventPublisher<EntityEventData> {
+class EntityPool : public EventPublisher<EntityEventData, EntitySetPositionEventData> {
 private:
     typedef struct _entityDefinition {
         std::string filename;
@@ -32,12 +32,17 @@ private:
         LootTable lootTable;
     } EntityDefinition;
 
+    typedef struct _chunkedGameStateUpdate {
+        std::vector<GameStateUpdate> pendingUpdates;
+        int numExpectedChunks;        
+    } ChunkedGameStateUpdate;
+
     std::map<std::string, EntityDefinition> entityDefinitions;
 
     std::set<uint32_t> entitiesForDeletion;
     std::map<uint32_t, std::unique_ptr<Entity>> entities;
 
-    std::vector<GameStateUpdate> pendingUpdates;
+    std::map<uint8_t, ChunkedGameStateUpdate> pendingChunkedUpdates;
 
     ApplicationContext* context;
     bool initialised;
@@ -45,6 +50,7 @@ private:
     void updateEntity(Entity* entity, int64_t timeSinceLastFrame, bool& quit);
     void loadEntityDefinitions(void);
     void synchronize(void);
+    bool applyChunkedGameStateUpdate(const ChunkedGameStateUpdate& chunked);
     void killEntity(uint32_t entityId);
 
 public:
@@ -59,6 +65,7 @@ public:
     Entity* addEntity(std::unique_ptr<Entity> entity);
     Entity* addEntity(const std::string& name);
     Entity* addEntity(const std::string& name, uint32_t id);
+    void removeEntity(uint32_t id);
     std::vector<Entity*> getEntities(void);
     Entity* getEntity(uint32_t id);
     bool hasEntity(uint32_t id);

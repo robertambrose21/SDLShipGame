@@ -13,6 +13,7 @@ class TurnController;
 class ItemController;
 class EffectController;
 class SpawnController;
+class VisiblityController;
 
 class ApplicationContext {
 private:
@@ -25,6 +26,7 @@ private:
     ItemController* itemController;
     EffectController* effectController;
     SpawnController* spawnController;
+    VisiblityController* visiblityController;
     ServerMessagesTransmitter* transmitter;
 
 public:
@@ -37,7 +39,8 @@ public:
         TurnController* turnController,
         ItemController* itemController,
         EffectController* effectController,
-        SpawnController* SpawnController
+        SpawnController* SpawnController,
+        VisiblityController* visiblityController
     );
 
     Grid* getGrid(void);
@@ -49,6 +52,7 @@ public:
     ItemController* getItemController(void);
     EffectController* getEffectController(void);
     SpawnController* getSpawnController(void);
+    VisiblityController* getVisibilityController(void);
 
     void setServerMessagesTransmitter(ServerMessagesTransmitter* transmitter);
     ServerMessagesTransmitter* getServerMessagesTransmitter(void);

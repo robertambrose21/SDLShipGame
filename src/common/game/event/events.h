@@ -130,3 +130,24 @@ struct GridEffectEvent {
 struct GridDirtyEventData {
     bool isGridDirty;
 };
+
+struct TilesRevealedEventData {
+    struct RevealedTile {
+        int id;
+        int x, y;
+    };
+
+    int participantId;
+    std::vector<RevealedTile> tiles;
+};
+
+struct EntitySetPositionEventData {
+    Entity* entity;
+    glm::ivec2 position;
+};
+
+struct EntityVisibilityToParticipantData {
+    Entity* entity;
+    int participantId;
+    bool isVisible;
+};

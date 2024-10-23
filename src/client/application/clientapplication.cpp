@@ -22,7 +22,8 @@ void ClientApplication::initialise(void) {
         std::make_unique<ClientTurnController>(),
         std::make_unique<ItemController>(),
         std::make_unique<EffectController>(),
-        std::make_unique<SpawnController>()
+        std::make_unique<SpawnController>(),
+        std::make_unique<VisiblityController>()
     );
 
     auto& context = application->getContext();
@@ -34,6 +35,7 @@ void ClientApplication::initialise(void) {
     context.getEntityPool()->initialise(application->getContext());
     context.getItemController()->initialise(application->getContext());
     context.getSpawnController()->initialise(application->getContext());
+    context.getVisibilityController()->initialise(application->getContext());
 
     context.getTurnController()->subscribe<TurnEventData>(&stdoutSubscriber);
     context.getEntityPool()->subscribe<EntityEventData>(&stdoutSubscriber);
@@ -57,9 +59,16 @@ void ClientApplication::initialise(void) {
     clientStateMachine = std::make_unique<ClientStateMachine>();
     clientStateMachine->setState(std::make_unique<ClientLoadingState>());
 
-    clientMessagesReceiver = std::make_unique<GameClientMessagesReceiver>(application->getContext(), tileSet.getWalkableTileIds());
+    clientMessagesReceiver = std::make_unique<GameClientMessagesReceiver>(
+        application->getContext(), 
+        tileSet.getWalkableTileIds()
+    );
 
-    client = std::make_unique<GameClient>(*clientMessagesReceiver, yojimbo::Address("127.0.0.1", 8081));
+    client = std::make_unique<GameClient>(
+        std::make_unique<GameMessageLogger>("client_messages.log"),
+        *clientMessagesReceiver,
+        yojimbo::Address("127.0.0.1", 8081)
+    );
     clientMessagesTransmitter = std::make_unique<GameClientMessagesTransmitter>(*client);
 
     clientMessagesReceiver->setTransmitter(clientMessagesTransmitter.get());
@@ -71,7 +80,13 @@ void ClientApplication::initialise(void) {
 
     auto grid = context.getGrid();
 
-    window = std::make_unique<Window>(1920, 1080, grid);
+    window = std::make_unique<Window>(
+        1920, 
+        1080, 
+        grid, 
+        context.getVisibilityController(),
+        context.getEntityPool()
+    );
     window->initialiseWindow();
 
     for(auto& [tileId, textureId] : tileSet.getTextureIds()) {
@@ -80,12 +95,11 @@ void ClientApplication::initialise(void) {
     
     for(auto i = 0; i < grid->getWidth(); i++) {
         for(auto j = 0; j < grid->getHeight(); j++) {
-            grid->setTile(i, j, { 1, true, false });
+            grid->setTile(i, j, { 1, false, false });
         }
     }
 
     context.getEffectController()->subscribe<GridEffectEvent>(&window->getGraphicsContext().getGridRenderer());
-    grid->subscribe<GridDirtyEventData>(&window->getGraphicsContext().getGridRenderer());
 
     playerController = std::make_unique<PlayerController>(
         *clientMessagesTransmitter,
@@ -160,7 +174,10 @@ void ClientApplication::selectEntityOnStartupHack(void) {
         return;
     }
 
-    if(playerController->getParticipant() != nullptr && !playerController->getParticipant()->entities.empty()) {
+    if(
+        playerController->getParticipant() != nullptr && 
+        !playerController->getParticipant()->getEntities().empty()
+    ) {
         playerController->selectAll();
         isSelected = true;
     }

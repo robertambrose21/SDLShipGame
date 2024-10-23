@@ -30,6 +30,7 @@ void Text::draw(SDL_Renderer* renderer, const std::string& message) {
         std::min(dimensions.y, maxDimensions.y)
     };
     SDL_Rect clip = { 0, scroll, maxDimensions.x, maxDimensions.y };
+    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
     SDL_RenderCopy(renderer, texture.get(), &clip, &rect);
 }
 
@@ -46,7 +47,7 @@ void Text::setMessage(SDL_Renderer* renderer, const std::string& message) {
 
     texture = std::unique_ptr<SDL_Texture, sdl_deleter>(SDL_CreateTextureFromSurface(renderer, surface), sdl_deleter());
 
-    if(texture == NULL) {
+    if(texture == nullptr) {
         std::cout << "Failed to create texture from message \"" << message << "\": " << SDL_GetError() << std::endl;
     }
     else {

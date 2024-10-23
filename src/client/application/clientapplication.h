@@ -16,6 +16,7 @@
 #include "clientturncontroller.h"
 #include "core/grid/generation/tileset.h"
 #include "game/spawn/spawncontroller.h"
+#include "game/application/visibilitycontroller.h"
 
 class ClientApplication {
 private:

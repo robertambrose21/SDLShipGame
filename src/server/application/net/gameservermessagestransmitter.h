@@ -21,7 +21,10 @@ class GameServerMessagesTransmitter :
     public EventSubscriber<ProjectileEventData>,
     public EventSubscriber<MeleeWeaponEventData>,
     public EventSubscriber<EntityEffectEvent>,
-    public EventSubscriber<GridEffectEvent>
+    public EventSubscriber<GridEffectEvent>,
+    public EventSubscriber<TilesRevealedEventData>,
+    public EventSubscriber<EntitySetPositionEventData>,
+    public EventSubscriber<EntityVisibilityToParticipantData>
 {
 private:
     GameServer& server;
@@ -48,8 +51,11 @@ public:
     void onPublish(const Event<MeleeWeaponEventData>& event);
     void onPublish(const Event<EntityEffectEvent>& event);
     void onPublish(const Event<GridEffectEvent>& event);
+    void onPublish(const Event<TilesRevealedEventData>& event);
+    void onPublish(const Event<EntitySetPositionEventData>& event);
+    void onPublish(const Event<EntityVisibilityToParticipantData>& event);
 
-    void sendSetParticipant(int clientIndex, TurnController::Participant* participant);
+    void sendSetParticipant(int clientIndex, Participant* participant);
     void sendGameStateUpdate(int clientIndex, const GameStateUpdate& update);
     void sendLoadMap(int clientIndex, const MapBlock& block);
     void sendActionsRollResponse(int clientIndex, int participantId, const std::vector<DiceActionResult>& dice);

@@ -97,9 +97,7 @@ void EntityPool::updateEntity(Entity* entity, int64_t timeSinceLastFrame, bool& 
 void EntityPool::killEntity(uint32_t entityId) {
     auto entity = getEntity(entityId);
 
-    auto& participantEntities = context->getTurnController()->getParticipant(entity->getParticipantId())->entities;
-    participantEntities.erase(
-        std::remove(participantEntities.begin(), participantEntities.end(), entity), participantEntities.end());
+    context->getTurnController()->getParticipant(entity->getParticipantId())->removeEntity(entity);
 
     publish<EntityEventData>({ entity, "Death" });
 
@@ -107,16 +105,14 @@ void EntityPool::killEntity(uint32_t entityId) {
 }
 
 // TODO: Doing too much, break this up
-void EntityPool::synchronize() {
-    game_assert(initialised);
-
-    if(pendingUpdates.empty()) {
-        return;
+bool EntityPool::applyChunkedGameStateUpdate(const ChunkedGameStateUpdate& chunked) {
+    if(chunked.pendingUpdates.size() < chunked.numExpectedChunks) {
+        return false; // Not ready
     }
 
     std::map<int, Entity*> updatedEntities;
 
-    for(auto const& update : pendingUpdates) {
+    for(auto const& update : chunked.pendingUpdates) {
         // std::cout << "Got game state update: " << std::endl;
 
         for(int i = 0; i < update.numEntities; i++) {
@@ -169,12 +165,76 @@ void EntityPool::synchronize() {
         }
     }
 
-    pendingUpdates.clear();
+    std::cout 
+        << "Sync "
+        << updatedEntities.size() 
+        << " updated " 
+        << entitiesForDeletion.size() 
+        << " removed" 
+        << std::endl;
+
+    return true;
+}
+
+void EntityPool::synchronize() {
+    game_assert(initialised);
+
+    if(pendingChunkedUpdates.empty()) {
+        return;
+    }
+
+    std::set<uint8_t> appliedChunks;
+
+    for(auto [chunkId, chunked] : pendingChunkedUpdates) {
+        if(applyChunkedGameStateUpdate(chunked)) {
+            appliedChunks.insert(chunkId);
+        }
+    }
+
+    std::erase_if(pendingChunkedUpdates, [&](const auto& item) {
+        auto const& [chunkId, _] = item;
+        return appliedChunks.contains(chunkId);
+    });
 }
 
 void EntityPool::addGameStateUpdate(const GameStateUpdate& update) {
     game_assert(initialised);
-    pendingUpdates.push_back(update);
+
+    if(update.numExpectedChunks < 1) {
+        std::cout 
+            << "Error: [Chunk ID: "
+            << update.chunkId
+            << "] has numExpectedChunks < 1, discarding"
+            << std::endl;
+        return;
+    }
+
+    if(!pendingChunkedUpdates.contains(update.chunkId)) {
+        pendingChunkedUpdates[update.chunkId] = { std::vector<GameStateUpdate>(), update.numExpectedChunks };
+    }
+    else if(pendingChunkedUpdates[update.chunkId].numExpectedChunks != update.numExpectedChunks) {
+        std::cout 
+            << "Warning: [Chunk ID: "
+            << update.chunkId
+            << "] changed numExpectedChunks from "
+            << pendingChunkedUpdates[update.chunkId].numExpectedChunks
+            << " to "
+            << update.numExpectedChunks
+            << std::endl;
+    }
+
+    pendingChunkedUpdates[update.chunkId].pendingUpdates.push_back(update);
+
+    if(pendingChunkedUpdates[update.chunkId].pendingUpdates.size() > pendingChunkedUpdates[update.chunkId].numExpectedChunks) {
+        std::cout 
+            << "Warning: [Chunk ID: "
+            << update.chunkId
+            << "] expected " 
+            << pendingChunkedUpdates[update.chunkId].numExpectedChunks
+            << " GameStateUpdates but got "
+            << pendingChunkedUpdates[update.chunkId].pendingUpdates.size()
+            << std::endl;
+    }
 }
 
 Entity* EntityPool::addEntity(std::unique_ptr<Entity> entity) {
@@ -221,6 +281,13 @@ Entity* EntityPool::addEntity(const std::string& name, uint32_t id) {
 Entity* EntityPool::addEntity(const std::string& name) {
     game_assert(initialised);
     return addEntity(name, getNewId());
+}
+
+void EntityPool::removeEntity(uint32_t id) {
+    auto participant = context->getTurnController()->getParticipant(entities[id]->getParticipantId());
+    
+    participant->removeEntity(entities[id].get());
+    entities.erase(id);
 }
 
 std::vector<Entity*> EntityPool::getEntities(void) {

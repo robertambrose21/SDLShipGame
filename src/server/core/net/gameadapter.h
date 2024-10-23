@@ -3,7 +3,7 @@
 #include <memory>
 
 #include "core/net/yojimboimport.h"
-#include "core/net/message/messages.h"
+#include "game/message/messages.h"
 
 static const uint8_t DEFAULT_PRIVATE_KEY[yojimbo::KeyBytes] = { 0 };
 

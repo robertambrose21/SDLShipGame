@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <ranges>
 
 template<typename T>
 inline bool contains(const std::vector<T>& vec, const T& item) {
@@ -27,4 +28,10 @@ inline bool containsAll(const std::vector<T>& vec, const std::vector<T>& items) 
     }
     
     return true;
+}
+
+template<typename K, typename V>
+inline std::vector<K> getKeys(const std::map<K, V>& map) {
+    auto keyRange = std::views::keys(map);
+    return std::vector<K> { keyRange.begin(), keyRange.end() };
 }

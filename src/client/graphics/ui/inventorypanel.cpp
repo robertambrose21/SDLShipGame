@@ -6,7 +6,7 @@ InventoryPanel::InventoryPanel(int width, int height) :
     isShown(false)
 { }
 
-void InventoryPanel::draw(GraphicsContext& graphicsContext, TurnController::Participant* participant) {
+void InventoryPanel::draw(GraphicsContext& graphicsContext, Participant* participant) {
     if(!isShown || participant == nullptr) {
         return;
     }
@@ -22,7 +22,7 @@ void InventoryPanel::draw(GraphicsContext& graphicsContext, TurnController::Part
     ImGui::Separator();
     ImGui::BeginChild("Bag");
     
-    for(auto item : participant->items) {
+    for(auto item : participant->getItems()) {
         drawInventoryItem(graphicsContext, item);
     }
 
@@ -31,7 +31,7 @@ void InventoryPanel::draw(GraphicsContext& graphicsContext, TurnController::Part
     ImGui::End();
 }
 
-void InventoryPanel::drawEquipment(GraphicsContext& graphicsContext, TurnController::Participant* participant) {
+void InventoryPanel::drawEquipment(GraphicsContext& graphicsContext, Participant* participant) {
     ImGuiTableFlags flags = ImGuiTableFlags_SizingFixedFit;
 
     if(ImGui::BeginTable("EquipmentTable", 2, flags)) {
@@ -43,7 +43,7 @@ void InventoryPanel::drawEquipment(GraphicsContext& graphicsContext, TurnControl
             ImGui::TextColored(ImVec4(1, 1, 1, 1), "%s", Equipment::SlotToItemType.at(slot).c_str());
             ImGui::TableNextColumn();
 
-            auto equipment = participant->entities[0]->getEquipment(slot);
+            auto equipment = participant->getEntities()[0]->getEquipment(slot);
 
             if(equipment != nullptr) {
                 drawEquippedItem(graphicsContext, equipment->getItem());
@@ -57,12 +57,12 @@ void InventoryPanel::drawEquipment(GraphicsContext& graphicsContext, TurnControl
     }
 }
 
-void InventoryPanel::drawWeapons(GraphicsContext& graphicsContext, TurnController::Participant* participant) {
+void InventoryPanel::drawWeapons(GraphicsContext& graphicsContext, Participant* participant) {
     ImGuiTableFlags flags = ImGuiTableFlags_SizingFixedFit;
 
     if(ImGui::BeginTable("WeaponsTable", 2, flags)) {
         int weaponNumber = 1;
-        for(auto weapon : participant->entities[0]->getWeapons()) {
+        for(auto weapon : participant->getEntities()[0]->getWeapons()) {
             ImGui::TableNextRow();
             ImGui::TableNextColumn();
             ImGui::TextColored(ImVec4(1, 1, 1, 1), "Weapon %d", weaponNumber++);

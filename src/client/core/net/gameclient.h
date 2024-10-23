@@ -7,6 +7,7 @@
 #include "core/net/clientgameadapter.h"
 #include "clientmessagesreceiver.h"
 #include "core/util/gameassert.h"
+#include "core/net/messagelogger.h"
 
 class GameClient {
 private:
@@ -19,11 +20,14 @@ private:
 
     std::queue<yojimbo::Message*> messageQueue;
 
+    std::unique_ptr<MessageLogger> messageLogger;
+
     void processMessages(void);
     void processMessage(yojimbo::Message* message);
 
 public:
     GameClient(
+        std::unique_ptr<MessageLogger> messageLogger,
         ClientMessagesReceiver& receiver,
         const yojimbo::Address& serverAddress
     );

@@ -26,12 +26,14 @@ add_library(
     application/application.cpp
     application/applicationcontext.cpp
     net/messages.cpp
+    message/messages.h
     weapons/projectilepool.cpp
     weapons/areaofeffectpool.cpp
     weapons/weaponcontroller.cpp
     weapons/damagesource.cpp
     application/turncontroller.cpp
     application/stdoutsubscriber.cpp
+    application/visibilitycontroller.cpp
     actions/action.cpp
     actions/moveaction.cpp
     actions/attackaction.cpp
@@ -41,6 +43,8 @@ add_library(
     event/events.h
     stats/stats.cpp
     spawn/spawncontroller.cpp
+    net/gamemessagelogger.cpp
+    participant/participant.cpp
 )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX CXX_STANDARD 20)

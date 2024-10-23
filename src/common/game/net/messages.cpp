@@ -60,6 +60,7 @@ EntityStateUpdate EntityStateUpdate::serialize(Entity* entity) {
     return entityStateUpdate;
 }
 
+// TODO: Return the entity
 void EntityStateUpdate::deserialize(const EntityStateUpdate& update, Entity* existing) {
     game_assert(existing != nullptr);
     existing->setPosition(glm::ivec2(update.x, update.y));

@@ -28,7 +28,7 @@ bool EquipItemAction::onValidate(ApplicationContext* context) {
 
     bool hasItem = false;   
 
-    for(auto itemInInventory : participant->items) {
+    for(auto itemInInventory : participant->getItems()) {
         if(item->getId() == itemInInventory->getId()) {
             hasItem = true;
         }
@@ -42,14 +42,14 @@ void EquipItemAction::onExecute(ApplicationContext* context) {
     auto existingEquipment = entity->getEquipment(slot);
 
     if(isUnequip) {
-        participant->items.push_back(existingEquipment->getItem());
+        participant->addItem(existingEquipment->getItem());
         entity->removeEquipment(slot);
     } else {
         if(existingEquipment != nullptr) {
-            participant->items.push_back(existingEquipment->getItem());
+            participant->addItem(existingEquipment->getItem());
         }
 
-        std::erase(participant->items, item);
+        participant->removeItem(item);
         entity->setEquipment(std::make_unique<Equipment>(item, slot));
     }
 }

@@ -10,4 +10,4 @@
   - Copy the **CMakeLists.txt.imgui** file in the **resources** directory into the **imgui** directory
   - Rename **CMakeLists.txt.imgui** to **CMakeLists.txt**
 - Install [SDL2](https://lazyfoo.net/tutorials/SDL/01_hello_SDL/linux/index.php) and [SDL2_image](https://lazyfoo.net/tutorials/SDL/01_hello_SDL/linux/index.php)
-- Download and install [uuid_v4](https://github.com/crashoz/uuid_v4)
+- Download and install [stduuid](https://github.com/mariusbancila/stduuid)

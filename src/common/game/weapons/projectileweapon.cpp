@@ -59,7 +59,14 @@ void ProjectileWeapon::update(int64_t timeSinceLastFrame) {
 }
 
 bool ProjectileWeapon::isInRange(const glm::ivec2& target) {
-    return Weapon::isInRange(target) && !context->getGrid()->hasIntersection(owner->getPosition(), target);
+    if(!Weapon::isInRange(target)) {
+        return false;
+    }
+
+    glm::vec2 ownerCentrePos = glm::vec2(owner->getPosition()) + glm::vec2(.5f, .5f);
+    glm::vec2 targetCentrePos = glm::vec2(target) + glm::vec2(.5f, .5f);
+
+    return !context->getGrid()->hasIntersection(ownerCentrePos, targetCentrePos);
 }
 
 void ProjectileWeapon::setProjectileBlueprint(const Projectile::Blueprint& projectileBlueprint) {
