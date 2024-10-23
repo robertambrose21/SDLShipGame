@@ -59,7 +59,7 @@ private:
     bool hasTileIntersection(const glm::vec2& p1, const glm::vec2& p2, int x, int y);
 
     float intersect(float x, float y, const glm::vec2& point, const glm::vec2& delta);
-    std::map<glm::ivec2, Tile> getVisibleTiles(
+    std::vector<glm::ivec2> getVisibleTiles(
         const glm::vec2& p1, 
         const glm::vec2& p2,
         int xMin,
@@ -92,7 +92,7 @@ public:
     // Where x are the tiles checked and o are unchecked tiles
     bool hasIntersection(const glm::vec2& p1, const glm::vec2& p2);
     std::vector<glm::ivec2> getIntersections(const glm::vec2& p1, const glm::vec2& p2);
-    std::map<glm::ivec2, Grid::Tile> getVisibleTiles(const glm::ivec2& position, float radius);
+    std::vector<glm::ivec2> getVisibleTiles(const glm::ivec2& position, float radius);
 
     void setData(const std::vector<std::vector<Tile>>& data);
     const std::vector<std::vector<Tile>>& getData(void) const;
