@@ -1,6 +1,7 @@
 #pragma once
 
 #include <map>
+#include <unordered_set>
 
 #include "core/grid/grid.h"
 #include "game/event/events.h"
@@ -27,7 +28,12 @@ private:
 
     std::map<int, std::set<RevealedTile>> revealedTiles;
 
-    void assignVisibility(Entity* entityA, Entity* entityB, float distanceBetweenEntities);
+    void assignVisibility(
+        Entity* entity, 
+        Entity* other, 
+        float distanceBetweenEntities,
+        const std::unordered_set<glm::ivec2, glm::ivec2Hash>& visibleTiles
+    );
 
 public:
 
