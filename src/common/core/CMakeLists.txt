@@ -19,6 +19,7 @@ add_library(
     util/gameassert.h
     util/randomutils.h
     util/vectorutils.h
+    util/setutils.h
     util/timing.h
     state/state.h
     state/statemachine.cpp

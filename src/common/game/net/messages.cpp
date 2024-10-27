@@ -47,7 +47,7 @@ EntityStateUpdate EntityStateUpdate::serialize(Entity* entity) {
     entityStateUpdate.currentHP = entity->getCurrentHP();
     entityStateUpdate.x = entity->getPosition().x;
     entityStateUpdate.y = entity->getPosition().y;
-    entityStateUpdate.participantId = entity->  getParticipantId();
+    entityStateUpdate.participantId = entity->getParticipantId();
     entityStateUpdate.isEngaged = entity->isEngaged();
     memcpy(entityStateUpdate.currentWeaponIdBytes, &entity->getCurrentWeapon()->getId().getBytes()[0], 16);
     entityStateUpdate.numWeapons = entity->getWeapons().size();

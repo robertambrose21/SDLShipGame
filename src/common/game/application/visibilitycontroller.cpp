@@ -40,6 +40,18 @@ const std::set<VisiblityController::RevealedTile>& VisiblityController::getRevea
     return revealedTiles.at(participantId);
 }
 
+const std::map<int, std::unordered_set<glm::ivec2, glm::ivec2Hash>>& VisiblityController::getVisibleTiles(void) const {
+    return visibleTiles;
+}
+
+const std::unordered_set<glm::ivec2, glm::ivec2Hash>& VisiblityController::getVisibleTiles(int participantId) {
+    if(!visibleTiles.contains(participantId)) {
+        visibleTiles[participantId] = std::unordered_set<glm::ivec2, glm::ivec2Hash>();
+    }
+
+    return visibleTiles.at(participantId);
+}
+
 void VisiblityController::onPublish(const Event<EntitySetPositionEventData>& event) {
     auto entity = event.data.entity;
 
@@ -52,20 +64,20 @@ void VisiblityController::onPublish(const Event<EntitySetPositionEventData>& eve
         entity->getAggroRange()
     );
 
-    revealTiles(entity->getParticipantId(), tiles);
-    
-    std::unordered_set<glm::ivec2, glm::ivec2Hash> visibleTiles(tiles.begin(), tiles.end());
+    auto participantId = entity->getParticipantId();
+
+    revealTiles(participantId, tiles);
+    visibleTiles[participantId] = std::unordered_set<glm::ivec2, glm::ivec2Hash>(tiles.begin(), tiles.end());
 
     for(auto const& other : context->getEntityPool()->getEntities()) {
         if(other->getParticipantId() == entity->getParticipantId()) {
             continue;
         }
 
-        // TODO: should also check if the entity is on a visible tile
         auto distance = glm::distance(glm::vec2(entity->getPosition()), glm::vec2(other->getPosition()));
 
-        assignVisibility(entity, other, distance, visibleTiles);
-        assignVisibility(other, entity, distance, visibleTiles);
+        assignVisibility(entity, other, distance, visibleTiles[participantId]);
+        assignVisibility(other, entity, distance, visibleTiles[other->getParticipantId()]);
     }
 }
 
@@ -78,7 +90,7 @@ void VisiblityController::assignVisibility(
     auto participant = context->getTurnController()->getParticipant(entity->getParticipantId());
     
     bool isInRange = distanceBetweenEntities < entity->getAggroRange();
-    bool isInLOS = visibleTiles.find(glm::ivec2(other->getPosition().x, other->getPosition().y)) != visibleTiles.end();
+    bool isInLOS = contains(visibleTiles, other->getPosition());
     bool isVisible = isInRange && isInLOS;
 
     if(!participant->hasVisibleEntity(other) && isVisible) {
@@ -89,4 +101,13 @@ void VisiblityController::assignVisibility(
         participant->removeVisibleEntity(other);
         publish<EntityVisibilityToParticipantData>({ other, participant->getId(), false });
     }
+}
+
+bool VisiblityController::isVisible(Entity* entity, Entity* target) {
+    auto distance = glm::distance(glm::vec2(entity->getPosition()), glm::vec2(target->getPosition()));
+
+    bool isInRange = distance < entity->getAggroRange();
+    bool isInLOS = contains(visibleTiles[entity->getParticipantId()], target->getPosition());
+    
+    return isInRange && isInLOS;
 }

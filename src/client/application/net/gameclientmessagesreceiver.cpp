@@ -269,33 +269,43 @@ void GameClientMessagesReceiver::receiveSetEntityPositionMessage(SetEntityPositi
 
 
 void GameClientMessagesReceiver::receiveRemoveEntityVisibilityMessage(RemoveEntityVisibilityMessage* message) {
-    if(message->participantId != playerController->getParticipant()->getId()) {
+    auto participant = playerController->getParticipant();
+    
+    if(message->participantId != participant->getId()) {
         std::cout 
             << "Cannot set visibility for entity with id "
             << message->entityId
             << " message is for participant "
             << message->participantId
             << " and this is participant "
-            << playerController->getParticipant()->getId()
+            << participant->getId()
             << std::endl;
         return;
     }
 
+
     if(context.getEntityPool()->hasEntity(message->entityId)) {
+        auto entityToRemove = context.getEntityPool()->getEntity(message->entityId);
+        participant->removeVisibleEntity(entityToRemove);
+
         context.getEntityPool()->removeEntity(message->entityId);
     }
-    // Else nothing to do
+    else {
+        std::cout << std::format("Warning: removing entity which doesn't exist {}", message->entityId) << std::endl;
+    }
 }
 
 void GameClientMessagesReceiver::receiveAddEntityVisibilityMessage(AddEntityVisibilityMessage* message) {
-    if(message->participantId != playerController->getParticipant()->getId()) {
+    auto participant = playerController->getParticipant();
+
+    if(message->participantId != participant->getId()) {
         std::cout 
             << "Cannot set visibility for entity with id "
             << message->entity.id
             << " message is for participant "
             << message->participantId
             << " and this is participant "
-            << playerController->getParticipant()->getId()
+            << participant->getId()
             << std::endl;
         return;
     }
@@ -325,4 +335,10 @@ void GameClientMessagesReceiver::receiveAddEntityVisibilityMessage(AddEntityVisi
     }
 
     EntityStateUpdate::deserialize(message->entity, entity);
+
+    if(participant->hasVisibleEntity(entity)) {
+        std::cout << std::format("Warning: received already visible entity {}", entity->getId()) << std::endl;
+    }
+    
+    participant->addVisibleEntity(entity);
 }

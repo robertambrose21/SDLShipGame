@@ -14,8 +14,8 @@ private:
     
     void checkForItems(void);
     void assignEngagements(int participantIdToCheck);
-    void compareAndEngagementParticipants(Participant* participantA, Participant* participantB);
-    bool hasEntityEngagement(Entity* entityToCheck, Participant* participant);
+    void compareAndEngageParticipants(Participant* participantA, Participant* participantB);
+    bool hasEntityEngagement(Entity* target, Participant* participant);
 
 public:
     ServerTurnController();
