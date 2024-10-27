@@ -302,7 +302,6 @@ void GridRenderer::draw(GraphicsContext& graphicsContext) {
         chunk->texture->draw(graphicsContext.getRenderer(), NULL, &dst);
     }
 
-    // TODO: rebuild on entity set position
     if(fogTextureNeedsRebuilding) {
         buildFogTexture(graphicsContext);
     }
@@ -368,8 +367,7 @@ void GridRenderer::onPublish(const Event<GridDirtyEventData>& event) {
 }
 
 void GridRenderer::onPublish(const Event<TilesRevealedEventData>& event) {
-    // TODO: Handle properly
-    if(event.data.participantId != 1) {
+    if(event.data.participantId != participant->getId()) {
         return;
     }
 

@@ -168,59 +168,6 @@ public:
     YOJIMBO_VIRTUAL_SERIALIZE_FUNCTIONS();
 };
 
-// TODO: Serialize functions for entities/weapons
-// class GameStateUpdateMessage : public yojimbo::Message {
-// public:
-//     GameStateUpdate gameStateUpdate;
-
-//     GameStateUpdateMessage()
-//     { }
-
-//     template <typename Stream>
-//     bool Serialize(Stream& stream) {
-//         serialize_int(stream, gameStateUpdate.numEntities, 0, MaxEntities);
-//         for(int i = 0; i < gameStateUpdate.numEntities; i++) {
-//             auto& entity = gameStateUpdate.entities[i];
-
-//             serialize_uint32(stream, entity.id);
-//             serialize_string(stream, entity.name, sizeof(entity.name));
-//             serialize_bits(stream, entity.participantId, 16);
-//             serialize_bool(stream, entity.isEngaged);
-//             serialize_bits(stream, entity.totalHP, 16);
-//             // TODO: This screws up if currentHP goes negative
-//             serialize_int(stream, entity.currentHP, -256, 256);
-//             serialize_bits(stream, entity.x, 16);
-//             serialize_bits(stream, entity.y, 16);
-
-//             // Weapons
-//             serialize_bytes(stream, entity.currentWeaponIdBytes, 16);
-//             serialize_int(stream, entity.numWeapons, 0, MaxWeapons);
-//             for(int j = 0; j < entity.numWeapons; j++) {
-//                 auto& weapon = entity.weaponUpdates[j];
-                
-//                 serialize_bytes(stream, weapon.idBytes, 16);
-//                 serialize_string(stream, weapon.name, sizeof(weapon.name));
-//                 serialize_string(stream, weapon.weaponClass, sizeof(weapon.weaponClass));
-//                 serialize_string(stream, weapon.projectile, sizeof(weapon.projectile));
-//                 serialize_bits(stream, weapon.damage, 16);
-//                 serialize_bits(stream, weapon.range, 16);
-//                 serialize_bits(stream, weapon.uses, 16);
-//                 serialize_bits(stream, weapon.usesLeft, 16);
-//                 serialize_bool(stream, weapon.hasItem);
-//                 serialize_uint32(stream, weapon.itemId);
-//             }
-//         }
-        
-//         serialize_int(stream, gameStateUpdate.currentParticipantId, 0, 64);
-//         serialize_bits(stream, gameStateUpdate.numExpectedChunks, 8);
-//         serialize_uint32(stream, gameStateUpdate.chunkId);
-
-//         return true;
-//     }
-
-//     YOJIMBO_VIRTUAL_SERIALIZE_FUNCTIONS();
-// };
-
 class GameTestMessage : public yojimbo::Message {
 public:
     uint32_t data;
