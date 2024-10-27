@@ -131,7 +131,7 @@ void ServerApplication::onClientConnect(int clientIndex) {
     // sendGameStateUpdatesToClients();
 }
 
-// TODO: Send only blocks which the client can see
+// TODO: This is not needed when using the fog of war visibility - reserve for when we want to reveal the whole map.
 void ServerApplication::sendLoadMapToClient(int clientIndex) {
     auto& context = application->getContext();
     auto grid = context.getGrid();
@@ -175,7 +175,7 @@ void ServerApplication::sendLoadMapToClient(int clientIndex) {
             << "]"
             << std::endl;
 
-        transmitter->sendLoadMap(clientIndex, block);
+        // transmitter->sendLoadMap(clientIndex, block);
     }
 
     sendGameStateUpdatesToClients();
