@@ -36,6 +36,7 @@ void Texture::draw(
 ) {
     SDL_SetTextureAlphaMod(texture.get(), alpha);
     SDL_SetTextureColorMod(texture.get(), colour.r, colour.g, colour.b);
+    SDL_SetTextureBlendMode(texture.get(), SDL_BLENDMODE_BLEND);
     SDL_RenderCopy(renderer, texture.get(), srcRect, dstRect);
 }
 

@@ -22,8 +22,10 @@
 #include "game/actions/equipweaponaction.h"
 #include "game/items/itemcontroller.h"
 #include "game/effects/effectcontroller.h"
+#include "game/participant/participant.h"
 
 class BehaviourStrategy;
+class Participant;
 
 class TurnController : 
     public EventPublisher<
@@ -36,26 +38,21 @@ class TurnController :
         EquipWeaponActionEventData
     >
 {
-public:
-    // TODO: This should probably be moved to a separate class soon
-    // TODO: Consider making entities a map rather than a set
-    typedef struct _participant {
-        int id;
-        bool isReady;
-        bool isPlayer;
-        std::vector<Entity*> entities;
-        std::vector<Item*> items;
-        bool passNextTurn;
-        std::unique_ptr<BehaviourStrategy> behaviourStrategy;
-        std::set<int> engagements;
-    } Participant;
 
 protected:
+    typedef struct _engagement {
+        int participantIdA;
+        int participantIdB;
+        bool isDisengage;
+    } Engagement;
+
     ApplicationContext* context;
     bool initialised;
 
     int turnNumber;
     int currentParticipantId;
+
+    std::map<int, std::vector<Engagement>> engagementsQueue;
 
     std::map<int, std::unique_ptr<Participant>> participants;
     std::vector<std::function<void(int, int)>> onNextTurnWorkers;
@@ -64,9 +61,10 @@ protected:
     void endCurrentParticipantTurn(void);
     void nextParticipantTurn(void);
     void executeEntityActions(Entity* entity);
-    void incrementEntitiesTurn(std::vector<Entity*> entities);
     void incrementTurn(void);
     void publishAction(Action& action);
+
+    void processEngagements();
 
     virtual bool canProgressToNextTurn(int participantId) = 0;
     virtual void additionalUpdate(int64_t timeSinceLastFrame, bool& quit) = 0;
@@ -79,10 +77,9 @@ public:
 
     Participant* addParticipant(
         bool isPlayer,
-        const std::vector<Entity*>& entities, 
+        const std::vector<Entity*>& entities,
         std::unique_ptr<BehaviourStrategy> behaviourStrategy = nullptr,
-        bool isReady = true
-    );
+        bool isReady = true);
     Participant* addParticipant(
         int id,
         bool isPlayer,
@@ -94,6 +91,8 @@ public:
     Participant* getParticipant(int id);
     std::vector<Participant*> getParticipants(void);
 
+    void queueEngagement(int turnNumber, const Engagement& engagement);
+
     void engage(int participantIdA, int participantIdB);
     void disengage(int participantIdA, int participantIdB);
 
@@ -101,7 +100,7 @@ public:
     
     void passParticipant(int id);
     void setCurrentParticipant(int id);
-    int getCurrentParticipant(void) const;
+    int getCurrentParticipantId(void) const;
 
     bool queueAction(std::unique_ptr<Action> action);
     void executeActions(int participantId);

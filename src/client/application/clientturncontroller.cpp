@@ -1,8 +1,7 @@
 #include "clientturncontroller.h"
 
 ClientTurnController::ClientTurnController() :
-    TurnController(),
-    receivedValidNextTurnFlag(false)
+    TurnController()
 { }
 
 void ClientTurnController::additionalUpdate(int64_t timeSinceLastFrame, bool& quit) {
@@ -10,27 +9,22 @@ void ClientTurnController::additionalUpdate(int64_t timeSinceLastFrame, bool& qu
 }
 
 bool ClientTurnController::canProgressToNextTurn(int participantId) {
-    if(!receivedValidNextTurnFlag) {
+    if(nextTurnFlags.empty()) {
         return false;
     }
 
     auto& participant = participants[participantId];
 
-    for(auto entity : participant->entities) {
+    for(auto entity : participant->getEntities()) {
         if(entity->hasAnimationsInProgress() || !entity->getActionsChain(turnNumber).empty()) {
             return false;
         }
     }
 
-    receivedValidNextTurnFlag = false;
+    nextTurnFlags.pop();
     return true;
 }
 
-// TODO: This should be queued up instead of just silently ignored.
-// - May want to consider in the future sending an ACK to the server in case something gets stuck
-void ClientTurnController::receiveSetNextTurnFlag(int participantId, int turnNumber) {
-    if(this->currentParticipantId == participantId && this->turnNumber == turnNumber) {
-        receivedValidNextTurnFlag = true;
-    }
-    // TODO: else, handle desync?
+void ClientTurnController::receiveSetNextTurnFlag(int participantId, int receivedTurnNumber) {
+    nextTurnFlags.push(receivedTurnNumber);
 }

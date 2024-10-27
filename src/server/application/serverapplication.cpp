@@ -22,7 +22,8 @@ void ServerApplication::initialise(void) {
         std::make_unique<ServerTurnController>(),
         std::make_unique<ItemController>(),
         std::make_unique<EffectController>(),
-        std::make_unique<SpawnController>()
+        std::make_unique<SpawnController>(),
+        std::make_unique<VisiblityController>()
     );
 
     auto& context = application->getContext();
@@ -34,6 +35,7 @@ void ServerApplication::initialise(void) {
     context.getEntityPool()->initialise(application->getContext());
     context.getItemController()->initialise(application->getContext());
     context.getSpawnController()->initialise(application->getContext());
+    context.getVisibilityController()->initialise(application->getContext());
 
     context.getTurnController()->subscribe<TurnEventData>(&stdoutSubscriber);
     context.getEntityPool()->subscribe<EntityEventData>(&stdoutSubscriber);
@@ -45,7 +47,10 @@ void ServerApplication::initialise(void) {
     context.getTurnController()->subscribe<EngagementEventData>(&stdoutSubscriber);
     context.getTurnController()->subscribe<EquipItemActionEventData>(&stdoutSubscriber);
 
-    server = std::make_unique<GameServer>(yojimbo::Address("127.0.0.1", 8081));
+    server = std::make_unique<GameServer>(
+        std::make_unique<GameMessageLogger>("server_messages.log"),
+        yojimbo::Address("127.0.0.1", 8081)
+    );
 
     receiver = std::make_unique<GameServerMessagesReceiver>(application->getContext());
     transmitter = std::make_unique<GameServerMessagesTransmitter>(
@@ -73,6 +78,10 @@ void ServerApplication::initialise(void) {
     context.getWeaponController()->subscribe<MeleeWeaponEventData>(transmitter.get());
     context.getEffectController()->subscribe<EntityEffectEvent>(transmitter.get());
     context.getEffectController()->subscribe<GridEffectEvent>(transmitter.get());
+    context.getVisibilityController()->subscribe<TilesRevealedEventData>(transmitter.get());
+    context.getEntityPool()->subscribe<EntitySetPositionEventData>(context.getVisibilityController());
+    context.getEntityPool()->subscribe<EntitySetPositionEventData>(transmitter.get());
+    context.getVisibilityController()->subscribe<EntityVisibilityToParticipantData>(transmitter.get());
 
     application->addLogicWorker([&](ApplicationContext& c, auto const& timeSinceLastFrame, auto& quit) {
         server->update(timeSinceLastFrame);
@@ -102,21 +111,27 @@ void ServerApplication::run(void) {
 void ServerApplication::onClientConnect(int clientIndex) {
     auto& context = application->getContext();
 
-    auto player = addPlayer(false);
-    auto participantId = context.getTurnController()->addParticipant(true, { player })->id;
+    auto clientParticipant = context.getTurnController()->addParticipant(true, { addPlayer(false) });
     context.getTurnController()->reset();
 
-    // TODO: Set this up so players are assigned properly.
-    // Currently participant "0" is the player
-    dynamic_cast<ServerTurnController*>(context.getTurnController())->attachParticipantToClient(participantId, clientIndex);
+    dynamic_cast<ServerTurnController*>(context.getTurnController())
+        ->attachParticipantToClient(clientParticipant->getId(), clientIndex);
 
     for(auto& participant : context.getTurnController()->getParticipants()) {
         transmitter->sendSetParticipant(clientIndex, participant);
     }
     
     sendLoadMapToClient(clientIndex);
+
+    // Temp hack to trigger a grid tile reveal
+    for(auto entity : clientParticipant->getEntities()) {
+        entity->setPosition(entity->getPosition());
+    }
+
+    // sendGameStateUpdatesToClients();
 }
 
+// TODO: Send only blocks which the client can see
 void ServerApplication::sendLoadMapToClient(int clientIndex) {
     auto& context = application->getContext();
     auto grid = context.getGrid();
@@ -168,18 +183,33 @@ void ServerApplication::sendLoadMapToClient(int clientIndex) {
 
 void ServerApplication::sendGameStateUpdatesToClients(void) {
     auto& context = application->getContext();
-    auto currentParticipantId = context.getTurnController()->getCurrentParticipant();
-    auto allEntities = context.getEntityPool()->getEntities();
+
+    auto chunkId = getNewId();
+
+    // auto currentParticipantId = context.getTurnController()->getCurrentParticipant();
+    auto currentParticipantId = 1; // TODO: This should be mapped to the client index
+    auto visibleEntities = context.getTurnController()->getParticipant(currentParticipantId)->getVisibleEntities();
     std::vector<Entity*> entitiesBlock;
 
-    for(auto entity : allEntities) {
+    // TODO: Handle overflow?
+    uint8_t expectedNumChunks = visibleEntities.size() / MaxEntities;
+    if(visibleEntities.size() % MaxEntities > 0) {
+        expectedNumChunks++;
+    }
+
+    for(auto entity : visibleEntities) {
+        if(entity->getCurrentStats().common.hp <= 0) {
+            std::cout << "Entity with 0 hp, should not happen" << std::endl;
+        }
+
         entitiesBlock.push_back(entity);
 
         if(entitiesBlock.size() == MaxEntities) {
             transmitter->sendGameStateUpdate(
                 0, 
-                GameStateUpdate::serialize(currentParticipantId, entitiesBlock)
+                GameStateUpdate::serialize(currentParticipantId, entitiesBlock, chunkId, expectedNumChunks)
             );
+            std::cout << "Sent GameStateUpdate ["  << entitiesBlock.size() << "]" << std::endl;
             entitiesBlock.clear();
         }
     }
@@ -187,11 +217,12 @@ void ServerApplication::sendGameStateUpdatesToClients(void) {
     if(!entitiesBlock.empty()) {
         transmitter->sendGameStateUpdate(
             0, 
-            GameStateUpdate::serialize(currentParticipantId, entitiesBlock)
+            GameStateUpdate::serialize(currentParticipantId, entitiesBlock, chunkId, expectedNumChunks)
         );
+        std::cout << "Sent GameStateUpdate ["  << entitiesBlock.size() << "]" << std::endl;
     }
 
-    // std::cout << "Sent GameStateUpdate" << std::endl;
+    std::cout << "Total entities " << visibleEntities.size() << std::endl;
 }
 
 std::vector<GenerationStrategy::Room> ServerApplication::loadMap(void) {

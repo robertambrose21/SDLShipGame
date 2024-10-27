@@ -11,6 +11,7 @@ PlayerController::PlayerController(
     gridRenderer(graphicsContext.getGridRenderer()),
     turnController(context.getTurnController()),
     entityPool(context.getEntityPool()),
+    grid(context.getGrid()),
     camera(graphicsContext.getGridRenderer().getCamera()),
     isLeftShiftPressed(false),
     isCurrentWeaponInRange(true),
@@ -113,8 +114,8 @@ void PlayerController::handleKeyPress(const SDL_Event& event) {
     if(event.type == SDL_KEYDOWN && event.key.repeat == 0) {
         switch(event.key.keysym.sym) {
             case SDLK_p: {
-                clientMessagesTransmitter.sendPassParticipantTurnMessage(participant->id);
-                turnController->passParticipant(participant->id);
+                clientMessagesTransmitter.sendPassParticipantTurnMessage(participant->getId());
+                turnController->passParticipant(participant->getId());
                 break;
             }
             
@@ -215,7 +216,7 @@ void PlayerController::handleMouseDown(const SDL_Event& event) {
                 break;
             }
 
-            auto entity = Entity::filterByTile(x, y, participant->entities);
+            auto entity = Entity::filterByTile(x, y, participant->getEntities());
 
             if(entity != nullptr) {
                 toggleSelection({ entity });
@@ -267,7 +268,7 @@ void PlayerController::handleMouseUp(const SDL_Event& event) {
 
                 auto tiles = gridRenderer.getGrid()->getTilesInSquare(x, y, sizeX, sizeY);
                 
-                toggleSelection(Entity::filterByTiles(tiles, participant->entities));
+                toggleSelection(Entity::filterByTiles(tiles, participant->getEntities()));
             }
             break;
         }
@@ -293,7 +294,7 @@ void PlayerController::toggleSelection(const std::vector<Entity*>& entities) {
 }
 
 void PlayerController::selectAll(void) {
-    toggleSelection(participant->entities);
+    toggleSelection(participant->getEntities());
 }
 
 void PlayerController::deselectAll(void) {
@@ -306,9 +307,9 @@ void PlayerController::deselectAll(void) {
 
 void PlayerController::move(const glm::ivec2& position) {
     for(auto const& entity : selectedEntities) {
-        clientMessagesTransmitter.sendFindPathMessage(entity->getId(), position, 0);
-        if(turnController->queueAction(std::make_unique<MoveAction>(turnController->getTurnNumber(), entity, position))) {
+        if(!grid->findPath(entity->getPosition(), position).empty()) {
             dice->clickAction(0);
+            clientMessagesTransmitter.sendFindPathMessage(entity->getId(), position, 0);
         }
     }
 }
@@ -316,16 +317,15 @@ void PlayerController::move(const glm::ivec2& position) {
 void PlayerController::attack(const glm::ivec2& target) {
     for(auto const& entity : selectedEntities) {
         auto const& weapon = entity->getCurrentWeapon();
-
-        clientMessagesTransmitter.sendAttackMessage(
-            entity->getId(), 
-            target, 
-            weapon->getId()
-        );
         
         // TODO: ClientTurnController actions
         if(turnController->queueAction(std::make_unique<AttackAction>(turnController->getTurnNumber(), entity, weapon, target, true))) {
             dice->clickAction(1);
+            clientMessagesTransmitter.sendAttackMessage(
+                entity->getId(), 
+                target, 
+                weapon->getId()
+            );
         }
     }
 }
@@ -412,13 +412,14 @@ const std::vector<Entity*>& PlayerController::getSelectedEntities(void) const {
     return selectedEntities;
 }
 
-void PlayerController::setParticipant(TurnController::Participant* participant) {
+void PlayerController::setParticipant(Participant* participant) {
     game_assert(participant != nullptr);
-    game_assert(participant->isPlayer);
+    game_assert(participant->getIsPlayer());
     this->participant = participant;
+    gridRenderer.setParticipant(participant);
 }
 
-TurnController::Participant* PlayerController::getParticipant(void) {
+Participant* PlayerController::getParticipant(void) {
     return participant;
 }
 

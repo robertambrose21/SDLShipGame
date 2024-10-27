@@ -4,7 +4,7 @@
 Entity::Entity(
     Grid* grid,
     uint32_t id,
-    EventPublisher<EntityEventData>& publisher,
+    EventPublisher<EntityEventData, EntitySetPositionEventData>& publisher,
     const std::string& name,
     const AllStats& stats
 ) :
@@ -21,12 +21,13 @@ Entity::Entity(
     engaged(false),
     isFrozen(false),
     isPoisoned(false),
-    externalActionsChainNeedsRecalculating(true)
+    externalActionsChainNeedsRecalculating(true),
+    participantId(-1)
 { }
 
 Entity::Entity(
     Grid* grid,
-    EventPublisher<EntityEventData>& publisher,
+    EventPublisher<EntityEventData, EntitySetPositionEventData>& publisher,
     const std::string& name,
     const AllStats& stats
 ) : 
@@ -258,6 +259,7 @@ bool Entity::isOnTile(int x, int y) {
 
 void Entity::setPosition(const glm::ivec2& position) {
     this->position = position;
+    publisher.publish<EntitySetPositionEventData>({ this, position });
 }
 
 // TODO: use calculatePath
@@ -434,6 +436,10 @@ void Entity::setParticipantId(int participantId) {
 
 int Entity::getParticipantId(void) const {
     return participantId;
+}
+
+bool Entity::hasParticipant(void) const {
+    return participantId != -1;
 }
 
 bool Entity::getIsFrozen(void) const {

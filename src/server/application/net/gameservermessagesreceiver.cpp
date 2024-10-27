@@ -99,7 +99,7 @@ void GameServerMessagesReceiver::receiveFindPathMessage(
         return;
     }
 
-    auto const& entities = turnController->getParticipant(participantId)->entities;
+    auto const& entities = turnController->getParticipant(participantId)->getEntities();
 
     for(auto const& entity : entities) {
         if(entity->getId() == entityId) {
@@ -232,7 +232,7 @@ bool GameServerMessagesReceiver::areParticipantsLoadedForClient(int clientIndex)
     }
 
     for(auto& participant : participants) {
-        if(!loaded.contains(participant->id)) {
+        if(!loaded.contains(participant->getId())) {
             return false;
         }
     }

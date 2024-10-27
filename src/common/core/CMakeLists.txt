@@ -13,12 +13,13 @@ add_library(
     grid/generation/hallstrategy.cpp
     grid/generation/wavefunctioncollapsestrategy.cpp
     grid/generation/tileset.cpp
-    net/message/messages.h
     net/yojimboimport.h
+    net/messagelogger.cpp
     util/idgenerator.h
     util/gameassert.h
     util/randomutils.h
     util/vectorutils.h
+    util/setutils.h
     util/timing.h
     state/state.h
     state/statemachine.cpp

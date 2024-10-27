@@ -46,6 +46,7 @@ void GameServerMessagesTransmitter::onPublish(const Event<ItemEventData>& event)
     }
 }
 
+// TODO: Remove?
 void GameServerMessagesTransmitter::onPublish(const Event<MoveActionEventData>& event) {
     for(auto [participantId, clientIndex] : turnController->getAllAttachedClients()) {
         if(turnController->getAttachedClient(event.data.entity->getParticipantId()) == clientIndex) {
@@ -60,7 +61,7 @@ void GameServerMessagesTransmitter::onPublish(const Event<MoveActionEventData>& 
         message->shortStopSteps = event.data.shortStopSteps;
         message->turnNumber = event.data.turnNumber;
 
-        server.sendMessage(clientIndex, message);
+        // server.sendMessage(clientIndex, message);
     }
 }
 
@@ -106,6 +107,7 @@ void GameServerMessagesTransmitter::onPublish(const Event<EngagementEventData>& 
         message->participantIdA = event.data.participantIdA;
         message->participantIdB = event.data.participantIdB;
         message->type = event.data.type;
+        message->turnToEngageOn = turnController->getTurnNumber();
 
         server.sendMessage(clientIndex, message);
     }
@@ -188,15 +190,91 @@ void GameServerMessagesTransmitter::onPublish(const Event<GridEffectEvent>& even
     }
 }
 
+void GameServerMessagesTransmitter::onPublish(const Event<TilesRevealedEventData>& event) {
+    auto clientIndex = turnController->getAttachedClient(event.data.participantId);
+
+    if(clientIndex == -1) {
+        return;
+    }
+
+    // TODO: Generic block message structure
+    auto totalTiles = event.data.tiles.size();
+    auto numMessagesToSend = totalTiles / 64;
+    auto numTilesLastMessage = totalTiles % 64;
+
+    if(numTilesLastMessage > 0) {
+        numMessagesToSend++;
+    }
+    else {
+        numTilesLastMessage = 64;
+    }
+
+    for(int i = 0; i < numMessagesToSend; i++) {
+        TilesRevealedMessage* message = (TilesRevealedMessage*) server.createMessage(clientIndex, GameMessageType::TILES_REVEALED);
+        message->participantId = event.data.participantId;
+        message->numRevealedTiles = (i == numMessagesToSend - 1) ? numTilesLastMessage : 64;
+
+        for(int j = 0; j < message->numRevealedTiles; j++) {
+            auto tilesIndex = (i * 64) + j;
+
+            message->revealedTiles[j].id = event.data.tiles[tilesIndex].id;
+            message->revealedTiles[j].x = event.data.tiles[tilesIndex].x;
+            message->revealedTiles[j].y = event.data.tiles[tilesIndex].y;
+        }
+
+        server.sendMessage(clientIndex, message);
+    }
+}
+
+void GameServerMessagesTransmitter::onPublish(const Event<EntitySetPositionEventData>& event) {
+    for(auto [participantId, clientIndex] : turnController->getAllAttachedClients()) {
+        SetEntityPositionMessage* message =
+            (SetEntityPositionMessage*) server.createMessage(clientIndex, GameMessageType::SET_ENTITY_POSITION);
+
+        message->entityId = event.data.entity->getId();
+        message->x = event.data.position.x;
+        message->y = event.data.position.y;
+
+        // TODO: Only send if entity is visible to the participant, same with attack?
+        server.sendMessage(clientIndex, message);
+    }
+}
+
+void GameServerMessagesTransmitter::onPublish(const Event<EntityVisibilityToParticipantData>& event) {
+    int clientIndex = turnController->getAttachedClient(event.data.participantId);
+
+    if(clientIndex == -1) {
+        return;
+    }
+
+    if(event.data.isVisible) {
+        AddEntityVisibilityMessage* message =
+            (AddEntityVisibilityMessage*) server.createMessage(clientIndex, GameMessageType::ADD_ENTITY_VISIBILITY);
+
+        message->entity = EntityStateUpdate::serialize(event.data.entity);
+        message->participantId = event.data.participantId;
+        server.sendMessage(clientIndex, message);
+    } 
+    else {
+        RemoveEntityVisibilityMessage* message = 
+            (RemoveEntityVisibilityMessage*) server.createMessage(clientIndex, GameMessageType::REMOVE_ENTITY_VISIBILITY);
+
+        message->entityId = event.data.entity->getId();
+        message->participantId = event.data.participantId;
+
+        server.sendMessage(clientIndex, message);
+    }
+}
+
 void GameServerMessagesTransmitter::sendSetParticipant(
     int clientIndex, 
-    TurnController::Participant* participant
+    Participant* participant
 ) {
     SetParticipantMessage* message = (SetParticipantMessage*) server.createMessage(clientIndex, GameMessageType::SET_PARTICIPANT);
 
-    message->participantId = participant->id;
+    message->participantId = participant->getId();
     message->numParticipantsToSet = turnController->getParticipants().size();
-    message->isPlayer = participant->isPlayer;
+    message->isPlayer = participant->getIsPlayer();
 
     server.sendMessage(clientIndex, message);
 }

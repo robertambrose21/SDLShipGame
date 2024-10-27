@@ -1,7 +1,7 @@
 #pragma once
 
 #include "core/glmimport.h"
-#include "core/net/message/messages.h"
+#include "game/message/messages.h"
 #include "core/net/gameclient.h"
 
 class GameClientMessagesTransmitter {

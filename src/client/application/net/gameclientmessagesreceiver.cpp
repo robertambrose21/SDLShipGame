@@ -1,7 +1,10 @@
 #include "gameclientmessagesreceiver.h"
 
 // Handle with events?
-GameClientMessagesReceiver::GameClientMessagesReceiver(ApplicationContext& context, const std::map<int, bool>& walkableTileIds) :
+GameClientMessagesReceiver::GameClientMessagesReceiver(
+    ApplicationContext& context, 
+    const std::map<int, bool>& walkableTileIds
+) :
     context(context),
     walkableTileIds(walkableTileIds)
 { }
@@ -16,159 +19,57 @@ void GameClientMessagesReceiver::setPlayerController(PlayerController* playerCon
 
 void GameClientMessagesReceiver::receiveMessage(yojimbo::Message* message) {
     switch(message->GetType()) {
-        case (int) GameMessageType::GAME_STATE_UPDATE: {
-            GameStateUpdateMessage* updateMessage = (GameStateUpdateMessage*) message;
-            receiveGameStateUpdate(updateMessage->gameStateUpdate);
-            break;
-        }
-
-        case (int) GameMessageType::TEST_MESSAGE: {
-            GameTestMessage* testMessage = (GameTestMessage*) message;
-            receiveTestMessage(testMessage->data);
-            break;
-        }
-
-        case (int) GameMessageType::SET_PARTICIPANT: {
-            SetParticipantMessage* setParticipantMessage = (SetParticipantMessage*) message;
-            receiveSetParticipant(
-                setParticipantMessage->participantId,
-                setParticipantMessage->numParticipantsToSet,
-                setParticipantMessage->isPlayer
-            );
-            break;
-        }
-
-        case (int) GameMessageType::LOAD_MAP: {
-            LoadMapMessage* loadMapMessage = (LoadMapMessage*) message;
-            receiveLoadMap(loadMapMessage->mapBlock);
-            break;
-        }
-
-        case (int) GameMessageType::FIND_PATH: {
-            FindPathMessage* findPathMessage = (FindPathMessage*) message;
-            receiveFindPath(
-                findPathMessage->entityId,
-                { findPathMessage->x, findPathMessage->y },
-                findPathMessage->shortStopSteps,
-                findPathMessage->turnNumber
-            );
-            break;
-        }
-
-        case (int) GameMessageType::ATTACK_ENTITY: {
-            AttackMessage* attackMessage = (AttackMessage*) message;
-            receiveAttackEntity(
-                attackMessage->entityId,
-                attackMessage->x,
-                attackMessage->y,
-                attackMessage->weaponIdBytes,
-                attackMessage->turnNumber
-            );
-            break;
-        }
-
-        case (int) GameMessageType::NEXT_TURN: {
-            NextTurnMessage* nextTurnMessage = (NextTurnMessage*) message;
-            receiveNextTurn(nextTurnMessage->participantId, nextTurnMessage->turnNumber);
-            break;
-        }
-
-        case (int) GameMessageType::SPAWN_ITEMS: {
-            SpawnItemsMessage* spawnItemsMessage = (SpawnItemsMessage*) message;
-            receiveSpawnItems(
-                glm::ivec2(spawnItemsMessage->x, spawnItemsMessage->y),
-                spawnItemsMessage->ownerId,
-                spawnItemsMessage->numItems,
-                spawnItemsMessage->items
-            );
-            break;
-        }
-
-        case (int) GameMessageType::TAKE_ITEMS: {
-            TakeItemsMessage* takeItemsMessage = (TakeItemsMessage*) message;
-            receiveTakeItems(
-                takeItemsMessage->entityId,
-                takeItemsMessage->numItems,
-                takeItemsMessage->items,
-                takeItemsMessage->turnNumber
-            );
-            break;
-        }
-
-        case (int) GameMessageType::ENGAGEMENT: {
-            EngagementMessage* engagementMessage = (EngagementMessage*) message;
-            receiveEngagement(engagementMessage->participantIdA, engagementMessage->participantIdB, engagementMessage->type);
-            break;
-        }
-
-        case (int) GameMessageType::APPLY_DAMAGE: {
-            ApplyDamageMessage* applyDamageMessage = (ApplyDamageMessage*) message;
-            receiveApplyDamageMessage(
-                applyDamageMessage->fromId, 
-                applyDamageMessage->targetId, 
-                applyDamageMessage->source, 
-                applyDamageMessage->damage
-            );
-            break;
-        }
-
-        case (int) GameMessageType::APPLY_ENTITY_EFFECT: {
-            ApplyEntityEffectMessage* applyEntityEffectMessage = (ApplyEntityEffectMessage*) message;
-            receiveApplyEntityEffectMessage(
-                applyEntityEffectMessage->type,
-                applyEntityEffectMessage->targetId,
-                applyEntityEffectMessage->effectStats
-            );
-            break;
-        }
-
-        case (int) GameMessageType::APPLY_GRID_EFFECT: {
-            ApplyGridEffectMessage* applyGridEffectMessage = (ApplyGridEffectMessage*) message;
-            receiveApplyGridEffectMessage(
-                applyGridEffectMessage->type,
-                applyGridEffectMessage->x,
-                applyGridEffectMessage->y,
-                applyGridEffectMessage->duration
-            );
-            break;
-        }
+        case (int) GameMessageType::GAME_STATE_UPDATE:          { receiveGameStateUpdate((GameStateUpdateMessage*) message); break; }
+        case (int) GameMessageType::TEST_MESSAGE:               { receiveTestMessage((GameTestMessage*) message); break;}
+        case (int) GameMessageType::SET_PARTICIPANT:            { receiveSetParticipant((SetParticipantMessage*) message); break; }
+        case (int) GameMessageType::LOAD_MAP:                   { receiveLoadMap((LoadMapMessage*) message); break; }
+        case (int) GameMessageType::FIND_PATH:                  { receiveFindPath((FindPathMessage*) message); break; }
+        case (int) GameMessageType::ATTACK_ENTITY:              { receiveAttackEntity((AttackMessage*) message); break; }
+        case (int) GameMessageType::NEXT_TURN:                  { receiveNextTurn((NextTurnMessage*) message); break; }
+        case (int) GameMessageType::SPAWN_ITEMS:                { receiveSpawnItems((SpawnItemsMessage*) message); break; }
+        case (int) GameMessageType::TAKE_ITEMS:                 { receiveTakeItems((TakeItemsMessage*) message); break; }
+        case (int) GameMessageType::ENGAGEMENT:                 { receiveEngagement((EngagementMessage*) message); break; }
+        case (int) GameMessageType::APPLY_DAMAGE:               { receiveApplyDamageMessage((ApplyDamageMessage*) message); break; }
+        case (int) GameMessageType::APPLY_ENTITY_EFFECT:        { receiveApplyEntityEffectMessage((ApplyEntityEffectMessage*) message); break; }
+        case (int) GameMessageType::APPLY_GRID_EFFECT:          { receiveApplyGridEffectMessage((ApplyGridEffectMessage*) message); break; }
+        case (int) GameMessageType::TILES_REVEALED:             { receiveTilesRevealedMessage((TilesRevealedMessage*) message); break; }
+        case (int) GameMessageType::SET_ENTITY_POSITION:        { receiveSetEntityPositionMessage((SetEntityPositionMessage*) message); break; }
+        case (int) GameMessageType::ADD_ENTITY_VISIBILITY:      { receiveAddEntityVisibilityMessage((AddEntityVisibilityMessage*) message); break; }
+        case (int) GameMessageType::REMOVE_ENTITY_VISIBILITY:   { receiveRemoveEntityVisibilityMessage((RemoveEntityVisibilityMessage*) message); break; }
 
         default:
-            std::cout << "Received unhandled message: " << message << std::endl;
+            std::cout << "Received unhandled message: " << message->GetType() << std::endl;
             break;
     }
 }
 
-void GameClientMessagesReceiver::receiveGameStateUpdate(const GameStateUpdate& update) {
+void GameClientMessagesReceiver::receiveGameStateUpdate(GameStateUpdateMessage* message) {
     // std::cout << "Got game state update " << update.currentParticipantId << std::endl;
-    context.getEntityPool()->addGameStateUpdate(update);
+    context.getEntityPool()->addGameStateUpdate(message->gameStateUpdate);
 }
 
-void GameClientMessagesReceiver::receiveTestMessage(int data) {
-    std::cout << "Received test data " << data << std::endl;
+void GameClientMessagesReceiver::receiveTestMessage(GameTestMessage* message) {
+    std::cout << "Received test data " << message->data << std::endl;
 }
 
-void GameClientMessagesReceiver::receiveSetParticipant(
-    int participantId,
-    int numParticipantsToSet,
-    bool isPlayer
-) {
+void GameClientMessagesReceiver::receiveSetParticipant(SetParticipantMessage* message) {
     auto turnController = context.getTurnController();
-    auto const& participant = turnController->addParticipant(participantId, isPlayer, { }, nullptr, false);
+    auto participant = turnController->addParticipant(message->participantId, message->isPlayer, { }, nullptr, false);
 
-    if(isPlayer) {
+    if(message->isPlayer) {
         playerController->setParticipant(participant);
     }
 
-    if(numParticipantsToSet == turnController->getParticipants().size()) {
+    if(message->numParticipantsToSet == turnController->getParticipants().size()) {
         turnController->allParticipantsSet();
     }
 
-    transmitter->sendSetParticipantAckMessage(participantId);
+    transmitter->sendSetParticipantAckMessage(message->participantId);
 }
 
-void GameClientMessagesReceiver::receiveLoadMap(const MapBlock& block) {
+void GameClientMessagesReceiver::receiveLoadMap(LoadMapMessage* message) {
     // TODO: Sequencing
+    auto block = message->mapBlock;
     auto grid = context.getGrid();
     auto offset = block.sequence * MaxMapBlockSize;
 
@@ -177,7 +78,7 @@ void GameClientMessagesReceiver::receiveLoadMap(const MapBlock& block) {
         auto y = (i + offset) % block.width;
         auto id = block.data[i];
 
-        grid->setTile(x, y, { id, walkableTileIds[id], false });
+        // grid->setTile(x, y, { id, walkableTileIds[id], false }, false);
     }
 
     std::cout 
@@ -189,45 +90,39 @@ void GameClientMessagesReceiver::receiveLoadMap(const MapBlock& block) {
         << std::endl;
 }
 
-void GameClientMessagesReceiver::receiveFindPath(
-    uint32_t entityId, 
-    const glm::ivec2& position,
-    int shortStopSteps,
-    int turnNumber
-) {
-    if(!context.getEntityPool()->hasEntity(entityId)) {
+void GameClientMessagesReceiver::receiveFindPath(FindPathMessage* message) {
+    if(!context.getEntityPool()->hasEntity(message->entityId)) {
         return;
     }
 
-    auto const& entity = context.getEntityPool()->getEntity(entityId);
+    auto const& entity = context.getEntityPool()->getEntity(message->entityId);
     
-    context.getTurnController()->queueAction(std::make_unique<MoveAction>(turnNumber, entity, position, shortStopSteps));
+    context.getTurnController()->queueAction(std::make_unique<MoveAction>(
+        message->turnNumber, 
+        entity, 
+        glm::ivec2(message->x, message->y), 
+        message->shortStopSteps
+    ));
 }
 
-void GameClientMessagesReceiver::receiveAttackEntity(
-    uint32_t entityId, 
-    int x,
-    int y,
-    uint8_t weaponIdBytes[16],
-    int turnNumber
-) {
+void GameClientMessagesReceiver::receiveAttackEntity(AttackMessage* message) {
     auto entityPool = context.getEntityPool();
 
-    if(!entityPool->hasEntity(entityId)) {
+    if(!entityPool->hasEntity(message->entityId)) {
         return;
     }
 
-    auto weaponId = UUID::fromBytes(weaponIdBytes);
-    auto const& entity = entityPool->getEntity(entityId);
+    auto weaponId = UUID::fromBytes(message->weaponIdBytes);
+    auto const& entity = entityPool->getEntity(message->entityId);
 
     for(auto weapon : entity->getWeapons()) {
         if(weapon->getId() == weaponId) {
             context.getTurnController()->queueAction(
                 std::make_unique<AttackAction>(
-                    turnNumber, 
+                    message->turnNumber, 
                     entity, 
                     weapon, 
-                    glm::ivec2(x, y), 
+                    glm::ivec2(message->x, message->y), 
                     true
                 )
             );
@@ -235,102 +130,88 @@ void GameClientMessagesReceiver::receiveAttackEntity(
     }
 }
 
-void GameClientMessagesReceiver::receiveNextTurn(int participantId, int turnNumber) {
-    dynamic_cast<ClientTurnController*>(context.getTurnController())->receiveSetNextTurnFlag(participantId, turnNumber);
+void GameClientMessagesReceiver::receiveNextTurn(NextTurnMessage* message) {
+    dynamic_cast<ClientTurnController*>(context.getTurnController())->receiveSetNextTurnFlag(message->participantId, message->turnNumber);
 }
 
-void GameClientMessagesReceiver::receiveSpawnItems(
-    const glm::ivec2& position, 
-    uint32_t ownerId,
-    int numItems, 
-    ItemUpdate items[64]
-) {
+void GameClientMessagesReceiver::receiveSpawnItems(SpawnItemsMessage* message) {
     auto entityPool = context.getEntityPool();
 
     Entity* owner = nullptr;
 
-    if(entityPool->hasEntity(ownerId)) {
-        owner = entityPool->getEntity(ownerId);
+    if(entityPool->hasEntity(message->ownerId)) {
+        owner = entityPool->getEntity(message->ownerId);
     }
 
-    for(int i = 0; i < numItems; i++) {
-        context.getItemController()->addItem(items[i].name, position, items[i].id, owner);
+    for(int i = 0; i < message->numItems; i++) {
+        context.getItemController()->addItem(message->items[i].name, { message->x, message->y }, message->items[i].id, owner);
     }
 }
 
-void GameClientMessagesReceiver::receiveTakeItems(
-    uint32_t entityId,
-    int numItems,
-    ItemUpdate items[64],
-    int turnNumber
-) {
+void GameClientMessagesReceiver::receiveTakeItems(TakeItemsMessage* message) {
     auto entityPool = context.getEntityPool();
 
-    if(!entityPool->hasEntity(entityId)) {
+    if(!entityPool->hasEntity(message->entityId)) {
         return;
     }
 
-    auto const& entity = entityPool->getEntity(entityId);
+    auto const& entity = entityPool->getEntity(message->entityId);
 
     std::vector<Item*> itemsToTake;
 
-    for(int i = 0; i < numItems; i++) {
-        auto item = context.getItemController()->getItem(items[i].id);
+    for(int i = 0; i < message->numItems; i++) {
+        auto item = context.getItemController()->getItem(message->items[i].id);
 
         if(item != nullptr) {
             itemsToTake.push_back(item);
         }
     }
 
-    context.getTurnController()->queueAction(std::make_unique<TakeItemAction>(turnNumber, entity, itemsToTake));
+    context.getTurnController()->queueAction(std::make_unique<TakeItemAction>(message->turnNumber, entity, itemsToTake));
 }
 
-void GameClientMessagesReceiver::receiveEngagement(int participantIdA, int participantIdB, int type) {
-    switch(type) {
-        case EngagementEventData::ENGAGED:
-            context.getTurnController()->engage(participantIdA, participantIdB);
-            break;
-
-        case EngagementEventData::DISENGAGED:
-            context.getTurnController()->disengage(participantIdA, participantIdB);
-            break;
-
-        default:
-            break;
-    }
+void GameClientMessagesReceiver::receiveEngagement(EngagementMessage* message) {
+    context.getTurnController()->queueEngagement(
+        message->turnToEngageOn, 
+        { 
+            message->participantIdA, 
+            message->participantIdB, 
+            message->type == EngagementEventData::DISENGAGED 
+        }
+    );
 }
 
-void GameClientMessagesReceiver::receiveApplyDamageMessage(int fromId, uint32_t targetId, uint8_t source, int damage) {
+void GameClientMessagesReceiver::receiveApplyDamageMessage(ApplyDamageMessage* message) {
     auto entityPool = context.getEntityPool();
 
-    if(!entityPool->hasEntity(targetId)) {
+    if(!entityPool->hasEntity(message->targetId)) {
         return;
     }
 
-    auto const& entity = entityPool->getEntity(targetId);
+    auto const& entity = entityPool->getEntity(message->targetId);
 
-    entity->takeDamage(damage);
+    entity->takeDamage(message->damage);
 
-    publish<ApplyDamageEventData>({ fromId, entity, (DamageType) source, damage });
+    publish<ApplyDamageEventData>({ message->fromId, entity, (DamageType) message->source, message->damage });
 }
 
-void GameClientMessagesReceiver::receiveApplyEntityEffectMessage(uint8_t type, uint32_t targetId, const EffectStatsUpdate& effectStats) {
+void GameClientMessagesReceiver::receiveApplyEntityEffectMessage(ApplyEntityEffectMessage* message) {
     auto entityPool = context.getEntityPool();
 
-    if(!entityPool->hasEntity(targetId)) {
+    if(!entityPool->hasEntity(message->targetId)) {
         return;
     }
 
-    auto const& target = entityPool->getEntity(targetId);
+    auto const& target = entityPool->getEntity(message->targetId);
 
     std::vector<int> damageTicks;
-    for(int i = 0; i < effectStats.numDamageTicks; i++) {
-        damageTicks.push_back(effectStats.damageTicks[i]);
+    for(int i = 0; i < message->effectStats.numDamageTicks; i++) {
+        damageTicks.push_back(message->effectStats.damageTicks[i]);
     }
 
-    auto stats = EffectStats((EffectType) effectStats.effectType, effectStats.duration, damageTicks);
+    auto stats = EffectStats((EffectType) message->effectStats.effectType, message->effectStats.duration, damageTicks);
 
-    switch((EffectType) type) {
+    switch((EffectType) message->type) {
         case FREEZE:
             context.getEffectController()->addEffect(std::make_unique<FreezeEffect>(target, stats));
             break;
@@ -344,13 +225,120 @@ void GameClientMessagesReceiver::receiveApplyEntityEffectMessage(uint8_t type, u
     }
 }
 
-void GameClientMessagesReceiver::receiveApplyGridEffectMessage(uint8_t type, int x, int y, uint8_t duration) {
-    switch((EffectType) type) {
+void GameClientMessagesReceiver::receiveApplyGridEffectMessage(ApplyGridEffectMessage* message) {
+    switch((EffectType) message->type) {
         case FREEZE:
-            context.getEffectController()->addGridEffect(std::make_unique<GridFreezeEffect>(context.getGrid(), x, y, duration));
+            context.getEffectController()->addGridEffect(std::make_unique<GridFreezeEffect>(
+                context.getGrid(),
+                message->x, 
+                message->y, 
+                message->duration
+            ));
             break;
 
         default:
             break;
     }
+}
+
+void GameClientMessagesReceiver::receiveTilesRevealedMessage(TilesRevealedMessage* message) {
+    std::vector<glm::ivec2> tiles;
+
+    auto grid = context.getGrid();
+
+    for(int i = 0; i < message->numRevealedTiles; i++) {
+        auto tile = message->revealedTiles[i];
+
+        tiles.push_back({ tile.x, tile.y });
+        grid->setTile(tile.x, tile.y, { tile.id, walkableTileIds[tile.id], false }, false);
+    }
+
+    context.getVisibilityController()->revealTiles(message->participantId, tiles);
+}
+
+void GameClientMessagesReceiver::receiveSetEntityPositionMessage(SetEntityPositionMessage* message) {
+    if(!context.getEntityPool()->hasEntity(message->entityId)) {
+        std::cout << "Cannot set position for unrecognized entity with id " << message->entityId << std::endl;
+        return;
+    }
+
+    auto entity = context.getEntityPool()->getEntity(message->entityId);
+
+    entity->setPosition(glm::ivec2(message->x, message->y));
+}
+
+
+void GameClientMessagesReceiver::receiveRemoveEntityVisibilityMessage(RemoveEntityVisibilityMessage* message) {
+    auto participant = playerController->getParticipant();
+    
+    if(message->participantId != participant->getId()) {
+        std::cout 
+            << "Cannot set visibility for entity with id "
+            << message->entityId
+            << " message is for participant "
+            << message->participantId
+            << " and this is participant "
+            << participant->getId()
+            << std::endl;
+        return;
+    }
+
+
+    if(context.getEntityPool()->hasEntity(message->entityId)) {
+        auto entityToRemove = context.getEntityPool()->getEntity(message->entityId);
+        participant->removeVisibleEntity(entityToRemove);
+
+        context.getEntityPool()->removeEntity(message->entityId);
+    }
+    else {
+        std::cout << std::format("Warning: removing entity which doesn't exist {}", message->entityId) << std::endl;
+    }
+}
+
+void GameClientMessagesReceiver::receiveAddEntityVisibilityMessage(AddEntityVisibilityMessage* message) {
+    auto participant = playerController->getParticipant();
+
+    if(message->participantId != participant->getId()) {
+        std::cout 
+            << "Cannot set visibility for entity with id "
+            << message->entity.id
+            << " message is for participant "
+            << message->participantId
+            << " and this is participant "
+            << participant->getId()
+            << std::endl;
+        return;
+    }
+
+    auto entityStateUpdate = message->entity;
+
+    if(context.getEntityPool()->hasEntity(entityStateUpdate.id)) {
+        std::cout << "Entity with id " << entityStateUpdate.id << " already exists and is visible" << std::endl;
+        return;
+    }
+
+    auto entity = context.getEntityPool()->addEntity(message->entity.name, message->entity.id);
+
+    for(int j = 0; j < entityStateUpdate.numWeapons; j++) {
+        auto const& weaponUpdate = entityStateUpdate.weaponUpdates[j];
+        auto weaponId = UUID::fromBytes(weaponUpdate.idBytes);
+        
+        if(!entity->hasWeapon(weaponId)) {
+            auto weapon = context.getWeaponController()->createWeapon(weaponId, weaponUpdate.name, entity);
+            
+            if(weapon->getItem() != nullptr && weaponUpdate.hasItem) {
+                weapon->getItem()->setId(weaponUpdate.itemId);
+            }
+
+            entity->addWeapon(std::move(weapon));
+        }
+    }
+
+    EntityStateUpdate::deserialize(message->entity, entity);
+
+    if(participant->hasVisibleEntity(entity)) {
+        std::cout << std::format("Warning: received already visible entity {}", entity->getId()) << std::endl;
+    }
+    
+    participant->addVisibleEntity(entity);
 }

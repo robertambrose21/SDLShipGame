@@ -9,7 +9,8 @@ Application::Application(
     std::unique_ptr<TurnController> turnController,
     std::unique_ptr<ItemController> itemController,
     std::unique_ptr<EffectController> effectController,
-    std::unique_ptr<SpawnController> spawnController
+    std::unique_ptr<SpawnController> spawnController,
+    std::unique_ptr<VisiblityController> visiblityController
 ) :
     grid(std::move(grid)),
     entityPool(std::move(entityPool)),
@@ -19,7 +20,8 @@ Application::Application(
     turnController(std::move(turnController)),
     itemController(std::move(itemController)),
     effectController(std::move(effectController)),
-    spawnController(std::move(spawnController))
+    spawnController(std::move(spawnController)),
+    visiblityController(std::move(visiblityController))
 {
     context = std::make_unique<ApplicationContext>(
         this->grid.get(),
@@ -30,7 +32,8 @@ Application::Application(
         this->turnController.get(),
         this->itemController.get(),
         this->effectController.get(),
-        this->spawnController.get()
+        this->spawnController.get(),
+        this->visiblityController.get()
     );
 }
 
