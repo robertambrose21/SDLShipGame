@@ -114,11 +114,11 @@ void ServerTurnController::assignEngagements(int participantIdToCheck) {
     auto behaviour = participants[participantIdToCheck]->getBehaviourStrategy();
 
     for(auto& [participantId, participant] : participants) {
-        compareAndEngagementParticipants(participant.get(), participants[participantIdToCheck].get());
+        compareAndEngageParticipants(participant.get(), participants[participantIdToCheck].get());
     }
 }
 
-void ServerTurnController::compareAndEngagementParticipants(Participant* participantA, Participant* participantB) {
+void ServerTurnController::compareAndEngageParticipants(Participant* participantA, Participant* participantB) {
     if(participantA->getId() == participantB->getId()) {
         return;
     }
@@ -141,11 +141,9 @@ void ServerTurnController::compareAndEngagementParticipants(Participant* partici
     }
 }
 
-bool ServerTurnController::hasEntityEngagement(Entity* entityToCheck, Participant* participant) {
+bool ServerTurnController::hasEntityEngagement(Entity* target, Participant* participant) {
     for(auto entity : participant->getEntities()) {
-        auto distance = glm::distance(glm::vec2(entity->getPosition()), glm::vec2(entityToCheck->getPosition()));
-
-        if(distance <= entityToCheck->getAggroRange()) {
+        if(context->getVisibilityController()->isVisible(entity, target)) {
             return true;
         }
     }
