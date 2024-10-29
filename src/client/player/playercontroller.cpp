@@ -20,6 +20,7 @@ PlayerController::PlayerController(
     dice = std::make_unique<Dice>(3, clientMessagesTransmitter, context.getTurnController());
     playerPanel = std::make_unique<PlayerPanel>(1920, 1080);
     inventoryPanel = std::make_unique<InventoryPanel>(400, 600);
+    statsPanel = std::make_unique<StatsPanel>();
 
     inventoryPanel->addOnEquipCallback([&](auto item, auto slot) {
         equipItem(item, slot);
@@ -69,6 +70,8 @@ void PlayerController::update(int64_t timeSinceLastFrame) {
     else {
         camera.move(cameraVector * (int) timeSinceLastFrame);
     }
+
+    statsPanel->update(timeSinceLastFrame);
 }
 
 void PlayerController::draw(GraphicsContext& graphicsContext) {
@@ -99,6 +102,7 @@ void PlayerController::draw(GraphicsContext& graphicsContext) {
 void PlayerController::drawUI(GraphicsContext& graphicsContext) {
     playerPanel->draw();
     inventoryPanel->draw(graphicsContext, participant);
+    statsPanel->draw();
 
     std::erase_if(examineItemPanels, [](const auto& item) {
         auto const& [_, examineItemPanel] = item;

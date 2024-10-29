@@ -18,10 +18,12 @@
 #include "graphics/ui/playerpanel.h"
 #include "graphics/ui/inventorypanel.h"
 #include "graphics/ui/examineitempanel.h"
+#include "graphics/ui/statspanel.h"
 #include "game/actions/attackaction.h"
 #include "game/actions/equipitemaction.h"
 #include "game/actions/equipweaponaction.h"
 
+// Too large, split up
 class PlayerController {
 private:
     typedef struct _selection {
@@ -56,6 +58,7 @@ private:
 
     std::unique_ptr<PlayerPanel> playerPanel;
     std::unique_ptr<InventoryPanel> inventoryPanel;
+    std::unique_ptr<StatsPanel> statsPanel;
     std::map<uint32_t, std::unique_ptr<ExamineItemPanel>> examineItemPanels;
 
     void move(const glm::ivec2& position);
