@@ -19,7 +19,7 @@ Item* Gear::getItem(void) {
 }
 
 bool Gear::isValid(void) {
-    return contains(VALID_GEAR_SLOTS, slot);
+    return contains(VALID_SLOTS, slot);
 }
 
 GearStats Gear::getStats(void) {
@@ -28,6 +28,8 @@ GearStats Gear::getStats(void) {
 
 void Gear::addTo(EntityStats& entityStats) {
     entityStats.hp += stats.hp;
+    entityStats.totalHp += stats.hp;
+
     entityStats.armour += stats.armour;
     entityStats.power += stats.power;
     entityStats.speed += stats.speed;
@@ -35,4 +37,5 @@ void Gear::addTo(EntityStats& entityStats) {
 
     // Temp calculation, needs balancing
     entityStats.movesPerTurn += stats.speed / 5;
+    entityStats.movesLeft += stats.speed / 5;
 }

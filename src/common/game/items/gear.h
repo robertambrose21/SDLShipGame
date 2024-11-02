@@ -6,13 +6,13 @@
 
 class Gear : Equippable<GearStats> {
 private:
-    static constexpr std::array<Slot, 4> VALID_GEAR_SLOTS = { HEAD, BODY, HANDS, FEET };
-
     Slot slot;
     GearStats stats;
     Item* item;
 
 public:
+    static constexpr std::array<Slot, 4> VALID_SLOTS = { HEAD, BODY, HANDS, FEET };
+
     Gear(Slot slot, const GearStats& stats, Item* item);
 
     Slot getSlot(void);

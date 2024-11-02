@@ -1,6 +1,12 @@
 #include "equipitemaction.h"
 
-EquipItemAction::EquipItemAction(int turnNumber, Entity* entity, Item* item, Equipment::Slot slot, bool isUnequip) :
+EquipItemAction::EquipItemAction(
+    int turnNumber, 
+    Entity* entity, 
+    Item* item, 
+    Equippable<GearStats>::Slot slot, 
+    bool isUnequip
+) :
     Action(turnNumber, entity),
     item(item),
     slot(slot),
@@ -16,12 +22,12 @@ bool EquipItemAction::onValidate(ApplicationContext* context) {
         return false;
     }
 
-    if(!Equipment::isValid(item, slot)) {
+    if(!contains(Gear::VALID_SLOTS, slot)) {
         return false;
     }
 
     if(isUnequip) {
-        return entity->getEquipment(slot) != nullptr;
+        return entity->getGear(slot) != nullptr;
     }
 
     auto participant = context->getTurnController()->getParticipant(entity->getParticipantId());
@@ -39,18 +45,21 @@ bool EquipItemAction::onValidate(ApplicationContext* context) {
 
 void EquipItemAction::onExecute(ApplicationContext* context) {
     auto participant = context->getTurnController()->getParticipant(entity->getParticipantId());
-    auto existingEquipment = entity->getEquipment(slot);
+    auto existingGear = entity->getGear(slot);
 
     if(isUnequip) {
-        participant->addItem(existingEquipment->getItem());
-        entity->removeEquipment(slot);
+        participant->addItem(existingGear->getItem());
+        entity->removeGear(slot);
     } else {
-        if(existingEquipment != nullptr) {
-            participant->addItem(existingEquipment->getItem());
+        if(existingGear != nullptr) {
+            participant->addItem(existingGear->getItem());
         }
 
+        // TODO: Items need new stats class
+        GearStats gs;
+
         participant->removeItem(item);
-        entity->setEquipment(std::make_unique<Equipment>(item, slot));
+        entity->setGear(std::make_unique<Gear>(slot, gs, item));
     }
 }
 
@@ -70,7 +79,7 @@ Item* EquipItemAction::getItem(void) {
     return item;
 }
 
-Equipment::Slot EquipItemAction::getSlot(void) const {
+Equippable<GearStats>::Slot EquipItemAction::getSlot(void) const {
     return slot;
 }
 

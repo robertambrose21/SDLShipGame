@@ -1,17 +1,18 @@
 #pragma once
 
 #include <string>
+#include <format>
 
 #include "core/glmimport.h"
 #include "core/util/idgenerator.h"
 #include "game/weapons/weapon.h"
 #include "core/util/gameassert.h"
-#include "game/stats/stats.h"
 #include "core/event/eventpublisher.h"
 #include "core/grid/grid.h"
-#include "game/items/equipment.h"
 #include "game/application/applicationcontext.h"
 #include "game/effects/effect.h"
+#include "game/stats/equippablestats.h"
+#include "game/items/gear.h"
 
 // TODO: Fix with modules?
 class Weapon;
@@ -62,9 +63,9 @@ private:
     std::deque<glm::ivec2> path;
     uint32_t timeSinceLastMoved;
 
-    AllStats baseStats;
-    AllStats currentStats;
-    std::unique_ptr<Equipment> equipment[Equipment::Slot::COUNT];
+    EntityStats baseStats;
+    EntityStats stats;
+    std::map<Equippable<GearStats>::Slot, std::unique_ptr<Gear>> equippedGear;
 
     std::map<UUID, std::unique_ptr<Weapon>> weapons;
     Weapon* currentWeapon;
@@ -90,14 +91,14 @@ public:
         uint32_t id,
         EventPublisher<EntityEventData, EntitySetPositionEventData>& publisher,
         const std::string& name,
-        const AllStats& stats
+        const EntityStats& stats
     );
 
     Entity(
         Grid* grid,
         EventPublisher<EntityEventData, EntitySetPositionEventData>& publisher,
         const std::string& name,
-        const AllStats& stats
+        const EntityStats& stats
     );
 
     // TODO: Should these be in EntityPool?
@@ -165,17 +166,19 @@ public:
     void disengage(void);
     bool isEngaged(void) const;
 
-    AllStats getBaseStats(void) const;
-    AllStats getCurrentStats(void) const;
+    EntityStats getStats(void) const;
 
-    void setEquipment(std::unique_ptr<Equipment> equipmentPiece);
-    void removeEquipment(Equipment::Slot slot);
-    Equipment* getEquipment(Equipment::Slot slot);
+    void setGear(std::unique_ptr<Gear> gear);
+    void removeGear(Equippable<GearStats>::Slot slot);
+    Gear* getGear(Equippable<GearStats>::Slot slot);
+
+    // TOOD: Move to separate class
+    void applyStats();
 
     const float getSpeed(void);
     int getCurrentHP(void) const;
-    void setCurrentHP(int hp);
-    void takeDamage(int amount);
+    void setCurrentHP(uint32_t hp);
+    void takeDamage(uint32_t amount);
     void attack(const glm::ivec2& target, const UUID& weaponId, bool isAnimationOnly = false);
 
     std::vector<Weapon*> getWeapons(void) const;

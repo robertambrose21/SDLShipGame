@@ -374,7 +374,7 @@ void PlayerController::setHoverTiles(void) {
     }
 }
 
-void PlayerController::equipItem(Item* item, Equipment::Slot slot) {
+void PlayerController::equipItem(Item* item, Equippable<GearStats>::Slot slot) {
     auto entity = selectedEntities[0];
 
     if(turnController->queueAction(std::make_unique<EquipItemAction>(turnController->getTurnNumber(), entity, item, slot, false))) {
@@ -382,7 +382,7 @@ void PlayerController::equipItem(Item* item, Equipment::Slot slot) {
     }
 }
 
-void PlayerController::unequipItem(Item* item, Equipment::Slot slot) {
+void PlayerController::unequipItem(Item* item, Equippable<GearStats>::Slot slot) {
     auto entity = selectedEntities[0];
 
     if(turnController->queueAction(std::make_unique<EquipItemAction>(turnController->getTurnNumber(), entity, item, slot, true))) {

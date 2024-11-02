@@ -6,13 +6,13 @@ Entity::Entity(
     uint32_t id,
     EventPublisher<EntityEventData, EntitySetPositionEventData>& publisher,
     const std::string& name,
-    const AllStats& stats
+    const EntityStats& stats
 ) :
     id(id),
     publisher(publisher),
     name(name),
+    stats(stats),
     baseStats(stats),
-    currentStats(stats),
     grid(grid),
     currentWeapon(nullptr),
     position({ 0, 0 }),
@@ -29,7 +29,7 @@ Entity::Entity(
     Grid* grid,
     EventPublisher<EntityEventData, EntitySetPositionEventData>& publisher,
     const std::string& name,
-    const AllStats& stats
+    const EntityStats& stats
 ) : 
     Entity(grid, getNewId(), publisher, name, stats)
 { }
@@ -121,53 +121,57 @@ bool Entity::isEngaged(void) const {
     return engaged;
 }
 
-AllStats Entity::getBaseStats(void) const {
-    return baseStats;
+EntityStats Entity::getStats(void) const {
+    return stats;
 }
 
-AllStats Entity::getCurrentStats(void) const {
-    return currentStats;
-}
-
-void Entity::setEquipment(std::unique_ptr<Equipment> equipmentPiece) {
-    auto slot = equipmentPiece->getSlot();
-    auto item = equipmentPiece->getItem();
-
-    if(equipment[slot] != nullptr && equipment[slot]->getItem()->getId() == item->getId()) {
+void Entity::setGear(std::unique_ptr<Gear> gear) {
+    if(!gear->isValid()) {
+        std::cout << std::format("Warning: invalid gear for slot {}", 
+                Equippable<GearStats>::SLOT_NAMES[gear->getSlot()]) << std::endl;
         return;
     }
 
-    baseStats.add(item->getStats());
-    equipment[slot] = std::move(equipmentPiece);
+    equippedGear[gear->getSlot()] = std::move(gear);
+    applyStats();
 }
 
-void Entity::removeEquipment(Equipment::Slot slot) {
-    baseStats.remove(equipment[slot]->getItem()->getStats());
-    equipment[slot] = nullptr;
+void Entity::removeGear(Equippable<GearStats>::Slot slot) {
+    equippedGear[slot] = nullptr;
+    applyStats();
 }
 
-Equipment* Entity::getEquipment(Equipment::Slot slot) {
-    if(equipment[slot] == nullptr) {
-        return nullptr;
+Gear* Entity::getGear(Equippable<GearStats>::Slot slot) {
+    return equippedGear[slot].get();
+}
+
+void Entity::applyStats() {
+    // TODO: copy-to function with optional exclusions?
+    uint32_t currentHp = stats.hp;
+    stats = baseStats;
+    stats.hp = currentHp;
+
+    for(auto const& [slot, gear] : equippedGear) {
+        if(gear != nullptr) {
+            gear->addTo(stats);
+        }
     }
-
-    return equipment[slot].get();
 }
 
 const float Entity::getSpeed(void) {
-    return 2000.0f / (MOVES_PER_SECOND * baseStats.common.moves);
+    return 2000.0f / (MOVES_PER_SECOND * stats.movesPerTurn);
 }
 
 int Entity::getCurrentHP(void) const {
-    return currentStats.common.hp;
+    return stats.hp;
 }
 
-void Entity::setCurrentHP(int hp) {
-    currentStats.common.hp = hp;
+void Entity::setCurrentHP(uint32_t hp) {
+    stats.hp = hp;
 }
 
-void Entity::takeDamage(int amount) {
-    currentStats.common.hp -= amount;
+void Entity::takeDamage(uint32_t amount) {
+    stats.hp -= amount;
 }
 
 void Entity::attack(const glm::ivec2& target, const UUID& weaponId, bool isAnimationOnly) {
@@ -317,11 +321,11 @@ bool Entity::isNeighbour(Entity* entity) const {
 }
 
 int Entity::getMovesLeft(void) const {
-    return currentStats.common.moves;
+    return stats.movesLeft;
 }
 
 void Entity::setMovesLeft(int movesLeft) {
-    currentStats.common.moves = movesLeft;
+    stats.movesLeft = movesLeft;
 }
 
 int Entity::getAggroRange(void) const {
@@ -341,10 +345,10 @@ bool Entity::hasAnimationsInProgress(void) {
 }
 
 void Entity::useMoves(int numMoves) {
-    currentStats.common.moves -= numMoves;
+    stats.movesLeft -= numMoves;
     
-    if(currentStats.common.moves <= 0) {
-        currentStats.common.moves = 0;
+    if(stats.movesLeft <= 0) {
+        stats.movesLeft = 0;
         path.clear();
     }
 }
@@ -354,7 +358,7 @@ void Entity::nextTurn(void) {
 }
 
 void Entity::reset(void) {
-    currentStats.common.moves = baseStats.common.moves;
+    stats.movesLeft = stats.movesPerTurn;
     path.clear();
 
     isFrozen = false;
@@ -368,7 +372,7 @@ void Entity::reset(void) {
 }
 
 void Entity::endTurn(void) {
-    currentStats.common.moves = 0;
+    stats.movesLeft = 0;
     path.clear();
 
     for(auto& [_, weapon] : weapons) {

@@ -13,6 +13,7 @@
 #include "serverturncontroller.h"
 #include "game/net/gamemessagelogger.h"
 #include "game/application/visibilitycontroller.h"
+#include "game/items/equippable.h"
 
 class ServerApplication {
 private:
