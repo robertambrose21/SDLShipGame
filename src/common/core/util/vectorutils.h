@@ -2,9 +2,15 @@
 
 #include <vector>
 #include <ranges>
+#include <array>
 
 template<typename T>
 inline bool contains(const std::vector<T>& vec, const T& item) {
+    return std::find(vec.begin(), vec.end(), item) != vec.end();
+}
+
+template<typename T, std::size_t S>
+inline bool contains(const std::array<T, S>& vec, const T& item) {
     return std::find(vec.begin(), vec.end(), item) != vec.end();
 }
 
