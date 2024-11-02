@@ -1,8 +1,7 @@
 #include "gear.h"
 
-Gear::Gear(Slot slot, const GearStats& stats, Item* item) :
+Gear::Gear(Slot slot, Item* item) :
     slot(slot),
-    stats(stats),
     item(item)
 { }
 
@@ -23,19 +22,19 @@ bool Gear::isValid(void) {
 }
 
 GearStats Gear::getStats(void) {
-    return stats;
+    return item->getStats().gear;
 }
 
 void Gear::addTo(EntityStats& entityStats) {
-    entityStats.hp += stats.hp;
-    entityStats.totalHp += stats.hp;
+    entityStats.hp += getStats().hp;
+    entityStats.totalHp += getStats().hp;
 
-    entityStats.armour += stats.armour;
-    entityStats.power += stats.power;
-    entityStats.speed += stats.speed;
-    entityStats.wisdom += stats.wisdom;
+    entityStats.armour += getStats().armour;
+    entityStats.power += getStats().power;
+    entityStats.speed += getStats().speed;
+    entityStats.wisdom += getStats().wisdom;
 
     // Temp calculation, needs balancing
-    entityStats.movesPerTurn += stats.speed / 5;
-    entityStats.movesLeft += stats.speed / 5;
+    entityStats.movesPerTurn += getStats().speed / 5;
+    entityStats.movesLeft += getStats().speed / 5;
 }

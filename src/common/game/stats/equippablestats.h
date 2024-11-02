@@ -11,15 +11,23 @@ typedef struct _equippableStats {
     uint8_t wisdom = 0;
 } EquippableStats;
 
-typedef struct _gearStats : public EquippableStats {
+typedef struct _equipmentStats : public EquippableStats {
+} EquipmentStats;
+
+typedef struct _gearStats : public EquipmentStats {
 } GearStats;
 
-typedef struct _weaponStats : public EquippableStats {
+typedef struct _weaponStats : public EquipmentStats {
     uint8_t weaponPower = 0;
 } WeaponStats2;
 
-typedef struct _entityStats : public EquippableStats {
+typedef struct _entityStats : public EquipmentStats {
     uint32_t totalHp = 0;
     uint8_t movesPerTurn = 0;
     uint8_t movesLeft = 0;
 } EntityStats;
+
+typedef struct _itemStats { 
+    GearStats gear;
+    WeaponStats2 weapon;
+} ItemStats;

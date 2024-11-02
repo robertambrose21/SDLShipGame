@@ -11,7 +11,7 @@ const std::set<std::string> Item::EquippableItemTypes = {
 Item::Item(
     const std::string& name, 
     Rarity rarity, 
-    const AllStats& stats, 
+    const ItemStats& stats, 
     const std::string& type, 
     const glm::ivec2& position
 ) :
@@ -21,7 +21,7 @@ Item::Item(
 Item::Item(
     const std::string& name, 
     Rarity rarity, 
-    const AllStats& stats, 
+    const ItemStats& stats, 
     const std::string& type, 
     const glm::ivec2& position, 
     uint32_t id
@@ -55,16 +55,8 @@ Item::Rarity Item::getRarity(void) const {
     return rarity;
 }
 
-AllStats Item::getStats(void) const {
+ItemStats Item::getStats(void) const {
     return stats;
-}
-
-void Item::addStats(const AllStats& stats) {
-    this->stats.add(stats);
-}
-
-void Item::removeStats(const AllStats& stats) {
-    this->stats.remove(stats);
 }
 
 void Item::setTextureId(uint32_t textureId) {

@@ -55,11 +55,8 @@ void EquipItemAction::onExecute(ApplicationContext* context) {
             participant->addItem(existingGear->getItem());
         }
 
-        // TODO: Items need new stats class
-        GearStats gs;
-
         participant->removeItem(item);
-        entity->setGear(std::make_unique<Gear>(slot, gs, item));
+        entity->setGear(std::make_unique<Gear>(slot, item));
     }
 }
 

@@ -10,9 +10,10 @@ ExamineItemPanel::ExamineItemPanel(Item* item) :
 std::map<StatsKey::Type, std::vector<ExamineItemPanel::StatsPair>> ExamineItemPanel::buildStats(void) {
     std::map<StatsKey::Type, std::vector<StatsPair>> stats;
 
-    for(auto& [key, value] : item->getStats().getValues()) {
-        stats[key.type].push_back({ key.keyName, value });
-    }
+    // TODO: Need to redo this panel with new stats
+    // for(auto& [key, value] : item->getStats().getValues()) {
+    //     stats[key.type].push_back({ key.keyName, value });
+    // }
 
     return stats;
 }
