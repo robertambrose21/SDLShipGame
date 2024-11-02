@@ -26,7 +26,7 @@ private:
         std::string rarity;
         uint32_t textureId;
         uint8_t r, g, b, a;
-        AllStats stats;
+        ItemStats stats;
     } ItemDefinition;
 
     static const std::map<std::string, Item::Rarity> StringToRarity;
@@ -42,6 +42,8 @@ private:
     void loadItemDefinitions(void);
 
     Item::Rarity mapToRarity(const std::string& rarityString);
+    bool isGear(const std::string& type);
+    bool isWeapon(const std::string& type);
 
 public:
     ItemController();

@@ -117,11 +117,12 @@ AllStats WeaponController::buildMeleeWeaponStats(
     return stats;
 }
 
+// TODO: Remove this when we swap over weapon stats
 void WeaponController::synchronizeWithItemStats(Item* item, AllStats& weaponStats) {
-    if(item != nullptr) {
-        item->addStats(weaponStats);
-        weaponStats.common = item->getStats().common;
-    }
+    // if(item != nullptr) {
+    //     item->addStats(weaponStats);
+    //     weaponStats.common = item->getStats().common;
+    // }
 }
 
 std::unique_ptr<Weapon> WeaponController::createWeapon(const std::string& name, Entity* owner) {
