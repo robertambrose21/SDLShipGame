@@ -252,12 +252,13 @@ Entity* EntityPool::addEntity(const std::string& name, uint32_t id) {
 
     auto definition = entityDefinitions[name];
 
-    auto stats = AllStats();
-    stats.common = CommonStats(
-        definition.movesPerTurn,
-        definition.hp,
-        definition.armour
-    );
+    // TODO: Move applying stats to another class
+    auto stats = EntityStats();
+    stats.hp = definition.hp;
+    stats.totalHp = definition.hp;
+    stats.movesPerTurn = definition.movesPerTurn;
+    stats.movesLeft = definition.movesPerTurn;
+    stats.armour = definition.armour;
     
     auto entity = std::make_unique<Entity>(
         context->getGrid(),

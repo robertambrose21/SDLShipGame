@@ -35,18 +35,16 @@ void InventoryPanel::drawEquipment(GraphicsContext& graphicsContext, Participant
     ImGuiTableFlags flags = ImGuiTableFlags_SizingFixedFit;
 
     if(ImGui::BeginTable("EquipmentTable", 2, flags)) {
-        for(int i = 0; i < Equipment::Slot::COUNT; i++) {
-            auto slot = (Equipment::Slot) i;
-
+        for(auto slot : Gear::VALID_SLOTS) {
             ImGui::TableNextRow();
             ImGui::TableNextColumn();
-            ImGui::TextColored(ImVec4(1, 1, 1, 1), "%s", Equipment::SlotToItemType.at(slot).c_str());
+            ImGui::TextColored(ImVec4(1, 1, 1, 1), "%s", Equippable<GearStats>::SLOT_NAMES[slot].c_str());
             ImGui::TableNextColumn();
 
-            auto equipment = participant->getEntities()[0]->getEquipment(slot);
+            auto gear = participant->getEntities()[0]->getGear(slot);
 
-            if(equipment != nullptr) {
-                drawEquippedItem(graphicsContext, equipment->getItem());
+            if(gear != nullptr) {
+                drawEquippedItem(graphicsContext, gear->getItem());
             }
             else {
                 ImGui::TextColored(ImVec4(.3f, .3f, .3f, 1), "<None>");
@@ -79,8 +77,7 @@ void InventoryPanel::drawInventoryItem(GraphicsContext& graphicsContext, Item* i
     auto texture = graphicsContext.getTextureLoader().loadTexture(item->getTextureId())->getSDLTexture();
     auto selectableLabel = "##SelectableItem" + std::to_string(item->getId());
 
-    Equipment::Slot slot;
-    Equipment::getSlotFromItemType(&slot, item->getType());
+    Equippable<GearStats>::Slot slot = Equippable<GearStats>::getSlotFromName(item->getType());
 
     ImGui::SetNextItemAllowOverlap();
     ImGui::Selectable(selectableLabel.c_str());
@@ -111,8 +108,7 @@ void InventoryPanel::drawEquippedItem(GraphicsContext& graphicsContext, Item* it
     auto texture = graphicsContext.getTextureLoader().loadTexture(item->getTextureId())->getSDLTexture();
     auto selectableLabel = "##SelectableEquipment" + std::to_string(item->getId());
 
-    Equipment::Slot slot;
-    Equipment::getSlotFromItemType(&slot, item->getType());
+    Equippable<GearStats>::Slot slot = Equippable<GearStats>::getSlotFromName(item->getType());
 
     ImGui::SetNextItemAllowOverlap();
     ImGui::Selectable(selectableLabel.c_str());
@@ -167,11 +163,11 @@ void InventoryPanel::toggle(void) {
     isShown = !isShown;
 }
 
-void InventoryPanel::addOnEquipCallback(std::function<void(Item* item, Equipment::Slot slot)>&& callback) {
+void InventoryPanel::addOnEquipCallback(std::function<void(Item* item, Equippable<GearStats>::Slot slot)>&& callback) {
     this->onEquipClicked = callback;
 }
 
-void InventoryPanel::addOnUnequipCallback(std::function<void(Item* item, Equipment::Slot slot)>&& callback) {
+void InventoryPanel::addOnUnequipCallback(std::function<void(Item* item, Equippable<GearStats>::Slot slot)>&& callback) {
     this->onUnequipClicked = callback;
 }
 

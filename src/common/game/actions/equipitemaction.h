@@ -1,7 +1,7 @@
 #pragma once
 
 #include "action.h"
-#include "game/items/equipment.h"
+#include "game/items/equippable.h"
 #include "game/application/turncontroller.h"
 
 class EquipItemAction : public Action {
@@ -11,16 +11,22 @@ private:
     bool hasFinished(void);
 
     Item* item;
-    Equipment::Slot slot;
+    Equippable<GearStats>::Slot slot;
     bool isUnequip;
 
 public:
-    EquipItemAction(int turnNumber, Entity* entity, Item* item, Equipment::Slot slot, bool isUnequip = false);
+    EquipItemAction(
+        int turnNumber, 
+        Entity* entity, 
+        Item* item, 
+        Equippable<GearStats>::Slot slot, 
+        bool isUnequip = false
+    );
 
     bool passesPrecondition(void);
     Type getType(void);
 
     Item* getItem(void);
-    Equipment::Slot getSlot(void) const;
+    Equippable<GearStats>::Slot getSlot(void) const;
     bool getIsUnequip(void) const;
 };

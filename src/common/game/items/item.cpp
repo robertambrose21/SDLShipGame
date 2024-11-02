@@ -1,10 +1,11 @@
 #include "item.h"
 
+// TODO: Derive from Equippable
 const std::set<std::string> Item::EquippableItemTypes = {
     "Helm",
-    "BodyArmour",
-    "Gloves",
-    "Boots"
+    "Body",
+    "Hands",
+    "Feet"
 };
 
 Item::Item(
