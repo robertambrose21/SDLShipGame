@@ -19,6 +19,8 @@ typedef struct _gearStats : public EquipmentStats {
 
 typedef struct _weaponStats : public EquipmentStats {
     uint8_t weaponPower = 0;
+    uint8_t uses = 0;
+    uint8_t range = 0;
 } WeaponStats2;
 
 typedef struct _entityStats : public EquipmentStats {

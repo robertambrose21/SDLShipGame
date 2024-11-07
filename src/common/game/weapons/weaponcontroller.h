@@ -31,13 +31,13 @@ private:
     void loadWeaponDefinitions(void);
     Item* getItem(const std::string& itemName, Entity* owner);
 
-    AllStats buildProjectileWeaponStats(
+    WeaponStats2 buildProjectileWeaponStats(
         const WeaponDefinition& definition, 
         const Projectile::Blueprint& projectileBlueprint,
         const DamageSource& damageSource,
         Item* item
     );
-    AllStats buildMeleeWeaponStats(
+    WeaponStats2 buildMeleeWeaponStats(
         const WeaponDefinition& definition, 
         const DamageSource& damageSource,
         Item* item

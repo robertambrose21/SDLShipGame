@@ -89,30 +89,26 @@ std::unique_ptr<Weapon> WeaponController::createWeapon(
     throw std::runtime_error("Could not create weapon of class \"" + definition.weaponClass + "\"");
 }
 
-AllStats WeaponController::buildProjectileWeaponStats(
+WeaponStats2 WeaponController::buildProjectileWeaponStats(
     const WeaponDefinition& definition, 
     const Projectile::Blueprint& projectileBlueprint,
     const DamageSource& damageSource,
     Item* item
 ) {
-    auto stats = AllStats();
-    stats.weapon = WeaponStats(definition.range, definition.uses, damageSource.getStats());
-    stats.weapon.projectile = projectileBlueprint.stats;
-    
-    synchronizeWithItemStats(item, stats);
+    WeaponStats2 stats;
+    stats.range = definition.range;
+    stats.uses = definition.uses;
 
     return stats;
 }
 
-AllStats WeaponController::buildMeleeWeaponStats(
+WeaponStats2 WeaponController::buildMeleeWeaponStats(
     const WeaponDefinition& definition, 
     const DamageSource& damageSource,
     Item* item
 ) {
-    auto stats = AllStats();
-    stats.weapon = WeaponStats(definition.range, definition.uses, damageSource.getStats());
-
-    synchronizeWithItemStats(item, stats);
+    WeaponStats2 stats;
+    stats.uses = definition.uses;
 
     return stats;
 }

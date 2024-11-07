@@ -9,8 +9,7 @@
 #include "core/event/eventpublisher.h"
 #include "core/grid/grid.h"
 #include "game/event/events.h"
-#include "game/items/equipment.h"
-#include "game/stats/stats.h"
+#include "game/stats/equippablestats.h"
 #include "game/application/applicationcontext.h"
 
 class Entity;
@@ -29,7 +28,7 @@ protected:
     std::string name;
     Entity* owner;
     DamageSource damageSource;
-    AllStats stats;
+    WeaponStats2 stats;
 
     int usesLeft;
 
@@ -50,7 +49,7 @@ public:
         const UUID& id,
         const std::string& name,
         const DamageSource& damageSource,
-        const AllStats& stats
+        const WeaponStats2& stats
     );
 
     Weapon(
@@ -60,7 +59,7 @@ public:
         EventPublisher<MeleeWeaponEventData>& publisher,
         const std::string& name,
         const DamageSource& damageSource,
-        const AllStats& stats
+        const WeaponStats2& stats
     );
 
     void use(const glm::ivec2& position, const glm::ivec2& target, bool isAnimationOnly = false);
@@ -73,7 +72,7 @@ public:
     virtual bool isAnimationInProgress(void);
     virtual Type getType(void) const = 0;
 
-    AllStats getStats(void) const;
+    WeaponStats2 getStats(void) const;
     int getUsesLeft(void) const;
     void setUsesLeft(int usesLeft);
 
