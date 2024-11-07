@@ -34,11 +34,13 @@ void WeaponController::loadWeaponDefinitions(void) {
         else {
             definition.projectile = "";
         }
+
+        auto stats = data["stats"].get<json>();
         
-        definition.damageSource = data["damage"].get<std::string>();
-        definition.range = data["range"].get<int>();
-        definition.uses = data["uses"].get<int>();
-        definition.power = data["power"].get<int>();
+        definition.damageSource = stats["damage"].get<std::string>();
+        definition.range = stats["range"].get<int>();
+        definition.uses = stats["uses"].get<int>();
+        definition.power = stats["power"].get<int>();
 
         std::cout << "Loaded weapon definition \"" << definition.name << "\"" << std::endl;
 
