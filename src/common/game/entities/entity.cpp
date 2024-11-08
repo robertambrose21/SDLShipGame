@@ -202,6 +202,11 @@ bool Entity::hasWeapon(const UUID& weaponId) {
 Weapon* Entity::addWeapon(std::unique_ptr<Weapon> weapon) {
     auto id = weapon->getId();
     weapons[id] = std::move(weapon);
+
+    if(weapons.empty()) {
+        currentWeapon = weapons[id].get();
+    }
+
     return weapons[id].get();
 }
 
