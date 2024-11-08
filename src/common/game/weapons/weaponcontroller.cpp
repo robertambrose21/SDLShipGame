@@ -100,6 +100,9 @@ WeaponStats2 WeaponController::buildProjectileWeaponStats(
     WeaponStats2 stats;
     stats.range = definition.range;
     stats.uses = definition.uses;
+    stats.damage = damageSource.getStats();
+
+    synchronizeWithItemStats(item, stats);
 
     return stats;
 }
@@ -111,16 +114,19 @@ WeaponStats2 WeaponController::buildMeleeWeaponStats(
 ) {
     WeaponStats2 stats;
     stats.uses = definition.uses;
+    stats.damage = damageSource.getStats();
+
+    synchronizeWithItemStats(item, stats);
 
     return stats;
 }
 
-// TODO: Remove this when we swap over weapon stats
-void WeaponController::synchronizeWithItemStats(Item* item, AllStats& weaponStats) {
-    // if(item != nullptr) {
-    //     item->addStats(weaponStats);
-    //     weaponStats.common = item->getStats().common;
-    // }
+void WeaponController::synchronizeWithItemStats(Item* item, WeaponStats2& weaponStats) {
+    if(item == nullptr) {
+        return;
+    }
+
+    item->setWeaponStats(weaponStats);
 }
 
 std::unique_ptr<Weapon> WeaponController::createWeapon(const std::string& name, Entity* owner) {

@@ -5,11 +5,11 @@ DamageSource::DamageSource()
 { }
 
 
-DamageSource::DamageSource(const DamageStats& stats) :
+DamageSource::DamageSource(const DamageStats2& stats) :
     stats(stats)
 { }
 
-DamageSource DamageSource::parse(const std::string& value, int power) {
+DamageSource DamageSource::parse(const std::string& value, uint8_t power) {
     if(!isValid(value)) {
         throw std::runtime_error("failed regex");
     }
@@ -28,7 +28,7 @@ bool DamageSource::isValid(const std::string& value) {
     return std::regex_match(value, regex);
 }
 
-void DamageSource::parseValues(const std::string& value, int& numDice, int& diceSize, int& flatDamage) {
+void DamageSource::parseValues(const std::string& value, uint8_t& numDice, uint8_t& diceSize, uint32_t& flatDamage) {
     auto regex = std::regex("[0-9]+");
     auto begin = std::sregex_iterator(value.begin(), value.end(), regex);
     auto end = std::sregex_iterator();
@@ -83,14 +83,40 @@ int DamageSource::apply(Entity* entity) {
     return damage;
 }
 
-DamageStats DamageSource::getStats(void) const {
+DamageStats2 DamageSource::getStats(void) const {
     return stats;
 }
 
 bool DamageSource::isZero(void) {
-    return stats.isZero();
+    if(stats.power == 0) {
+        return true;
+    }
+
+    if(stats.numDice == 0 && stats.flatDamage == 0) {
+        return true;
+    }
+
+    if(stats.diceSize == 0 && stats.flatDamage == 0) {
+        return true;
+    }
+
+    return false;
 }
 
 std::string DamageSource::getDamageString(void) {
-    return stats.getDamageString();
+    if(stats.numDice == 0) {
+        return std::to_string(stats.flatDamage);
+    }
+
+    auto base = std::to_string(stats.numDice) + "D" + std::to_string(stats.diceSize);
+
+    if(stats.flatDamage == 0) {
+        return base;
+    }
+
+    if(stats.flatDamage < 0) {
+        return base + std::to_string(stats.flatDamage);
+    }
+
+    return base + "+" + std::to_string(stats.flatDamage);
 }

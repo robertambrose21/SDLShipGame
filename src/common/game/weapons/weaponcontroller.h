@@ -43,7 +43,7 @@ private:
         Item* item
     );
 
-    void synchronizeWithItemStats(Item* item, AllStats& weaponStats);
+    void synchronizeWithItemStats(Item* item, WeaponStats2& weaponStats);
 
 public:
     WeaponController();

@@ -3,6 +3,7 @@
 #include <vector>
 #include <ranges>
 #include <array>
+#include <map>
 
 template<typename T>
 inline bool contains(const std::vector<T>& vec, const T& item) {

@@ -16,13 +16,13 @@ class Projectile;
 class Projectile {
 public:
     typedef struct _blueprint {
-        ProjectileStats stats;
+        ProjectileStats2 stats;
         std::string name;
         uint32_t textureId;
         std::function<void(int, const glm::ivec2&, int, bool)> onHitCallback;
 
         _blueprint(
-            const ProjectileStats& stats,
+            const ProjectileStats2& stats,
             const std::string& name,
             uint32_t textureId,
             std::function<void(int, const glm::ivec2&, int, bool)> onHitCallback =
@@ -36,7 +36,7 @@ public:
     } Blueprint;
 
 private:
-    ProjectileStats stats;
+    ProjectileStats2 stats;
 
     ApplicationContext* context;
     EventPublisher<ProjectileEventData>& publisher;
@@ -69,7 +69,7 @@ public:
         int ownerId,
         const glm::ivec2& startPosition,
         const glm::ivec2& target,
-        const ProjectileStats& stats,
+        const ProjectileStats2& stats,
         const DamageSource& damageSource,
         bool isAnimationOnly,
         std::function<void(int, const glm::ivec2&, int, bool)> onHitCallback =
@@ -102,7 +102,7 @@ public:
     bool hasReachedTarget(void);
 
     int getOwnerId(void) const;
-    ProjectileStats getStats(void) const;
+    ProjectileStats2 getStats(void) const;
 
     uint32_t getTextureId(void) const;
     glm::ivec2 getPosition(void) const;

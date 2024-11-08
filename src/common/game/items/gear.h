@@ -3,6 +3,7 @@
 #include <array>
 
 #include "equippable.h"
+#include "core/util/vectorutils.h"
 
 class Gear : Equippable<GearStats> {
 private:

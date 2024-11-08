@@ -63,6 +63,8 @@ public:
     std::string getType(void) const;
     Rarity getRarity(void) const;
     ItemStats getStats(void) const;
+    void setWeaponStats(const WeaponStats2& weaponStats);
+    void setGearStats(const GearStats& gearStats);
 
     uint32_t getId(void) const;
     void setId(uint32_t id);

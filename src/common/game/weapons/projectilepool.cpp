@@ -33,15 +33,15 @@ void ProjectilePool::loadProjectileDefinitions(void) {
             for(auto const& effect : effects) {
                 if(effect.contains("freeze")) {
                     auto freeze = effect["freeze"].get<json>();
-                    auto duration = freeze["duration"].get<int>();
+                    auto duration = freeze["duration"].get<uint8_t>();
                     definition.effects.push_back({ EffectType::FREEZE, duration });
                 }
                 if(effect.contains("poison")) {
                     auto poison = effect["poison"].get<json>();
-                    auto duration = poison["duration"].get<int>();
-                    auto damagePerTick = poison["damagePerTick"].get<int>();
+                    auto duration = poison["duration"].get<uint8_t>();
+                    auto damagePerTick = poison["damagePerTick"].get<uint32_t>();
                     
-                    std::vector<int> damageTicks(duration);
+                    std::vector<uint32_t> damageTicks(duration);
                     std::fill(damageTicks.begin(), damageTicks.end(), damagePerTick);
                     definition.effects.push_back({ EffectType::POISON, duration, damageTicks });
                 }
@@ -67,8 +67,8 @@ std::function<void(int, const glm::ivec2&, int, bool)> ProjectilePool::buildOnHi
 }
 
 // TODO: Should be handled by effect controller
-std::vector<EffectStats> ProjectilePool::buildEffectStats(const ProjectileDefinition& definition) {
-    std::vector<EffectStats> effects;
+std::vector<EffectStats2> ProjectilePool::buildEffectStats(const ProjectileDefinition& definition) {
+    std::vector<EffectStats2> effects;
 
     for(auto effect : definition.effects) {
         effects.push_back({ effect.type, effect.duration, effect.damageTicks });
@@ -90,7 +90,10 @@ Projectile::Blueprint ProjectilePool::create(const std::string& name) {
 
     auto const& definition = projectileDefinitions[name];
     auto const& aoe = definition.aoe;
-    auto stats = ProjectileStats(definition.speed, buildEffectStats(definition));
+    
+    ProjectileStats2 stats;
+    stats.speed = definition.speed;
+    stats.effects = buildEffectStats(definition);
 
     if(aoe != "") {
         stats.aoe = context->getAreaOfEffectPool()->getStatsFor(aoe);
