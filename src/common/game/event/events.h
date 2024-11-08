@@ -4,7 +4,7 @@
 #include "core/glmimport.h"
 #include "core/util/idgenerator.h"
 #include "game/effects/effecttypes.h"
-#include "game/stats/stats.h"
+#include "game/stats/equippablestats.h"
 
 class Entity;
 class Item;
@@ -118,7 +118,7 @@ struct EquipWeaponActionEventData {
 struct EntityEffectEvent {
     EffectType type;
     Entity* target;
-    EffectStats stats;
+    EffectStats2 stats;
 };
 
 struct GridEffectEvent {

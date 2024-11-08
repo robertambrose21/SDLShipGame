@@ -11,7 +11,7 @@ AreaOfEffect::AreaOfEffect(
     bool isAnimationOnly,
     const glm::ivec2& position,
     const DamageSource& damageSource,
-    const AreaOfEffectStats& stats
+    const AoEStats& stats
 ) :
     grid(grid),
     entityPool(entityPool),
@@ -60,7 +60,7 @@ int AreaOfEffect::getOwnerId(void) const {
     return ownerId;
 }
 
-AreaOfEffectStats AreaOfEffect::getStats(void) const {
+AoEStats AreaOfEffect::getStats(void) const {
     return stats;
 }
 

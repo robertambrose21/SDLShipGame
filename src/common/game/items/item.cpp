@@ -59,6 +59,14 @@ ItemStats Item::getStats(void) const {
     return stats;
 }
 
+void Item::setWeaponStats(const WeaponStats2& weaponStats) {
+    stats.weapon = weaponStats;
+}
+
+void Item::setGearStats(const GearStats& gearStats) {
+    stats.gear = gearStats;
+}
+
 void Item::setTextureId(uint32_t textureId) {
     this->textureId = textureId;
 }

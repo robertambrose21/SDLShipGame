@@ -6,27 +6,27 @@
 #include <stdexcept>
 
 #include "core/util/randomutils.h"
-#include "game/stats/stats.h"
+#include "game/stats/equippablestats.h"
 
 class Entity;
 
 class DamageSource {
 private:
-    DamageStats stats;
+    DamageStats2 stats;
 
     static bool isValid(const std::string& value);
-    static void parseValues(const std::string& value, int& numDice, int& diceSize, int& flatDamage);
+    static void parseValues(const std::string& value, uint8_t& numDice, uint8_t& diceSize, uint32_t& flatDamage);
     static int getFlatDamageModifier(const std::string& value);
 
 public:
     DamageSource();
-    DamageSource(const DamageStats& stats);
+    DamageSource(const DamageStats2& stats);
 
-    static DamageSource parse(const std::string& value, int power);
+    static DamageSource parse(const std::string& value, uint8_t power);
 
     int apply(Entity* entity);
 
-    DamageStats getStats(void) const;
+    DamageStats2 getStats(void) const;
     bool isZero(void);
     std::string getDamageString(void);
 };

@@ -204,12 +204,15 @@ void GameClientMessagesReceiver::receiveApplyEntityEffectMessage(ApplyEntityEffe
 
     auto const& target = entityPool->getEntity(message->targetId);
 
-    std::vector<int> damageTicks;
+    std::vector<uint32_t> damageTicks;
     for(int i = 0; i < message->effectStats.numDamageTicks; i++) {
         damageTicks.push_back(message->effectStats.damageTicks[i]);
     }
 
-    auto stats = EffectStats((EffectType) message->effectStats.effectType, message->effectStats.duration, damageTicks);
+    EffectStats2 stats;
+    stats.duration = message->effectStats.duration;
+    stats.type = (EffectType) message->effectStats.effectType;
+    stats.damageTicks = damageTicks;
 
     switch((EffectType) message->type) {
         case FREEZE:
