@@ -86,37 +86,3 @@ int DamageSource::apply(Entity* entity) {
 DamageStats2 DamageSource::getStats(void) const {
     return stats;
 }
-
-bool DamageSource::isZero(void) {
-    if(stats.power == 0) {
-        return true;
-    }
-
-    if(stats.numDice == 0 && stats.flatDamage == 0) {
-        return true;
-    }
-
-    if(stats.diceSize == 0 && stats.flatDamage == 0) {
-        return true;
-    }
-
-    return false;
-}
-
-std::string DamageSource::getDamageString(void) {
-    if(stats.numDice == 0) {
-        return std::to_string(stats.flatDamage);
-    }
-
-    auto base = std::to_string(stats.numDice) + "D" + std::to_string(stats.diceSize);
-
-    if(stats.flatDamage == 0) {
-        return base;
-    }
-
-    if(stats.flatDamage < 0) {
-        return base + std::to_string(stats.flatDamage);
-    }
-
-    return base + "+" + std::to_string(stats.flatDamage);
-}

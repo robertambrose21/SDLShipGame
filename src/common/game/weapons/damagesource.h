@@ -27,6 +27,4 @@ public:
     int apply(Entity* entity);
 
     DamageStats2 getStats(void) const;
-    bool isZero(void);
-    std::string getDamageString(void);
 };
