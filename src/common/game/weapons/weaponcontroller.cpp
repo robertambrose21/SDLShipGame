@@ -113,6 +113,7 @@ WeaponStats2 WeaponController::buildMeleeWeaponStats(
     Item* item
 ) {
     WeaponStats2 stats;
+    stats.range = definition.range;
     stats.uses = definition.uses;
     stats.damage = damageSource.getStats();
 
