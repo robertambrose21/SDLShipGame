@@ -12,7 +12,7 @@ enum StatCategory {
     BASE,
     WEAPON,
     EFFECT,
-    AOE2
+    AREA_OF_EFFECT
 };
 
 typedef struct _statsPair {
@@ -133,14 +133,14 @@ typedef struct _itemStats {
         }
 
         if(!DamageStats::isZero(stats.weapon.projectile.aoe.damage)) {
-            categories[AOE2].push_back({ "Damage", DamageStats::toString(stats.weapon.projectile.aoe.damage) });
+            categories[AREA_OF_EFFECT].push_back({ "Damage", DamageStats::toString(stats.weapon.projectile.aoe.damage) });
         }
 
         if(stats.weapon.projectile.aoe.duration > 1) {
-            categories[AOE2].push_back({ "Duration", std::to_string(stats.weapon.projectile.aoe.duration) });
+            categories[AREA_OF_EFFECT].push_back({ "Duration", std::to_string(stats.weapon.projectile.aoe.duration) });
         }
         if(stats.weapon.projectile.aoe.radius != 0) {
-            categories[AOE2].push_back({ "Radius", std::to_string(stats.weapon.projectile.aoe.radius) });
+            categories[AREA_OF_EFFECT].push_back({ "Radius", std::to_string(stats.weapon.projectile.aoe.radius) });
         }
 
         if(stats.weapon.uses != 0)  categories[WEAPON].push_back({ "Uses", std::to_string(stats.weapon.uses) });
@@ -186,7 +186,7 @@ typedef struct _itemStats {
                 return "Weapon";
             case EFFECT:
                 return "Effect";
-            case AOE2:
+            case AREA_OF_EFFECT:
                 return "AoE";
             default:
                 return std::format("!Unknown! ({})", (int) category);
