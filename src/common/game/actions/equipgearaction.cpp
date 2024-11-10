@@ -1,6 +1,6 @@
-#include "equipitemaction.h"
+#include "equipgearaction.h"
 
-EquipItemAction::EquipItemAction(
+EquipGearAction::EquipGearAction(
     int turnNumber, 
     Entity* entity, 
     Item* item, 
@@ -13,7 +13,7 @@ EquipItemAction::EquipItemAction(
     isUnequip(isUnequip)
 { }
 
-bool EquipItemAction::onValidate(ApplicationContext* context) {
+bool EquipGearAction::onValidate(ApplicationContext* context) {
     if(item == nullptr) {
         return false;
     }
@@ -43,7 +43,7 @@ bool EquipItemAction::onValidate(ApplicationContext* context) {
     return hasItem;
 }
 
-void EquipItemAction::onExecute(ApplicationContext* context) {
+void EquipGearAction::onExecute(ApplicationContext* context) {
     auto participant = context->getTurnController()->getParticipant(entity->getParticipantId());
     auto existingGear = entity->getGear(slot);
 
@@ -60,26 +60,26 @@ void EquipItemAction::onExecute(ApplicationContext* context) {
     }
 }
 
-bool EquipItemAction::hasFinished(void) {
+bool EquipGearAction::hasFinished(void) {
     return true;
 }
 
-bool EquipItemAction::passesPrecondition(void) {
+bool EquipGearAction::passesPrecondition(void) {
     return true;
 }
 
-Action::Type EquipItemAction::getType(void) {
+Action::Type EquipGearAction::getType(void) {
     return Action::Type::EquipItem;
 }
 
-Item* EquipItemAction::getItem(void) {
+Item* EquipGearAction::getItem(void) {
     return item;
 }
 
-Equippable<Stats::GearStats>::Slot EquipItemAction::getSlot(void) const {
+Equippable<Stats::GearStats>::Slot EquipGearAction::getSlot(void) const {
     return slot;
 }
 
-bool EquipItemAction::getIsUnequip(void) const {
+bool EquipGearAction::getIsUnequip(void) const {
     return isUnequip;
 }

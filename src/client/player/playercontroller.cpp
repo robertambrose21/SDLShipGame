@@ -377,7 +377,7 @@ void PlayerController::setHoverTiles(void) {
 void PlayerController::equipItem(Item* item, Equippable<Stats::GearStats>::Slot slot) {
     auto entity = selectedEntities[0];
 
-    if(turnController->queueAction(std::make_unique<EquipItemAction>(turnController->getTurnNumber(), entity, item, slot, false))) {
+    if(turnController->queueAction(std::make_unique<EquipGearAction>(turnController->getTurnNumber(), entity, item, slot, false))) {
         clientMessagesTransmitter.sendEquipItemMessage(item->getId(), entity->getId(), slot, false);
     }
 }
@@ -385,7 +385,7 @@ void PlayerController::equipItem(Item* item, Equippable<Stats::GearStats>::Slot 
 void PlayerController::unequipItem(Item* item, Equippable<Stats::GearStats>::Slot slot) {
     auto entity = selectedEntities[0];
 
-    if(turnController->queueAction(std::make_unique<EquipItemAction>(turnController->getTurnNumber(), entity, item, slot, true))) {
+    if(turnController->queueAction(std::make_unique<EquipGearAction>(turnController->getTurnNumber(), entity, item, slot, true))) {
         clientMessagesTransmitter.sendEquipItemMessage(item->getId(), entity->getId(), slot, true);
     }
 }

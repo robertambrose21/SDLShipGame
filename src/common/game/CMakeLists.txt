@@ -39,7 +39,7 @@ add_library(
     actions/moveaction.cpp
     actions/attackaction.cpp
     actions/takeitemaction.cpp
-    actions/equipitemaction.cpp
+    actions/equipgearaction.cpp
     actions/equipweaponaction.cpp
     event/events.h
     stats/stats.h

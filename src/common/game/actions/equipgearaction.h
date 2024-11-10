@@ -4,7 +4,7 @@
 #include "game/items/equippable.h"
 #include "game/application/turncontroller.h"
 
-class EquipItemAction : public Action {
+class EquipGearAction : public Action {
 private:
     bool onValidate(ApplicationContext* context);
     void onExecute(ApplicationContext* context);
@@ -15,7 +15,7 @@ private:
     bool isUnequip;
 
 public:
-    EquipItemAction(
+    EquipGearAction(
         int turnNumber, 
         Entity* entity, 
         Item* item, 
