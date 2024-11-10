@@ -4,7 +4,7 @@
 
 #include "game/entities/entity.h"
 #include "effecttypes.h"
-#include "game/stats/equippablestats.h"
+#include "game/stats/stats.h"
 
 class Effect {
 protected:
