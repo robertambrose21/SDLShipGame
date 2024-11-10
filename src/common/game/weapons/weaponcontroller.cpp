@@ -98,9 +98,11 @@ WeaponStats2 WeaponController::buildProjectileWeaponStats(
     Item* item
 ) {
     WeaponStats2 stats;
+    stats.weaponClass = WeaponStats2::PROJECTILE;
     stats.range = definition.range;
     stats.uses = definition.uses;
     stats.damage = damageSource.getStats();
+    stats.projectile = projectileBlueprint.stats;
 
     synchronizeWithItemStats(item, stats);
 
@@ -113,6 +115,7 @@ WeaponStats2 WeaponController::buildMeleeWeaponStats(
     Item* item
 ) {
     WeaponStats2 stats;
+    stats.weaponClass = WeaponStats2::MELEE;
     stats.range = definition.range;
     stats.uses = definition.uses;
     stats.damage = damageSource.getStats();
