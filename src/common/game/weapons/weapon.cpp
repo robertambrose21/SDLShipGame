@@ -98,3 +98,7 @@ DamageSource Weapon::getDamageSource(void) const {
 Item* Weapon::getItem(void) {
     return item;
 }
+
+void Weapon::addTo(Stats::EntityStats& entityStats) {
+    Stats::addEquipmentStatsToEntity(entityStats, getStats());
+}

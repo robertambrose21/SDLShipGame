@@ -172,7 +172,6 @@ public:
     void removeGear(Equippable<Stats::GearStats>::Slot slot);
     Gear* getGear(Equippable<Stats::GearStats>::Slot slot);
 
-    // TOOD: Move to separate class
     void applyStats();
 
     const float getSpeed(void);

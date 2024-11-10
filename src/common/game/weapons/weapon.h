@@ -75,4 +75,5 @@ public:
     DamageSource getDamageSource(void) const;
 
     Item* getItem(void);
+    void addTo(Stats::EntityStats& entityStats);
 };
