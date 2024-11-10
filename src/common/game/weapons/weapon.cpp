@@ -8,7 +8,7 @@ Weapon::Weapon(
     const UUID& id,
     const std::string& name,
     const DamageSource& damageSource,
-    const WeaponStats& stats
+    const Stats::WeaponStats& stats
 ) :
     id(id),
     owner(owner),
@@ -30,7 +30,7 @@ Weapon::Weapon(
     EventPublisher<MeleeWeaponEventData>& publisher,
     const std::string& name,
     const DamageSource& damageSource,
-    const WeaponStats& stats
+    const Stats::WeaponStats& stats
 ) :
     Weapon(owner, context, item, publisher, UUID::getNewUUID(), name, damageSource, stats)
 { }
@@ -67,7 +67,7 @@ bool Weapon::isInRange(const glm::ivec2& position) {
     return glm::distance(glm::vec2(owner->getPosition()), glm::vec2(position)) <= stats.range;
 }
 
-WeaponStats Weapon::getStats(void) const {
+Stats::WeaponStats Weapon::getStats(void) const {
     return stats;
 }
 

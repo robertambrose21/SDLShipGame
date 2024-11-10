@@ -71,7 +71,7 @@ Item::Rarity ItemController::mapToRarity(const std::string& rarityString) {
 }
 
 bool ItemController::isGear(const std::string& type) {
-    auto slot = Equippable<GearStats>::getSlotFromName(type);
+    auto slot = Equippable<Stats::GearStats>::getSlotFromName(type);
     return contains(Gear::VALID_SLOTS, slot);
 }
 

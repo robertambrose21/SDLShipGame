@@ -66,8 +66,8 @@ private:
     void handleMouseDown(const SDL_Event& event);
     void handleMouseUp(const SDL_Event& event);
     void setHoverTiles(void);
-    void equipItem(Item* item, Equippable<GearStats>::Slot slot);
-    void unequipItem(Item* item, Equippable<GearStats>::Slot slot);
+    void equipItem(Item* item, Equippable<Stats::GearStats>::Slot slot);
+    void unequipItem(Item* item, Equippable<Stats::GearStats>::Slot slot);
     void equipWeapon(Item* item);
     void unequipWeapon(Weapon* weapon);
 

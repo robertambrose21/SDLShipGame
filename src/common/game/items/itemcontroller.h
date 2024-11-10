@@ -25,7 +25,7 @@ private:
         std::string rarity;
         uint32_t textureId;
         uint8_t r, g, b, a;
-        ItemStats stats;
+        Stats::ItemStats stats;
     } ItemDefinition;
 
     static const std::map<std::string, Item::Rarity> StringToRarity;

@@ -63,9 +63,9 @@ private:
     std::deque<glm::ivec2> path;
     uint32_t timeSinceLastMoved;
 
-    EntityStats baseStats;
-    EntityStats stats;
-    std::map<Equippable<GearStats>::Slot, std::unique_ptr<Gear>> equippedGear;
+    Stats::EntityStats baseStats;
+    Stats::EntityStats stats;
+    std::map<Equippable<Stats::GearStats>::Slot, std::unique_ptr<Gear>> equippedGear;
 
     std::map<UUID, std::unique_ptr<Weapon>> weapons;
     Weapon* currentWeapon;
@@ -91,14 +91,14 @@ public:
         uint32_t id,
         EventPublisher<EntityEventData, EntitySetPositionEventData>& publisher,
         const std::string& name,
-        const EntityStats& stats
+        const Stats::EntityStats& stats
     );
 
     Entity(
         Grid* grid,
         EventPublisher<EntityEventData, EntitySetPositionEventData>& publisher,
         const std::string& name,
-        const EntityStats& stats
+        const Stats::EntityStats& stats
     );
 
     // TODO: Should these be in EntityPool?
@@ -166,11 +166,11 @@ public:
     void disengage(void);
     bool isEngaged(void) const;
 
-    EntityStats getStats(void) const;
+    Stats::EntityStats getStats(void) const;
 
     void setGear(std::unique_ptr<Gear> gear);
-    void removeGear(Equippable<GearStats>::Slot slot);
-    Gear* getGear(Equippable<GearStats>::Slot slot);
+    void removeGear(Equippable<Stats::GearStats>::Slot slot);
+    Gear* getGear(Equippable<Stats::GearStats>::Slot slot);
 
     // TOOD: Move to separate class
     void applyStats();

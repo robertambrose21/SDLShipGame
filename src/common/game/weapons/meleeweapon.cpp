@@ -8,7 +8,7 @@ MeleeWeapon::MeleeWeapon(
     const UUID& id,
     const std::string& name,
     const DamageSource& damageSource,
-    const WeaponStats& stats
+    const Stats::WeaponStats& stats
 ) :
     Weapon(owner, context, item, publisher, id, name, damageSource, stats)
 { }
@@ -20,7 +20,7 @@ MeleeWeapon::MeleeWeapon(
     EventPublisher<MeleeWeaponEventData>& publisher,
     const std::string& name,
     const DamageSource& damageSource,
-    const WeaponStats& stats
+    const Stats::WeaponStats& stats
 ) :
     Weapon(owner, context, item, publisher, name, damageSource, stats)
 { }
@@ -48,6 +48,6 @@ void MeleeWeapon::update(int64_t timeSinceLastFrame) {
     // no-op
 }
 
-WeaponStats::WeaponClass MeleeWeapon::getType(void) const {
-    return WeaponStats::MELEE;
+Stats::WeaponStats::WeaponClass MeleeWeapon::getType(void) const {
+    return Stats::WeaponStats::MELEE;
 }

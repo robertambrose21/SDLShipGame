@@ -46,7 +46,7 @@ private:
     std::string name;
     std::string type;
     Rarity rarity;
-    ItemStats stats;
+    Stats::ItemStats stats;
 
     uint32_t id;
     uint32_t textureId;
@@ -56,15 +56,15 @@ private:
     int participantId;
 
 public:
-    Item(const std::string& name, Rarity rarity, const ItemStats& stats, const std::string& type, const glm::ivec2& position);
-    Item(const std::string& name, Rarity rarity, const ItemStats& stats, const std::string& type, const glm::ivec2& position, uint32_t id);
+    Item(const std::string& name, Rarity rarity, const Stats::ItemStats& stats, const std::string& type, const glm::ivec2& position);
+    Item(const std::string& name, Rarity rarity, const Stats::ItemStats& stats, const std::string& type, const glm::ivec2& position, uint32_t id);
 
     std::string getName(void) const;
     std::string getType(void) const;
     Rarity getRarity(void) const;
-    ItemStats getStats(void) const;
-    void setWeaponStats(const WeaponStats& weaponStats);
-    void setGearStats(const GearStats& gearStats);
+    Stats::ItemStats getStats(void) const;
+    void setWeaponStats(const Stats::WeaponStats& weaponStats);
+    void setGearStats(const Stats::GearStats& gearStats);
 
     uint32_t getId(void) const;
     void setId(uint32_t id);

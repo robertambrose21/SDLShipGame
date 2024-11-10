@@ -166,9 +166,9 @@ void GameServerMessagesReceiver::receiveEquipItemMessage(
     uint8_t slot, 
     bool isUnequip
 ) {
-    if(!contains(Gear::VALID_SLOTS, (Equippable<GearStats>::Slot) slot)) {
+    if(!contains(Gear::VALID_SLOTS, (Equippable<Stats::GearStats>::Slot) slot)) {
         std::cout << std::format("Warning: received equip gear message with invalid slot {}", 
-                Equippable<GearStats>::SLOT_NAMES[slot]) << std::endl;
+                Equippable<Stats::GearStats>::SLOT_NAMES[slot]) << std::endl;
         return;
     }
     
@@ -188,7 +188,7 @@ void GameServerMessagesReceiver::receiveEquipItemMessage(
         turnController->getTurnNumber(), 
         entity, 
         item,
-        (Equippable<GearStats>::Slot) slot,
+        (Equippable<Stats::GearStats>::Slot) slot,
         isUnequip
     ));
 }

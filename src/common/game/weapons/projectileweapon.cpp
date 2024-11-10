@@ -7,7 +7,7 @@ ProjectileWeapon::ProjectileWeapon(
     EventPublisher<MeleeWeaponEventData>& publisher,
     const UUID& id,
     const std::string& name, 
-    const WeaponStats& stats,
+    const Stats::WeaponStats& stats,
     const DamageSource& damageSource,
     const Projectile::Blueprint& projectileBlueprint
 ) :
@@ -21,7 +21,7 @@ ProjectileWeapon::ProjectileWeapon(
     Item* item,
     EventPublisher<MeleeWeaponEventData>& publisher,
     const std::string& name, 
-    const WeaponStats& stats,
+    const Stats::WeaponStats& stats,
     const DamageSource& damageSource,
     const Projectile::Blueprint& projectileBlueprint
 ) :
@@ -81,6 +81,6 @@ bool ProjectileWeapon::isAnimationInProgress(void) {
     return context->getProjectilePool()->getNumProjectilesForOwner(owner) > 0;
 }
 
-WeaponStats::WeaponClass ProjectileWeapon::getType(void) const {
-    return WeaponStats::PROJECTILE;
+Stats::WeaponStats::WeaponClass ProjectileWeapon::getType(void) const {
+    return Stats::WeaponStats::PROJECTILE;
 }

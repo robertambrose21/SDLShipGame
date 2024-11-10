@@ -44,5 +44,5 @@ public:
     void update(int64_t timeSinceLastFrame);
 
     std::vector<AreaOfEffect*> getAoeEffects(void);
-    AoEStats getStatsFor(const std::string& key);
+    Stats::AoEStats getStatsFor(const std::string& key);
 };

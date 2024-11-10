@@ -61,7 +61,7 @@ void AreaOfEffectPool::add(const std::string& name, int ownerId, int turnNumber,
                 isAnimationOnly,
                 position,
                 damageSource,
-                AoEStats { damageSource.getStats(), definition.radius, definition.turns }
+                Stats::AoEStats { damageSource.getStats(), definition.radius, definition.turns }
             )
         )
     );
@@ -100,9 +100,9 @@ std::vector<AreaOfEffect*> AreaOfEffectPool::getAoeEffects(void) {
     return aoes;
 }
 
-AoEStats AreaOfEffectPool::getStatsFor(const std::string& key) {
+Stats::AoEStats AreaOfEffectPool::getStatsFor(const std::string& key) {
     if(!aoeDefinitions.contains(key)) {
-        return AoEStats();
+        return Stats::AoEStats();
     }
 
     auto definition = aoeDefinitions[key];

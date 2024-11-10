@@ -118,7 +118,7 @@ struct EquipWeaponActionEventData {
 struct EntityEffectEvent {
     EffectType type;
     Entity* target;
-    EffectStats stats;
+    Stats::EffectStats stats;
 };
 
 struct GridEffectEvent {

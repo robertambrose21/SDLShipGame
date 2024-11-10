@@ -5,7 +5,7 @@ DamageSource::DamageSource()
 { }
 
 
-DamageSource::DamageSource(const DamageStats& stats) :
+DamageSource::DamageSource(const Stats::DamageStats& stats) :
     stats(stats)
 { }
 
@@ -83,6 +83,6 @@ int DamageSource::apply(Entity* entity) {
     return damage;
 }
 
-DamageStats DamageSource::getStats(void) const {
+Stats::DamageStats DamageSource::getStats(void) const {
     return stats;
 }

@@ -11,7 +11,7 @@ private:
     bool hasFinished(void);
 
     Item* item;
-    Equippable<GearStats>::Slot slot;
+    Equippable<Stats::GearStats>::Slot slot;
     bool isUnequip;
 
 public:
@@ -19,7 +19,7 @@ public:
         int turnNumber, 
         Entity* entity, 
         Item* item, 
-        Equippable<GearStats>::Slot slot, 
+        Equippable<Stats::GearStats>::Slot slot, 
         bool isUnequip = false
     );
 
@@ -27,6 +27,6 @@ public:
     Type getType(void);
 
     Item* getItem(void);
-    Equippable<GearStats>::Slot getSlot(void) const;
+    Equippable<Stats::GearStats>::Slot getSlot(void) const;
     bool getIsUnequip(void) const;
 };
