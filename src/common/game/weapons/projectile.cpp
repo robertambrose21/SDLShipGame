@@ -8,7 +8,7 @@ Projectile::Projectile(
     int ownerId,
     const glm::ivec2& startPosition,
     const glm::ivec2& target,
-    const ProjectileStats2& stats,
+    const ProjectileStats& stats,
     const DamageSource& damageSource,
     bool isAnimationOnly,
     std::function<void(int, const glm::ivec2&, int, bool)> onHitCallback
@@ -48,7 +48,7 @@ int Projectile::getOwnerId(void) const {
     return ownerId;
 }
 
-ProjectileStats2 Projectile::getStats(void) const {
+ProjectileStats Projectile::getStats(void) const {
     return stats;
 }
 

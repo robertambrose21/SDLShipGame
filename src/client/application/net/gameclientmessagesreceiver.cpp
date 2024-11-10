@@ -209,7 +209,7 @@ void GameClientMessagesReceiver::receiveApplyEntityEffectMessage(ApplyEntityEffe
         damageTicks.push_back(message->effectStats.damageTicks[i]);
     }
 
-    EffectStats2 stats;
+    EffectStats stats;
     stats.duration = message->effectStats.duration;
     stats.type = (EffectType) message->effectStats.effectType;
     stats.damageTicks = damageTicks;

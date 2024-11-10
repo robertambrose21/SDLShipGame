@@ -28,7 +28,7 @@ protected:
     std::string name;
     Entity* owner;
     DamageSource damageSource;
-    WeaponStats2 stats;
+    WeaponStats stats;
 
     int usesLeft;
 
@@ -49,7 +49,7 @@ public:
         const UUID& id,
         const std::string& name,
         const DamageSource& damageSource,
-        const WeaponStats2& stats
+        const WeaponStats& stats
     );
 
     Weapon(
@@ -59,7 +59,7 @@ public:
         EventPublisher<MeleeWeaponEventData>& publisher,
         const std::string& name,
         const DamageSource& damageSource,
-        const WeaponStats2& stats
+        const WeaponStats& stats
     );
 
     void use(const glm::ivec2& position, const glm::ivec2& target, bool isAnimationOnly = false);
@@ -72,7 +72,7 @@ public:
     virtual bool isAnimationInProgress(void);
     virtual Type getType(void) const = 0;
 
-    WeaponStats2 getStats(void) const;
+    WeaponStats getStats(void) const;
     int getUsesLeft(void) const;
     void setUsesLeft(int usesLeft);
 

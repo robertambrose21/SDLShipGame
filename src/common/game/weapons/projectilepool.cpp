@@ -67,8 +67,8 @@ std::function<void(int, const glm::ivec2&, int, bool)> ProjectilePool::buildOnHi
 }
 
 // TODO: Should be handled by effect controller
-std::vector<EffectStats2> ProjectilePool::buildEffectStats(const ProjectileDefinition& definition) {
-    std::vector<EffectStats2> effects;
+std::vector<EffectStats> ProjectilePool::buildEffectStats(const ProjectileDefinition& definition) {
+    std::vector<EffectStats> effects;
 
     for(auto effect : definition.effects) {
         effects.push_back({ effect.type, effect.duration, effect.damageTicks });
@@ -91,7 +91,7 @@ Projectile::Blueprint ProjectilePool::create(const std::string& name) {
     auto const& definition = projectileDefinitions[name];
     auto const& aoe = definition.aoe;
     
-    ProjectileStats2 stats;
+    ProjectileStats stats;
     stats.speed = definition.speed;
     stats.effects = buildEffectStats(definition);
 
