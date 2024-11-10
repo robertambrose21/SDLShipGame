@@ -20,7 +20,7 @@
 #include "graphics/ui/examineitempanel.h"
 #include "graphics/ui/statspanel.h"
 #include "game/actions/attackaction.h"
-#include "game/actions/equipitemaction.h"
+#include "game/actions/equipgearaction.h"
 #include "game/actions/equipweaponaction.h"
 
 // Too large, split up

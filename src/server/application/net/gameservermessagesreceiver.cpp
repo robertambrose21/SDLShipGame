@@ -184,7 +184,7 @@ void GameServerMessagesReceiver::receiveEquipItemMessage(
     auto item = context.getItemController()->getItem(itemId);
     auto entity = context.getEntityPool()->getEntity(entityId);
 
-    turnController->queueAction(std::make_unique<EquipItemAction>(
+    turnController->queueAction(std::make_unique<EquipGearAction>(
         turnController->getTurnNumber(), 
         entity, 
         item,
