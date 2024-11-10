@@ -5,7 +5,6 @@
 #include "imgui.h"
 #include "itemraritycolours.h"
 
-#include "game/items/equipment.h"
 #include "game/items/equippable.h"
 #include "game/weapons/weapon.h"
 #include "graphics/graphicscontext.h"
