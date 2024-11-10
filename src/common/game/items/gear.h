@@ -5,7 +5,7 @@
 #include "equippable.h"
 #include "core/util/vectorutils.h"
 
-class Gear : Equippable<GearStats> {
+class Gear : Equippable<Stats::GearStats> {
 private:
     Slot slot;
     Item* item;
@@ -19,6 +19,6 @@ public:
     void setSlot(Slot slot);
     Item* getItem(void);
     bool isValid(void);
-    GearStats getStats(void);
-    void addTo(EntityStats& entityStats);
+    Stats::GearStats getStats(void);
+    void addTo(Stats::EntityStats& entityStats);
 };

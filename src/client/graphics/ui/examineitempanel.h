@@ -13,7 +13,7 @@ private:
     Item* item;
     bool isOpen;
 
-    std::map<StatCategory, std::vector<StatsPair>> stats;
+    std::map<Stats::StatCategory, std::vector<Stats::StatsPair>> stats;
 
     void drawStatsTable(void);
 

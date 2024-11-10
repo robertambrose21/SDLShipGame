@@ -91,14 +91,14 @@ std::unique_ptr<Weapon> WeaponController::createWeapon(
     throw std::runtime_error("Could not create weapon of class \"" + definition.weaponClass + "\"");
 }
 
-WeaponStats WeaponController::buildProjectileWeaponStats(
+Stats::WeaponStats WeaponController::buildProjectileWeaponStats(
     const WeaponDefinition& definition, 
     const Projectile::Blueprint& projectileBlueprint,
     const DamageSource& damageSource,
     Item* item
 ) {
-    WeaponStats stats;
-    stats.weaponClass = WeaponStats::PROJECTILE;
+    Stats::WeaponStats stats;
+    stats.weaponClass = Stats::WeaponStats::PROJECTILE;
     stats.range = definition.range;
     stats.uses = definition.uses;
     stats.damage = damageSource.getStats();
@@ -109,13 +109,13 @@ WeaponStats WeaponController::buildProjectileWeaponStats(
     return stats;
 }
 
-WeaponStats WeaponController::buildMeleeWeaponStats(
+Stats::WeaponStats WeaponController::buildMeleeWeaponStats(
     const WeaponDefinition& definition, 
     const DamageSource& damageSource,
     Item* item
 ) {
-    WeaponStats stats;
-    stats.weaponClass = WeaponStats::MELEE;
+    Stats::WeaponStats stats;
+    stats.weaponClass = Stats::WeaponStats::MELEE;
     stats.range = definition.range;
     stats.uses = definition.uses;
     stats.damage = damageSource.getStats();
@@ -125,7 +125,7 @@ WeaponStats WeaponController::buildMeleeWeaponStats(
     return stats;
 }
 
-void WeaponController::synchronizeWithItemStats(Item* item, WeaponStats& weaponStats) {
+void WeaponController::synchronizeWithItemStats(Item* item, Stats::WeaponStats& weaponStats) {
     if(item == nullptr) {
         return;
     }

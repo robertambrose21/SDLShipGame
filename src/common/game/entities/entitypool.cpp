@@ -253,7 +253,7 @@ Entity* EntityPool::addEntity(const std::string& name, uint32_t id) {
     auto definition = entityDefinitions[name];
 
     // TODO: Move applying stats to another class
-    auto stats = EntityStats();
+    Stats::EntityStats stats;
     stats.hp = definition.hp;
     stats.totalHp = definition.hp;
     stats.movesPerTurn = definition.movesPerTurn;

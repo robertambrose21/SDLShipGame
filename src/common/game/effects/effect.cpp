@@ -1,6 +1,6 @@
 #include "effect.h"
 
-Effect::Effect(Entity* target, const EffectStats& stats) :
+Effect::Effect(Entity* target, const Stats::EffectStats& stats) :
     target(target),
     stats(stats),
     ticksLeft(stats.duration)
@@ -12,7 +12,7 @@ void Effect::apply(void) {
     }
 }
 
-EffectStats Effect::getStats(void) const {
+Stats::EffectStats Effect::getStats(void) const {
     return stats;
 }
 
@@ -30,7 +30,7 @@ Entity* Effect::getTarget(void) {
 
 
 
-FreezeEffect::FreezeEffect(Entity* target, const EffectStats& stats) :
+FreezeEffect::FreezeEffect(Entity* target, const Stats::EffectStats& stats) :
     Effect(target, stats)
 { }
 
@@ -44,7 +44,7 @@ EffectType FreezeEffect::getType(void) const {
 
 
 
-PoisonEffect::PoisonEffect(Entity* target, const EffectStats& stats) :
+PoisonEffect::PoisonEffect(Entity* target, const Stats::EffectStats& stats) :
     Effect(target, stats)
 { }
 

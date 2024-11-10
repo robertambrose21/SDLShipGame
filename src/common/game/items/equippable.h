@@ -36,7 +36,7 @@ public:
     virtual bool isValid(void) = 0;
     
     virtual T getStats(void) = 0;
-    virtual void addTo(EntityStats& entityStats) = 0;
+    virtual void addTo(Stats::EntityStats& entityStats) = 0;
 
     static Slot getSlotFromName(const std::string& name) {
         for(int i = 0; i < Slot::COUNT; i++) {

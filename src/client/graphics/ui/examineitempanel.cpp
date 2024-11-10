@@ -4,7 +4,7 @@ ExamineItemPanel::ExamineItemPanel(Item* item) :
     item(item),
     isOpen(true)
 {
-    stats = calculateItemStatCategories(item->getStats());
+    stats = Stats::calculateItemStatCategories(item->getStats());
 }
 
 void ExamineItemPanel::draw(GraphicsContext& graphicsContext) {
@@ -37,7 +37,7 @@ void ExamineItemPanel::drawStatsTable(void) {
     ImGuiTableFlags flags = ImGuiTableFlags_SizingFixedFit;
 
     for(auto const& [category, pairs] : stats) {
-        auto categoryString = statCategoryToString(category).c_str();
+        auto categoryString = Stats::statCategoryToString(category).c_str();
 
         ImGui::Text("%s", categoryString);
         ImGui::Separator();

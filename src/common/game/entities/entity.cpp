@@ -6,7 +6,7 @@ Entity::Entity(
     uint32_t id,
     EventPublisher<EntityEventData, EntitySetPositionEventData>& publisher,
     const std::string& name,
-    const EntityStats& stats
+    const Stats::EntityStats& stats
 ) :
     id(id),
     publisher(publisher),
@@ -29,7 +29,7 @@ Entity::Entity(
     Grid* grid,
     EventPublisher<EntityEventData, EntitySetPositionEventData>& publisher,
     const std::string& name,
-    const EntityStats& stats
+    const Stats::EntityStats& stats
 ) : 
     Entity(grid, getNewId(), publisher, name, stats)
 { }
@@ -121,14 +121,14 @@ bool Entity::isEngaged(void) const {
     return engaged;
 }
 
-EntityStats Entity::getStats(void) const {
+Stats::EntityStats Entity::getStats(void) const {
     return stats;
 }
 
 void Entity::setGear(std::unique_ptr<Gear> gear) {
     if(!gear->isValid()) {
         std::cout << std::format("Warning: invalid gear for slot {}", 
-                Equippable<GearStats>::SLOT_NAMES[gear->getSlot()]) << std::endl;
+                Equippable<Stats::GearStats>::SLOT_NAMES[gear->getSlot()]) << std::endl;
         return;
     }
 
@@ -136,12 +136,12 @@ void Entity::setGear(std::unique_ptr<Gear> gear) {
     applyStats();
 }
 
-void Entity::removeGear(Equippable<GearStats>::Slot slot) {
+void Entity::removeGear(Equippable<Stats::GearStats>::Slot slot) {
     equippedGear[slot] = nullptr;
     applyStats();
 }
 
-Gear* Entity::getGear(Equippable<GearStats>::Slot slot) {
+Gear* Entity::getGear(Equippable<Stats::GearStats>::Slot slot) {
     return equippedGear[slot].get();
 }
 

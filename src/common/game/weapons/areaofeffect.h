@@ -24,7 +24,7 @@ private:
     bool isAnimationOnly;
     glm::ivec2 position;
     DamageSource damageSource;
-    AoEStats stats;
+    Stats::AoEStats stats;
 
 public:
     AreaOfEffect(
@@ -37,7 +37,7 @@ public:
         bool isAnimationOnly,
         const glm::ivec2& position,
         const DamageSource& damageSource,
-        const AoEStats& stats
+        const Stats::AoEStats& stats
     );
 
     void update(int64_t timeSinceLastFrame);
@@ -45,7 +45,7 @@ public:
     void onNextTurn(int currentParticipantId, int turnNumber);
 
     int getOwnerId(void) const;
-    AoEStats getStats(void) const;
+    Stats::AoEStats getStats(void) const;
 
     std::vector<glm::ivec2> getEffectedTilePositions(void);
 

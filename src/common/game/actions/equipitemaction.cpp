@@ -4,7 +4,7 @@ EquipItemAction::EquipItemAction(
     int turnNumber, 
     Entity* entity, 
     Item* item, 
-    Equippable<GearStats>::Slot slot, 
+    Equippable<Stats::GearStats>::Slot slot, 
     bool isUnequip
 ) :
     Action(turnNumber, entity),
@@ -76,7 +76,7 @@ Item* EquipItemAction::getItem(void) {
     return item;
 }
 
-Equippable<GearStats>::Slot EquipItemAction::getSlot(void) const {
+Equippable<Stats::GearStats>::Slot EquipItemAction::getSlot(void) const {
     return slot;
 }
 

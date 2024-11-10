@@ -38,7 +38,7 @@ void InventoryPanel::drawEquipment(GraphicsContext& graphicsContext, Participant
         for(auto slot : Gear::VALID_SLOTS) {
             ImGui::TableNextRow();
             ImGui::TableNextColumn();
-            ImGui::TextColored(ImVec4(1, 1, 1, 1), "%s", Equippable<GearStats>::SLOT_NAMES[slot].c_str());
+            ImGui::TextColored(ImVec4(1, 1, 1, 1), "%s", Equippable<Stats::GearStats>::SLOT_NAMES[slot].c_str());
             ImGui::TableNextColumn();
 
             auto gear = participant->getEntities()[0]->getGear(slot);
@@ -77,7 +77,7 @@ void InventoryPanel::drawInventoryItem(GraphicsContext& graphicsContext, Item* i
     auto texture = graphicsContext.getTextureLoader().loadTexture(item->getTextureId())->getSDLTexture();
     auto selectableLabel = "##SelectableItem" + std::to_string(item->getId());
 
-    Equippable<GearStats>::Slot slot = Equippable<GearStats>::getSlotFromName(item->getType());
+    Equippable<Stats::GearStats>::Slot slot = Equippable<Stats::GearStats>::getSlotFromName(item->getType());
 
     ImGui::SetNextItemAllowOverlap();
     ImGui::Selectable(selectableLabel.c_str());
@@ -108,7 +108,7 @@ void InventoryPanel::drawEquippedItem(GraphicsContext& graphicsContext, Item* it
     auto texture = graphicsContext.getTextureLoader().loadTexture(item->getTextureId())->getSDLTexture();
     auto selectableLabel = "##SelectableEquipment" + std::to_string(item->getId());
 
-    Equippable<GearStats>::Slot slot = Equippable<GearStats>::getSlotFromName(item->getType());
+    Equippable<Stats::GearStats>::Slot slot = Equippable<Stats::GearStats>::getSlotFromName(item->getType());
 
     ImGui::SetNextItemAllowOverlap();
     ImGui::Selectable(selectableLabel.c_str());
@@ -163,11 +163,11 @@ void InventoryPanel::toggle(void) {
     isShown = !isShown;
 }
 
-void InventoryPanel::addOnEquipCallback(std::function<void(Item* item, Equippable<GearStats>::Slot slot)>&& callback) {
+void InventoryPanel::addOnEquipCallback(std::function<void(Item* item, Equippable<Stats::GearStats>::Slot slot)>&& callback) {
     this->onEquipClicked = callback;
 }
 
-void InventoryPanel::addOnUnequipCallback(std::function<void(Item* item, Equippable<GearStats>::Slot slot)>&& callback) {
+void InventoryPanel::addOnUnequipCallback(std::function<void(Item* item, Equippable<Stats::GearStats>::Slot slot)>&& callback) {
     this->onUnequipClicked = callback;
 }
 

@@ -5,7 +5,7 @@ Gear::Gear(Slot slot, Item* item) :
     item(item)
 { }
 
-Equippable<GearStats>::Slot Gear::getSlot(void) {
+Equippable<Stats::GearStats>::Slot Gear::getSlot(void) {
     return slot;
 }
 
@@ -21,11 +21,11 @@ bool Gear::isValid(void) {
     return contains(VALID_SLOTS, slot);
 }
 
-GearStats Gear::getStats(void) {
+Stats::GearStats Gear::getStats(void) {
     return item->getStats().gear;
 }
 
-void Gear::addTo(EntityStats& entityStats) {
+void Gear::addTo(Stats::EntityStats& entityStats) {
     entityStats.hp += getStats().hp;
     entityStats.totalHp += getStats().hp;
 

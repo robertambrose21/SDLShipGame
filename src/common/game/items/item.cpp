@@ -11,7 +11,7 @@ const std::set<std::string> Item::EquippableItemTypes = {
 Item::Item(
     const std::string& name, 
     Rarity rarity, 
-    const ItemStats& stats, 
+    const Stats::ItemStats& stats, 
     const std::string& type, 
     const glm::ivec2& position
 ) :
@@ -21,7 +21,7 @@ Item::Item(
 Item::Item(
     const std::string& name, 
     Rarity rarity, 
-    const ItemStats& stats, 
+    const Stats::ItemStats& stats, 
     const std::string& type, 
     const glm::ivec2& position, 
     uint32_t id
@@ -55,15 +55,15 @@ Item::Rarity Item::getRarity(void) const {
     return rarity;
 }
 
-ItemStats Item::getStats(void) const {
+Stats::ItemStats Item::getStats(void) const {
     return stats;
 }
 
-void Item::setWeaponStats(const WeaponStats& weaponStats) {
+void Item::setWeaponStats(const Stats::WeaponStats& weaponStats) {
     stats.weapon = weaponStats;
 }
 
-void Item::setGearStats(const GearStats& gearStats) {
+void Item::setGearStats(const Stats::GearStats& gearStats) {
     stats.gear = gearStats;
 }
 
