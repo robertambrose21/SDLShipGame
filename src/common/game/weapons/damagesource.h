@@ -6,7 +6,7 @@
 #include <stdexcept>
 
 #include "core/util/randomutils.h"
-#include "game/stats/equippablestats.h"
+#include "game/stats/stats.h"
 
 class Entity;
 

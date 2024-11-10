@@ -42,7 +42,7 @@ add_library(
     actions/equipitemaction.cpp
     actions/equipweaponaction.cpp
     event/events.h
-    stats/equippablestats.h
+    stats/stats.h
     spawn/spawncontroller.cpp
     net/gamemessagelogger.cpp
     participant/participant.cpp

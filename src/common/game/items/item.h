@@ -7,7 +7,7 @@
 #include "core/util/idgenerator.h"
 #include "core/glmimport.h"
 #include "game/event/events.h"
-#include "game/stats/equippablestats.h"
+#include "game/stats/stats.h"
 
 // TODO: This might not have a position - should probably make different classes for dropped items/equipped items?
 class Item {

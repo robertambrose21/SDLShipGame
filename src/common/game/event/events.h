@@ -4,7 +4,7 @@
 #include "core/glmimport.h"
 #include "core/util/idgenerator.h"
 #include "game/effects/effecttypes.h"
-#include "game/stats/equippablestats.h"
+#include "game/stats/stats.h"
 
 class Entity;
 class Item;

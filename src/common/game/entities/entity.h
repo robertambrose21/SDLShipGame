@@ -11,7 +11,7 @@
 #include "core/grid/grid.h"
 #include "game/application/applicationcontext.h"
 #include "game/effects/effect.h"
-#include "game/stats/equippablestats.h"
+#include "game/stats/stats.h"
 #include "game/items/gear.h"
 
 // TODO: Fix with modules?

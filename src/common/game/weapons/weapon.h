@@ -9,7 +9,7 @@
 #include "core/event/eventpublisher.h"
 #include "core/grid/grid.h"
 #include "game/event/events.h"
-#include "game/stats/equippablestats.h"
+#include "game/stats/stats.h"
 #include "game/application/applicationcontext.h"
 
 class Entity;

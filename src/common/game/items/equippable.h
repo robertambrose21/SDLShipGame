@@ -4,7 +4,7 @@
 #include <string>
 
 #include "game/items/item.h"
-#include "game/stats/equippablestats.h"
+#include "game/stats/stats.h"
 
 template<typename T>
 class Equippable {
