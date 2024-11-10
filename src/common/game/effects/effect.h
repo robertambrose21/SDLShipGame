@@ -10,18 +10,18 @@ class Effect {
 protected:
     Entity* target;
     int ticksLeft;
-    EffectStats2 stats;
+    EffectStats stats;
 
     virtual void doApply(void) = 0;
 
 public:
-    Effect(Entity* target, const EffectStats2& stats);
+    Effect(Entity* target, const EffectStats& stats);
 
     virtual EffectType getType(void) const = 0;
 
     void apply(void);
 
-    EffectStats2 getStats(void) const;
+    EffectStats getStats(void) const;
     int getTicksLeft(void) const;
     void nextTurn(void);
 
@@ -30,7 +30,7 @@ public:
 
 class FreezeEffect : public Effect {
 public:
-    FreezeEffect(Entity* target, const EffectStats2& stats);
+    FreezeEffect(Entity* target, const EffectStats& stats);
 
     void doApply(void);
     EffectType getType(void) const;
@@ -38,7 +38,7 @@ public:
 
 class PoisonEffect : public Effect {
 public:
-    PoisonEffect(Entity* target, const EffectStats2& stats);
+    PoisonEffect(Entity* target, const EffectStats& stats);
 
     void doApply(void);
     EffectType getType(void) const;

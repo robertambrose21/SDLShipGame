@@ -41,7 +41,7 @@ private:
 
     void loadProjectileDefinitions(void);
     std::function<void(int, const glm::ivec2&, int, bool)> buildOnHitCallback(const ProjectileDefinition& definition);
-    std::vector<EffectStats2> buildEffectStats(const ProjectileDefinition& definition);
+    std::vector<EffectStats> buildEffectStats(const ProjectileDefinition& definition);
 
 public:
     ProjectilePool();

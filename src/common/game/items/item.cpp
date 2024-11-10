@@ -59,7 +59,7 @@ ItemStats Item::getStats(void) const {
     return stats;
 }
 
-void Item::setWeaponStats(const WeaponStats2& weaponStats) {
+void Item::setWeaponStats(const WeaponStats& weaponStats) {
     stats.weapon = weaponStats;
 }
 

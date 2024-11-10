@@ -15,21 +15,18 @@ enum StatCategory {
     AOE2
 };
 
-// When adding new stats, ensure they have a default value set
-typedef struct _equippableStats {
-    uint32_t armour = 0;
-    uint32_t hp = 0;
-    uint8_t speed = 0;
-    uint8_t power = 0;
-    uint8_t wisdom = 0;
-} EquippableStats;
-
 typedef struct _statsPair {
     std::string name;
     std::string value;
 } StatsPair;
 
-typedef struct _equipmentStats : public EquippableStats {
+// When adding new stats, ensure they have a default value set
+typedef struct _equipmentStats {
+    uint32_t armour = 0;
+    uint32_t hp = 0;
+    uint8_t speed = 0;
+    uint8_t power = 0;
+    uint8_t wisdom = 0;
 } EquipmentStats;
 
 typedef struct _gearStats : public EquipmentStats {
@@ -74,10 +71,10 @@ typedef struct _damageStats {
 
         return false;
     }
-} DamageStats2;
+} DamageStats;
 
 typedef struct _aoeStats {
-    DamageStats2 damage;
+    DamageStats damage;
     float radius = 0;
     uint8_t duration = 0;
 } AoEStats;
@@ -86,13 +83,13 @@ typedef struct _effectStats {
     EffectType type;
     uint8_t duration = 0;
     std::vector<uint32_t> damageTicks;
-} EffectStats2;
+} EffectStats;
 
 typedef struct _projectileStats {
     float speed;
-    std::vector<EffectStats2> effects;
+    std::vector<EffectStats> effects;
     AoEStats aoe;
-} ProjectileStats2;
+} ProjectileStats;
 
 typedef struct _weaponStats : public EquipmentStats {
     enum WeaponClass {
@@ -101,11 +98,11 @@ typedef struct _weaponStats : public EquipmentStats {
     };
 
     WeaponClass weaponClass;
-    DamageStats2 damage;
-    ProjectileStats2 projectile;
+    DamageStats damage;
+    ProjectileStats projectile;
     uint8_t uses = 0;
     uint8_t range = 0;
-} WeaponStats2;
+} WeaponStats;
 
 typedef struct _entityStats : public EquipmentStats {
     uint32_t totalHp = 0;
@@ -115,7 +112,7 @@ typedef struct _entityStats : public EquipmentStats {
 
 typedef struct _itemStats { 
     GearStats gear;
-    WeaponStats2 weapon;
+    WeaponStats weapon;
 
     static std::map<StatCategory, std::vector<StatsPair>> calculateStatCategories(const _itemStats& stats) {
         std::map<StatCategory, std::vector<StatsPair>> categories;
@@ -126,17 +123,17 @@ typedef struct _itemStats {
         if(stats.gear.power != 0)   categories[BASE].push_back({ "Power", std::to_string(stats.gear.power) });
         if(stats.gear.wisdom != 0)  categories[BASE].push_back({ "Wisdom", std::to_string(stats.gear.wisdom) });
 
-        if(!DamageStats2::isZero(stats.weapon.damage)) {
-            std::string label = stats.weapon.weaponClass == WeaponStats2::MELEE ? "Damage" : "Projectile Damage";
-            categories[WEAPON].push_back({ label, DamageStats2::toString(stats.weapon.damage) });
+        if(!DamageStats::isZero(stats.weapon.damage)) {
+            std::string label = stats.weapon.weaponClass == WeaponStats::MELEE ? "Damage" : "Projectile Damage";
+            categories[WEAPON].push_back({ label, DamageStats::toString(stats.weapon.damage) });
         }
 
         for(auto const& effect : stats.weapon.projectile.effects) {
             categories[EFFECT].push_back({ getEffectLabel(effect), getEffectValue(effect) });
         }
 
-        if(!DamageStats2::isZero(stats.weapon.projectile.aoe.damage)) {
-            categories[AOE2].push_back({ "Damage", DamageStats2::toString(stats.weapon.projectile.aoe.damage) });
+        if(!DamageStats::isZero(stats.weapon.projectile.aoe.damage)) {
+            categories[AOE2].push_back({ "Damage", DamageStats::toString(stats.weapon.projectile.aoe.damage) });
         }
 
         if(stats.weapon.projectile.aoe.duration > 1) {
@@ -152,7 +149,7 @@ typedef struct _itemStats {
         return categories;
     }
 
-    static std::string getEffectLabel(const EffectStats2& effectStats) {
+    static std::string getEffectLabel(const EffectStats& effectStats) {
         switch(effectStats.type) {
             case FREEZE:
                 return "Freeze";
@@ -163,7 +160,7 @@ typedef struct _itemStats {
         }
     }
 
-    static std::string getEffectValue(const EffectStats2& effectStats) {
+    static std::string getEffectValue(const EffectStats& effectStats) {
         if(effectStats.damageTicks.empty()) {
             return std::format("for {} turns", effectStats.duration);
         }
