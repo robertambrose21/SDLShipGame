@@ -10,7 +10,6 @@
 #include "game/application/applicationcontext.h"
 #include "game/entities/entitypool.h"
 #include "item.h"
-#include "game/stats/stats.h"
 
 using json = nlohmann::json;
 
