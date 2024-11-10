@@ -146,7 +146,6 @@ Gear* Entity::getGear(Equippable<Stats::GearStats>::Slot slot) {
 }
 
 void Entity::applyStats() {
-    // TODO: copy-to function with optional exclusions?
     uint32_t currentHp = stats.hp;
     stats = baseStats;
     stats.hp = currentHp;
@@ -154,6 +153,12 @@ void Entity::applyStats() {
     for(auto const& [slot, gear] : equippedGear) {
         if(gear != nullptr) {
             gear->addTo(stats);
+        }
+    }
+
+    for(auto const& [_, weapon] : weapons) {
+        if(weapon != nullptr) {
+            weapon->addTo(stats);
         }
     }
 }

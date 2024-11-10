@@ -26,15 +26,5 @@ Stats::GearStats Gear::getStats(void) {
 }
 
 void Gear::addTo(Stats::EntityStats& entityStats) {
-    entityStats.hp += getStats().hp;
-    entityStats.totalHp += getStats().hp;
-
-    entityStats.armour += getStats().armour;
-    entityStats.power += getStats().power;
-    entityStats.speed += getStats().speed;
-    entityStats.wisdom += getStats().wisdom;
-
-    // Temp calculation, needs balancing
-    entityStats.movesPerTurn += getStats().speed / 5;
-    entityStats.movesLeft += getStats().speed / 5;
+    Stats::addEquipmentStatsToEntity(entityStats, getStats());
 }

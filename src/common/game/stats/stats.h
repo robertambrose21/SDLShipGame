@@ -13,7 +13,8 @@ namespace Stats {
         BASE,
         WEAPON,
         EFFECT,
-        AREA_OF_EFFECT
+        AREA_OF_EFFECT,
+        ENTITY
     };
 
     typedef struct _statsPair {
@@ -160,14 +161,20 @@ namespace Stats {
         return false;
     }
 
-    static std::map<StatCategory, std::vector<StatsPair>> calculateItemStatCategories(const _itemStats& stats) {
+    static std::map<StatCategory, std::vector<StatsPair>> calculateBaseStatCategories(const EquipmentStats& stats) {
         std::map<StatCategory, std::vector<StatsPair>> categories;
 
-        if(stats.gear.armour != 0)  categories[BASE].push_back({ "Armour", std::to_string(stats.gear.armour) });
-        if(stats.gear.hp != 0)      categories[BASE].push_back({ "HP", std::to_string(stats.gear.hp) });
-        if(stats.gear.speed != 0)   categories[BASE].push_back({ "Speed", std::to_string(stats.gear.speed) });
-        if(stats.gear.power != 0)   categories[BASE].push_back({ "Power", std::to_string(stats.gear.power) });
-        if(stats.gear.wisdom != 0)  categories[BASE].push_back({ "Wisdom", std::to_string(stats.gear.wisdom) });
+        if(stats.armour != 0)  categories[BASE].push_back({ "Armour", std::to_string(stats.armour) });
+        if(stats.hp != 0)      categories[BASE].push_back({ "HP", std::to_string(stats.hp) });
+        if(stats.speed != 0)   categories[BASE].push_back({ "Speed", std::to_string(stats.speed) });
+        if(stats.power != 0)   categories[BASE].push_back({ "Power", std::to_string(stats.power) });
+        if(stats.wisdom != 0)  categories[BASE].push_back({ "Wisdom", std::to_string(stats.wisdom) });
+
+        return categories;
+    }
+
+    static std::map<StatCategory, std::vector<StatsPair>> calculateItemStatCategories(const ItemStats& stats) {
+        std::map<StatCategory, std::vector<StatsPair>> categories = calculateBaseStatCategories(stats.gear);
 
         if(!isDamageZero(stats.weapon.damage)) {
             std::string label = stats.weapon.weaponClass == WeaponStats::MELEE ? "Damage" : "Projectile Damage";
@@ -193,5 +200,19 @@ namespace Stats {
         if(stats.weapon.range != 0) categories[WEAPON].push_back({ "Range", std::to_string(stats.weapon.range) });
 
         return categories;
+    }
+
+    static void addEquipmentStatsToEntity(EntityStats& entityStats, const EquipmentStats& equipment) {
+        entityStats.hp += equipment.hp;
+        entityStats.totalHp += equipment.hp;
+
+        entityStats.armour += equipment.armour;
+        entityStats.power += equipment.power;
+        entityStats.speed += equipment.speed;
+        entityStats.wisdom += equipment.wisdom;
+
+        // Temp calculation, needs balancing
+        entityStats.movesPerTurn += equipment.speed / 5;
+        entityStats.movesLeft += equipment.speed / 5;
     }
 }
