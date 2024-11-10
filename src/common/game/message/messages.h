@@ -522,7 +522,7 @@ public:
         serialize_bits(stream, effectStats.numDamageTicks, 8);
 
         for(int i = 0; i < effectStats.numDamageTicks; i++) {
-            serialize_bits(stream, effectStats.damageTicks[i], 8);
+            serialize_uint32(stream, effectStats.damageTicks[i]);
         }
 
         return true;
