@@ -48,6 +48,6 @@ void MeleeWeapon::update(int64_t timeSinceLastFrame) {
     // no-op
 }
 
-Weapon::Type MeleeWeapon::getType(void) const {
-    return Weapon::Type::MELEE;
+WeaponStats::WeaponClass MeleeWeapon::getType(void) const {
+    return WeaponStats::MELEE;
 }

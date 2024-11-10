@@ -39,7 +39,7 @@ public:
     
     void update(int64_t timeSinceLastFrame);
     bool isAnimationInProgress(void);
-    Type getType(void) const;
+    WeaponStats::WeaponClass getType(void) const;
 
     bool isInRange(const glm::ivec2& target);
 

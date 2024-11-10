@@ -81,6 +81,6 @@ bool ProjectileWeapon::isAnimationInProgress(void) {
     return context->getProjectilePool()->getNumProjectilesForOwner(owner) > 0;
 }
 
-Weapon::Type ProjectileWeapon::getType(void) const {
-    return Weapon::Type::PROJECTILE;
+WeaponStats::WeaponClass ProjectileWeapon::getType(void) const {
+    return WeaponStats::PROJECTILE;
 }

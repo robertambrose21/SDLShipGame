@@ -6,11 +6,11 @@ WeaponStateUpdate WeaponStateUpdate::serialize(Weapon* weapon) {
     WeaponStateUpdate weaponUpdate;
 
     switch(weapon->getType()) {
-        case Weapon::Type::MELEE:
+        case WeaponStats::MELEE:
             strcpy(weaponUpdate.weaponClass, "Melee");
             break;
 
-        case Weapon::Type::PROJECTILE:
+        case WeaponStats::PROJECTILE:
             strcpy(weaponUpdate.weaponClass, "Projectile");
             strcpy(weaponUpdate.projectile, ((ProjectileWeapon*) weapon)->getProjectileBluePrint().name.c_str());
             break;
