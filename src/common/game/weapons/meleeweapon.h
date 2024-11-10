@@ -31,5 +31,5 @@ public:
     );
 
     void update(int64_t timeSinceLastFrame);
-    Type getType(void) const;
+    WeaponStats::WeaponClass getType(void) const;
 };

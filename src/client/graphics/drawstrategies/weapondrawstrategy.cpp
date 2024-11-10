@@ -2,11 +2,11 @@
 
 void WeaponDrawStrategy::draw(Weapon* drawable, GraphicsContext& graphicsContext) {
     switch(drawable->getType()) {
-        case Weapon::Type::MELEE:
+        case WeaponStats::MELEE:
             drawMeleeWeapon(static_cast<MeleeWeapon*>(drawable), graphicsContext);
             break;
 
-        case Weapon::Type::PROJECTILE:
+        case WeaponStats::PROJECTILE:
             drawProjectileWeapon(static_cast<ProjectileWeapon*>(drawable), graphicsContext);
             break;
         

@@ -94,7 +94,7 @@ Weapon* ChaseAndAttackStrategy::getBestInRangeWeapon(
     const glm::ivec2& target
 ) {
     for(auto weapon : attacker->getWeapons()) {
-        if(weapon->getType() == Weapon::Type::PROJECTILE && weapon->isInRange(target)) {
+        if(weapon->getType() == WeaponStats::PROJECTILE && weapon->isInRange(target)) {
             return weapon;
         }
     }

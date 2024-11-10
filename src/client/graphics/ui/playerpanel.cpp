@@ -58,7 +58,7 @@ void PlayerPanel::onPublish(const Event<EntityEventData>& event) {
 }
 
 void PlayerPanel::onPublish(const Event<MeleeWeaponEventData>& event) {
-    if(event.data.weapon->getType() != Weapon::Type::MELEE) {
+    if(event.data.weapon->getType() != WeaponStats::MELEE) {
         return;
     }
 

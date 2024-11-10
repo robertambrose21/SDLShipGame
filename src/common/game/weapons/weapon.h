@@ -16,13 +16,6 @@ class Entity;
 class ApplicationContext;
 
 class Weapon {
-public:
-    // TODO: Probably a better way to do abstraction than this
-    enum Type {
-        MELEE,
-        PROJECTILE
-    };
-    
 protected:
     UUID id;
     std::string name;
@@ -70,7 +63,7 @@ public:
     virtual void update(int64_t timeSinceLastFrame) = 0;
     virtual bool hasFinished(void);
     virtual bool isAnimationInProgress(void);
-    virtual Type getType(void) const = 0;
+    virtual WeaponStats::WeaponClass getType(void) const = 0;
 
     WeaponStats getStats(void) const;
     int getUsesLeft(void) const;
