@@ -4,7 +4,7 @@ ExamineItemPanel::ExamineItemPanel(Item* item) :
     item(item),
     isOpen(true)
 {
-    stats = ItemStats::calculateStatsPairs(item->getStats());
+    stats = ItemStats::calculateStatCategories(item->getStats());
 }
 
 void ExamineItemPanel::draw(GraphicsContext& graphicsContext) {
@@ -36,16 +36,24 @@ void ExamineItemPanel::draw(GraphicsContext& graphicsContext) {
 void ExamineItemPanel::drawStatsTable(void) {
     ImGuiTableFlags flags = ImGuiTableFlags_SizingFixedFit;
 
-    if(ImGui::BeginTable("Stats", 2, flags)) {
-        for(auto const& [name, value] : stats) {
-            ImGui::TableNextRow();
-            ImGui::TableNextColumn();
-            ImGui::TextColored(ImVec4(0.5, 0.5, 0.5, 1), "%s: ", name.c_str());
-            ImGui::TableNextColumn();
-            ImGui::Text("%s", value.c_str());
-        }
+    for(auto const& [category, pairs] : stats) {
+        auto categoryString = ItemStats::statCategoryToString(category).c_str();
 
-        ImGui::EndTable();
+        ImGui::Text("%s", categoryString);
+        ImGui::Separator();
+
+        if(ImGui::BeginTable(categoryString, 2, flags)) {
+            for(auto const [name, value] : pairs) {
+                ImGui::TableNextRow();
+                ImGui::TableNextColumn();
+                ImGui::TextColored(ImVec4(0.5, 0.5, 0.5, 1), "%s: ", name.c_str());
+                ImGui::TableNextColumn();
+                ImGui::Text("%s", value.c_str());
+            }
+        
+
+            ImGui::EndTable();
+        }
     }
 }
 
