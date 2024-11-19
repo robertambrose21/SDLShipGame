@@ -202,6 +202,21 @@ namespace Stats {
         return categories;
     }
 
+    static std::map<StatCategory, std::vector<StatsPair>> calculateEntityStatCategories(const EntityStats& stats) {
+        std::map<StatCategory, std::vector<StatsPair>> categories;
+
+        categories[ENTITY].push_back({ "HP", std::format("{}/{}", stats.hp, stats.totalHp) });
+        categories[ENTITY].push_back({ "Moves", std::format("{}/{}", stats.movesLeft, stats.movesPerTurn) });
+
+        categories.merge(calculateBaseStatCategories(stats));
+
+        std::erase_if(categories[BASE], [](const auto& item) {
+            return item.name == "HP";
+        });
+
+        return categories;
+    }
+
     static void addEquipmentStatsToEntity(EntityStats& entityStats, const EquipmentStats& equipment) {
         entityStats.hp += equipment.hp;
         entityStats.totalHp += equipment.hp;

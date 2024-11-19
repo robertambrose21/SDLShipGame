@@ -4,6 +4,7 @@
 #include <map>
 #include <fstream>
 #include <filesystem>
+#include <string>
 
 #include "core/json.hpp"
 #include "entity.h"
@@ -19,7 +20,7 @@ using json = nlohmann::json;
 
 struct GameStateUpdate;
 
-class EntityPool : public EventPublisher<EntityEventData, EntitySetPositionEventData> {
+class EntityPool : public EventPublisher<EntityEventData, EntitySetPositionEventData, EntityUpdateStatsEventData> {
 private:
     typedef struct _entityDefinition {
         std::string filename;

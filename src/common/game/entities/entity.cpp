@@ -4,7 +4,7 @@
 Entity::Entity(
     Grid* grid,
     uint32_t id,
-    EventPublisher<EntityEventData, EntitySetPositionEventData>& publisher,
+    EventPublisher<EntityEventData, EntitySetPositionEventData, EntityUpdateStatsEventData>& publisher,
     const std::string& name,
     const Stats::EntityStats& stats
 ) :
@@ -27,7 +27,7 @@ Entity::Entity(
 
 Entity::Entity(
     Grid* grid,
-    EventPublisher<EntityEventData, EntitySetPositionEventData>& publisher,
+    EventPublisher<EntityEventData, EntitySetPositionEventData, EntityUpdateStatsEventData>& publisher,
     const std::string& name,
     const Stats::EntityStats& stats
 ) : 
@@ -161,6 +161,8 @@ void Entity::applyStats() {
             weapon->addTo(stats);
         }
     }
+
+    publisher.publish<EntityUpdateStatsEventData>({ this });
 }
 
 const float Entity::getSpeed(void) {
@@ -173,15 +175,18 @@ int Entity::getCurrentHP(void) const {
 
 void Entity::setCurrentHP(uint32_t hp) {
     stats.hp = hp;
+    publisher.publish<EntityUpdateStatsEventData>({ this });
 }
 
 void Entity::takeDamage(uint32_t amount) {
     stats.hp -= amount;
+    publisher.publish<EntityUpdateStatsEventData>({ this });
 }
 
 void Entity::attack(const glm::ivec2& target, const UUID& weaponId, bool isAnimationOnly) {
     // TODO: free use when not engaged
     weapons[weaponId]->use(position, target, isAnimationOnly);
+    publisher.publish<EntityUpdateStatsEventData>({ this });
 }
 
 std::vector<Weapon*> Entity::getWeapons(void) const {
@@ -212,6 +217,8 @@ Weapon* Entity::addWeapon(std::unique_ptr<Weapon> weapon) {
         currentWeapon = weapons[id].get();
     }
 
+    applyStats();
+
     return weapons[id].get();
 }
 
@@ -221,10 +228,12 @@ void Entity::removeWeapon(const UUID& weaponId) {
     }
 
     weapons.erase(weaponId);
+    applyStats();
 }
 
 void Entity::removeAllWeapons(void) {
     weapons.clear();
+    applyStats();
 }
 
 void Entity::setCurrentWeapon(const UUID& weaponId) {
@@ -336,6 +345,7 @@ int Entity::getMovesLeft(void) const {
 
 void Entity::setMovesLeft(int movesLeft) {
     stats.movesLeft = movesLeft;
+    publisher.publish<EntityUpdateStatsEventData>({ this });
 }
 
 int Entity::getAggroRange(void) const {
@@ -361,6 +371,8 @@ void Entity::useMoves(int numMoves) {
         stats.movesLeft = 0;
         path.clear();
     }
+
+    publisher.publish<EntityUpdateStatsEventData>({ this });
 }
 
 void Entity::nextTurn(void) {
@@ -379,6 +391,8 @@ void Entity::reset(void) {
             weapon->reset();
         }
     }
+
+    publisher.publish<EntityUpdateStatsEventData>({ this });
 }
 
 void Entity::endTurn(void) {
@@ -388,6 +402,8 @@ void Entity::endTurn(void) {
     for(auto& [_, weapon] : weapons) {
         weapon->setUsesLeft(0);
     }
+
+    publisher.publish<EntityUpdateStatsEventData>({ this });
 }
 
 void Entity::clearAllActions(void) {
