@@ -18,6 +18,7 @@
 #include "graphics/ui/playerpanel.h"
 #include "graphics/ui/inventorypanel.h"
 #include "graphics/ui/examineitempanel.h"
+#include "graphics/ui/entitypanel.h"
 #include "graphics/ui/statspanel.h"
 #include "game/actions/attackaction.h"
 #include "game/actions/equipgearaction.h"
@@ -46,7 +47,6 @@ private:
     Grid* grid;
     GraphicsContext& graphicsContext;
 
-    std::unique_ptr<Dice> dice;
     bool isLeftShiftPressed;
 
     Camera& camera;
@@ -60,6 +60,7 @@ private:
     std::unique_ptr<InventoryPanel> inventoryPanel;
     std::unique_ptr<StatsPanel> statsPanel;
     std::map<uint32_t, std::unique_ptr<ExamineItemPanel>> examineItemPanels;
+    std::map<uint32_t, std::unique_ptr<EntityPanel>> entityPanels;
 
     void move(const glm::ivec2& position);
     void attack(const glm::ivec2& target);
@@ -93,6 +94,7 @@ public:
     void selectAll(void);
     void deselectAll(void);
 
+    void addEntityPanel(Entity* entity);
+
     PlayerPanel* getPlayerPanel(void);
-    Dice& getDice(void);
 };

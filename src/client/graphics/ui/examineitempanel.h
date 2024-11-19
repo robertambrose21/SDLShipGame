@@ -19,6 +19,9 @@ private:
 
 public:
     ExamineItemPanel(Item* item);
+    ExamineItemPanel() = default;
+    ExamineItemPanel(const ExamineItemPanel&) = delete;
+    ExamineItemPanel& operator=(const ExamineItemPanel&) = delete;
 
     void draw(GraphicsContext& graphicsContext);
     bool getIsOpen(void) const;

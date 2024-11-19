@@ -151,3 +151,7 @@ struct EntityVisibilityToParticipantData {
     int participantId;
     bool isVisible;
 };
+
+struct EntityUpdateStatsEventData {
+    Entity* entity;
+};

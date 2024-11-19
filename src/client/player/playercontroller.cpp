@@ -15,9 +15,9 @@ PlayerController::PlayerController(
     camera(graphicsContext.getGridRenderer().getCamera()),
     isLeftShiftPressed(false),
     isCurrentWeaponInRange(true),
-    cameraVector(glm::ivec2(0, 0))
+    cameraVector(glm::ivec2(0, 0)),
+    participant(nullptr)
 {
-    dice = std::make_unique<Dice>(3, clientMessagesTransmitter, context.getTurnController());
     playerPanel = std::make_unique<PlayerPanel>(1920, 1080);
     inventoryPanel = std::make_unique<InventoryPanel>(400, 600);
     statsPanel = std::make_unique<StatsPanel>();
@@ -25,14 +25,8 @@ PlayerController::PlayerController(
     inventoryPanel->addOnEquipCallback([&](auto item, auto slot) {
         equipItem(item, slot);
     });
-    inventoryPanel->addOnUnequipCallback([&](auto item, auto slot) {
-        unequipItem(item, slot);
-    });
     inventoryPanel->addOnEquipWeaponClicked([&](auto item) {
         equipWeapon(item);
-    });
-    inventoryPanel->addOnUnequipWeaponClicked([&](auto weapon) {
-        unequipWeapon(weapon);
     });
     inventoryPanel->addOnExamineCallback([&](auto item) {
         if(!examineItemPanels.contains(item->getId())) {
@@ -75,7 +69,6 @@ void PlayerController::update(int64_t timeSinceLastFrame) {
 }
 
 void PlayerController::draw(GraphicsContext& graphicsContext) {
-    // dice->draw(graphicsContext);
     if(selection.isActive) {
         auto size = selection.end - selection.start;
 
@@ -109,8 +102,17 @@ void PlayerController::drawUI(GraphicsContext& graphicsContext) {
         return !examineItemPanel->getIsOpen();
     });
 
+    std::erase_if(entityPanels, [](const auto& item) {
+        auto const& [_, entityPanel] = item;
+        return !entityPanel->getIsOpen();
+    });
+
     for(auto& [_, examineItemPanel] : examineItemPanels) {
         examineItemPanel->draw(graphicsContext);
+    }
+
+    for(auto& [_, entityPanel] : entityPanels) {
+        entityPanel->draw(graphicsContext);
     }
 }
 
@@ -125,6 +127,13 @@ void PlayerController::handleKeyPress(const SDL_Event& event) {
             
             case SDLK_i: {
                 inventoryPanel->toggle();
+                break;
+            }
+
+            case SDLK_c: {
+                for(auto entity : selectedEntities) {
+                    addEntityPanel(entity);
+                }
                 break;
             }
 
@@ -312,7 +321,6 @@ void PlayerController::deselectAll(void) {
 void PlayerController::move(const glm::ivec2& position) {
     for(auto const& entity : selectedEntities) {
         if(!grid->findPath(entity->getPosition(), position).empty()) {
-            dice->clickAction(0);
             clientMessagesTransmitter.sendFindPathMessage(entity->getId(), position, 0);
         }
     }
@@ -324,7 +332,6 @@ void PlayerController::attack(const glm::ivec2& target) {
         
         // TODO: ClientTurnController actions
         if(turnController->queueAction(std::make_unique<AttackAction>(turnController->getTurnNumber(), entity, weapon, target, true))) {
-            dice->clickAction(1);
             clientMessagesTransmitter.sendAttackMessage(
                 entity->getId(), 
                 target, 
@@ -416,6 +423,36 @@ const std::vector<Entity*>& PlayerController::getSelectedEntities(void) const {
     return selectedEntities;
 }
 
+void PlayerController::addEntityPanel(Entity* entity) {
+    if(entity == nullptr) {
+        return;
+    }
+
+    if(entityPanels.contains(entity->getId())) {
+        return;
+    }
+
+    auto panel = std::make_unique<EntityPanel>(400, 400, entity);
+
+    panel->addOnUnequipCallback([&](auto item, auto slot) {
+        unequipItem(item, slot);
+    });
+
+    panel->addOnUnequipWeaponClicked([&](auto weapon) {
+        unequipWeapon(weapon);
+    });
+
+    panel->addOnExamineCallback([&](auto item) {
+        if(!examineItemPanels.contains(item->getId())) {
+            examineItemPanels[item->getId()] = std::make_unique<ExamineItemPanel>(item);
+        }
+    });
+
+    entityPool->subscribe<EntityUpdateStatsEventData>(panel.get());
+
+    entityPanels[entity->getId()] = std::move(panel);
+}
+
 void PlayerController::setParticipant(Participant* participant) {
     game_assert(participant != nullptr);
     game_assert(participant->getIsPlayer());
@@ -429,8 +466,4 @@ Participant* PlayerController::getParticipant(void) {
 
 PlayerPanel* PlayerController::getPlayerPanel(void) {
     return playerPanel.get();
-}
-
-Dice& PlayerController::getDice(void) {
-    return *dice;
 }

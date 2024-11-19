@@ -37,6 +37,13 @@ inline bool containsAll(const std::vector<T>& vec, const std::vector<T>& items) 
     return true;
 }
 
+template<typename T>
+inline void eraseByValue(const std::vector<T>& vec, const T& value) {
+    std::erase_if(vec, [&](const auto& item) {
+        return item == value;
+    });
+}
+
 template<typename K, typename V>
 inline std::vector<K> getKeys(const std::map<K, V>& map) {
     auto keyRange = std::views::keys(map);
