@@ -31,19 +31,19 @@ private:
     void loadWeaponDefinitions(void);
     Item* getItem(const std::string& itemName, Entity* owner);
 
-    AllStats buildProjectileWeaponStats(
+    Stats::WeaponStats buildProjectileWeaponStats(
         const WeaponDefinition& definition, 
         const Projectile::Blueprint& projectileBlueprint,
         const DamageSource& damageSource,
         Item* item
     );
-    AllStats buildMeleeWeaponStats(
+    Stats::WeaponStats buildMeleeWeaponStats(
         const WeaponDefinition& definition, 
         const DamageSource& damageSource,
         Item* item
     );
 
-    void synchronizeWithItemStats(Item* item, AllStats& weaponStats);
+    void synchronizeWithItemStats(Item* item, Stats::WeaponStats& weaponStats);
 
 public:
     WeaponController();

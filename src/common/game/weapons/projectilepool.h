@@ -17,8 +17,8 @@ class ProjectilePool : public EventPublisher<ProjectileEventData> {
 private:
     typedef struct _effectDefinition {
         EffectType type;
-        int duration;
-        std::vector<int> damageTicks;
+        uint8_t duration;
+        std::vector<uint32_t> damageTicks;
     } EffectDefintion;
 
     typedef struct _projectileDefinition {
@@ -41,7 +41,7 @@ private:
 
     void loadProjectileDefinitions(void);
     std::function<void(int, const glm::ivec2&, int, bool)> buildOnHitCallback(const ProjectileDefinition& definition);
-    std::vector<EffectStats> buildEffectStats(const ProjectileDefinition& definition);
+    std::vector<Stats::EffectStats> buildEffectStats(const ProjectileDefinition& definition);
 
 public:
     ProjectilePool();

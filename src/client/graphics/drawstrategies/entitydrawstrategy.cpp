@@ -36,8 +36,8 @@ void EntityDrawStrategy::draw(Entity* drawable, GraphicsContext& graphicsContext
         SDL_SetRenderDrawColor(graphicsContext.getRenderer(), 0x00, 0xFF, 0xFF, 0x7F);
         SDL_RenderFillRect(graphicsContext.getRenderer(), &frozen);
     }
-
-    drawHealthBar(graphicsContext, position, drawable->getBaseStats().common.hp, drawable->getCurrentHP());
+    
+    drawHealthBar(graphicsContext, position, drawable->getStats().totalHp, drawable->getCurrentHP());
 }
 
 void EntityDrawStrategy::drawHealthBar(

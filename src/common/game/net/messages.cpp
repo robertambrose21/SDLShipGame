@@ -6,11 +6,11 @@ WeaponStateUpdate WeaponStateUpdate::serialize(Weapon* weapon) {
     WeaponStateUpdate weaponUpdate;
 
     switch(weapon->getType()) {
-        case Weapon::Type::MELEE:
+        case Stats::WeaponStats::MELEE:
             strcpy(weaponUpdate.weaponClass, "Melee");
             break;
 
-        case Weapon::Type::PROJECTILE:
+        case Stats::WeaponStats::PROJECTILE:
             strcpy(weaponUpdate.weaponClass, "Projectile");
             strcpy(weaponUpdate.projectile, ((ProjectileWeapon*) weapon)->getProjectileBluePrint().name.c_str());
             break;
@@ -21,8 +21,8 @@ WeaponStateUpdate WeaponStateUpdate::serialize(Weapon* weapon) {
 
     memcpy(weaponUpdate.idBytes, &weapon->getId().getBytes()[0], 16);
     strcpy(weaponUpdate.name, weapon->getName().c_str());
-    weaponUpdate.range = weapon->getStats().weapon.range;
-    weaponUpdate.uses = weapon->getStats().weapon.uses;
+    weaponUpdate.range = weapon->getStats().range;
+    weaponUpdate.uses = weapon->getStats().uses;
     weaponUpdate.usesLeft = weapon->getUsesLeft();
     weaponUpdate.hasItem = weapon->getItem() != nullptr;
     weaponUpdate.itemId = weaponUpdate.hasItem ? weapon->getItem()->getId() : 0;
@@ -43,7 +43,7 @@ EntityStateUpdate EntityStateUpdate::serialize(Entity* entity) {
 
     entityStateUpdate.id = entity->getId();
     strcpy(entityStateUpdate.name, entity->getName().c_str());
-    entityStateUpdate.totalHP = entity->getBaseStats().common.hp;
+    entityStateUpdate.totalHP = entity->getStats().totalHp;
     entityStateUpdate.currentHP = entity->getCurrentHP();
     entityStateUpdate.x = entity->getPosition().x;
     entityStateUpdate.y = entity->getPosition().y;

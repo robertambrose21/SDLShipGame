@@ -19,7 +19,7 @@ private:
         std::string name;
         uint32_t textureId;
         float radius;
-        int turns;
+        uint8_t turns;
         std::string damageSource;
         int power;
     } AoeDefinition;
@@ -44,5 +44,5 @@ public:
     void update(int64_t timeSinceLastFrame);
 
     std::vector<AreaOfEffect*> getAoeEffects(void);
-    AreaOfEffectStats getStatsFor(const std::string& key);
+    Stats::AoEStats getStatsFor(const std::string& key);
 };

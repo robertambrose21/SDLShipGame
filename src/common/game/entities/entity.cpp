@@ -4,15 +4,15 @@
 Entity::Entity(
     Grid* grid,
     uint32_t id,
-    EventPublisher<EntityEventData, EntitySetPositionEventData>& publisher,
+    EventPublisher<EntityEventData, EntitySetPositionEventData, EntityUpdateStatsEventData>& publisher,
     const std::string& name,
-    const AllStats& stats
+    const Stats::EntityStats& stats
 ) :
     id(id),
     publisher(publisher),
     name(name),
+    stats(stats),
     baseStats(stats),
-    currentStats(stats),
     grid(grid),
     currentWeapon(nullptr),
     position({ 0, 0 }),
@@ -27,9 +27,9 @@ Entity::Entity(
 
 Entity::Entity(
     Grid* grid,
-    EventPublisher<EntityEventData, EntitySetPositionEventData>& publisher,
+    EventPublisher<EntityEventData, EntitySetPositionEventData, EntityUpdateStatsEventData>& publisher,
     const std::string& name,
-    const AllStats& stats
+    const Stats::EntityStats& stats
 ) : 
     Entity(grid, getNewId(), publisher, name, stats)
 { }
@@ -79,13 +79,15 @@ void Entity::update(int64_t timeSinceLastFrame, bool& quit) {
     timeSinceLastMoved += timeSinceLastFrame;
 
     if(timeSinceLastMoved > getSpeed()) {
-        setPosition(path.front());
+        auto position = path.front();
         path.pop_front();
         timeSinceLastMoved = 0;
-        
+
         if(isEngaged()) {
             useMoves(1);
         }
+
+        setPosition(position);
     }
 }
 
@@ -121,58 +123,72 @@ bool Entity::isEngaged(void) const {
     return engaged;
 }
 
-AllStats Entity::getBaseStats(void) const {
-    return baseStats;
+Stats::EntityStats Entity::getStats(void) const {
+    return stats;
 }
 
-AllStats Entity::getCurrentStats(void) const {
-    return currentStats;
-}
-
-void Entity::setEquipment(std::unique_ptr<Equipment> equipmentPiece) {
-    auto slot = equipmentPiece->getSlot();
-    auto item = equipmentPiece->getItem();
-
-    if(equipment[slot] != nullptr && equipment[slot]->getItem()->getId() == item->getId()) {
+void Entity::setGear(std::unique_ptr<Gear> gear) {
+    if(!gear->isValid()) {
+        std::cout << std::format("Warning: invalid gear for slot {}", 
+                Equippable<Stats::GearStats>::SLOT_NAMES[gear->getSlot()]) << std::endl;
         return;
     }
 
-    baseStats.add(item->getStats());
-    equipment[slot] = std::move(equipmentPiece);
+    equippedGear[gear->getSlot()] = std::move(gear);
+    applyStats();
 }
 
-void Entity::removeEquipment(Equipment::Slot slot) {
-    baseStats.remove(equipment[slot]->getItem()->getStats());
-    equipment[slot] = nullptr;
+void Entity::removeGear(Equippable<Stats::GearStats>::Slot slot) {
+    equippedGear[slot] = nullptr;
+    applyStats();
 }
 
-Equipment* Entity::getEquipment(Equipment::Slot slot) {
-    if(equipment[slot] == nullptr) {
-        return nullptr;
+Gear* Entity::getGear(Equippable<Stats::GearStats>::Slot slot) {
+    return equippedGear[slot].get();
+}
+
+void Entity::applyStats() {
+    uint32_t currentHp = stats.hp;
+    stats = baseStats;
+    stats.hp = currentHp;
+
+    for(auto const& [slot, gear] : equippedGear) {
+        if(gear != nullptr) {
+            gear->addTo(stats);
+        }
     }
 
-    return equipment[slot].get();
+    for(auto const& [_, weapon] : weapons) {
+        if(weapon != nullptr) {
+            weapon->addTo(stats);
+        }
+    }
+
+    publisher.publish<EntityUpdateStatsEventData>({ this });
 }
 
 const float Entity::getSpeed(void) {
-    return 2000.0f / (MOVES_PER_SECOND * baseStats.common.moves);
+    return 2000.0f / (MOVES_PER_SECOND * stats.movesPerTurn);
 }
 
 int Entity::getCurrentHP(void) const {
-    return currentStats.common.hp;
+    return stats.hp;
 }
 
-void Entity::setCurrentHP(int hp) {
-    currentStats.common.hp = hp;
+void Entity::setCurrentHP(uint32_t hp) {
+    stats.hp = hp;
+    publisher.publish<EntityUpdateStatsEventData>({ this });
 }
 
-void Entity::takeDamage(int amount) {
-    currentStats.common.hp -= amount;
+void Entity::takeDamage(uint32_t amount) {
+    stats.hp -= amount;
+    publisher.publish<EntityUpdateStatsEventData>({ this });
 }
 
 void Entity::attack(const glm::ivec2& target, const UUID& weaponId, bool isAnimationOnly) {
     // TODO: free use when not engaged
     weapons[weaponId]->use(position, target, isAnimationOnly);
+    publisher.publish<EntityUpdateStatsEventData>({ this });
 }
 
 std::vector<Weapon*> Entity::getWeapons(void) const {
@@ -198,6 +214,13 @@ bool Entity::hasWeapon(const UUID& weaponId) {
 Weapon* Entity::addWeapon(std::unique_ptr<Weapon> weapon) {
     auto id = weapon->getId();
     weapons[id] = std::move(weapon);
+
+    if(weapons.empty()) {
+        currentWeapon = weapons[id].get();
+    }
+
+    applyStats();
+
     return weapons[id].get();
 }
 
@@ -207,10 +230,12 @@ void Entity::removeWeapon(const UUID& weaponId) {
     }
 
     weapons.erase(weaponId);
+    applyStats();
 }
 
 void Entity::removeAllWeapons(void) {
     weapons.clear();
+    applyStats();
 }
 
 void Entity::setCurrentWeapon(const UUID& weaponId) {
@@ -317,11 +342,12 @@ bool Entity::isNeighbour(Entity* entity) const {
 }
 
 int Entity::getMovesLeft(void) const {
-    return currentStats.common.moves;
+    return stats.movesLeft;
 }
 
 void Entity::setMovesLeft(int movesLeft) {
-    currentStats.common.moves = movesLeft;
+    stats.movesLeft = movesLeft;
+    publisher.publish<EntityUpdateStatsEventData>({ this });
 }
 
 int Entity::getAggroRange(void) const {
@@ -341,12 +367,14 @@ bool Entity::hasAnimationsInProgress(void) {
 }
 
 void Entity::useMoves(int numMoves) {
-    currentStats.common.moves -= numMoves;
+    stats.movesLeft -= numMoves;
     
-    if(currentStats.common.moves <= 0) {
-        currentStats.common.moves = 0;
+    if(stats.movesLeft <= 0) {
+        stats.movesLeft = 0;
         path.clear();
     }
+
+    publisher.publish<EntityUpdateStatsEventData>({ this });
 }
 
 void Entity::nextTurn(void) {
@@ -354,7 +382,7 @@ void Entity::nextTurn(void) {
 }
 
 void Entity::reset(void) {
-    currentStats.common.moves = baseStats.common.moves;
+    stats.movesLeft = stats.movesPerTurn;
     path.clear();
 
     isFrozen = false;
@@ -365,15 +393,19 @@ void Entity::reset(void) {
             weapon->reset();
         }
     }
+
+    publisher.publish<EntityUpdateStatsEventData>({ this });
 }
 
 void Entity::endTurn(void) {
-    currentStats.common.moves = 0;
+    stats.movesLeft = 0;
     path.clear();
 
     for(auto& [_, weapon] : weapons) {
         weapon->setUsesLeft(0);
     }
+
+    publisher.publish<EntityUpdateStatsEventData>({ this });
 }
 
 void Entity::clearAllActions(void) {

@@ -18,7 +18,7 @@
 #include "game/actions/moveaction.h"
 #include "game/actions/attackaction.h"
 #include "game/actions/takeitemaction.h"
-#include "game/actions/equipitemaction.h"
+#include "game/actions/equipgearaction.h"
 #include "game/actions/equipweaponaction.h"
 #include "game/items/itemcontroller.h"
 #include "game/effects/effectcontroller.h"

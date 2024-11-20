@@ -123,7 +123,7 @@ struct EffectStatsUpdate {
     uint8_t effectType;
     uint8_t duration;
     uint8_t numDamageTicks;
-    uint8_t damageTicks[64];
+    uint32_t damageTicks[64];
 
     EffectStatsUpdate() {
         memset(this, 0, sizeof(EffectStatsUpdate));

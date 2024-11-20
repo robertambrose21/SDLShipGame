@@ -34,11 +34,13 @@ void WeaponController::loadWeaponDefinitions(void) {
         else {
             definition.projectile = "";
         }
+
+        auto stats = data["stats"].get<json>();
         
-        definition.damageSource = data["damage"].get<std::string>();
-        definition.range = data["range"].get<int>();
-        definition.uses = data["uses"].get<int>();
-        definition.power = data["power"].get<int>();
+        definition.damageSource = stats["damage"].get<std::string>();
+        definition.range = stats["range"].get<int>();
+        definition.uses = stats["uses"].get<int>();
+        definition.power = stats["power"].get<int>();
 
         std::cout << "Loaded weapon definition \"" << definition.name << "\"" << std::endl;
 
@@ -89,39 +91,46 @@ std::unique_ptr<Weapon> WeaponController::createWeapon(
     throw std::runtime_error("Could not create weapon of class \"" + definition.weaponClass + "\"");
 }
 
-AllStats WeaponController::buildProjectileWeaponStats(
+Stats::WeaponStats WeaponController::buildProjectileWeaponStats(
     const WeaponDefinition& definition, 
     const Projectile::Blueprint& projectileBlueprint,
     const DamageSource& damageSource,
     Item* item
 ) {
-    auto stats = AllStats();
-    stats.weapon = WeaponStats(definition.range, definition.uses, damageSource.getStats());
-    stats.weapon.projectile = projectileBlueprint.stats;
-    
+    Stats::WeaponStats stats;
+    stats.weaponClass = Stats::WeaponStats::PROJECTILE;
+    stats.range = definition.range;
+    stats.uses = definition.uses;
+    stats.damage = damageSource.getStats();
+    stats.projectile = projectileBlueprint.stats;
+
     synchronizeWithItemStats(item, stats);
 
     return stats;
 }
 
-AllStats WeaponController::buildMeleeWeaponStats(
+Stats::WeaponStats WeaponController::buildMeleeWeaponStats(
     const WeaponDefinition& definition, 
     const DamageSource& damageSource,
     Item* item
 ) {
-    auto stats = AllStats();
-    stats.weapon = WeaponStats(definition.range, definition.uses, damageSource.getStats());
+    Stats::WeaponStats stats;
+    stats.weaponClass = Stats::WeaponStats::MELEE;
+    stats.range = definition.range;
+    stats.uses = definition.uses;
+    stats.damage = damageSource.getStats();
 
     synchronizeWithItemStats(item, stats);
 
     return stats;
 }
 
-void WeaponController::synchronizeWithItemStats(Item* item, AllStats& weaponStats) {
-    if(item != nullptr) {
-        item->addStats(weaponStats);
-        weaponStats.common = item->getStats().common;
+void WeaponController::synchronizeWithItemStats(Item* item, Stats::WeaponStats& weaponStats) {
+    if(item == nullptr) {
+        return;
     }
+
+    item->setWeaponStats(weaponStats);
 }
 
 std::unique_ptr<Weapon> WeaponController::createWeapon(const std::string& name, Entity* owner) {

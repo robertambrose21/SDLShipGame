@@ -9,7 +9,6 @@
 #include "core/event/eventpublisher.h"
 #include "core/grid/grid.h"
 #include "game/event/events.h"
-#include "game/items/equipment.h"
 #include "game/stats/stats.h"
 #include "game/application/applicationcontext.h"
 
@@ -17,19 +16,12 @@ class Entity;
 class ApplicationContext;
 
 class Weapon {
-public:
-    // TODO: Probably a better way to do abstraction than this
-    enum Type {
-        MELEE,
-        PROJECTILE
-    };
-    
 protected:
     UUID id;
     std::string name;
     Entity* owner;
     DamageSource damageSource;
-    AllStats stats;
+    Stats::WeaponStats stats;
 
     int usesLeft;
 
@@ -50,7 +42,7 @@ public:
         const UUID& id,
         const std::string& name,
         const DamageSource& damageSource,
-        const AllStats& stats
+        const Stats::WeaponStats& stats
     );
 
     Weapon(
@@ -60,7 +52,7 @@ public:
         EventPublisher<MeleeWeaponEventData>& publisher,
         const std::string& name,
         const DamageSource& damageSource,
-        const AllStats& stats
+        const Stats::WeaponStats& stats
     );
 
     void use(const glm::ivec2& position, const glm::ivec2& target, bool isAnimationOnly = false);
@@ -71,9 +63,9 @@ public:
     virtual void update(int64_t timeSinceLastFrame) = 0;
     virtual bool hasFinished(void);
     virtual bool isAnimationInProgress(void);
-    virtual Type getType(void) const = 0;
+    virtual Stats::WeaponStats::WeaponClass getType(void) const = 0;
 
-    AllStats getStats(void) const;
+    Stats::WeaponStats getStats(void) const;
     int getUsesLeft(void) const;
     void setUsesLeft(int usesLeft);
 
@@ -83,4 +75,5 @@ public:
     DamageSource getDamageSource(void) const;
 
     Item* getItem(void);
+    void addTo(Stats::EntityStats& entityStats);
 };

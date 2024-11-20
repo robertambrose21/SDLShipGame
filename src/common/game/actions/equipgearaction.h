@@ -1,26 +1,32 @@
 #pragma once
 
 #include "action.h"
-#include "game/items/equipment.h"
+#include "game/items/equippable.h"
 #include "game/application/turncontroller.h"
 
-class EquipItemAction : public Action {
+class EquipGearAction : public Action {
 private:
     bool onValidate(ApplicationContext* context);
     void onExecute(ApplicationContext* context);
     bool hasFinished(void);
 
     Item* item;
-    Equipment::Slot slot;
+    Equippable<Stats::GearStats>::Slot slot;
     bool isUnequip;
 
 public:
-    EquipItemAction(int turnNumber, Entity* entity, Item* item, Equipment::Slot slot, bool isUnequip = false);
+    EquipGearAction(
+        int turnNumber, 
+        Entity* entity, 
+        Item* item, 
+        Equippable<Stats::GearStats>::Slot slot, 
+        bool isUnequip = false
+    );
 
     bool passesPrecondition(void);
     Type getType(void);
 
     Item* getItem(void);
-    Equipment::Slot getSlot(void) const;
+    Equippable<Stats::GearStats>::Slot getSlot(void) const;
     bool getIsUnequip(void) const;
 };

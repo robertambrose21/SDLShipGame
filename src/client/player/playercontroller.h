@@ -18,9 +18,10 @@
 #include "graphics/ui/playerpanel.h"
 #include "graphics/ui/inventorypanel.h"
 #include "graphics/ui/examineitempanel.h"
-#include "graphics/ui/statspanel.h"
+#include "graphics/ui/entitypanel.h"
+#include "graphics/ui/diagnosticspanel.h"
 #include "game/actions/attackaction.h"
-#include "game/actions/equipitemaction.h"
+#include "game/actions/equipgearaction.h"
 #include "game/actions/equipweaponaction.h"
 
 // Too large, split up
@@ -46,7 +47,6 @@ private:
     Grid* grid;
     GraphicsContext& graphicsContext;
 
-    std::unique_ptr<Dice> dice;
     bool isLeftShiftPressed;
 
     Camera& camera;
@@ -58,16 +58,17 @@ private:
 
     std::unique_ptr<PlayerPanel> playerPanel;
     std::unique_ptr<InventoryPanel> inventoryPanel;
-    std::unique_ptr<StatsPanel> statsPanel;
+    std::unique_ptr<DiagnosticsPanel> diagnosticsPanel;
     std::map<uint32_t, std::unique_ptr<ExamineItemPanel>> examineItemPanels;
+    std::map<uint32_t, std::unique_ptr<EntityPanel>> entityPanels;
 
     void move(const glm::ivec2& position);
     void attack(const glm::ivec2& target);
     void handleMouseDown(const SDL_Event& event);
     void handleMouseUp(const SDL_Event& event);
     void setHoverTiles(void);
-    void equipItem(Item* item, Equipment::Slot slot);
-    void unequipItem(Item* item, Equipment::Slot slot);
+    void equipItem(Item* item, Equippable<Stats::GearStats>::Slot slot);
+    void unequipItem(Item* item, Equippable<Stats::GearStats>::Slot slot);
     void equipWeapon(Item* item);
     void unequipWeapon(Weapon* weapon);
 
@@ -93,6 +94,7 @@ public:
     void selectAll(void);
     void deselectAll(void);
 
+    void addEntityPanel(Entity* entity);
+
     PlayerPanel* getPlayerPanel(void);
-    Dice& getDice(void);
 };

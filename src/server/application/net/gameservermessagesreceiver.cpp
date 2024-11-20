@@ -166,7 +166,9 @@ void GameServerMessagesReceiver::receiveEquipItemMessage(
     uint8_t slot, 
     bool isUnequip
 ) {
-    if(slot >= Equipment::Slot::COUNT) {
+    if(!contains(Gear::VALID_SLOTS, (Equippable<Stats::GearStats>::Slot) slot)) {
+        std::cout << std::format("Warning: received equip gear message with invalid slot {}", 
+                Equippable<Stats::GearStats>::SLOT_NAMES[slot]) << std::endl;
         return;
     }
     
@@ -182,11 +184,11 @@ void GameServerMessagesReceiver::receiveEquipItemMessage(
     auto item = context.getItemController()->getItem(itemId);
     auto entity = context.getEntityPool()->getEntity(entityId);
 
-    turnController->queueAction(std::make_unique<EquipItemAction>(
+    turnController->queueAction(std::make_unique<EquipGearAction>(
         turnController->getTurnNumber(), 
         entity, 
         item,
-        (Equipment::Slot) slot,
+        (Equippable<Stats::GearStats>::Slot) slot,
         isUnequip
     ));
 }

@@ -1,147 +1,233 @@
 #pragma once
 
+#include <cstdint>
+#include <vector>
 #include <map>
 #include <string>
-#include <vector>
-#include <algorithm>
+#include <format>
 
 #include "game/effects/effecttypes.h"
-#include "core/util/gameassert.h"
-#include "core/util/vectorutils.h"
 
-typedef struct _statsKey {
-    enum Type {
-        Common,
-        Damage,
-        Effect,
-        AreaOfEffect,
-        Projectile,
-        Weapon,
-        All
+namespace Stats {
+    enum StatCategory {
+        BASE,
+        WEAPON,
+        EFFECT,
+        AREA_OF_EFFECT,
+        ENTITY
     };
 
-    std::string keyName;
-    Type type;
-} StatsKey;
+    typedef struct _statsPair {
+        std::string name;
+        std::string value;
+    } StatsPair;
 
-bool operator==(StatsKey const& lhs, StatsKey const& rhs);
-bool operator<(StatsKey const& lhs, StatsKey const& rhs);
+    // When adding new stats, ensure they have a default value set
+    typedef struct _equipmentStats {
+        uint32_t armour = 0;
+        uint32_t hp = 0;
+        uint8_t speed = 0;
+        uint8_t power = 0;
+        uint8_t wisdom = 0;
+    } EquipmentStats;
 
-template<class T>
-class Stats {
-public:
-    virtual void add(const T& other) = 0;
-    virtual void remove(const T& other) = 0;
+    typedef struct _gearStats : public EquipmentStats {
+    } GearStats;
 
-    virtual std::map<StatsKey, std::string> getValues(void) = 0;
-};
+    typedef struct _damageStats {
+        uint8_t numDice = 0;
+        uint8_t diceSize = 0;
+        uint32_t flatDamage = 0;
+        uint8_t power = 0;
+    } DamageStats;
 
-class CommonStats : Stats<CommonStats> {
-public:
-    int moves;
-    int hp;
-    int armour;
+    typedef struct _aoeStats {
+        DamageStats damage;
+        float radius = 0;
+        uint8_t duration = 0;
+    } AoEStats;
 
-    CommonStats();
-    CommonStats(int moves, int hp, int armour);
+    typedef struct _effectStats {
+        EffectType type;
+        uint8_t duration = 0;
+        std::vector<uint32_t> damageTicks;
+    } EffectStats;
 
-    void add(const CommonStats& other);
-    void remove(const CommonStats& other);
+    typedef struct _projectileStats {
+        float speed;
+        std::vector<EffectStats> effects;
+        AoEStats aoe;
+    } ProjectileStats;
 
-    std::map<StatsKey, std::string> getValues(void);
-};
+    typedef struct _weaponStats : public EquipmentStats {
+        enum WeaponClass {
+            MELEE,
+            PROJECTILE
+        };
 
-class DamageStats : Stats<DamageStats> {
-public:
-    int numDice;
-    int diceSize;
-    int flatDamage;
-    int power;
+        WeaponClass weaponClass;
+        DamageStats damage;
+        ProjectileStats projectile;
+        uint8_t uses = 0;
+        uint8_t range = 0;
+    } WeaponStats;
 
-    DamageStats();
-    DamageStats(int numDice, int diceSize, int flatDamage, int power);
+    typedef struct _entityStats : public EquipmentStats {
+        uint32_t totalHp = 0;
+        uint8_t movesPerTurn = 0;
+        uint8_t movesLeft = 0;
+    } EntityStats;
 
-    void add(const DamageStats& other);
-    void remove(const DamageStats& other);
+    typedef struct _itemStats { 
+        GearStats gear;
+        WeaponStats weapon;
+    } ItemStats;
 
-    std::string getDamageString(void);
-    bool isZero(void);
+    static std::string getEffectLabel(const EffectStats& effectStats) {
+        switch(effectStats.type) {
+            case FREEZE:
+                return "Freeze";
+            case POISON:
+                return "Poison";
+            default:
+                return "!Uknown Effect!";
+        }
+    }
 
-    std::map<StatsKey, std::string> getValues(void);
-};
+    static std::string getEffectValue(const EffectStats& effectStats) {
+        if(effectStats.damageTicks.empty()) {
+            return std::format("for {} turns", effectStats.duration);
+        }
 
-class EffectStats : Stats<EffectStats> {
-public:
-    EffectType type;
-    int duration;
-    std::vector<int> damageTicks;
+        std::string ticks = "";
 
-    EffectStats();
-    EffectStats(EffectType type, int duration, const std::vector<int>& damageTicks);
+        for(int i = 0; i < effectStats.damageTicks.size(); i++) {
+            ticks += std::to_string(effectStats.damageTicks[i]);
 
-    void add(const EffectStats& other);
-    void remove(const EffectStats& other);
+            if(i < effectStats.damageTicks.size() - 1) {
+                ticks += ", ";
+            }
+        }
 
-    std::map<StatsKey, std::string> getValues(void);
-};
+        return std::format("[{}] damage over {} turns", ticks, effectStats.duration);
+    }
 
-bool operator==(EffectStats const& lhs, EffectStats const& rhs);
+    static std::string statCategoryToString(StatCategory category) {
+        switch(category) {
+            case BASE:
+                return "Base";
+            case WEAPON:
+                return "Weapon";
+            case EFFECT:
+                return "Effect";
+            case AREA_OF_EFFECT:
+                return "AoE";
+            default:
+                return std::format("!Unknown! ({})", (int) category);
+        }
+    }
 
-class AreaOfEffectStats : Stats<AreaOfEffectStats> {
-public:
-    float radius;
-    int turns;
-    DamageStats damage;
+    static std::string getDamageValue(const _damageStats& stats) {
+        if(stats.numDice == 0) {
+            return std::to_string(stats.flatDamage);
+        }
 
-    AreaOfEffectStats();
-    AreaOfEffectStats(float radius, int turns, const DamageStats& damage);
+        auto base = std::to_string(stats.numDice) + "D" + std::to_string(stats.diceSize);
 
-    void add(const AreaOfEffectStats& other);
-    void remove(const AreaOfEffectStats& other);
+        if(stats.flatDamage == 0) {
+            return base;
+        }
 
-    std::map<StatsKey, std::string> getValues(void);
-};
+        if(stats.flatDamage < 0) {
+            return base + std::to_string(stats.flatDamage);
+        }
 
-class ProjectileStats : Stats<ProjectileStats> {
-public:
-    float speed;
-    std::vector<EffectStats> effects;
-    AreaOfEffectStats aoe;
+        return base + "+" + std::to_string(stats.flatDamage);
+    }
 
-    ProjectileStats();
-    ProjectileStats(float speed, const std::vector<EffectStats>& effects);
+    static bool isDamageZero(const _damageStats& stats) {
+        if(stats.power == 0) {
+            return true;
+        }
 
-    void add(const ProjectileStats& other);
-    void remove(const ProjectileStats& other);
+        if(stats.numDice == 0 && stats.flatDamage == 0) {
+            return true;
+        }
 
-    std::map<StatsKey, std::string> getValues(void);
-};
+        if(stats.diceSize == 0 && stats.flatDamage == 0) {
+            return true;
+        }
 
-class WeaponStats : Stats<WeaponStats> {
-public:
-    int range;
-    int uses;
-    DamageStats damage;
-    ProjectileStats projectile;
+        return false;
+    }
 
-    WeaponStats();
-    WeaponStats(int range, int uses, const DamageStats& damage);
+    static std::map<StatCategory, std::vector<StatsPair>> calculateBaseStatCategories(const EquipmentStats& stats) {
+        std::map<StatCategory, std::vector<StatsPair>> categories;
 
-    void add(const WeaponStats& other);
-    void remove(const WeaponStats& other);
+        if(stats.armour != 0)  categories[BASE].push_back({ "Armour", std::to_string(stats.armour) });
+        if(stats.hp != 0)      categories[BASE].push_back({ "HP", std::to_string(stats.hp) });
+        if(stats.speed != 0)   categories[BASE].push_back({ "Speed", std::to_string(stats.speed) });
+        if(stats.power != 0)   categories[BASE].push_back({ "Power", std::to_string(stats.power) });
+        if(stats.wisdom != 0)  categories[BASE].push_back({ "Wisdom", std::to_string(stats.wisdom) });
 
-    std::map<StatsKey, std::string> getValues(void);
-};
+        return categories;
+    }
 
-class AllStats : Stats<AllStats> {
-public:
-    CommonStats common;
-    WeaponStats weapon;
+    static std::map<StatCategory, std::vector<StatsPair>> calculateItemStatCategories(const ItemStats& stats) {
+        std::map<StatCategory, std::vector<StatsPair>> categories = calculateBaseStatCategories(stats.gear);
 
-    AllStats();
+        if(!isDamageZero(stats.weapon.damage)) {
+            std::string label = stats.weapon.weaponClass == WeaponStats::MELEE ? "Damage" : "Projectile Damage";
+            categories[WEAPON].push_back({ label, getDamageValue(stats.weapon.damage) });
+        }
 
-    void add(const AllStats& other);
-    void remove(const AllStats& other);
+        for(auto const& effect : stats.weapon.projectile.effects) {
+            categories[EFFECT].push_back({ getEffectLabel(effect), getEffectValue(effect) });
+        }
 
-    std::map<StatsKey, std::string> getValues(void);
-};
+        if(!isDamageZero(stats.weapon.projectile.aoe.damage)) {
+            categories[AREA_OF_EFFECT].push_back({ "Damage", getDamageValue(stats.weapon.projectile.aoe.damage) });
+        }
+
+        if(stats.weapon.projectile.aoe.duration > 1) {
+            categories[AREA_OF_EFFECT].push_back({ "Duration", std::to_string(stats.weapon.projectile.aoe.duration) });
+        }
+        if(stats.weapon.projectile.aoe.radius != 0) {
+            categories[AREA_OF_EFFECT].push_back({ "Radius", std::to_string(stats.weapon.projectile.aoe.radius) });
+        }
+
+        if(stats.weapon.uses != 0)  categories[WEAPON].push_back({ "Uses", std::to_string(stats.weapon.uses) });
+        if(stats.weapon.range != 0) categories[WEAPON].push_back({ "Range", std::to_string(stats.weapon.range) });
+
+        return categories;
+    }
+
+    static std::map<StatCategory, std::vector<StatsPair>> calculateEntityStatCategories(const EntityStats& stats) {
+        std::map<StatCategory, std::vector<StatsPair>> categories;
+
+        categories[ENTITY].push_back({ "HP", std::format("{}/{}", stats.hp, stats.totalHp) });
+        categories[ENTITY].push_back({ "Moves", std::format("{}/{}", stats.movesLeft, stats.movesPerTurn) });
+
+        categories.merge(calculateBaseStatCategories(stats));
+
+        std::erase_if(categories[BASE], [](const auto& item) {
+            return item.name == "HP";
+        });
+
+        return categories;
+    }
+
+    static void addEquipmentStatsToEntity(EntityStats& entityStats, const EquipmentStats& equipment) {
+        entityStats.hp += equipment.hp;
+        entityStats.totalHp += equipment.hp;
+
+        entityStats.armour += equipment.armour;
+        entityStats.power += equipment.power;
+        entityStats.speed += equipment.speed;
+        entityStats.wisdom += equipment.wisdom;
+
+        // Temp calculation, needs balancing
+        entityStats.movesPerTurn += equipment.speed / 5;
+        entityStats.movesLeft += equipment.speed / 5;
+    }
+}

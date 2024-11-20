@@ -21,7 +21,7 @@ public:
         EventPublisher<MeleeWeaponEventData>& publisher,
         const UUID& id,
         const std::string& name, 
-        const AllStats& stats,
+        const Stats::WeaponStats& stats,
         const DamageSource& damageSource,
         const Projectile::Blueprint& projectileBlueprint
     );
@@ -32,14 +32,14 @@ public:
         Item* item,
         EventPublisher<MeleeWeaponEventData>& publisher,
         const std::string& name, 
-        const AllStats& stats,
+        const Stats::WeaponStats& stats,
         const DamageSource& damageSource,
         const Projectile::Blueprint& projectileBlueprint
     );
     
     void update(int64_t timeSinceLastFrame);
     bool isAnimationInProgress(void);
-    Type getType(void) const;
+    Stats::WeaponStats::WeaponClass getType(void) const;
 
     bool isInRange(const glm::ivec2& target);
 

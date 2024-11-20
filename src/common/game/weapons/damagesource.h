@@ -12,21 +12,19 @@ class Entity;
 
 class DamageSource {
 private:
-    DamageStats stats;
+    Stats::DamageStats stats;
 
     static bool isValid(const std::string& value);
-    static void parseValues(const std::string& value, int& numDice, int& diceSize, int& flatDamage);
+    static void parseValues(const std::string& value, uint8_t& numDice, uint8_t& diceSize, uint32_t& flatDamage);
     static int getFlatDamageModifier(const std::string& value);
 
 public:
     DamageSource();
-    DamageSource(const DamageStats& stats);
+    DamageSource(const Stats::DamageStats& stats);
 
-    static DamageSource parse(const std::string& value, int power);
+    static DamageSource parse(const std::string& value, uint8_t power);
 
     int apply(Entity* entity);
 
-    DamageStats getStats(void) const;
-    bool isZero(void);
-    std::string getDamageString(void);
+    Stats::DamageStats getStats(void) const;
 };

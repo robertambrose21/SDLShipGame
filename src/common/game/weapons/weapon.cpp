@@ -8,7 +8,7 @@ Weapon::Weapon(
     const UUID& id,
     const std::string& name,
     const DamageSource& damageSource,
-    const AllStats& stats
+    const Stats::WeaponStats& stats
 ) :
     id(id),
     owner(owner),
@@ -30,7 +30,7 @@ Weapon::Weapon(
     EventPublisher<MeleeWeaponEventData>& publisher,
     const std::string& name,
     const DamageSource& damageSource,
-    const AllStats& stats
+    const Stats::WeaponStats& stats
 ) :
     Weapon(owner, context, item, publisher, UUID::getNewUUID(), name, damageSource, stats)
 { }
@@ -60,14 +60,14 @@ void Weapon::setFinished(void) {
 }
 
 void Weapon::reset(void) {
-    usesLeft = stats.weapon.uses;
+    usesLeft = stats.uses;
 }
 
 bool Weapon::isInRange(const glm::ivec2& position) {
-    return glm::distance(glm::vec2(owner->getPosition()), glm::vec2(position)) <= stats.weapon.range;
+    return glm::distance(glm::vec2(owner->getPosition()), glm::vec2(position)) <= stats.range;
 }
 
-AllStats Weapon::getStats(void) const {
+Stats::WeaponStats Weapon::getStats(void) const {
     return stats;
 }
 
@@ -97,4 +97,8 @@ DamageSource Weapon::getDamageSource(void) const {
 
 Item* Weapon::getItem(void) {
     return item;
+}
+
+void Weapon::addTo(Stats::EntityStats& entityStats) {
+    Stats::addEquipmentStatsToEntity(entityStats, getStats());
 }

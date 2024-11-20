@@ -17,7 +17,8 @@ add_library(
     items/item.cpp
     items/loottable.cpp
     items/itemcontroller.cpp
-    items/equipment.cpp
+    items/equippable.h
+    items/gear.cpp
     weapons/weapon.cpp 
     weapons/projectile.cpp 
     weapons/projectileweapon.cpp 
@@ -38,10 +39,10 @@ add_library(
     actions/moveaction.cpp
     actions/attackaction.cpp
     actions/takeitemaction.cpp
-    actions/equipitemaction.cpp
+    actions/equipgearaction.cpp
     actions/equipweaponaction.cpp
     event/events.h
-    stats/stats.cpp
+    stats/stats.h
     spawn/spawncontroller.cpp
     net/gamemessagelogger.cpp
     participant/participant.cpp

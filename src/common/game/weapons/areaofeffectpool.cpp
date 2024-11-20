@@ -61,7 +61,7 @@ void AreaOfEffectPool::add(const std::string& name, int ownerId, int turnNumber,
                 isAnimationOnly,
                 position,
                 damageSource,
-                AreaOfEffectStats(definition.radius, definition.turns, damageSource.getStats())
+                Stats::AoEStats { damageSource.getStats(), definition.radius, definition.turns }
             )
         )
     );
@@ -81,7 +81,7 @@ void AreaOfEffectPool::update(int64_t timeSinceLastFrame) {
 
         areaOfEffect->update(timeSinceLastFrame);
 
-        if(context->getTurnController()->getTurnNumber() - startTurn >= areaOfEffect->getStats().turns) {
+        if(context->getTurnController()->getTurnNumber() - startTurn >= areaOfEffect->getStats().duration) {
             aoeObjectsForDeletion.push_back(i);
         }
     }
@@ -100,16 +100,16 @@ std::vector<AreaOfEffect*> AreaOfEffectPool::getAoeEffects(void) {
     return aoes;
 }
 
-AreaOfEffectStats AreaOfEffectPool::getStatsFor(const std::string& key) {
+Stats::AoEStats AreaOfEffectPool::getStatsFor(const std::string& key) {
     if(!aoeDefinitions.contains(key)) {
-        return AreaOfEffectStats();
+        return Stats::AoEStats();
     }
 
     auto definition = aoeDefinitions[key];
 
-    return AreaOfEffectStats(
+    return {
+        DamageSource::parse(definition.damageSource, definition.power).getStats(),
         definition.radius,
-        definition.turns,
-        DamageSource::parse(definition.damageSource, definition.power).getStats()
-    );
+        definition.turns
+    };
 }

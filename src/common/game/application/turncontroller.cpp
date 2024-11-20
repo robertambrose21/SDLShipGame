@@ -268,7 +268,7 @@ void TurnController::publishAction(Action& action) {
         }
 
         case Action::EquipItem: {
-            auto equipItemAction = dynamic_cast<EquipItemAction&>(action);
+            auto equipItemAction = dynamic_cast<EquipGearAction&>(action);
             publish<EquipItemActionEventData>({
                 turnNumber,
                 equipItemAction.getEntity(),

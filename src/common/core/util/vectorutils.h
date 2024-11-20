@@ -2,9 +2,16 @@
 
 #include <vector>
 #include <ranges>
+#include <array>
+#include <map>
 
 template<typename T>
 inline bool contains(const std::vector<T>& vec, const T& item) {
+    return std::find(vec.begin(), vec.end(), item) != vec.end();
+}
+
+template<typename T, std::size_t S>
+inline bool contains(const std::array<T, S>& vec, const T& item) {
     return std::find(vec.begin(), vec.end(), item) != vec.end();
 }
 
@@ -28,6 +35,13 @@ inline bool containsAll(const std::vector<T>& vec, const std::vector<T>& items) 
     }
     
     return true;
+}
+
+template<typename T>
+inline void eraseByValue(const std::vector<T>& vec, const T& value) {
+    std::erase_if(vec, [&](const auto& item) {
+        return item == value;
+    });
 }
 
 template<typename K, typename V>

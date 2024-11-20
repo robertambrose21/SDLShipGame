@@ -43,9 +43,17 @@ void ItemController::loadItemDefinitions(void) {
 
         if(data.contains("stats")) {
             auto const& stats = data["stats"].get<json>();
-            if(stats.contains("moves")) definition.stats.common.moves = stats["moves"].get<int>();
-            if(stats.contains("hp")) definition.stats.common.hp = stats["hp"].get<int>();
-            if(stats.contains("armour")) definition.stats.common.armour = stats["armour"].get<int>();
+
+            if(isGear(definition.type)) {
+                if(stats.contains("speed")) definition.stats.gear.speed = stats["speed"].get<int>();
+                if(stats.contains("hp")) definition.stats.gear.hp = stats["hp"].get<int>();
+                if(stats.contains("armour")) definition.stats.gear.armour = stats["armour"].get<int>();
+            }
+            else if(isWeapon(definition.type)) {
+                if(stats.contains("speed")) definition.stats.weapon.speed = stats["speed"].get<int>();
+                if(stats.contains("hp")) definition.stats.weapon.hp = stats["hp"].get<int>();
+                if(stats.contains("armour")) definition.stats.weapon.armour = stats["armour"].get<int>();
+            }
         }
 
         std::cout << "Loaded item definition \"" << definition.name << "\"" << std::endl;
@@ -60,6 +68,15 @@ Item::Rarity ItemController::mapToRarity(const std::string& rarityString) {
     }
 
     return StringToRarity.at(rarityString);
+}
+
+bool ItemController::isGear(const std::string& type) {
+    auto slot = Equippable<Stats::GearStats>::getSlotFromName(type);
+    return contains(Gear::VALID_SLOTS, slot);
+}
+
+bool ItemController::isWeapon(const std::string& type) {
+    return type == "Weapon";
 }
 
 Item* ItemController::addItem(

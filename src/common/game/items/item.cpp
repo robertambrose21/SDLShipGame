@@ -1,16 +1,17 @@
 #include "item.h"
 
+// TODO: Derive from Equippable
 const std::set<std::string> Item::EquippableItemTypes = {
     "Helm",
-    "BodyArmour",
-    "Gloves",
-    "Boots"
+    "Body",
+    "Hands",
+    "Feet"
 };
 
 Item::Item(
     const std::string& name, 
     Rarity rarity, 
-    const AllStats& stats, 
+    const Stats::ItemStats& stats, 
     const std::string& type, 
     const glm::ivec2& position
 ) :
@@ -20,7 +21,7 @@ Item::Item(
 Item::Item(
     const std::string& name, 
     Rarity rarity, 
-    const AllStats& stats, 
+    const Stats::ItemStats& stats, 
     const std::string& type, 
     const glm::ivec2& position, 
     uint32_t id
@@ -54,16 +55,16 @@ Item::Rarity Item::getRarity(void) const {
     return rarity;
 }
 
-AllStats Item::getStats(void) const {
+Stats::ItemStats Item::getStats(void) const {
     return stats;
 }
 
-void Item::addStats(const AllStats& stats) {
-    this->stats.add(stats);
+void Item::setWeaponStats(const Stats::WeaponStats& weaponStats) {
+    stats.weapon = weaponStats;
 }
 
-void Item::removeStats(const AllStats& stats) {
-    this->stats.remove(stats);
+void Item::setGearStats(const Stats::GearStats& gearStats) {
+    stats.gear = gearStats;
 }
 
 void Item::setTextureId(uint32_t textureId) {

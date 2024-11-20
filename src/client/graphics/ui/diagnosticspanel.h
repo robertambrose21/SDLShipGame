@@ -6,7 +6,7 @@
 
 #include "imgui.h"
 
-class StatsPanel {
+class DiagnosticsPanel {
 private:
     static const int NUM_RECORDS = 600;
 
@@ -16,7 +16,7 @@ private:
     int64_t getAverageFPS(void);
 
 public:
-    StatsPanel();
+    DiagnosticsPanel();
 
     void update(int64_t timeSinceLastFrame);
     void draw(void);

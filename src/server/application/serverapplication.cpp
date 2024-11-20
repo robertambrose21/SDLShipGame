@@ -181,6 +181,7 @@ void ServerApplication::sendLoadMapToClient(int clientIndex) {
     sendGameStateUpdatesToClients();
 }
 
+// TODO: Move elsewhere
 void ServerApplication::sendGameStateUpdatesToClients(void) {
     auto& context = application->getContext();
 
@@ -198,7 +199,7 @@ void ServerApplication::sendGameStateUpdatesToClients(void) {
     }
 
     for(auto entity : visibleEntities) {
-        if(entity->getCurrentStats().common.hp <= 0) {
+        if(entity->getStats().hp <= 0) {
             std::cout << "Entity with 0 hp, should not happen" << std::endl;
         }
 
