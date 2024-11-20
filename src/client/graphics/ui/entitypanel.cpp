@@ -141,7 +141,7 @@ void EntityPanel::addOnUnequipCallback(std::function<void(Item* item, Equippable
     this->onUnequipClicked = callback;
 }
 
-void EntityPanel::addOnUnequipWeaponClicked(std::function<void(Weapon* weapon)>&& callback) {
+void EntityPanel::addOnUnequipWeaponCallback(std::function<void(Weapon* weapon)>&& callback) {
     this->onUnequipWeaponClicked = callback;
 }
 

@@ -25,7 +25,7 @@ PlayerController::PlayerController(
     inventoryPanel->addOnEquipCallback([&](auto item, auto slot) {
         equipItem(item, slot);
     });
-    inventoryPanel->addOnEquipWeaponClicked([&](auto item) {
+    inventoryPanel->addOnEquipWeaponCallback([&](auto item) {
         equipWeapon(item);
     });
     inventoryPanel->addOnExamineCallback([&](auto item) {
@@ -438,7 +438,7 @@ void PlayerController::addEntityPanel(Entity* entity) {
         unequipItem(item, slot);
     });
 
-    panel->addOnUnequipWeaponClicked([&](auto weapon) {
+    panel->addOnUnequipWeaponCallback([&](auto weapon) {
         unequipWeapon(weapon);
     });
 
