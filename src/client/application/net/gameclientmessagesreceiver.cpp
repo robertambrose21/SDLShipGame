@@ -268,6 +268,7 @@ void GameClientMessagesReceiver::receiveSetEntityPositionMessage(SetEntityPositi
     auto entity = context.getEntityPool()->getEntity(message->entityId);
 
     entity->setPosition(glm::ivec2(message->x, message->y));
+    entity->setMovesLeft(message->movesLeft);
 }
 
 
