@@ -79,13 +79,15 @@ void Entity::update(int64_t timeSinceLastFrame, bool& quit) {
     timeSinceLastMoved += timeSinceLastFrame;
 
     if(timeSinceLastMoved > getSpeed()) {
-        setPosition(path.front());
+        auto position = path.front();
         path.pop_front();
         timeSinceLastMoved = 0;
-        
+
         if(isEngaged()) {
             useMoves(1);
         }
+
+        setPosition(position);
     }
 }
 

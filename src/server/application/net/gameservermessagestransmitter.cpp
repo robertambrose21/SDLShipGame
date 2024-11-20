@@ -232,6 +232,7 @@ void GameServerMessagesTransmitter::onPublish(const Event<EntitySetPositionEvent
             (SetEntityPositionMessage*) server.createMessage(clientIndex, GameMessageType::SET_ENTITY_POSITION);
 
         message->entityId = event.data.entity->getId();
+        message->movesLeft = event.data.entity->getMovesLeft();
         message->x = event.data.position.x;
         message->y = event.data.position.y;
 

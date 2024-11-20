@@ -594,6 +594,7 @@ public:
 class SetEntityPositionMessage : public yojimbo::Message {
 public:
     uint32_t entityId;
+    uint8_t movesLeft;
     uint16_t x, y;
 
     SetEntityPositionMessage() :
@@ -605,6 +606,7 @@ public:
     template <typename Stream>
     bool Serialize(Stream& stream) {
         serialize_uint32(stream, entityId);
+        serialize_bits(stream, movesLeft, 8);
         serialize_bits(stream, x, 16);
         serialize_bits(stream, y, 16);
 
