@@ -1,16 +1,16 @@
-#include "statspanel.h"
+#include "diagnosticspanel.h"
 
-StatsPanel::StatsPanel() :
+DiagnosticsPanel::DiagnosticsPanel() :
     recordIndex(0)
 { }
 
-void StatsPanel::update(int64_t timeSinceLastFrame) {
+void DiagnosticsPanel::update(int64_t timeSinceLastFrame) {
     recordIndex = (recordIndex + 1) % NUM_RECORDS;
 
     fpsRecords[recordIndex] = 1000 / std::max(timeSinceLastFrame, (int64_t) 1);
 }
 
-void StatsPanel::draw(void) {
+void DiagnosticsPanel::draw(void) {
     ImGui::Begin("Stats");
 
     ImGui::PlotLines(
@@ -27,7 +27,7 @@ void StatsPanel::draw(void) {
     ImGui::End();
 }
 
-int64_t StatsPanel::getAverageFPS(void) {
+int64_t DiagnosticsPanel::getAverageFPS(void) {
     int64_t average = 0;
 
     for(auto i = 0; i < IM_ARRAYSIZE(fpsRecords); i++) {
