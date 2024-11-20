@@ -19,7 +19,7 @@
 #include "graphics/ui/inventorypanel.h"
 #include "graphics/ui/examineitempanel.h"
 #include "graphics/ui/entitypanel.h"
-#include "graphics/ui/statspanel.h"
+#include "graphics/ui/diagnosticspanel.h"
 #include "game/actions/attackaction.h"
 #include "game/actions/equipgearaction.h"
 #include "game/actions/equipweaponaction.h"
@@ -58,7 +58,7 @@ private:
 
     std::unique_ptr<PlayerPanel> playerPanel;
     std::unique_ptr<InventoryPanel> inventoryPanel;
-    std::unique_ptr<StatsPanel> statsPanel;
+    std::unique_ptr<DiagnosticsPanel> statsPanel;
     std::map<uint32_t, std::unique_ptr<ExamineItemPanel>> examineItemPanels;
     std::map<uint32_t, std::unique_ptr<EntityPanel>> entityPanels;
 

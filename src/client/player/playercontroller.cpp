@@ -20,7 +20,7 @@ PlayerController::PlayerController(
 {
     playerPanel = std::make_unique<PlayerPanel>(1920, 1080);
     inventoryPanel = std::make_unique<InventoryPanel>(400, 600);
-    statsPanel = std::make_unique<StatsPanel>();
+    statsPanel = std::make_unique<DiagnosticsPanel>();
 
     inventoryPanel->addOnEquipCallback([&](auto item, auto slot) {
         equipItem(item, slot);
