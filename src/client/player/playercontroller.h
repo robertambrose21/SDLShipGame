@@ -58,7 +58,7 @@ private:
 
     std::unique_ptr<PlayerPanel> playerPanel;
     std::unique_ptr<InventoryPanel> inventoryPanel;
-    std::unique_ptr<DiagnosticsPanel> statsPanel;
+    std::unique_ptr<DiagnosticsPanel> diagnosticsPanel;
     std::map<uint32_t, std::unique_ptr<ExamineItemPanel>> examineItemPanels;
     std::map<uint32_t, std::unique_ptr<EntityPanel>> entityPanels;
 
