@@ -31,6 +31,6 @@ public:
     void toggle(void);
 
     void addOnEquipCallback(std::function<void(Item* item, Equippable<Stats::GearStats>::Slot slot)>&& callback);
-    void addOnEquipWeaponClicked(std::function<void(Item* item)>&& callback);
+    void addOnEquipWeaponCallback(std::function<void(Item* item)>&& callback);
     void addOnExamineCallback(std::function<void(Item* item)>&& callback);
 };

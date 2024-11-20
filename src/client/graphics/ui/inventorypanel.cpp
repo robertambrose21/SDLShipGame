@@ -73,7 +73,7 @@ void InventoryPanel::addOnEquipCallback(std::function<void(Item* item, Equippabl
     this->onEquipClicked = callback;
 }
 
-void InventoryPanel::addOnEquipWeaponClicked(std::function<void(Item* item)>&& callback) {
+void InventoryPanel::addOnEquipWeaponCallback(std::function<void(Item* item)>&& callback) {
     this->onEquipWeaponClicked = callback;
 }
 

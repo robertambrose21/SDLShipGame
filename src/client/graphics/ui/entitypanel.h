@@ -37,7 +37,7 @@ public:
     void draw(GraphicsContext& graphicsContext);
 
     void addOnUnequipCallback(std::function<void(Item* item, Equippable<Stats::GearStats>::Slot slot)>&& callback);
-    void addOnUnequipWeaponClicked(std::function<void(Weapon* weapon)>&& callback);
+    void addOnUnequipWeaponCallback(std::function<void(Weapon* weapon)>&& callback);
     void addOnExamineCallback(std::function<void(Item* item)>&& callback);
 
     bool getIsOpen(void) const;
