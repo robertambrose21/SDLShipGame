@@ -9,7 +9,7 @@
 class Effect {
 protected:
     Entity* target;
-    int ticksLeft;
+    uint8_t ticksLeft;
     Stats::EffectStats stats;
 
     virtual void doApply(void) = 0;
@@ -22,7 +22,7 @@ public:
     void apply(void);
 
     Stats::EffectStats getStats(void) const;
-    int getTicksLeft(void) const;
+    uint8_t getTicksLeft(void) const;
     void nextTurn(void);
 
     Entity* getTarget(void);

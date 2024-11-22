@@ -16,7 +16,7 @@ Stats::EffectStats Effect::getStats(void) const {
     return stats;
 }
 
-int Effect::getTicksLeft(void) const {
+uint8_t Effect::getTicksLeft(void) const {
     return ticksLeft;
 }
 
@@ -49,8 +49,9 @@ PoisonEffect::PoisonEffect(Entity* target, const Stats::EffectStats& stats) :
 { }
 
 void PoisonEffect::doApply(void) {
+    game_assert(stats.duration - ticksLeft >= 0);
     target->setIsPoisoned(true);
-    target->takeDamage(stats.damageTicks[stats.duration - ticksLeft - 1]);
+    target->takeDamage(stats.damageTicks[stats.duration - ticksLeft]);
 }
 
 EffectType PoisonEffect::getType(void) const {
