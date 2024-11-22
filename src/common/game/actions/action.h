@@ -25,6 +25,7 @@ protected:
 
 public:
     Action(int turnNumber, Entity* entity);
+    virtual ~Action() = default;
 
     bool validate(ApplicationContext* context);
     bool isFinished(void);

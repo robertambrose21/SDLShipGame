@@ -54,6 +54,7 @@ public:
         const DamageSource& damageSource,
         const Stats::WeaponStats& stats
     );
+    virtual ~Weapon() = default;
 
     void use(const glm::ivec2& position, const glm::ivec2& target, bool isAnimationOnly = false);
     void reset(void);
