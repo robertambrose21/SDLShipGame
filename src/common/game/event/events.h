@@ -134,6 +134,7 @@ struct GridDirtyEventData {
 struct TilesRevealedEventData {
     struct RevealedTile {
         int id;
+        int orientation;
         int x, y;
     };
 

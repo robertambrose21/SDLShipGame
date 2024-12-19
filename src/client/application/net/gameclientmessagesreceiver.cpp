@@ -253,7 +253,7 @@ void GameClientMessagesReceiver::receiveTilesRevealedMessage(TilesRevealedMessag
         auto tile = message->revealedTiles[i];
 
         tiles.push_back({ tile.x, tile.y });
-        grid->setTile(tile.x, tile.y, { tile.id, walkableTileIds[tile.id], false }, false);
+        grid->setTile(tile.x, tile.y, { tile.id, walkableTileIds[tile.id], false, tile.orientation }, false);
     }
 
     context.getVisibilityController()->revealTiles(message->participantId, tiles);

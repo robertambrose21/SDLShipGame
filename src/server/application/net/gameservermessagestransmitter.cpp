@@ -218,6 +218,7 @@ void GameServerMessagesTransmitter::onPublish(const Event<TilesRevealedEventData
             auto tilesIndex = (i * 64) + j;
 
             message->revealedTiles[j].id = event.data.tiles[tilesIndex].id;
+            message->revealedTiles[j].orientation = event.data.tiles[tilesIndex].orientation;
             message->revealedTiles[j].x = event.data.tiles[tilesIndex].x;
             message->revealedTiles[j].y = event.data.tiles[tilesIndex].y;
         }
