@@ -15,6 +15,7 @@ void TileSet::load(const std::string& path) {
 
     std::ifstream f(path);
     json data = json::parse(f);
+    f.close();
 
     int numEdges = 0;
     std::map<std::string, int> edges;

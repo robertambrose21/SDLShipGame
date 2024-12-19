@@ -1,5 +1,144 @@
 #include "wfc2.h"
 
+WFC2::WFC2(
+    Grid* grid,
+    const RoomConfiguration& roomConfiguration,
+    const std::string& rulesFile
+) : 
+    GenerationStrategy(grid->getWidth(), grid->getHeight(), roomConfiguration),
+    rulesFile(rulesFile)
+{ }
+
+std::vector<std::vector<Grid::Tile>> WFC2::generate(void) {
+    std::cout << "Generating map... " << std::endl;
+
+    if(!std::filesystem::exists(rulesFile)) {
+        std::cout << "Cannot load rules, path \"" << rulesFile << "\" does not exist";
+        return getData();
+    }
+
+    std::ifstream f(rulesFile);
+    json data = json::parse(f);
+
+    auto tilesJson = data["tiles"].get<std::vector<json>>();
+    std::map<std::string, WFCTile> tileMapping;
+    unsigned index = 0;
+
+    for(auto const& tile : tilesJson) {
+        auto name = tile["name"].get<std::string>();
+
+        if(tileMapping.contains(name)) {
+            std::cout << std::format("Duplicate tile '{}' found in rules {}. Cannot generate", name, rulesFile) << std::endl;
+            return getData();
+        }
+
+        tileMapping[name] = {
+            index++,
+            getSymmetry(tile["symmetry"].get<std::string>()[0]),
+            name, 
+            tile["weight"].get<double>(),
+            tile["textureId"].get<int>()
+        };
+    }
+
+    auto neighboursJson = data["neighbours"].get<std::vector<json>>();
+    std::vector<std::tuple<unsigned, unsigned, unsigned, unsigned>> neighbours;
+
+    for(auto const& neighbour : neighboursJson) {
+        neighbours.push_back({ 
+            tileMapping[neighbour["left"].get<std::string>()].index,
+            neighbour["left_orientation"].get<unsigned>(),
+            tileMapping[neighbour["right"].get<std::string>()].index,
+            neighbour["right_orientation"].get<unsigned>()
+        });
+    }
+
+    auto walkableTiles = data["walkableTiles"].get<std::set<std::string>>();
+
+    std::vector<Tile<WFCTile>> wfcTiles;
+
+    for(auto const& [name, tile] : tileMapping) {
+        switch(tile.symmetry) {
+            // No symmetry
+            case Symmetry::X:
+                wfcTiles.push_back({ { Array2D<WFCTile>(1, 1, tile) }, tile.symmetry, tile.weight });
+                break;
+
+            // Rotational symmetry
+            case Symmetry::T:
+            case Symmetry::L: {
+                std::vector<Array2D<WFCTile>> data;
+                
+                // 0 -> 4 becomes 0 -> 270 rotational degrees
+                for(int i = 0; i < 4; i++) {
+                    auto variant = tile;
+                    variant.orientation = i;
+                    data.push_back(Array2D<WFCTile>(1, 1, variant));
+                }
+
+                wfcTiles.push_back({ data, tile.symmetry, tile.weight });
+                break;
+            }
+
+            // TODO:
+            case Symmetry::I:
+            case Symmetry::backslash:
+            case Symmetry::P:
+                std::cout << "Symmetry I, \\ and P are currently unsupported" << std::endl;
+                break;
+
+            // Exit if we somehow get a weird symmetry
+            default:
+                std::cout << std::format("Unknown symmetry '{}'", (int) tile.symmetry) << std::endl;
+                return getData();
+        }
+    }
+
+    auto seed = 1825110143;//randomRange(0, INT_MAX);
+    TilingWFC<WFCTile> wfc(wfcTiles, neighbours, getHeight(), getWidth(), { false }, seed);
+
+    auto success = wfc.run();
+
+    if(!success.has_value()) {
+        std::cout << "Failed generating map" << std::endl;
+        return getData();
+    }
+
+    for(int x = 0; x < getWidth(); x++) {
+        for(int y = 0; y < getHeight(); y++) {
+            auto const& wfcTile = (*success).data[y * getWidth() + x];
+            
+            setTile(x, y, { 
+                wfcTile.textureId, 
+                walkableTiles.contains(wfcTile.name), 
+                false, 
+                wfcTile.orientation 
+            });
+
+            std::cout << wfcTile.textureId << " ";
+        }
+        std::cout << std::endl;
+    }
+
+    std::cout << "Done, seed: " << seed << std::endl;
+    return getData();
+}
+
+Symmetry WFC2::getSymmetry(char symmetry) {
+    switch(symmetry) {
+        case 'X': return Symmetry::X;
+        case 'T': return Symmetry::T;
+        case 'I': return Symmetry::I;
+        case 'L': return Symmetry::L;
+        case '\\': return Symmetry::backslash;
+        case 'P': return Symmetry::P;
+        default: {
+            std::cout << std::format("Cannot parse invalid symmetry '{}', defaulting to 'X'", symmetry);
+            return Symmetry::X;
+        }
+    }
+}
+
 void WFC2::run(void) {
     // unsigned width = 32;
     // unsigned height = 32;

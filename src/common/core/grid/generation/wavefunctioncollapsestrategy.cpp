@@ -12,7 +12,7 @@ WaveFunctionCollapseStrategy::WaveFunctionCollapseStrategy(
 { }
 
 std::vector<std::vector<Grid::Tile>> WaveFunctionCollapseStrategy::generate(void) {
-    std::cout << "Generating map... " << std::endl;;
+    std::cout << "Generating map... " << std::endl;
 
     int chunkSize = 8;
     int numRetries = 100;

@@ -14,7 +14,7 @@ void ServerApplication::initialise(void) {
     }
 
     application = std::make_unique<Application>(
-        std::make_unique<Grid>(128, 128),
+        std::make_unique<Grid>(32, 32),
         std::make_unique<EntityPool>(),
         std::make_unique<WeaponController>(),
         std::make_unique<ProjectilePool>(),
@@ -239,15 +239,24 @@ std::vector<GenerationStrategy::Room> ServerApplication::loadMap(void) {
     //     ).generate()
     // );
 
-    auto wfc = WaveFunctionCollapseStrategy(
+    auto wfc2 = WFC2(
         grid,
-        TileSet("../assets/data/tilesets/grass_and_rocks/rules.json"),
-        { 12, glm::ivec2(6, 6), glm::ivec2(15, 15), 1 }
+        { 12, glm::ivec2(6, 6), glm::ivec2(15, 15), 1 },
+        "../assets/data/tilesets/grass_and_rocks/rules2.json"
     );
 
-    grid->setData(wfc.generate());
+    grid->setData(wfc2.generate());
 
-    return wfc.getRooms();
+    // auto wfc = WaveFunctionCollapseStrategy(
+    //     grid,
+    //     TileSet("../assets/data/tilesets/grass_and_rocks/rules.json"),
+    //     { 12, glm::ivec2(6, 6), glm::ivec2(15, 15), 1 }
+    // );
+
+    // grid->setData(wfc.generate());
+
+    // return wfc.getRooms();
+    return wfc2.getRooms();
 }
 
 // TODO: Eventually move to some kind of map generator class
@@ -285,14 +294,26 @@ void ServerApplication::loadGame(const std::vector<GenerationStrategy::Room>& ro
 Entity* ServerApplication::addPlayer(bool hasFreezeGun) {
     auto& context = application->getContext();
 
-    auto room = randomChoice(unfilledRooms);
+    // auto room = randomChoice(unfilledRooms);
+    // auto entities = context.getSpawnController()->spawnEntities(
+    //     {
+    //         {
+    //             { "Player", { "Grenade Launcher" } }
+    //         }
+    //     },
+    //     { room.min, room.max }
+    // );
+
+    // return entities.front();
+
+    // auto room = randomChoice(unfilledRooms);
     auto entities = context.getSpawnController()->spawnEntities(
         {
             {
                 { "Player", { "Grenade Launcher" } }
             }
         },
-        { room.min, room.max }
+        { glm::ivec2(0, 31), glm::ivec2(0, 31) }
     );
 
     return entities.front();
