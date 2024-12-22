@@ -239,7 +239,7 @@ std::vector<GenerationStrategy::Room> ServerApplication::loadMap(void) {
     //     ).generate()
     // );
 
-    auto tileSet = WFCTileSet("../assets/data/tilesets/grass_and_rocks/rules2.json");
+    auto tileSet = WFCTileSet("../assets/data/tilesets/grass_and_rocks/rules.json");
     tileSet.load();
 
     auto wfc = WFCStrategy(
