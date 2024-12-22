@@ -27,7 +27,7 @@ void WFCTileSet::load(void) {
     isError = true;
 
     if(!std::filesystem::exists(rulesFile)) {
-        std::cout << "Cannot load rules, path \"" << rulesFile << "\" does not exist";
+        std::cout << std::format("Cannot load rules, path '{}' does not exist", rulesFile) << std::endl;
         return;
     }
 
