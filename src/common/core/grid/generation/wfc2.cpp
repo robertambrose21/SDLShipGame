@@ -11,25 +11,28 @@ WFC2::WFC2(
 { }
 
 std::vector<std::vector<Grid::Tile>> WFC2::generate(void) {
-    std::cout << "Generating map... " << std::endl;
+    auto startTime = getCurrentTimeInMicroseconds();
+    std::cout << std::format("Generating map ({}, {})... ", getWidth(), getHeight()) << std::endl;
 
-    auto wfcTiles = tileSet.getTiles();
-    auto neighbours = tileSet.getNeighbours();
-    auto walkableTiles = tileSet.getWalkableTiles();
-
-    auto seed = randomRange(0, INT_MAX);
-    TilingWFC<WFCTileSet::WFCTile> wfc(wfcTiles, neighbours, getHeight(), getWidth(), { false }, seed);
-
-    generateMapEdge(wfc);
-    generateRoomsAndPaths(wfc);
-
-    auto success = wfc.run();
+    int numAttempts = 10;
+    int successfulAttempt = 0;
+    int seed = 0;
+    auto success = run(numAttempts, successfulAttempt, seed);
 
     if(!success.has_value()) {
-        std::cout << "Failed generating map" << std::endl;
         return getData();
     }
 
+    auto timeTaken = (getCurrentTimeInMicroseconds() - startTime) / 1000.0;
+    std::cout << std::format(
+        "Map generation done ({}ms, {}/{} attempts) [seed={}]", 
+        timeTaken, 
+        successfulAttempt, 
+        numAttempts, 
+        seed
+    ) << std::endl;
+
+    std::cout << "Setting tiles... ";
     for(int x = 0; x < getWidth(); x++) {
         for(int y = 0; y < getHeight(); y++) {
             auto const& wfcTile = (*success).data[y * getWidth() + x];
@@ -43,8 +46,49 @@ std::vector<std::vector<Grid::Tile>> WFC2::generate(void) {
         }
     }
 
-    std::cout << "Done, seed: " << seed << std::endl;
+    std::cout << "Done" << std::endl;
+
     return getData();
+}
+
+std::optional<Array2D<WFCTileSet::WFCTile>> WFC2::run(
+    int numAttempts, 
+    int& successfulAttempt, 
+    int& seed
+) {
+    auto wfcTiles = tileSet.getTiles();
+    auto neighbours = tileSet.getNeighbours();
+    auto walkableTiles = tileSet.getWalkableTiles();
+
+    for(int i = 0; i < numAttempts; i++) {
+        seed = randomRange(0, INT_MAX);
+        auto success = runAttempt(seed);
+
+        if(success.has_value()) {
+            successfulAttempt = i;
+            return success;
+        }
+
+        std::cout 
+            << std::format("Failed to generate map with seed {}, retrying ({} of {} attempts)", seed, i, numAttempts)
+            << std::endl;
+    }
+
+    std::cout << std::format("Failed to generate map after {} attempts", numAttempts) << std::endl;
+    return std::nullopt;
+}
+
+std::optional<Array2D<WFCTileSet::WFCTile>> WFC2::runAttempt(int seed) {
+    auto wfcTiles = tileSet.getTiles();
+    auto neighbours = tileSet.getNeighbours();
+    auto walkableTiles = tileSet.getWalkableTiles();
+
+    TilingWFC<WFCTileSet::WFCTile> wfc(wfcTiles, neighbours, getHeight(), getWidth(), { false }, seed);
+
+    generateMapEdge(wfc);
+    generateRoomsAndPaths(wfc);
+
+    return wfc.run();
 }
 
 void WFC2::generateMapEdge(TilingWFC<WFCTileSet::WFCTile>& wfc) {
@@ -58,9 +102,12 @@ void WFC2::generateMapEdge(TilingWFC<WFCTileSet::WFCTile>& wfc) {
 }
 
 void WFC2::generateRoomsAndPaths(TilingWFC<WFCTileSet::WFCTile>& wfc) {
+    auto numRooms = getRoomConfiguration().numRooms;
+    clearRooms();
+
     std::vector<glm::ivec2> roomCenterPoints;
 
-    for(int i = 0; i < getRoomConfiguration().numRooms; i++) {
+    for(int i = 0; i < numRooms; i++) {
         auto room = generateRoom(wfc, getRooms());
         addRoom(room);
 

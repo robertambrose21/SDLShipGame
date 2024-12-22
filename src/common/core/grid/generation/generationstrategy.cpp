@@ -84,11 +84,13 @@ int GenerationStrategy::distance(const Room& roomA, const Room& roomB) {
     return static_cast<int>(glm::distance(roomACenter, roomBCenter));
 }
 
-
 const std::vector<GenerationStrategy::Room>& GenerationStrategy::getRooms(void) const {
     return rooms;
 }
 
+void GenerationStrategy::clearRooms(void) {
+    rooms.clear();
+}
 
 const std::vector<std::vector<Grid::Tile>>& GenerationStrategy::getData(void) const {
     return data;

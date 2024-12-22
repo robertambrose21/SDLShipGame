@@ -25,9 +25,14 @@ public:
 
     std::vector<std::vector<Grid::Tile>> generate(void);
 
-    void run(void);
-
 private:
+    std::optional<Array2D<WFCTileSet::WFCTile>> run(
+        int numAttempts, 
+        int& successfulAttempt, 
+        int& seed
+    );
+    std::optional<Array2D<WFCTileSet::WFCTile>> runAttempt(int seed);
+
     void generateMapEdge(TilingWFC<WFCTileSet::WFCTile>& wfc);
     void generateRoomsAndPaths(TilingWFC<WFCTileSet::WFCTile>& wfc);
     Room generateRoom(
