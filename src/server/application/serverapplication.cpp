@@ -14,7 +14,7 @@ void ServerApplication::initialise(void) {
     }
 
     application = std::make_unique<Application>(
-        std::make_unique<Grid>(32, 32),
+        std::make_unique<Grid>(128, 128),
         std::make_unique<EntityPool>(),
         std::make_unique<WeaponController>(),
         std::make_unique<ProjectilePool>(),
@@ -239,23 +239,17 @@ std::vector<GenerationStrategy::Room> ServerApplication::loadMap(void) {
     //     ).generate()
     // );
 
+    auto tileSet = WFCTileSet("../assets/data/tilesets/grass_and_rocks/rules2.json");
+    tileSet.load();
+
     auto wfc2 = WFC2(
         grid,
         { 12, glm::ivec2(6, 6), glm::ivec2(15, 15), 1 },
-        "../assets/data/tilesets/grass_and_rocks/rules2.json"
+        tileSet
     );
 
     grid->setData(wfc2.generate());
-
-    // auto wfc = WaveFunctionCollapseStrategy(
-    //     grid,
-    //     TileSet("../assets/data/tilesets/grass_and_rocks/rules.json"),
-    //     { 12, glm::ivec2(6, 6), glm::ivec2(15, 15), 1 }
-    // );
-
-    // grid->setData(wfc.generate());
-
-    // return wfc.getRooms();
+    
     return wfc2.getRooms();
 }
 

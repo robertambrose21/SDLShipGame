@@ -3,7 +3,7 @@
 // Handle with events?
 GameClientMessagesReceiver::GameClientMessagesReceiver(
     ApplicationContext& context, 
-    const std::map<int, bool>& walkableTileIds
+    const std::map<unsigned, bool>& walkableTileIds
 ) :
     context(context),
     walkableTileIds(walkableTileIds)

@@ -54,14 +54,15 @@ void ClientApplication::initialise(void) {
     itemDrawStrategy = std::make_unique<ItemDrawStrategy>();
 
     // TODO: The tileset to use should come from the server
-    auto tileSet = TileSet("../assets/data/tilesets/grass_and_rocks/rules.json");
+    auto tileSet = WFCTileSet("../assets/data/tilesets/grass_and_rocks/rules2.json");
+    tileSet.load();
 
     clientStateMachine = std::make_unique<ClientStateMachine>();
     clientStateMachine->setState(std::make_unique<ClientLoadingState>());
 
     clientMessagesReceiver = std::make_unique<GameClientMessagesReceiver>(
         application->getContext(), 
-        tileSet.getWalkableTileIds()
+        tileSet.getWalkableTiles()
     );
 
     client = std::make_unique<GameClient>(
@@ -89,8 +90,8 @@ void ClientApplication::initialise(void) {
     );
     window->initialiseWindow();
 
-    for(auto& [tileId, textureId] : tileSet.getTextureIds()) {
-        window->setGridTileTexture(tileId, textureId);
+    for(auto const& [_, tile] : tileSet.getTileMapping()) {
+        window->setGridTileTexture(tile.id, tile.textureId);
     }
     
     for(auto i = 0; i < grid->getWidth(); i++) {

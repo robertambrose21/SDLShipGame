@@ -13,6 +13,7 @@ add_library(
     grid/generation/hallstrategy.cpp
     grid/generation/wavefunctioncollapsestrategy.cpp
     grid/generation/wfc2.cpp
+    grid/generation/wfctileset.cpp
     grid/generation/tileset.cpp
     net/yojimboimport.h
     net/messagelogger.cpp
