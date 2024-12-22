@@ -15,6 +15,7 @@
 #include "game/application/stdoutsubscriber.h"
 #include "clientturncontroller.h"
 #include "core/grid/generation/tileset.h"
+#include "core/grid/generation/wfctileset.h"
 #include "game/spawn/spawncontroller.h"
 #include "game/application/visibilitycontroller.h"
 
