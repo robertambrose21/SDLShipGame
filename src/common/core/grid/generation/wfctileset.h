@@ -31,14 +31,19 @@ public:
 
     const std::vector<Tile<WFCTile>>& getTiles(void) const;
     const std::vector<std::tuple<unsigned, unsigned, unsigned, unsigned>>& getNeighbours(void) const;
+    const std::map<std::string, WFCTile>& getTileMapping(void) const;
+
     const std::map<unsigned, bool>& getWalkableTiles(void) const;
     bool isTileWalkable(unsigned id);
-    const std::map<std::string, WFCTile>& getTileMapping(void) const;
+
+    unsigned getEdgeTile(void) const;
+    unsigned getRoomTile(void) const;
 
     void load(void);
     void reset(void);
 
 private:
+    bool validate(void) const;
     Symmetry getSymmetry(char symmetry);
 
     bool isError;
@@ -49,4 +54,6 @@ private:
     std::vector<std::tuple<unsigned, unsigned, unsigned, unsigned>> neighbours;
     std::map<unsigned, bool> walkableTiles;
     std::map<std::string, WFCTile> tileMapping;
+    unsigned edgeTile;
+    unsigned roomTile;
 };

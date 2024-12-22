@@ -51,7 +51,7 @@ void WFC2::generateMapEdge(TilingWFC<WFCTileSet::WFCTile>& wfc) {
     for(int y = 0; y < getHeight(); y++) {
         for(int x = 0; x < getWidth(); x++) {
             if(x == 0 || y == 0 || x == getWidth() - 1 || y == getHeight() - 1) {
-                wfc.set_tile(2, 0, y, x); // WALL
+                wfc.set_tile(tileSet.getEdgeTile(), 0, y, x);
             }
         }
     }
@@ -80,7 +80,7 @@ void WFC2::generateRoomsAndPaths(TilingWFC<WFCTileSet::WFCTile>& wfc) {
         auto intersections = grid->getIntersections(roomCenterPoints[i-1], roomCenterPoints[i]);
 
         for(auto intersection : intersections) {
-            wfc.set_tile(0, 0, intersection.y, intersection.x); // DIRT
+            wfc.set_tile(tileSet.getRoomTile(), 0, intersection.y, intersection.x);
         }
     }
 }
@@ -102,7 +102,7 @@ GenerationStrategy::Room WFC2::generateRoom(
 
     for(int x = room.min.x; x <= room.max.x; x++) {
         for(int y = room.min.y; y <= room.max.y; y++) {
-            wfc.set_tile(0, 0, y, x); // DIRT
+            wfc.set_tile(tileSet.getRoomTile(), 0, y, x);
         }
     }
 

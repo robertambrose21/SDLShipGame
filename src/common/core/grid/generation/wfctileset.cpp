@@ -3,7 +3,9 @@
 WFCTileSet::WFCTileSet(const std::string& rulesFile) :
     rulesFile(rulesFile),
     isLoaded(false),
-    isError(false)
+    isError(false),
+    edgeTile(0),
+    roomTile(0)
 { }
 
 void WFCTileSet::load(void) {
@@ -51,19 +53,19 @@ void WFCTileSet::load(void) {
         };
     }
 
-    auto neighboursJson = data["neighbours"].get<std::vector<json>>();
-
-    std::map<std::string, unsigned> neighbourIndexMapping; 
+    std::map<std::string, unsigned> tileIndexMapping; 
     unsigned index = 0;
     for(auto [name, tile] : tileMapping) {
-        neighbourIndexMapping[name] = index++;
+        tileIndexMapping[name] = index++;
     }
+
+    auto neighboursJson = data["neighbours"].get<std::vector<json>>();
 
     for(auto const& neighbour : neighboursJson) {
         neighbours.push_back({ 
-            neighbourIndexMapping[neighbour["left"].get<std::string>()],
+            tileIndexMapping[neighbour["left"].get<std::string>()],
             neighbour["left_orientation"].get<unsigned>(),
-            neighbourIndexMapping[neighbour["right"].get<std::string>()],
+            tileIndexMapping[neighbour["right"].get<std::string>()],
             neighbour["right_orientation"].get<unsigned>()
         });
     }
@@ -109,6 +111,9 @@ void WFCTileSet::load(void) {
         }
     }
 
+    edgeTile = tileIndexMapping[data["edgeTile"].get<std::string>()];
+    roomTile = tileIndexMapping[data["rooms"]["roomTile"].get<std::string>()];
+
     isError = false;
     isLoaded = true;
 }
@@ -137,30 +142,32 @@ Symmetry WFCTileSet::getSymmetry(char symmetry) {
     }
 }
 
-const std::vector<Tile<WFCTileSet::WFCTile>>& WFCTileSet::getTiles(void) const {
+bool WFCTileSet::validate(void) const {
     if(!isLoaded || isError) {
         std::cout << std::format("Warning: Loaded {}, Error {}", isLoaded, isError) << std::endl;
+        return false;
     }
+
+    return true;
+}
+
+const std::vector<Tile<WFCTileSet::WFCTile>>& WFCTileSet::getTiles(void) const {
+    validate();
     return tiles;
 }
 
 const std::vector<std::tuple<unsigned, unsigned, unsigned, unsigned>>& WFCTileSet::getNeighbours(void) const {
-    if(!isLoaded || isError) {
-        std::cout << std::format("Warning: Loaded {}, Error {}", isLoaded, isError) << std::endl;
-    }
+    validate();
     return neighbours;
 }
 
 const std::map<unsigned, bool>& WFCTileSet::getWalkableTiles(void) const {
-    if(!isLoaded || isError) {
-        std::cout << std::format("Warning: Loaded {}, Error {}", isLoaded, isError) << std::endl;
-    }
+    validate();
     return walkableTiles;
 }
 
 bool WFCTileSet::isTileWalkable(unsigned id) {
-    if(!isLoaded || isError) {
-        std::cout << std::format("Warning: Loaded {}, Error {}", isLoaded, isError) << std::endl;
+    if(!validate()) {
         return false;
     }
 
@@ -168,8 +175,16 @@ bool WFCTileSet::isTileWalkable(unsigned id) {
 }
 
 const std::map<std::string, WFCTileSet::WFCTile>& WFCTileSet::getTileMapping(void) const {
-    if(!isLoaded || isError) {
-        std::cout << std::format("Warning: Loaded {}, Error {}", isLoaded, isError) << std::endl;
-    }
+    validate();
     return tileMapping;
+}
+
+unsigned WFCTileSet::getEdgeTile(void) const {
+    validate();
+    return edgeTile;
+}
+
+unsigned WFCTileSet::getRoomTile(void) const {
+    validate();
+    return roomTile;
 }
