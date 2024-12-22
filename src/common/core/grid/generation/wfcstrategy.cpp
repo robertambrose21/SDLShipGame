@@ -1,6 +1,6 @@
-#include "wfc2.h"
+#include "wfcstrategy.h"
 
-WFC2::WFC2(
+WFCStrategy::WFCStrategy(
     Grid* grid,
     const RoomConfiguration& roomConfiguration,
     const WFCTileSet& tileSet
@@ -10,7 +10,7 @@ WFC2::WFC2(
     grid(grid)
 { }
 
-std::vector<std::vector<Grid::Tile>> WFC2::generate(void) {
+std::vector<std::vector<Grid::Tile>> WFCStrategy::generate(void) {
     auto startTime = getCurrentTimeInMicroseconds();
     std::cout << std::format("Generating map ({}, {})... ", getWidth(), getHeight()) << std::endl;
 
@@ -51,7 +51,7 @@ std::vector<std::vector<Grid::Tile>> WFC2::generate(void) {
     return getData();
 }
 
-std::optional<Array2D<WFCTileSet::WFCTile>> WFC2::run(
+std::optional<Array2D<WFCTileSet::WFCTile>> WFCStrategy::run(
     int numAttempts, 
     int& successfulAttempt, 
     int& seed
@@ -78,7 +78,7 @@ std::optional<Array2D<WFCTileSet::WFCTile>> WFC2::run(
     return std::nullopt;
 }
 
-std::optional<Array2D<WFCTileSet::WFCTile>> WFC2::runAttempt(int seed) {
+std::optional<Array2D<WFCTileSet::WFCTile>> WFCStrategy::runAttempt(int seed) {
     auto wfcTiles = tileSet.getTiles();
     auto neighbours = tileSet.getNeighbours();
     auto walkableTiles = tileSet.getWalkableTiles();
@@ -91,7 +91,7 @@ std::optional<Array2D<WFCTileSet::WFCTile>> WFC2::runAttempt(int seed) {
     return wfc.run();
 }
 
-void WFC2::generateMapEdge(TilingWFC<WFCTileSet::WFCTile>& wfc) {
+void WFCStrategy::generateMapEdge(TilingWFC<WFCTileSet::WFCTile>& wfc) {
     for(int y = 0; y < getHeight(); y++) {
         for(int x = 0; x < getWidth(); x++) {
             if(x == 0 || y == 0 || x == getWidth() - 1 || y == getHeight() - 1) {
@@ -101,7 +101,7 @@ void WFC2::generateMapEdge(TilingWFC<WFCTileSet::WFCTile>& wfc) {
     }
 }
 
-void WFC2::generateRoomsAndPaths(TilingWFC<WFCTileSet::WFCTile>& wfc) {
+void WFCStrategy::generateRoomsAndPaths(TilingWFC<WFCTileSet::WFCTile>& wfc) {
     auto numRooms = getRoomConfiguration().numRooms;
     clearRooms();
 
@@ -132,7 +132,7 @@ void WFC2::generateRoomsAndPaths(TilingWFC<WFCTileSet::WFCTile>& wfc) {
     }
 }
 
-GenerationStrategy::Room WFC2::generateRoom(
+GenerationStrategy::Room WFCStrategy::generateRoom(
     TilingWFC<WFCTileSet::WFCTile>& wfc, 
     const std::vector<Room>& existingRooms
 ) {
@@ -156,7 +156,7 @@ GenerationStrategy::Room WFC2::generateRoom(
     return room;
 }
 
-GenerationStrategy::Room WFC2::createRandomRoom(void) {
+GenerationStrategy::Room WFCStrategy::createRandomRoom(void) {
     int roomSizeX = randomRange(getRoomConfiguration().minRoomSize.x, getRoomConfiguration().maxRoomSize.x);
     int roomSizeY = randomRange(getRoomConfiguration().minRoomSize.y, getRoomConfiguration().maxRoomSize.y);
 

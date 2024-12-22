@@ -15,9 +15,9 @@
 
 #include "wfctileset.h"
 
-class WFC2 : public GenerationStrategy {
+class WFCStrategy : public GenerationStrategy {
 public:
-    WFC2(
+    WFCStrategy(
         Grid* grid,
         const RoomConfiguration& roomConfiguration,
         const WFCTileSet& tileSet

@@ -11,10 +11,8 @@ add_library(
     grid/generation/generationstrategy.cpp
     grid/generation/emptystrategy.cpp
     grid/generation/hallstrategy.cpp
-    grid/generation/wavefunctioncollapsestrategy.cpp
-    grid/generation/wfc2.cpp
+    grid/generation/wfcstrategy.cpp
     grid/generation/wfctileset.cpp
-    grid/generation/tileset.cpp
     net/yojimboimport.h
     net/messagelogger.cpp
     util/idgenerator.h
