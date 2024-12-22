@@ -242,15 +242,15 @@ std::vector<GenerationStrategy::Room> ServerApplication::loadMap(void) {
     auto tileSet = WFCTileSet("../assets/data/tilesets/grass_and_rocks/rules2.json");
     tileSet.load();
 
-    auto wfc2 = WFC2(
+    auto wfc = WFCStrategy(
         grid,
         { 12, glm::ivec2(6, 6), glm::ivec2(15, 15), 1 },
         tileSet
     );
 
-    grid->setData(wfc2.generate());
+    grid->setData(wfc.generate());
     
-    return wfc2.getRooms();
+    return wfc.getRooms();
 }
 
 // TODO: Eventually move to some kind of map generator class
