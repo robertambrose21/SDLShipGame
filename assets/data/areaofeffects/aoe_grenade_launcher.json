@@ -1,0 +1,8 @@
+{
+  "name": "Grenade Launcher AOE",
+  "textureId": 3,
+  "radius": 2.0,
+  "turns": 1,
+  "damagePerTurn": "2D4+2",
+  "power": 2
+}

@@ -1,0 +1,11 @@
+{
+  "name": "Freeze Gun",
+  "class": "Projectile",
+  "projectile": "Freeze Bullet",
+  "stats": {
+    "damage": "1",
+    "power": 1,
+    "range": 100,
+    "uses": 1
+  }
+}

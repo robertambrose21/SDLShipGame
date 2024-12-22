@@ -1,0 +1,12 @@
+{
+  "name": "Grenade Launcher",
+  "class": "Projectile",
+  "projectile": "Grenade Launcher Bullet",
+  "item": "Grenade Launcher",
+  "stats": {
+    "damage": "1",
+    "power": 1,
+    "range": 100,
+    "uses": 2
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "name": "Space Worm Teeth",
+  "class": "Melee",
+  "stats": {
+    "damage": "1D2",
+    "power": 1,
+    "range": 2,
+    "uses": 1
+  }
+}

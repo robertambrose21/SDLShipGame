@@ -1,0 +1,32 @@
+{
+  "name": "Brute",
+  "texture": {
+    "id": 18,
+    "colour": {
+      "r": 255,
+      "g": 255,
+      "b": 255,
+      "a": 255
+    }
+  },
+  "stats" : {
+    "movesPerTurn": 5,
+    "hp": 25,
+    "armour": 2
+  },
+  "lootTable": [
+    { 
+      "items": [
+        { "name": "Brute Corpse" }
+      ],
+      "chance": 90
+    },
+    { 
+      "items": [
+        { "name": "Tattered Rags", "weight": 1.0 },
+        { "name": "Cotton Vest", "weight": 50.5 }
+      ],
+      "chance": 100
+    }
+  ]
+}
