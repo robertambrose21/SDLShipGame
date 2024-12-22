@@ -28,5 +28,14 @@ public:
     void run(void);
 
 private:
+    void generateMapEdge(TilingWFC<WFCTileSet::WFCTile>& wfc);
+    void generateRoomsAndPaths(TilingWFC<WFCTileSet::WFCTile>& wfc);
+    Room generateRoom(
+        TilingWFC<WFCTileSet::WFCTile>& wfc, 
+        const std::vector<Room>& existingRooms
+    );
+    Room createRandomRoom(void);
+
+    Grid* grid;
     WFCTileSet tileSet;
 };

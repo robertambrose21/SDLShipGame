@@ -200,6 +200,12 @@ std::vector<glm::ivec2> Grid::getVisibleTiles(const glm::ivec2& position, float 
 
     std::vector<glm::ivec2> visibleTiles;
 
+    // for(int i = 0; i < width; i++) {
+    //     for(int j = 0; j < height; j++) {
+    //         visibleTiles.push_back(glm::ivec2(i, j));
+    //     }
+    // }
+
     float step = 2.0f * std::numbers::pi / raycasts;
 
     for(int i = 0; i < raycasts; i++) {
