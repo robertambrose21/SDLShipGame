@@ -54,7 +54,7 @@ void ClientApplication::initialise(void) {
     itemDrawStrategy = std::make_unique<ItemDrawStrategy>();
 
     // TODO: The tileset to use should come from the server
-    auto tileSet = WFCTileSet("../assets/data/tilesets/grass_and_rocks/rules2.json");
+    auto tileSet = WFCTileSet("../assets/data/tilesets/grass_and_rocks/rules.json");
     tileSet.load();
 
     clientStateMachine = std::make_unique<ClientStateMachine>();
