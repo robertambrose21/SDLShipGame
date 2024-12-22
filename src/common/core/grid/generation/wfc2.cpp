@@ -27,7 +27,7 @@ std::vector<std::vector<Grid::Tile>> WFC2::generate(void) {
     std::cout << std::format(
         "Map generation done ({}ms, {}/{} attempts) [seed={}]", 
         timeTaken, 
-        successfulAttempt, 
+        successfulAttempt,
         numAttempts, 
         seed
     ) << std::endl;
@@ -65,7 +65,7 @@ std::optional<Array2D<WFCTileSet::WFCTile>> WFC2::run(
         auto success = runAttempt(seed);
 
         if(success.has_value()) {
-            successfulAttempt = i;
+            successfulAttempt = i + 1;
             return success;
         }
 
