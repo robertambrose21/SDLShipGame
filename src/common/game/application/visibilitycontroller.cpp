@@ -19,7 +19,7 @@ void VisiblityController::revealTiles(int participantId, const std::vector<glm::
         );
 
         if(isNew) {
-            tilesForEventData.push_back({ t->tile.id, t->x, t->y });
+            tilesForEventData.push_back({ t->tile.id, t->tile.orientation, t->x, t->y });
         }
     }
 

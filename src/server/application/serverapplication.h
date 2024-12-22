@@ -6,7 +6,7 @@
 #include "game/entities/behaviour/chaseandattackstrategy.h"
 #include "core/grid/generation/emptystrategy.h"
 #include "core/grid/generation/hallstrategy.h"
-#include "core/grid/generation/wavefunctioncollapsestrategy.h"
+#include "core/grid/generation/wfcstrategy.h"
 #include "game/application/application.h"
 #include "game/application/stdoutsubscriber.h"
 #include "game/spawn/spawncontroller.h"

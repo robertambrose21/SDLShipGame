@@ -95,7 +95,7 @@ void GridRenderer::buildChunkTexture(GraphicsContext& graphicsContext, Chunk* ch
         auto const& realPosition = getTilePosition(x - chunk->min.x, y - chunk->min.y);
         SDL_Rect dst = { realPosition.x, realPosition.y, getTileSize(), getTileSize() };
         graphicsContext.getTextureLoader().loadTexture(tileTexturesIds[tile.id])
-            ->draw(renderer, colour, 0xFF, NULL, &dst);
+            ->draw(renderer, colour, 0xFF, NULL, &dst, tile.orientation * -90);
 
         if(grid->getTileAt(x, y).isFrozen) {
             SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
@@ -251,9 +251,9 @@ void GridRenderer::buildDebugTexture(GraphicsContext& graphicsContext) {
                 std::move(font), 
                 realPosition,
                 glm::ivec2(tileSize, tileSize), 
-                { 0xFF, 0xFF, 0x00, 0xFF }
+                { 0x00, 0xFF, 0x00, 0xFF }
             );
-            text.draw(renderer, std::format("{}\n{}", x, y));
+            text.draw(renderer, std::format("{},{}\n{}", x, y, grid->getTileAt(x, y).id));
         }
     }
 
@@ -278,7 +278,7 @@ void GridRenderer::drawDebugTexture(GraphicsContext& graphicsContext) {
     auto camPos = camera->getPosition();
 
     SDL_Rect debugDst = { camPos.x, camPos.y, tileSize * grid->getWidth(), tileSize * grid->getHeight() };
-    debugTexture->draw(graphicsContext.getRenderer(), { 0xFF, 0xFF, 0xFF }, 0x7F, NULL, &debugDst);
+    debugTexture->draw(graphicsContext.getRenderer(), { 0xFF, 0xFF, 0xFF }, 0xFF, NULL, &debugDst);
 }
 
 bool GridRenderer::isTileInChunk(Chunk* chunk, int x, int y) {

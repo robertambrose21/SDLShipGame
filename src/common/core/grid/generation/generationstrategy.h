@@ -37,6 +37,7 @@ public:
     RoomConfiguration getRoomConfiguration(void) const;
     void addRoom(const Room& room);
     const std::vector<Room>& getRooms(void) const;
+    void clearRooms(void);
     bool hasCollision(const Room& room, const std::vector<Room>& existingRooms);
     bool hasCollision(const Room& roomA, const Room& roomB);
     bool isSparse(const Room& room, const std::vector<Room>& existingRooms);

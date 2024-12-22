@@ -561,6 +561,7 @@ public:
     // TODO: Common item
     struct Tile {
         uint16_t id;
+        uint8_t orientation;
         uint16_t x, y;
         // is frozen needed?
     };
@@ -580,7 +581,8 @@ public:
         serialize_bits(stream, numRevealedTiles, 8);
 
         for(int i = 0; i < numRevealedTiles; i++) {
-            serialize_bits(stream, revealedTiles[i].id, 8);
+            serialize_bits(stream, revealedTiles[i].id, 16);
+            serialize_bits(stream, revealedTiles[i].orientation, 8);
             serialize_bits(stream, revealedTiles[i].x, 16);
             serialize_bits(stream, revealedTiles[i].y, 16);
         }

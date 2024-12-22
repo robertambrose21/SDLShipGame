@@ -24,6 +24,8 @@ public:
         // TODO: Distinguish walkable and visible tiles
         bool isWalkable = true;
         bool isFrozen = false;
+        // Rotation: 0, 1, 2, 3 -> 0, 90, 180, 270 
+        uint8_t orientation = 0;
     } Tile;
 
 private:

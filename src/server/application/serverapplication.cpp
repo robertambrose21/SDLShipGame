@@ -239,14 +239,17 @@ std::vector<GenerationStrategy::Room> ServerApplication::loadMap(void) {
     //     ).generate()
     // );
 
-    auto wfc = WaveFunctionCollapseStrategy(
+    auto tileSet = WFCTileSet("../assets/data/tilesets/grass_and_rocks/rules.json");
+    tileSet.load();
+
+    auto wfc = WFCStrategy(
         grid,
-        TileSet("../assets/data/tilesets/grass_and_rocks/rules.json"),
-        { 12, glm::ivec2(6, 6), glm::ivec2(15, 15), 1 }
+        { 12, glm::ivec2(6, 6), glm::ivec2(15, 15), 1 },
+        tileSet
     );
 
     grid->setData(wfc.generate());
-
+    
     return wfc.getRooms();
 }
 
@@ -296,7 +299,6 @@ Entity* ServerApplication::addPlayer(bool hasFreezeGun) {
     );
 
     return entities.front();
-
 
     // Entity* player;
 

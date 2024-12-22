@@ -20,7 +20,16 @@ find_package(SDL2 REQUIRED)
 find_package(SDL2_image REQUIRED)
 find_package(SDL2TTF REQUIRED)
 find_package(glm REQUIRED)
-include_directories(${SDL2_INCLUDE_DIRS} ${SDL2_IMAGE_DIRS} ${SDL2TTF_DIRS}. ./src/common ./src/server ./src/client ./imgui)
+include_directories(
+     ${SDL2_INCLUDE_DIRS} 
+     ${SDL2_IMAGE_DIRS} 
+     ${SDL2TTF_DIRS} 
+     . 
+     ./src/common 
+     ./src/server 
+     ./src/client 
+     ./imgui
+)
 
 add_subdirectory(src/server)
 add_subdirectory(src/client)
@@ -28,10 +37,11 @@ add_subdirectory(src/common)
 add_subdirectory(yojimbo)
 add_subdirectory(imgui)
 add_subdirectory(stduuid)
+add_subdirectory(fast-wfc)
 
 add_executable(ShipGameServer src/server/main.cpp)
 set_target_properties(ShipGameServer PROPERTIES LINKER_LANGUAGE CXX CXX_STANDARD 20)
-target_link_libraries(ShipGameServer yojimbo ShipGameServerLib CommonLib Threads::Threads stduuid)
+target_link_libraries(ShipGameServer yojimbo ShipGameServerLib CommonLib Threads::Threads stduuid fastwfc)
 
 add_executable(ShipGameClient src/client/main.cpp)
 set_target_properties(ShipGameClient PROPERTIES LINKER_LANGUAGE CXX CXX_STANDARD 20)

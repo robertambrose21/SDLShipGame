@@ -3,7 +3,7 @@
 // Handle with events?
 GameClientMessagesReceiver::GameClientMessagesReceiver(
     ApplicationContext& context, 
-    const std::map<int, bool>& walkableTileIds
+    const std::map<unsigned, bool>& walkableTileIds
 ) :
     context(context),
     walkableTileIds(walkableTileIds)
@@ -253,7 +253,7 @@ void GameClientMessagesReceiver::receiveTilesRevealedMessage(TilesRevealedMessag
         auto tile = message->revealedTiles[i];
 
         tiles.push_back({ tile.x, tile.y });
-        grid->setTile(tile.x, tile.y, { tile.id, walkableTileIds[tile.id], false }, false);
+        grid->setTile(tile.x, tile.y, { tile.id, walkableTileIds[tile.id], false, tile.orientation }, false);
     }
 
     context.getVisibilityController()->revealTiles(message->participantId, tiles);

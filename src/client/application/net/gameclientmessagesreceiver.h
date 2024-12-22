@@ -19,7 +19,7 @@ private:
     ApplicationContext& context;
     GameClientMessagesTransmitter* transmitter;
     PlayerController* playerController;
-    std::map<int, bool> walkableTileIds;
+    std::map<unsigned, bool> walkableTileIds;
 
     void receiveTestMessage(GameTestMessage* message);
     void receiveGameStateUpdate(GameStateUpdateMessage* message);
@@ -42,7 +42,7 @@ private:
 public:
     GameClientMessagesReceiver(
         ApplicationContext& context, 
-        const std::map<int, bool>& walkableTileIds
+        const std::map<unsigned, bool>& walkableTileIds
     );
 
     void setPlayerController(PlayerController* playerController);

@@ -22,7 +22,8 @@ std::string Texture::getId(void) const {
 void Texture::draw(
     SDL_Renderer* renderer,
     const SDL_Rect* srcRect,
-    const SDL_Rect* dstRect
+    const SDL_Rect* dstRect,
+    double rotation
 ) {
     draw(renderer, this->colour, this->alpha, srcRect, dstRect);
 }
@@ -32,12 +33,13 @@ void Texture::draw(
     const Colour& colour,
     uint8_t alpha,
     const SDL_Rect* srcRect,
-    const SDL_Rect* dstRect
+    const SDL_Rect* dstRect,
+    double rotation
 ) {
     SDL_SetTextureAlphaMod(texture.get(), alpha);
     SDL_SetTextureColorMod(texture.get(), colour.r, colour.g, colour.b);
     SDL_SetTextureBlendMode(texture.get(), SDL_BLENDMODE_BLEND);
-    SDL_RenderCopy(renderer, texture.get(), srcRect, dstRect);
+    SDL_RenderCopyEx(renderer, texture.get(), srcRect, dstRect, rotation, NULL, SDL_FLIP_NONE);
 }
 
 void Texture::setColour(const Colour& colour) {

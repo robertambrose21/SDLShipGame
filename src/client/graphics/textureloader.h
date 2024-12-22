@@ -47,7 +47,8 @@ public:
     void draw(
         SDL_Renderer* renderer,
         const SDL_Rect* srcRect = NULL,
-        const SDL_Rect* dstRect = NULL
+        const SDL_Rect* dstRect = NULL,
+        double rotation = 0.0
     );
 
     void draw(
@@ -55,7 +56,8 @@ public:
         const Colour& colour,
         uint8_t alpha,
         const SDL_Rect* srcRect = NULL,
-        const SDL_Rect* dstRect = NULL
+        const SDL_Rect* dstRect = NULL,
+        double rotation = 0.0
     );
 
     void setColour(const Colour& colour);
