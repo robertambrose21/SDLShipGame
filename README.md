@@ -11,3 +11,5 @@
   - Rename **CMakeLists.txt.imgui** to **CMakeLists.txt**
 - Install [SDL2](https://lazyfoo.net/tutorials/SDL/01_hello_SDL/linux/index.php) and [SDL2_image](https://lazyfoo.net/tutorials/SDL/01_hello_SDL/linux/index.php)
 - Download and install [stduuid](https://github.com/mariusbancila/stduuid)
+- Download and install [fast-wfc](https://github.com/math-fehr/fast-wfc)
+  - Move **fast-wfc** into the root of the directory
