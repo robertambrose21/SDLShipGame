@@ -288,30 +288,17 @@ void ServerApplication::loadGame(const std::vector<GenerationStrategy::Room>& ro
 Entity* ServerApplication::addPlayer(bool hasFreezeGun) {
     auto& context = application->getContext();
 
-    // auto room = randomChoice(unfilledRooms);
-    // auto entities = context.getSpawnController()->spawnEntities(
-    //     {
-    //         {
-    //             { "Player", { "Grenade Launcher" } }
-    //         }
-    //     },
-    //     { room.min, room.max }
-    // );
-
-    // return entities.front();
-
-    // auto room = randomChoice(unfilledRooms);
+    auto room = randomChoice(unfilledRooms);
     auto entities = context.getSpawnController()->spawnEntities(
         {
             {
                 { "Player", { "Grenade Launcher" } }
             }
         },
-        { glm::ivec2(0, 31), glm::ivec2(0, 31) }
+        { room.min, room.max }
     );
 
     return entities.front();
-
 
     // Entity* player;
 
