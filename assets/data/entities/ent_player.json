@@ -1,0 +1,18 @@
+{
+  "name": "Player",
+  "texture": {
+    "id": 1,
+    "colour": {
+      "r": 255,
+      "g": 255,
+      "b": 255,
+      "a": 255
+    }
+  },
+  "stats": {
+    "movesPerTurn": 3,
+    "hp": 100,
+    "armour": 1
+  },
+  "lootTable": []
+}

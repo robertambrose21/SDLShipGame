@@ -1,12 +1,15 @@
 build/
-assets/
 
 *.cmake
 *.a
 *.zip
+*.kra
+*.psd
+*.png~
 **/CMakeFiles
 CMakeCache.txt
 Makefile
 yojimbo/
 imgui/
 stduuid/
+fast-wfc/

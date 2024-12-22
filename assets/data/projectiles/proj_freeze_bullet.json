@@ -1,0 +1,12 @@
+{
+  "name": "Freeze Bullet",
+  "textureId": 2,
+  "speed": 75.0,
+  "effects": [
+    {
+      "freeze": {
+        "duration": 2
+      }
+    }
+  ]
+}

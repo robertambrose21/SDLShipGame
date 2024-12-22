@@ -1,0 +1,11 @@
+{
+  "name": "Poison Spit",
+  "class": "Projectile",
+  "projectile": "Poison Spit Projectile",
+  "stats": {
+    "damage": "1D2+1",
+    "power": 1,
+    "range": 6,
+    "uses": 1
+  }
+}

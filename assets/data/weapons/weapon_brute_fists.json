@@ -1,0 +1,10 @@
+{
+  "name": "Brute Fists",
+  "class": "Melee",
+  "stats": {
+    "damage": "2D2",
+    "power": 3,
+    "range": 2,
+    "uses": 2
+  }
+}
