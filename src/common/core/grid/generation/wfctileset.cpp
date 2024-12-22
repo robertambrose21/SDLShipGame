@@ -86,7 +86,7 @@ void WFCTileSet::load(void) {
             case Symmetry::L: {
                 std::vector<Array2D<WFCTile>> data;
                 
-                // 0 -> 4 becomes 0 -> 270 rotational degrees
+                // 0 -> 3 becomes 0 -> 270 rotational degrees
                 for(int i = 0; i < 4; i++) {
                     auto variant = tile;
                     variant.orientation = i;
