@@ -210,8 +210,8 @@ std::vector<glm::ivec2> Grid::getVisibleTiles(const glm::ivec2& position, float 
 
     for(int i = 0; i < raycasts; i++) {
         float theta = step * float(i);
-        float x = radius * std::cosf(theta);
-        float y = radius * std::sinf(theta);
+        float x = radius * std::cos(theta);
+        float y = radius * std::sin(theta);
 
         glm::vec2 p2(p1.x + x, p1.y + y);
 
