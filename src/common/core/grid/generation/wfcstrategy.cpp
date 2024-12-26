@@ -12,7 +12,7 @@ WFCStrategy::WFCStrategy(
 
 std::vector<std::vector<Grid::Tile>> WFCStrategy::generate(void) {
     auto startTime = getCurrentTimeInMicroseconds();
-    std::cout << std::format("Generating map ({}, {})... ", getWidth(), getHeight()) << std::endl;
+    spdlog::info("Generating map ({}, {})... ", getWidth(), getHeight());
 
     int numAttempts = 10;
     int successfulAttempt = 0;
@@ -23,16 +23,6 @@ std::vector<std::vector<Grid::Tile>> WFCStrategy::generate(void) {
         return getData();
     }
 
-    auto timeTaken = (getCurrentTimeInMicroseconds() - startTime) / 1000.0;
-    std::cout << std::format(
-        "Map generation done ({}ms, {}/{} attempts) [seed={}]", 
-        timeTaken, 
-        successfulAttempt,
-        numAttempts, 
-        seed
-    ) << std::endl;
-
-    std::cout << "Setting tiles... ";
     for(int x = 0; x < getWidth(); x++) {
         for(int y = 0; y < getHeight(); y++) {
             auto const& wfcTile = (*success).data[y * getWidth() + x];
@@ -46,7 +36,14 @@ std::vector<std::vector<Grid::Tile>> WFCStrategy::generate(void) {
         }
     }
 
-    std::cout << "Done" << std::endl;
+    auto timeTaken = (getCurrentTimeInMicroseconds() - startTime) / 1000.0;
+    spdlog::info(
+        "Map generation done ({}ms, {}/{} attempts) [seed={}]", 
+        timeTaken, 
+        successfulAttempt,
+        numAttempts, 
+        seed
+    );
 
     return getData();
 }
@@ -69,12 +66,10 @@ std::optional<Array2D<WFCTileSet::WFCTile>> WFCStrategy::run(
             return success;
         }
 
-        std::cout 
-            << std::format("Failed to generate map with seed {}, retrying ({} of {} attempts)", seed, i, numAttempts)
-            << std::endl;
+        spdlog::info("Failed to generate map with seed {}, retrying ({} of {} attempts)", seed, i, numAttempts);
     }
 
-    std::cout << std::format("Failed to generate map after {} attempts", numAttempts) << std::endl;
+    spdlog::warn("Failed to generate map after {} attempts", numAttempts);
     return std::nullopt;
 }
 

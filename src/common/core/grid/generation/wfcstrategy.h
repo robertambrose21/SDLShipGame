@@ -6,6 +6,8 @@
 #include <filesystem>
 #include <map>
 
+#include "spdlog/spdlog.h"
+
 #include "core/glmimport.h"
 #include "fastwfc/tiling_wfc.hpp"
 #include "fastwfc/utils/array2D.hpp"

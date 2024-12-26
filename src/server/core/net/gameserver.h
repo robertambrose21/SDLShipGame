@@ -3,6 +3,8 @@
 #include <memory>
 #include <iostream>
 
+#include "spdlog/spdlog.h"
+
 #include "core/net/yojimboimport.h"
 #include "core/net/gameadapter.h"
 #include "servermessagesreceiver.h"
