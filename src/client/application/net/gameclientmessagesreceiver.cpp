@@ -261,7 +261,7 @@ void GameClientMessagesReceiver::receiveTilesRevealedMessage(TilesRevealedMessag
 
 void GameClientMessagesReceiver::receiveSetEntityPositionMessage(SetEntityPositionMessage* message) {
     if(!context.getEntityPool()->hasEntity(message->entityId)) {
-        std::cout << "Cannot set position for unrecognized entity with id " << message->entityId << std::endl;
+        spdlog::debug("Cannot set position for unrecognized entity with id {}", message->entityId);
         return;
     }
 
