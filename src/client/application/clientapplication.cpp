@@ -13,6 +13,13 @@ void ClientApplication::initialise(void) {
         return;
     }
 
+    #if !defined(NDEBUG)
+        spdlog::set_level(spdlog::level::trace);
+        spdlog::debug("Debug logging enabled");
+    #else
+        spdlog::set_level(spdlog::level::info);
+    #endif
+
     application = std::make_unique<Application>(
         std::make_unique<Grid>(128, 128), // TODO: This should be defined by the server
         std::make_unique<EntityPool>(),
