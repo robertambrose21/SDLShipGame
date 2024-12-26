@@ -22,7 +22,7 @@ GameServer::GameServer(std::unique_ptr<MessageLogger> messageLogger, const yojim
 
     char buffer[256];
     server.GetAddress().ToString(buffer, sizeof(buffer));
-    std::cout << "Server address is " << buffer << std::endl;
+    spdlog::info("Server address is {}", buffer);
 }
 
 void GameServer::setReceiver(ServerMessagesReceiver* receiver) {
@@ -70,12 +70,12 @@ void GameServer::processMessage(int clientIndex, yojimbo::Message* message) {
 
 void GameServer::clientConnected(int clientIndex) {
     game_assert(transmitter != nullptr);
-    std::cout << "client " << clientIndex << " connected" << std::endl;
+    spdlog::info("Client {} connected", clientIndex);
     transmitter->onClientConnected(clientIndex);
 }
 
 void GameServer::clientDisconnected(int clientIndex) {
-    std::cout << "client " << clientIndex << " disconnected" << std::endl;
+    spdlog::info("Client {} disconnected", clientIndex);
 }
 
 yojimbo::Message* GameServer::createMessage(int clientIndex, const GameMessageType& messageType) {
