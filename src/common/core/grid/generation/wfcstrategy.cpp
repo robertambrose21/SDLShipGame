@@ -66,7 +66,7 @@ std::optional<Array2D<WFCTileSet::WFCTile>> WFCStrategy::run(
             return success;
         }
 
-        spdlog::info("Failed to generate map with seed {}, retrying ({} of {} attempts)", seed, i, numAttempts);
+        spdlog::info("Failed to generate map with seed {}, retrying ({} of {} attempts)", seed, i + 1, numAttempts);
     }
 
     spdlog::warn("Failed to generate map after {} attempts", numAttempts);
