@@ -7,6 +7,8 @@
 #include <chrono>
 #include <string>
 
+#include "spdlog/spdlog.h"
+
 #include "turncontroller.h"
 #include "core/event/eventsubscriber.h"
 #include "game/weapons/areaofeffect.h"

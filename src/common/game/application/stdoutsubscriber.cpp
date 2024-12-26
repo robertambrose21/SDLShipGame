@@ -1,27 +1,18 @@
 #include "stdoutsubscriber.h"
 
-// TODO: Bad
-template<typename... Args>
-void log(time_t timestamp, std::format_string<Args...> fmt, Args&&... args) {
-    std::cout 
-        << std::put_time(std::localtime(&timestamp), "[%H:%M:%S]: ")
-        << std::vformat(fmt.get(), std::make_format_args(args...))
-        << std::endl;
-}
-
 StdOutSubscriber::StdOutSubscriber()
 { }
 
 void StdOutSubscriber::onPublish(const Event<TurnEventData>& event) {
-    log(event.timestamp, "Turn {}", event.data.turnNumber);
+    spdlog::info("Turn {}", event.data.turnNumber);
 }
 
 void StdOutSubscriber::onPublish(const Event<EntityEventData>& event) {
     if(event.data.type == "Death") {
-        log(event.timestamp, "{} died.",getEntityIdentifier(event.data.entity));
+        spdlog::info("{} died.",getEntityIdentifier(event.data.entity));
     }
     else if(event.data.type == "Freeze" && event.data.entity->getIsFrozen()) {
-        log(event.timestamp, "{} unfreezes.", getEntityIdentifier(event.data.entity));
+        spdlog::info("{} unfreezes.", getEntityIdentifier(event.data.entity));
     }
 }
 
@@ -30,8 +21,7 @@ void StdOutSubscriber::onPublish(const Event<MeleeWeaponEventData>& event) {
         return;
     }
     
-    log(
-        event.timestamp,
+    spdlog::info(
         "{} was meleed by participant [{}] and took {} damage! {} now has {} HP.",
         getEntityIdentifier(event.data.target),
         event.data.owner->getParticipantId(),
@@ -47,8 +37,7 @@ void StdOutSubscriber::onPublish(const Event<ProjectileEventData>& event) {
     }
 
     if(event.data.damage > 0) {      
-        log(
-            event.timestamp,
+        spdlog::info(
             "{} was hit by a projectile from participant [{}] and took {} damage! {} now has {} HP.",
             getEntityIdentifier(event.data.target),
             event.data.projectile->getOwnerId(),
@@ -61,17 +50,16 @@ void StdOutSubscriber::onPublish(const Event<ProjectileEventData>& event) {
     auto effects = event.data.projectile->getStats().effects;
     for(auto effect : effects) {
         if(effect.type == EffectType::FREEZE) {
-            log(event.timestamp, "{} is frozen for {} turns.", getEntityIdentifier(event.data.target), effect.duration);
+            spdlog::info("{} is frozen for {} turns.", getEntityIdentifier(event.data.target), effect.duration);
         }
         else if(effect.type == EffectType::POISON) {
-            log(event.timestamp, "{} is poisoned for {} turns.", getEntityIdentifier(event.data.target), effect.duration);
+            spdlog::info("{} is poisoned for {} turns.", getEntityIdentifier(event.data.target), effect.duration);
         }
     }
 }
 
 void StdOutSubscriber::onPublish(const Event<AreaOfEffectEventData>& event) {
-    log(
-        event.timestamp,
+    spdlog::info(
         "{} was hit by an area of effect from participant [{}] and took {} damage! {} now has {} HP.",
         getEntityIdentifier(event.data.target),
         event.data.aoe->getOwnerId(),
@@ -101,10 +89,10 @@ void StdOutSubscriber::onPublish(const Event<ItemEventData>& event) {
     }
 
     if(event.data.owner != nullptr) {
-        log(event.timestamp, "{} dropped [{}]", getEntityIdentifier(event.data.owner), items);
+        spdlog::info("{} dropped [{}]", getEntityIdentifier(event.data.owner), items);
     }
     else {
-        log(event.timestamp, "[{}] was dropped", items);
+        spdlog::info("[{}] was dropped", items);
     }
 }
 
@@ -119,17 +107,17 @@ void StdOutSubscriber::onPublish(const Event<TakeItemActionEventData>& event) {
         }
     }
 
-    log(event.timestamp, "{} picked up items: [{}]", getEntityIdentifier(event.data.entity), items);
+    spdlog::info("{} picked up items: [{}]", getEntityIdentifier(event.data.entity), items);
 }
 
 void StdOutSubscriber::onPublish(const Event<EngagementEventData>& event) {
     switch(event.data.type) {
         case EngagementEventData::ENGAGED:
-            log(event.timestamp, "participants [{}, {}] are now engaged in combat", event.data.participantIdA, event.data.participantIdB);
+            spdlog::info("participants [{}, {}] are now engaged in combat", event.data.participantIdA, event.data.participantIdB);
             break;
         
         case EngagementEventData::DISENGAGED:
-            log(event.timestamp, "participants [{}, {}] have disengaged from combat", event.data.participantIdA, event.data.participantIdB);
+            spdlog::info("participants [{}, {}] have disengaged from combat", event.data.participantIdA, event.data.participantIdB);
             break;
 
         default:
@@ -139,16 +127,14 @@ void StdOutSubscriber::onPublish(const Event<EngagementEventData>& event) {
 
 void StdOutSubscriber::onPublish(const Event<EquipItemActionEventData>& event) {
     if(event.data.isUnequip) {
-        log(
-            event.timestamp,
+        spdlog::info(
             "{} unequipped [{}]",
             getEntityIdentifier(event.data.entity),
             event.data.item->getName()
         );
     }
     else {
-        log(
-            event.timestamp,
+        spdlog::info(
             "{} equipped [{}]",
             getEntityIdentifier(event.data.entity),
             event.data.item->getName()
@@ -159,8 +145,7 @@ void StdOutSubscriber::onPublish(const Event<EquipItemActionEventData>& event) {
 void StdOutSubscriber::onPublish(const Event<ApplyDamageEventData>& event) {
     switch(event.data.source) {
         case DamageType::AOE:
-            log(
-                event.timestamp,
+            spdlog::info(
                 "{} was hit by an area of effect from participant [{}] and took {} damage! {} now has {} HP.",
                 getEntityIdentifier(event.data.target),
                 event.data.participantId,
@@ -171,8 +156,7 @@ void StdOutSubscriber::onPublish(const Event<ApplyDamageEventData>& event) {
             break;
 
         case DamageType::PROJECTILE:
-            log(
-                event.timestamp,
+            spdlog::info(
                 "{} was hit by a projectile from participant [{}] and took {} damage! {} now has {} HP.",
                 getEntityIdentifier(event.data.target),
                 event.data.participantId,
@@ -183,8 +167,7 @@ void StdOutSubscriber::onPublish(const Event<ApplyDamageEventData>& event) {
             break;
 
         case DamageType::MELEE:
-            log(
-                event.timestamp,
+            spdlog::info(
                 "{} was meleed by participant [{}] and took {} damage! {} now has {} HP.",
                 getEntityIdentifier(event.data.target),
                 event.data.participantId,
