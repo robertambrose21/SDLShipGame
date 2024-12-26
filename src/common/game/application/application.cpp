@@ -23,6 +23,13 @@ Application::Application(
     spawnController(std::move(spawnController)),
     visiblityController(std::move(visiblityController))
 {
+    #if !defined(NDEBUG)
+        spdlog::set_level(spdlog::level::trace);
+        spdlog::debug("Debug logging enabled");
+    #else
+        spdlog::set_level(spdlog::level::info);
+    #endif
+
     context = std::make_unique<ApplicationContext>(
         this->grid.get(),
         this->entityPool.get(),

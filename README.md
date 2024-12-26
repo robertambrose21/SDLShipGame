@@ -13,3 +13,4 @@
 - Download and install [stduuid](https://github.com/mariusbancila/stduuid)
 - Download and install [fast-wfc](https://github.com/math-fehr/fast-wfc)
   - Move **fast-wfc** into the root of the directory
+- Install [spdlog](https://github.com/gabime/spdlog)

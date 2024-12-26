@@ -1,3 +1,4 @@
+#include "spdlog/spdlog.h" // Ensure this is loaded first to prevent macro clashes with yojimbo
 #include "application/serverapplication.h"
 
 int main() {

@@ -15,19 +15,41 @@ EquipGearAction::EquipGearAction(
 
 bool EquipGearAction::onValidate(ApplicationContext* context) {
     if(item == nullptr) {
+        spdlog::trace("[{}, EquipItem]: Failed to validate action, item is null", turnNumber);
         return false;
     }
 
     if(item->getParticipantId() != entity->getParticipantId()) {
+        spdlog::trace(
+            "[{}, EquipItem]: Failed to validate action, item participant ({}) does not match entity participant ({})",
+            turnNumber,
+            item->getParticipantId(),
+            entity->getParticipantId()
+        );
         return false;
     }
 
     if(!contains(Gear::VALID_SLOTS, slot)) {
+        spdlog::trace(
+            "[{}, EquipItem]: Failed to validate action, cannot equip invalid slot {}", 
+            turnNumber, 
+            Equippable<Stats::GearStats>::SLOT_NAMES[slot]
+        );
         return false;
     }
 
     if(isUnequip) {
-        return entity->getGear(slot) != nullptr;
+        auto hasEquippedGearSlot = entity->getGear(slot) != nullptr;
+
+        if(!hasEquippedGearSlot) {
+            spdlog::trace(
+                "[{}, EquipItem]: Failed to validate action, cannot unequip, no item in slot {}", 
+                turnNumber,
+                Equippable<Stats::GearStats>::SLOT_NAMES[slot]
+            );
+        }
+
+        return hasEquippedGearSlot;
     }
 
     auto participant = context->getTurnController()->getParticipant(entity->getParticipantId());
@@ -38,6 +60,15 @@ bool EquipGearAction::onValidate(ApplicationContext* context) {
         if(item->getId() == itemInInventory->getId()) {
             hasItem = true;
         }
+    }
+
+    if(!hasItem) {
+        spdlog::trace(
+            "[{}, EquipItem]: Failed to validate action, cannot find Item[{}] in inventory for participant {}",
+            turnNumber,
+            item->getId(),
+            participant->getId()
+        );
     }
 
     return hasItem;

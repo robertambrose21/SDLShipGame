@@ -7,6 +7,7 @@ TakeItemAction::TakeItemAction(int turnNumber, Entity* entity, const std::vector
 
 bool TakeItemAction::onValidate(ApplicationContext* context) {
     if(items.empty()) {
+        spdlog::trace("[{}, TakeItem]: Failed to validate action, no items to take", turnNumber);
         return false;
     }
 
@@ -15,6 +16,11 @@ bool TakeItemAction::onValidate(ApplicationContext* context) {
             action->getType() == Action::Type::TakeItem && 
             containsAny(items, dynamic_cast<TakeItemAction*>(action)->getItems())
         ) {
+            spdlog::trace(
+                "[{}, TakeItem]: Failed to validate action, there are already actions on the chain to take these items [{}]",
+                turnNumber,
+                getItemsAsStringList()
+            );
             return false;
         }
     }
@@ -55,6 +61,19 @@ bool TakeItemAction::containsAny(const std::vector<Item*>& itemsA, const std::ve
     }
 
     return false;
+}
+
+std::string TakeItemAction::getItemsAsStringList(void) {
+    std::string itemList = "";
+
+    for(size_t i = 0; i < items.size(); ++i) {
+        itemList += std::format("Item[{}#{}]", items[i]->getName(), items[i]->getId());
+        if(i < items.size() - 1) {
+            itemList += ", ";
+        }
+    }
+
+    return itemList;
 }
 
 bool TakeItemAction::passesPrecondition(void) {

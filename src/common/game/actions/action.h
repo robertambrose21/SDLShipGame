@@ -1,5 +1,6 @@
 #pragma once
 
+#include "spdlog/spdlog.h"
 #include "game/application/applicationcontext.h"
 
 class Action {
@@ -22,6 +23,8 @@ protected:
     virtual bool onValidate(ApplicationContext* context) = 0;
     virtual void onExecute(ApplicationContext* context) = 0;
     virtual bool hasFinished(void) = 0;
+
+    std::string typeToString(void);
 
 public:
     Action(int turnNumber, Entity* entity);
