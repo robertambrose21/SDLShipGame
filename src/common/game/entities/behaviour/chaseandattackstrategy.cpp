@@ -66,7 +66,7 @@ ChaseAndAttackStrategy::EntityTurnResult ChaseAndAttackStrategy::doTurnForEntity
     if(entity->isNeighbour(target)) {
         auto action = std::make_unique<AttackAction>(turnNumber, entity, entity->getCurrentWeapon(), target->getPosition());
         
-        if(entity->getCurrentWeapon() <= 0 || !turnController->queueAction(std::move(action))) {
+        if(entity->getCurrentWeapon()->getUsesLeft() <= 0 || !turnController->queueAction(std::move(action))) {
             return { true, false };
         }
     }
