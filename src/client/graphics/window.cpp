@@ -100,8 +100,7 @@ void Window::update(int64_t timeSinceLastFrame, bool& quit) {
             quit = true;
         }
 
-        // Isolate ImGui events from SDL
-        if(io.WantCaptureMouse || io.WantCaptureKeyboard) {
+        if(io.WantCaptureMouse || io.WantTextInput) {
             continue;
         }
 
