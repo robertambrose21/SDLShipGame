@@ -128,7 +128,8 @@ void ServerApplication::onClientConnect(int clientIndex) {
         transmitter->sendSetParticipant(clientIndex, participant);
     }
     
-    sendLoadMapToClient(clientIndex);
+    // sendLoadMapToClient(clientIndex);
+    sendGameStateUpdatesToClients();
 
     // Temp hack to trigger a grid tile reveal
     for(auto entity : clientParticipant->getEntities()) {
