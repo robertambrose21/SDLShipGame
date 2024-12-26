@@ -222,7 +222,16 @@ void TurnController::executeEntityActions(Entity* entity) {
 }
 
 bool TurnController::queueAction(std::unique_ptr<Action> action) {
-    bool skipValidation = turnNumber != action->getTurnNumber();
+    bool skipValidation = turnNumber != action->getTurnNumber(); // TODO: Should this be <= ?
+
+    if(skipValidation) {
+        spdlog::trace(
+            "[{}, {}] Skipping validation, action is for turn {}",
+            turnNumber,
+            action->typeToString(),
+            action->getTurnNumber()
+        );
+    }
 
     return action->getEntity()->queueAction(
         context,

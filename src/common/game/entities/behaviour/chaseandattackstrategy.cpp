@@ -66,14 +66,14 @@ ChaseAndAttackStrategy::EntityTurnResult ChaseAndAttackStrategy::doTurnForEntity
     if(entity->isNeighbour(target)) {
         auto action = std::make_unique<AttackAction>(turnNumber, entity, entity->getCurrentWeapon(), target->getPosition());
         
-        if(!turnController->queueAction(std::move(action))) {
+        if(entity->getCurrentWeapon() <= 0 || !turnController->queueAction(std::move(action))) {
             return { true, false };
         }
     }
     else if(bWeapon != nullptr) {
         auto action = std::make_unique<AttackAction>(turnNumber, entity, bWeapon, target->getPosition());
 
-        if(!turnController->queueAction(std::move(action))) {
+        if(bWeapon->getUsesLeft() <= 0 || !turnController->queueAction(std::move(action))) {
             return { true, false };
         }
     }

@@ -24,8 +24,6 @@ protected:
     virtual void onExecute(ApplicationContext* context) = 0;
     virtual bool hasFinished(void) = 0;
 
-    std::string typeToString(void);
-
 public:
     Action(int turnNumber, Entity* entity);
     virtual ~Action() = default;
@@ -40,4 +38,5 @@ public:
     Entity* getEntity(void);
     bool isExecuted(void) const;
     int getTurnNumber(void) const;
+    std::string typeToString(void);
 };
