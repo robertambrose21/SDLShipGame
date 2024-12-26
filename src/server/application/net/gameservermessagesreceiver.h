@@ -5,7 +5,7 @@
 #include <set>
 
 #include "core/glmimport.h"
-#include "yojimbo/yojimbo.h"
+#include "core/net/yojimboimport.h"
 #include "core/net/gameadapter.h"
 #include "core/net/servermessagesreceiver.h"
 #include "game/application/applicationcontext.h"

@@ -8,15 +8,44 @@ EquipWeaponAction::EquipWeaponAction(int turnNumber, Entity* entity, Item* item,
 
 bool EquipWeaponAction::onValidate(ApplicationContext* context) {
     if(item == nullptr) {
+        spdlog::trace("[{}, EquipWeaponItem]: Failed to validate action, item is null", turnNumber);
         return false;
     }
 
     if(item->getParticipantId() != entity->getParticipantId()) {
+        spdlog::trace(
+            "[{}, EquipWeaponItem]: Failed to validate action, item participant ({}) does not match entity participant ({})",
+            turnNumber,
+            item->getParticipantId(),
+            entity->getParticipantId()
+        );
         return false;
     }
 
     if(entity->hasWeapon(weaponId)) {
-        return entity->getWeapon(weaponId)->getItem()->getId() == item->getId();
+        auto alreadyHasWeapon =  entity->getWeapon(weaponId)->getItem()->getId() == item->getId();
+
+        if(alreadyHasWeapon) {
+            spdlog::trace(
+                "[{}, EquipWeaponItem]: Entity already has Weapon[{}#{}] item {}", 
+                turnNumber,
+                entity->getWeapon(weaponId)->getName(),
+                weaponId.getString(),
+                item->getId()
+            );
+        }
+        else {
+            spdlog::trace(
+                "[{}, EquipWeaponItem]: Failed to validate action, Weapon[{}#{}] item id {} does not match supplied item id {}", 
+                turnNumber,
+                entity->getWeapon(weaponId)->getName(),
+                weaponId.getString(),
+                entity->getWeapon(weaponId)->getItem()->getId(),
+                item->getId()
+            );
+        }
+
+        return alreadyHasWeapon;
     }
 
     auto participant = context->getTurnController()->getParticipant(entity->getParticipantId());
@@ -27,6 +56,15 @@ bool EquipWeaponAction::onValidate(ApplicationContext* context) {
         if(item->getId() == itemInInventory->getId()) {
             hasItem = true;
         }
+    }
+
+    if(!hasItem) {
+        spdlog::trace(
+            "[{}, EquipWeaponItem]: Failed to validate action, cannot find Item[{}] in inventory for participant {}",
+            turnNumber,
+            item->getId(),
+            participant->getId()
+        );
     }
 
     return hasItem;

@@ -35,14 +35,33 @@ bool AttackAction::passesPrecondition(void) {
 
 bool AttackAction::onValidate(ApplicationContext* context) {
     if(weapon == nullptr) {
+        spdlog::trace("[{}, Attack]: Failed to validate action, weapon is null", turnNumber);
         return false;
     }
 
     if(!weapon->isInRange(target)) {
+        spdlog::trace(
+            "[{}, Attack]: Failed to validate action, weapon is out of range of entity. Weapon[{}#{}] range=({}) pos=({}, {}), targetPos=({}, {})", 
+            turnNumber,
+            weapon->getName(),
+            weapon->getId().getString(),
+            weapon->getStats().range,
+            weapon->getOwner()->getPosition().x, weapon->getOwner()->getPosition().y,
+            target.x, target.y
+        );
         return false;
     }
 
     if(weapon->getUsesLeft() == 0 || weapon->getUsesLeft() < numAttacksInChain()) {
+        spdlog::trace(
+            "[{}, Attack]: Failed to validate action, not enough uses Weapon[{}#{}] ({}/{}), chain: {}",
+            turnNumber,
+            weapon->getName(),
+            weapon->getId().getString(),
+            weapon->getUsesLeft(),
+            weapon->getStats().uses,
+            numAttacksInChain()
+        );
         return false;
     }
 

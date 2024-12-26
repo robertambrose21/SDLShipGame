@@ -10,6 +10,7 @@ private:
     bool hasFinished(void);
 
     bool containsAny(const std::vector<Item*>& itemsA, const std::vector<Item*>& itemsB);
+    std::string getItemsAsStringList(void);
 
     std::vector<Item*> items;
 

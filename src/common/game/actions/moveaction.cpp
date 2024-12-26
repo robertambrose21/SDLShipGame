@@ -23,19 +23,51 @@ bool MoveAction::passesPrecondition(void) {
 
 bool MoveAction::onValidate(ApplicationContext* context) {
     if(!entity->isEngaged()) {
-        return !getPath().empty();
+        auto hasPath = !getPath().empty();
+
+        if(!hasPath) {
+            spdlog::trace(
+                "[{}, Move]: Failed to validate action, Entity[{}#{}] not engaged but has no path",
+                turnNumber,
+                entity->getName(),
+                entity->getId()
+            );
+        }
+
+        return hasPath;
     }
 
     if(entity->getMovesLeft() <= 0) {
+        spdlog::trace(
+            "[{}, Move]: Failed to validate action, Entity[{}#{}] has (0/{}) moves left",
+            turnNumber,
+            entity->getName(),
+            entity->getId(),
+            entity->getStats().movesPerTurn
+        );
         return false;
     }
 
     if(getPath().empty()) {
+        spdlog::trace(
+            "[{}, Move]: Failed to validate action, Entity[{}#{}] has no path",
+            turnNumber,
+            entity->getName(),
+            entity->getId()
+        );
         return false;
     }
 
 
     if(!hasAvailableMoves()) {
+        spdlog::trace(
+            "[{}, Move]: Failed to validate action, Entity[{}#{}] has ({}/{}) moves left but not enough left in chain",
+            turnNumber,
+            entity->getName(),
+            entity->getId(),
+            entity->getMovesLeft(),
+            entity->getStats().movesPerTurn
+        );
         return false;
     }
 
