@@ -12,8 +12,22 @@ ServerTurnController::ServerTurnController() :
     });
 }
 
-void ServerTurnController::attachParticipantToClient(int participantId, int clientIndex) {
-    participantToClient[participantId] = clientIndex;
+void ServerTurnController::attachParticipantToClient(int participantId, int clientIndex, uint64_t clientId) {
+    participantToClient[participantId] = { clientId, clientIndex };
+    spdlog::debug("Attached client [{}] to participant [{}]", clientIndex, participantId);
+}
+
+void ServerTurnController::detachParticipantFromClient(int clientIndex) {
+    std::erase_if(participantToClient, [&](const auto& item) {
+        auto const& [participantId, client] = item;
+
+        if(client.index == clientIndex) {
+            spdlog::debug("Detached client [{}] from participant [{}]", clientIndex, participantId);
+            return true;
+        }
+
+        return false;
+    });
 }
 
 int ServerTurnController::getAttachedClient(int participantId) const {
@@ -21,12 +35,12 @@ int ServerTurnController::getAttachedClient(int participantId) const {
         return -1;
     }
 
-    return participantToClient.at(participantId);
+    return participantToClient.at(participantId).index;
 }
 
 int ServerTurnController::getAttachedParticipantId(int clientIndex) const {
-    for(auto [participantId, clientIndexToFind] : participantToClient) {
-        if(clientIndexToFind == clientIndex) {
+    for(auto [participantId, client] : participantToClient) {
+        if(client.index == clientIndex) {
             return participantId;
         }
     }
@@ -34,8 +48,14 @@ int ServerTurnController::getAttachedParticipantId(int clientIndex) const {
     return -1;
 }
 
-const std::map<int, int>& ServerTurnController::getAllAttachedClients(void) const {
-    return participantToClient;
+std::map<int, int> ServerTurnController::getAllAttachedClients(void) {
+    std::map<int, int> participantToClientIndexes;
+
+    for(auto& [participantId, client] : participantToClient) {
+        participantToClientIndexes[participantId] = client.index;
+    }
+
+    return participantToClientIndexes;
 }
 
 void ServerTurnController::additionalUpdate(int64_t timeSinceLastFrame, bool& quit) {

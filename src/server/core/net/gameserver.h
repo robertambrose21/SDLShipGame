@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <iostream>
+#include <map>
 
 #include "spdlog/spdlog.h"
 
@@ -13,20 +14,6 @@
 #include "core/net/messagelogger.h"
 
 class GameServer {
-private:
-    yojimbo::Server server;
-    GameAdapter adapter;
-    yojimbo::Address address;
-    GameConnectionConfig connectionConfig;
-
-    ServerMessagesReceiver* receiver;
-    ServerMessagesTransmitter* transmitter;
-
-    std::unique_ptr<MessageLogger> messageLogger;
-
-    void processMessages(void);
-    void processMessage(int clientIndex, yojimbo::Message* message);
-
 public:
     const int MaxClientConnections = 64;
 
@@ -45,4 +32,29 @@ public:
 
     yojimbo::Address getAddress(void) const;
     GameAdapter& getAdapter(void);
+
+    bool hasReconnected(int clientIndex);
+    uint64_t getClientId(int clientIndex) const;
+
+private:
+    enum ConnectionState {
+        CONNECTED = 0,
+        RECONNECTED,
+        DISCONNECTED
+    };
+
+    yojimbo::Server server;
+    GameAdapter adapter;
+    yojimbo::Address address;
+    GameConnectionConfig connectionConfig;
+
+    ServerMessagesReceiver* receiver;
+    ServerMessagesTransmitter* transmitter;
+
+    std::unique_ptr<MessageLogger> messageLogger;
+
+    std::map<uint64_t, ConnectionState> clientIds;
+
+    void processMessages(void);
+    void processMessage(int clientIndex, yojimbo::Message* message);
 };

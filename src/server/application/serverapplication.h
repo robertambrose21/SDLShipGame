@@ -28,6 +28,7 @@ private:
     void sendGameStateUpdatesToClients(void);
 
     void onClientConnect(int clientIndex);
+    void onClientDisconnect(int clientIndex);
 
     std::vector<GenerationStrategy::Room> unfilledRooms;
 

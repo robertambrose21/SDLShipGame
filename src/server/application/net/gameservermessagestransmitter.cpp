@@ -4,15 +4,21 @@
 GameServerMessagesTransmitter::GameServerMessagesTransmitter(
     GameServer& server,
     ServerTurnController* turnController,
-    std::function<void(int)> onClientConnectFunc
+    std::function<void(int)> onClientConnectFunc,
+    std::function<void(int)> onClientDisconnectFunc
 ) :
     server(server),
     onClientConnectFunc(onClientConnectFunc),
+    onClientDisconnectFunc(onClientDisconnectFunc),
     turnController(turnController)
 { }
 
 void GameServerMessagesTransmitter::onClientConnected(int clientIndex) {
     onClientConnectFunc(clientIndex);
+}
+
+void GameServerMessagesTransmitter::onClientDisconnected(int clientIndex) {
+    onClientDisconnectFunc(clientIndex);
 }
 
 void GameServerMessagesTransmitter::onPublish(const Event<ItemEventData>& event) {

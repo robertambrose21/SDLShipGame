@@ -63,9 +63,8 @@ void ServerApplication::initialise(void) {
     transmitter = std::make_unique<GameServerMessagesTransmitter>(
         *server, 
         dynamic_cast<ServerTurnController*>(context.getTurnController()),
-        [&](int clientIndex) {
-            onClientConnect(clientIndex);
-        }
+        [&](int clientIndex) { onClientConnect(clientIndex); },
+        [&](int clientIndex) { onClientDisconnect(clientIndex); }
     );
     receiver->setTransmitter(transmitter.get());
 
@@ -116,15 +115,16 @@ void ServerApplication::run(void) {
 }
 
 void ServerApplication::onClientConnect(int clientIndex) {
-    auto& context = application->getContext();
+    auto turnController = dynamic_cast<ServerTurnController*>(application->getContext().getTurnController());
 
-    auto clientParticipant = context.getTurnController()->addParticipant(true, { addPlayer(false) });
-    context.getTurnController()->reset();
+    auto clientParticipant = turnController->addParticipant(true, { addPlayer(false) });
+    turnController->reset();
 
-    dynamic_cast<ServerTurnController*>(context.getTurnController())
-        ->attachParticipantToClient(clientParticipant->getId(), clientIndex);
+    uint64_t clientId = server->getClientId(clientIndex);
 
-    for(auto& participant : context.getTurnController()->getParticipants()) {
+    turnController->attachParticipantToClient(clientParticipant->getId(), clientIndex, clientId);
+
+    for(auto& participant : turnController->getParticipants()) {
         transmitter->sendSetParticipant(clientIndex, participant);
     }
     
@@ -137,6 +137,11 @@ void ServerApplication::onClientConnect(int clientIndex) {
     }
 
     // sendGameStateUpdatesToClients();
+}
+
+void ServerApplication::onClientDisconnect(int clientIndex) {
+    dynamic_cast<ServerTurnController*>(application->getContext().getTurnController())
+        ->detachParticipantFromClient(clientIndex);
 }
 
 // TODO: This is not needed when using the fog of war visibility - reserve for when we want to reveal the whole map.
