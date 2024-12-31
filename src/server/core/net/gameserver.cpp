@@ -70,12 +70,28 @@ void GameServer::processMessage(int clientIndex, yojimbo::Message* message) {
 
 void GameServer::clientConnected(int clientIndex) {
     game_assert(transmitter != nullptr);
-    spdlog::info("Client {} connected", clientIndex);
+    
     transmitter->onClientConnected(clientIndex);
+    uint64_t clientId = server.GetClientId(clientIndex);
+
+    if(clientIds.contains(clientId)) {
+        clientIds[clientId] = RECONNECTED;
+        spdlog::info("Client {}:[{}] reconnected", clientIndex, clientId);
+    }
+    else {
+        clientIds[clientId] = CONNECTED;
+        spdlog::info("Client {}:[{}] connected", clientIndex, clientId);
+    }
 }
 
 void GameServer::clientDisconnected(int clientIndex) {
-    spdlog::info("Client {} disconnected", clientIndex);
+    game_assert(transmitter != nullptr);
+
+    transmitter->onClientDisconnected(clientIndex);
+    uint64_t clientId = server.GetClientId(clientIndex);
+    clientIds[clientId] = DISCONNECTED;
+
+    spdlog::info("Client {}:[{}] disconnected", clientIndex, clientId);
 }
 
 yojimbo::Message* GameServer::createMessage(int clientIndex, const GameMessageType& messageType) {
@@ -95,4 +111,18 @@ yojimbo::Address GameServer::getAddress(void) const {
 
 GameAdapter& GameServer::getAdapter(void) {
     return adapter;
+}
+
+bool GameServer::hasReconnected(int clientIndex) {
+    uint64_t clientId = server.GetClientId(clientIndex);
+
+    if(!clientIds.contains(clientId)) {
+        return false;
+    }
+
+    return clientIds[clientId] == RECONNECTED;
+}
+
+uint64_t GameServer::getClientId(int clientIndex) const {
+    return server.GetClientId(clientIndex);
 }

@@ -31,14 +31,17 @@ private:
     ServerTurnController* turnController;
 
     std::function<void(int)> onClientConnectFunc;
+    std::function<void(int)> onClientDisconnectFunc;
 
     void onClientConnected(int clientIndex) override;
+    void onClientDisconnected(int clientIndex) override;
 
 public:
     GameServerMessagesTransmitter(
         GameServer& server,
         ServerTurnController* turnController,
-        std::function<void(int)> onClientConnectFunc = [](int) { }
+        std::function<void(int)> onClientConnectFunc = [](int) { },
+        std::function<void(int)> onClientDisconnectFunc = [](int) { }
     );
 
     void onPublish(const Event<ItemEventData>& event);
