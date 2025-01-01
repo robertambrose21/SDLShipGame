@@ -18,16 +18,10 @@ void ServerTurnController::attachParticipantToClient(int participantId, int clie
 }
 
 void ServerTurnController::detachParticipantFromClient(int clientIndex) {
-    std::erase_if(participantToClient, [&](const auto& item) {
-        auto const& [participantId, client] = item;
+    auto participantId = getAttachedParticipantId(clientIndex);
+    participantToClient[participantId].index = -1; // Set to unused clientIndex
 
-        if(client.index == clientIndex) {
-            spdlog::debug("Detached client [{}] from participant [{}]", clientIndex, participantId);
-            return true;
-        }
-
-        return false;
-    });
+    spdlog::debug("Detached client [{}] from participant [{}]", clientIndex, participantId);
 }
 
 int ServerTurnController::getAttachedClient(int participantId) const {
@@ -48,10 +42,25 @@ int ServerTurnController::getAttachedParticipantId(int clientIndex) const {
     return -1;
 }
 
+int ServerTurnController::getParticipantByClientId(uint64_t clientId) const {
+    for(auto [participantId, client] : participantToClient) {
+        if(client.id == clientId) {
+            return participantId;
+        }
+    }
+
+    return -1;
+}
+
 std::map<int, int> ServerTurnController::getAllAttachedClients(void) {
     std::map<int, int> participantToClientIndexes;
 
     for(auto& [participantId, client] : participantToClient) {
+        if(client.index == -1) {
+            // Ignore any clients which are not 'attached'
+            continue;
+        }
+
         participantToClientIndexes[participantId] = client.index;
     }
 

@@ -70,8 +70,7 @@ void GameServer::processMessage(int clientIndex, yojimbo::Message* message) {
 
 void GameServer::clientConnected(int clientIndex) {
     game_assert(transmitter != nullptr);
-    
-    transmitter->onClientConnected(clientIndex);
+
     uint64_t clientId = server.GetClientId(clientIndex);
 
     if(clientIds.contains(clientId)) {
@@ -82,16 +81,19 @@ void GameServer::clientConnected(int clientIndex) {
         clientIds[clientId] = CONNECTED;
         spdlog::info("Client {}:[{}] connected", clientIndex, clientId);
     }
+
+    transmitter->onClientConnected(clientIndex);
 }
 
 void GameServer::clientDisconnected(int clientIndex) {
     game_assert(transmitter != nullptr);
 
-    transmitter->onClientDisconnected(clientIndex);
     uint64_t clientId = server.GetClientId(clientIndex);
     clientIds[clientId] = DISCONNECTED;
 
     spdlog::info("Client {}:[{}] disconnected", clientIndex, clientId);
+
+    transmitter->onClientDisconnected(clientIndex);
 }
 
 yojimbo::Message* GameServer::createMessage(int clientIndex, const GameMessageType& messageType) {

@@ -63,6 +63,7 @@ void ServerApplication::initialise(void) {
     transmitter = std::make_unique<GameServerMessagesTransmitter>(
         *server, 
         dynamic_cast<ServerTurnController*>(context.getTurnController()),
+        context.getVisibilityController(),
         [&](int clientIndex) { onClientConnect(clientIndex); },
         [&](int clientIndex) { onClientDisconnect(clientIndex); }
     );
@@ -116,13 +117,26 @@ void ServerApplication::run(void) {
 
 void ServerApplication::onClientConnect(int clientIndex) {
     auto turnController = dynamic_cast<ServerTurnController*>(application->getContext().getTurnController());
-
-    auto clientParticipant = turnController->addParticipant(true, { addPlayer(false) });
-    turnController->reset();
-
     uint64_t clientId = server->getClientId(clientIndex);
 
-    turnController->attachParticipantToClient(clientParticipant->getId(), clientIndex, clientId);
+    Participant* participant = nullptr;
+
+    if(server->hasReconnected(clientIndex)) {
+        auto participantId = turnController->getParticipantByClientId(clientId);
+
+        if(participantId == -1) {
+            spdlog::warn("Detected reconnect for client {}:[{}] but cannot find participant", clientIndex, clientId);
+            return;
+        }
+
+        participant = turnController->getParticipant(participantId);
+    }
+    else {
+        participant = turnController->addParticipant(true, { addPlayer(false) });
+        turnController->reset();
+    }
+
+    turnController->attachParticipantToClient(participant->getId(), clientIndex, clientId);
 
     for(auto& participant : turnController->getParticipants()) {
         transmitter->sendSetParticipant(clientIndex, participant);
@@ -132,9 +146,11 @@ void ServerApplication::onClientConnect(int clientIndex) {
     sendGameStateUpdatesToClients();
 
     // Temp hack to trigger a grid tile reveal
-    for(auto entity : clientParticipant->getEntities()) {
+    for(auto entity : participant->getEntities()) {
         entity->setPosition(entity->getPosition());
     }
+    
+    transmitter->sendLoadGameToClient(clientIndex);
 
     // sendGameStateUpdatesToClients();
 }

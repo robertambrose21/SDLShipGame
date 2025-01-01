@@ -7,6 +7,7 @@
 #include "core/net/servermessagestransmitter.h"
 #include "game/application/turncontroller.h"
 #include "game/application/application.h"
+#include "game/application/visibilitycontroller.h"
 
 class ServerTurnController;
 
@@ -29,6 +30,7 @@ class GameServerMessagesTransmitter :
 private:
     GameServer& server;
     ServerTurnController* turnController;
+    VisiblityController* visibilityController;
 
     std::function<void(int)> onClientConnectFunc;
     std::function<void(int)> onClientDisconnectFunc;
@@ -36,10 +38,13 @@ private:
     void onClientConnected(int clientIndex) override;
     void onClientDisconnected(int clientIndex) override;
 
+    void sendRevealedTiles(const std::vector<RevealedTile>& tiles, int participantId);
+
 public:
     GameServerMessagesTransmitter(
         GameServer& server,
         ServerTurnController* turnController,
+        VisiblityController* visibilityController,
         std::function<void(int)> onClientConnectFunc = [](int) { },
         std::function<void(int)> onClientDisconnectFunc = [](int) { }
     );
@@ -63,4 +68,6 @@ public:
     void sendLoadMap(int clientIndex, const MapBlock& block);
     void sendActionsRollResponse(int clientIndex, int participantId, const std::vector<DiceActionResult>& dice);
     void sendNextTurn(int clientIndex, int participantId, int turnNumber);
+
+    void sendLoadGameToClient(int clientIndex);
 };

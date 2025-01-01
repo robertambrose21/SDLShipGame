@@ -14,31 +14,17 @@ class VisiblityController :
     public EventSubscriber<EntitySetPositionEventData>
 {
 private:
-    typedef struct _revealedTile {
+    typedef struct _tileWithVisibility {
         int x, y;
         bool isVisible;
         Grid::Tile tile;
 
-        bool operator<(const _revealedTile& other) const {
+        bool operator<(const _tileWithVisibility& other) const {
             return x < other.x || (x == other.x && y < other.y);
         }
-    } RevealedTile;
-
-    ApplicationContext* context;
-    bool initialised;
-
-    std::map<int, std::unordered_set<glm::ivec2, glm::ivec2Hash>> visibleTiles;
-    std::map<int, std::set<RevealedTile>> revealedTiles;
-
-    void assignVisibility(
-        Entity* entity, 
-        Entity* other, 
-        float distanceBetweenEntities,
-        const std::unordered_set<glm::ivec2, glm::ivec2Hash>& visibleTiles
-    );
+    } TileWithVisibility;
 
 public:
-
     VisiblityController();
 
     void initialise(ApplicationContext& context);
@@ -48,8 +34,22 @@ public:
 
     bool isVisible(Entity* entity, Entity* target);
 
-    const std::map<int, std::set<RevealedTile>>& getRevealedTiles(void) const;
-    const std::set<RevealedTile>& getRevealedTiles(int participantId);
+    const std::map<int, std::set<TileWithVisibility>>& getTilesWithVisibility(void) const;
+    const std::set<TileWithVisibility>& getTilesWithVisibility(int participantId);
     const std::map<int, std::unordered_set<glm::ivec2, glm::ivec2Hash>>& getVisibleTiles(void) const;
     const std::unordered_set<glm::ivec2, glm::ivec2Hash>& getVisibleTiles(int participantId);
+
+private:
+    ApplicationContext* context;
+    bool initialised;
+
+    std::map<int, std::unordered_set<glm::ivec2, glm::ivec2Hash>> visibleTiles;
+    std::map<int, std::set<TileWithVisibility>> revealedTiles;
+
+    void assignVisibility(
+        Entity* entity, 
+        Entity* other, 
+        float distanceBetweenEntities,
+        const std::unordered_set<glm::ivec2, glm::ivec2Hash>& visibleTiles
+    );
 };

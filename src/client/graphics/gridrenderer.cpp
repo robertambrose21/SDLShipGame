@@ -67,7 +67,7 @@ void GridRenderer::buildChunkTexture(GraphicsContext& graphicsContext, Chunk* ch
     auto renderer = graphicsContext.getRenderer();
 
     // auto const& data = grid->getData();
-    auto const& data = visiblityController->getRevealedTiles(1);
+    auto const& data = visiblityController->getTilesWithVisibility(1);
 
     auto target = std::unique_ptr<SDL_Texture, Texture::sdl_deleter>(
         SDL_CreateTexture(

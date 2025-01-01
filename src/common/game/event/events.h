@@ -5,6 +5,7 @@
 #include "core/util/idgenerator.h"
 #include "game/effects/effecttypes.h"
 #include "game/stats/stats.h"
+#include "game/data/tiles.h"
 
 class Entity;
 class Item;
@@ -132,12 +133,6 @@ struct GridDirtyEventData {
 };
 
 struct TilesRevealedEventData {
-    struct RevealedTile {
-        int id;
-        int orientation;
-        int x, y;
-    };
-
     int participantId;
     std::vector<RevealedTile> tiles;
 };
