@@ -18,6 +18,7 @@ public:
 
     int getAttachedClient(int participantId) const;
     int getAttachedParticipantId(int clientIndex) const;
+    int getParticipantByClientId(uint64_t clientId) const;
     std::map<int, int> getAllAttachedClients(void);
 
 private:

@@ -9,7 +9,7 @@ void VisiblityController::initialise(ApplicationContext& context) {
 }
 
 void VisiblityController::revealTiles(int participantId, const std::vector<glm::ivec2>& tiles) {
-    std::vector<TilesRevealedEventData::RevealedTile> tilesForEventData;
+    std::vector<RevealedTile> tilesForEventData;
 
     auto grid = context->getGrid();
 
@@ -28,13 +28,13 @@ void VisiblityController::revealTiles(int participantId, const std::vector<glm::
     }
 }
 
-const std::map<int, std::set<VisiblityController::RevealedTile>>& VisiblityController::getRevealedTiles(void) const {
+const std::map<int, std::set<VisiblityController::TileWithVisibility>>& VisiblityController::getTilesWithVisibility(void) const {
     return revealedTiles;
 }
 
-const std::set<VisiblityController::RevealedTile>& VisiblityController::getRevealedTiles(int participantId) {
+const std::set<VisiblityController::TileWithVisibility>& VisiblityController::getTilesWithVisibility(int participantId) {
     if(!revealedTiles.contains(participantId)) {
-        revealedTiles[participantId] = std::set<RevealedTile>();
+        revealedTiles[participantId] = std::set<TileWithVisibility>();
     }
 
     return revealedTiles.at(participantId);

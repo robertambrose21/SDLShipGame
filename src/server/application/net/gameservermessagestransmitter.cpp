@@ -4,13 +4,15 @@
 GameServerMessagesTransmitter::GameServerMessagesTransmitter(
     GameServer& server,
     ServerTurnController* turnController,
+    VisiblityController* visibilityController,
     std::function<void(int)> onClientConnectFunc,
     std::function<void(int)> onClientDisconnectFunc
 ) :
     server(server),
     onClientConnectFunc(onClientConnectFunc),
     onClientDisconnectFunc(onClientDisconnectFunc),
-    turnController(turnController)
+    turnController(turnController),
+    visibilityController(visibilityController)
 { }
 
 void GameServerMessagesTransmitter::onClientConnected(int clientIndex) {
@@ -197,40 +199,7 @@ void GameServerMessagesTransmitter::onPublish(const Event<GridEffectEvent>& even
 }
 
 void GameServerMessagesTransmitter::onPublish(const Event<TilesRevealedEventData>& event) {
-    auto clientIndex = turnController->getAttachedClient(event.data.participantId);
-
-    if(clientIndex == -1) {
-        return;
-    }
-
-    // TODO: Generic block message structure
-    auto totalTiles = event.data.tiles.size();
-    auto numMessagesToSend = totalTiles / 64;
-    auto numTilesLastMessage = totalTiles % 64;
-
-    if(numTilesLastMessage > 0) {
-        numMessagesToSend++;
-    }
-    else {
-        numTilesLastMessage = 64;
-    }
-
-    for(int i = 0; i < numMessagesToSend; i++) {
-        TilesRevealedMessage* message = (TilesRevealedMessage*) server.createMessage(clientIndex, GameMessageType::TILES_REVEALED);
-        message->participantId = event.data.participantId;
-        message->numRevealedTiles = (i == numMessagesToSend - 1) ? numTilesLastMessage : 64;
-
-        for(int j = 0; j < message->numRevealedTiles; j++) {
-            auto tilesIndex = (i * 64) + j;
-
-            message->revealedTiles[j].id = event.data.tiles[tilesIndex].id;
-            message->revealedTiles[j].orientation = event.data.tiles[tilesIndex].orientation;
-            message->revealedTiles[j].x = event.data.tiles[tilesIndex].x;
-            message->revealedTiles[j].y = event.data.tiles[tilesIndex].y;
-        }
-
-        server.sendMessage(clientIndex, message);
-    }
+    sendRevealedTiles(event.data.tiles, event.data.participantId);
 }
 
 void GameServerMessagesTransmitter::onPublish(const Event<EntitySetPositionEventData>& event) {
@@ -327,4 +296,60 @@ void GameServerMessagesTransmitter::sendNextTurn(int clientIndex, int participan
     message->turnNumber = turnNumber;
 
     server.sendMessage(clientIndex, message);
+}
+
+void GameServerMessagesTransmitter::sendRevealedTiles(const std::vector<RevealedTile>& tiles, int participantId) {
+    auto clientIndex = turnController->getAttachedClient(participantId);
+
+    if(clientIndex == -1) {
+        return;
+    }
+
+    // TODO: Generic block message structure
+    auto totalTiles = tiles.size();
+    auto numMessagesToSend = totalTiles / 64;
+    auto numTilesLastMessage = totalTiles % 64;
+
+    if(numTilesLastMessage > 0) {
+        numMessagesToSend++;
+    }
+    else {
+        numTilesLastMessage = 64;
+    }
+
+    for(int i = 0; i < numMessagesToSend; i++) {
+        TilesRevealedMessage* message = (TilesRevealedMessage*) server.createMessage(clientIndex, GameMessageType::TILES_REVEALED);
+        message->participantId = participantId;
+        message->numRevealedTiles = (i == numMessagesToSend - 1) ? numTilesLastMessage : 64;
+
+        for(int j = 0; j < message->numRevealedTiles; j++) {
+            auto tilesIndex = (i * 64) + j;
+
+            message->revealedTiles[j].id = tiles[tilesIndex].id;
+            message->revealedTiles[j].orientation = tiles[tilesIndex].orientation;
+            message->revealedTiles[j].x = tiles[tilesIndex].x;
+            message->revealedTiles[j].y = tiles[tilesIndex].y;
+        }
+
+        server.sendMessage(clientIndex, message);
+    }
+}
+
+void GameServerMessagesTransmitter::sendLoadGameToClient(int clientIndex) {
+    auto participantId = turnController->getAttachedParticipantId(clientIndex);
+
+    if(participantId == -1) {
+        spdlog::warn("Cannot send load game to client with index {}, no participant", clientIndex);
+        return;
+    }
+
+    auto tilesWithVisibility = visibilityController->getTilesWithVisibility(participantId);
+
+    std::vector<RevealedTile> revealedTiles;
+
+    for(auto& tile : tilesWithVisibility) {
+        revealedTiles.push_back({ tile.tile.id, tile.tile.orientation, tile.x, tile.y });
+    }
+
+    sendRevealedTiles(revealedTiles, participantId);
 }
