@@ -112,11 +112,11 @@ void StdOutSubscriber::onPublish(const Event<TakeItemActionEventData>& event) {
 
 void StdOutSubscriber::onPublish(const Event<EngagementEventData>& event) {
     switch(event.data.type) {
-        case EngagementEventData::ENGAGED:
+        case EngagementType::ENGAGED:
             spdlog::info("participants [{}, {}] are now engaged in combat", event.data.participantIdA, event.data.participantIdB);
             break;
         
-        case EngagementEventData::DISENGAGED:
+        case EngagementType::DISENGAGED:
             spdlog::info("participants [{}, {}] have disengaged from combat", event.data.participantIdA, event.data.participantIdB);
             break;
 

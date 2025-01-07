@@ -5,8 +5,15 @@ Participant::Participant(int id) :
     passNextTurn(false)
 { }
 
-void Participant::engage(int otherParticipantId) {
-    engagements.insert(otherParticipantId);
+void Participant::engage(int otherParticipantId, int turnEngaged) {
+    for(auto engagement : engagements) {
+        if(engagement.otherParticipantId == otherParticipantId) {
+            spdlog::trace("Attempting to engage to already engaged participant {} -> {}", id, otherParticipantId);
+            return;
+        }
+    }
+
+    engagements.insert({ otherParticipantId, turnEngaged });
 
     if(engagements.size() == 1) {
         for(auto entity : entities) {
@@ -16,13 +23,25 @@ void Participant::engage(int otherParticipantId) {
 }
 
 void Participant::disengage(int otherParticipantId) {
-    engagements.erase(otherParticipantId);
+    std::erase_if(engagements, [&](const auto& engagement) {
+        return otherParticipantId == engagement.otherParticipantId;
+    });
 
     if(engagements.empty()) {
         for(auto entity : entities) {
             entity->disengage();
         }
     }
+}
+
+bool Participant::hasEngagement(int otherParticipantId) {
+    for(auto const& engagement : engagements) {
+        if(otherParticipantId == engagement.otherParticipantId) {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 void Participant::endTurn(void) {
@@ -123,7 +142,7 @@ void Participant::setBehaviourStrategy(std::unique_ptr<BehaviourStrategy> behavi
     this->behaviourStrategy = std::move(behaviourStrategy);
 }
 
-const std::set<int>& Participant::getEngagements(void) const {
+const std::set<Participant::Engagement>& Participant::getEngagements(void) const {
     return engagements;
 }
 

@@ -110,14 +110,13 @@ void GameServerMessagesTransmitter::onPublish(const Event<TakeItemActionEventDat
 
 void GameServerMessagesTransmitter::onPublish(const Event<EngagementEventData>& event) {
     for(auto [participantId, clientIndex] : turnController->getAllAttachedClients()) {
-        EngagementMessage* message = (EngagementMessage*) server.createMessage(clientIndex, GameMessageType::ENGAGEMENT);
-
-        message->participantIdA = event.data.participantIdA;
-        message->participantIdB = event.data.participantIdB;
-        message->type = event.data.type;
-        message->turnToEngageOn = turnController->getTurnNumber();
-
-        server.sendMessage(clientIndex, message);
+        sendEngagement(
+            event.data.participantIdA,
+            event.data.participantIdB,
+            turnController->getTurnNumber(),
+            event.data.type,
+            clientIndex
+        );
     }
 }
 
@@ -335,6 +334,24 @@ void GameServerMessagesTransmitter::sendRevealedTiles(const std::vector<Revealed
     }
 }
 
+void GameServerMessagesTransmitter::sendEngagement(
+    int participantIdA, 
+    int participantIdB, 
+    int turnToEngageOn,
+    EngagementType type,
+    int clientIndex
+) {
+    EngagementMessage* message = (EngagementMessage*) server.createMessage(clientIndex, GameMessageType::ENGAGEMENT);
+
+    message->participantIdA = participantIdA;
+    message->participantIdB = participantIdB;
+    message->type = type;
+    message->turnToEngageOn = turnToEngageOn;
+
+    server.sendMessage(clientIndex, message);
+}
+
+// TODO: This is essentially going to become the new GameStateUpdate, should be reliable.
 void GameServerMessagesTransmitter::sendLoadGameToClient(int clientIndex) {
     auto participantId = turnController->getAttachedParticipantId(clientIndex);
 
@@ -343,6 +360,7 @@ void GameServerMessagesTransmitter::sendLoadGameToClient(int clientIndex) {
         return;
     }
 
+    // -- TILES --
     auto tilesWithVisibility = visibilityController->getTilesWithVisibility(participantId);
 
     std::vector<RevealedTile> revealedTiles;
@@ -352,4 +370,17 @@ void GameServerMessagesTransmitter::sendLoadGameToClient(int clientIndex) {
     }
 
     sendRevealedTiles(revealedTiles, participantId);
+
+    // -- ENGAGEMENTS --
+    auto engagements = turnController->getParticipant(participantId)->getEngagements();
+
+    for(auto engagement : engagements) {
+        sendEngagement(
+            participantId,
+            engagement.otherParticipantId,
+            engagement.turnEngaged,
+            EngagementType::ENGAGED,
+            clientIndex
+        );
+    }
 }

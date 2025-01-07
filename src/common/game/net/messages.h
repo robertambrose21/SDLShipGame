@@ -36,6 +36,7 @@ struct WeaponStateUpdate {
 };
 
 // TODO: Send weapon state updates separately if entity has more than the max number of weapons
+// TODO: Serialise EntityStats
 struct EntityStateUpdate {
     uint32_t id;
     char name[MaxEntityNameLength];

@@ -155,7 +155,7 @@ void ServerTurnController::compareAndEngageParticipants(Participant* participant
     }
 
     // We only need to check the engagements for one of the participants
-    if(participantA->getEngagements().contains(participantB->getId())) {
+    if(participantA->hasEngagement(participantB->getId())) {
         if(participantA->getEntities().empty() || participantB->getEntities().empty()) {
             disengage(participantA->getId(), participantB->getId());
         }

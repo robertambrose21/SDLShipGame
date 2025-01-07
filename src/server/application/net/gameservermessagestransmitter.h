@@ -39,6 +39,13 @@ private:
     void onClientDisconnected(int clientIndex) override;
 
     void sendRevealedTiles(const std::vector<RevealedTile>& tiles, int participantId);
+    void sendEngagement(
+        int participantIdA, 
+        int participantIdB, 
+        int turnToEngageOn,
+        EngagementType type,
+        int clientIndex
+    );
 
 public:
     GameServerMessagesTransmitter(

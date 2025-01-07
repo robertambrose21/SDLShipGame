@@ -6,6 +6,7 @@
 #include "game/effects/effecttypes.h"
 #include "game/stats/stats.h"
 #include "game/data/tiles.h"
+#include "game/data/engagements.h"
 
 class Entity;
 class Item;
@@ -84,14 +85,9 @@ struct ApplyDamageEventData {
 };
 
 struct EngagementEventData {
-    enum Type {
-        ENGAGED,
-        DISENGAGED
-    };
-
     int participantIdA;
     int participantIdB;
-    Type type;
+    EngagementType type;
 };
 
 struct TileEventData {

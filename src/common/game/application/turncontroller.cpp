@@ -131,10 +131,10 @@ void TurnController::engage(int participantIdA, int participantIdB) {
     auto& participantA = participants[participantIdA];
     auto& participantB = participants[participantIdB];
 
-    participantA->engage(participantIdB);
-    participantB->engage(participantIdA);
+    participantA->engage(participantIdB, turnNumber);
+    participantB->engage(participantIdA, turnNumber);
 
-    publish<EngagementEventData>({ participantIdA, participantIdB, EngagementEventData::Type::ENGAGED });
+    publish<EngagementEventData>({ participantIdA, participantIdB, EngagementType::ENGAGED });
 }
 
 void TurnController::queueEngagement(int turnNumber, const Engagement& engagement) {
@@ -148,7 +148,7 @@ void TurnController::disengage(int participantIdA, int participantIdB) {
     participantA->disengage(participantIdB);
     participantB->disengage(participantIdA);
 
-    publish<EngagementEventData>({ participantIdA, participantIdB, EngagementEventData::Type::DISENGAGED });
+    publish<EngagementEventData>({ participantIdA, participantIdB, EngagementType::DISENGAGED });
 }
 
 void TurnController::endCurrentParticipantTurn(void) {

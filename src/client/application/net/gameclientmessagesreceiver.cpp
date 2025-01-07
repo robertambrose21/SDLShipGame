@@ -176,7 +176,7 @@ void GameClientMessagesReceiver::receiveEngagement(EngagementMessage* message) {
         { 
             message->participantIdA, 
             message->participantIdB, 
-            message->type == EngagementEventData::DISENGAGED 
+            message->type == EngagementType::DISENGAGED 
         }
     );
 }

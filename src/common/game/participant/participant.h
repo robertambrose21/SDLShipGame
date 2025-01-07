@@ -7,26 +7,27 @@
 #include "game/entities/entity.h"
 #include "game/entities/behaviour/behaviourstrategy.h"
 #include "game/items/item.h"
+#include "spdlog/spdlog.h"
 
 class BehaviourStrategy;
 
 class Participant {
-private:
-    int id;
-    bool isReady;
-    bool isPlayer;
-    std::vector<Entity*> entities;
-    std::vector<Item*> items;
-    bool passNextTurn;
-    std::unique_ptr<BehaviourStrategy> behaviourStrategy;
-    std::set<int> engagements;
-    std::set<Entity*> visibleEntities;
-
 public:
+    typedef struct _enagement {
+        int otherParticipantId;
+        int turnEngaged;
+
+        // We don't care about the turn engaged
+        bool operator<(const _enagement& other) const {
+            return otherParticipantId < other.otherParticipantId;
+        }
+    } Engagement;
+
     Participant(int id);
 
-    void engage(int otherParticipantId);
+    void engage(int otherParticipantId, int turnEngaged);
     void disengage(int otherParticipantId);
+    bool hasEngagement(int otherParticipantId);
 
     void endTurn(void);
     void passTurn(void);
@@ -53,7 +54,7 @@ public:
     BehaviourStrategy* getBehaviourStrategy(void);
     void setBehaviourStrategy(std::unique_ptr<BehaviourStrategy> behaviourStrategy);
 
-    const std::set<int>& getEngagements(void) const;
+    const std::set<Engagement>& getEngagements(void) const;
 
     void setVisibleEntities(const std::set<Entity*>& visibleEntities);
     const std::set<Entity*>& getVisibleEntities(void) const;
@@ -61,4 +62,15 @@ public:
     void addVisibleEntity(Entity* entity);
     void removeVisibleEntity(Entity* entity);
     bool hasVisibleEntity(Entity* entity);
+
+private:
+    int id;
+    bool isReady;
+    bool isPlayer;
+    std::vector<Entity*> entities;
+    std::vector<Item*> items;
+    bool passNextTurn;
+    std::unique_ptr<BehaviourStrategy> behaviourStrategy;
+    std::set<Engagement> engagements;
+    std::set<Entity*> visibleEntities;
 };
