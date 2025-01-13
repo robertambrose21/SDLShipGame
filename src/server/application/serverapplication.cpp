@@ -144,7 +144,7 @@ void ServerApplication::onClientConnect(int clientIndex) {
     }
     
     // sendLoadMapToClient(clientIndex);
-    sendGameStateUpdatesToClients();
+    sendGameStateUpdatesToParticipant(participant->getId());
 
     // Temp hack to trigger a grid tile reveal
     for(auto entity : participant->getEntities()) {
@@ -165,6 +165,7 @@ void ServerApplication::onClientDisconnect(int clientIndex) {
 void ServerApplication::sendLoadMapToClient(int clientIndex) {
     auto& context = application->getContext();
     auto grid = context.getGrid();
+    auto turnController = dynamic_cast<ServerTurnController*>(context.getTurnController());
 
     auto gridSize = grid->getWidth() * grid->getHeight();
     auto numSequences = gridSize / MaxMapBlockSize;
@@ -208,18 +209,16 @@ void ServerApplication::sendLoadMapToClient(int clientIndex) {
         // transmitter->sendLoadMap(clientIndex, block);
     }
 
-    sendGameStateUpdatesToClients();
+    sendGameStateUpdatesToParticipant(turnController->getAttachedParticipantId(clientIndex));
 }
 
 // TODO: Move elsewhere
-void ServerApplication::sendGameStateUpdatesToClients(void) {
+void ServerApplication::sendGameStateUpdatesToParticipant(int participantId) {
     auto& context = application->getContext();
 
     auto chunkId = getNewId();
 
-    // auto currentParticipantId = context.getTurnController()->getCurrentParticipant();
-    auto currentParticipantId = 1; // TODO: This should be mapped to the client index
-    auto visibleEntities = context.getTurnController()->getParticipant(currentParticipantId)->getVisibleEntities();
+    auto visibleEntities = context.getTurnController()->getParticipant(participantId)->getVisibleEntities();
     std::vector<Entity*> entitiesBlock;
 
     // TODO: Handle overflow?
@@ -238,7 +237,7 @@ void ServerApplication::sendGameStateUpdatesToClients(void) {
         if(entitiesBlock.size() == MaxEntities) {
             transmitter->sendGameStateUpdate(
                 0, 
-                GameStateUpdate::serialize(currentParticipantId, entitiesBlock, chunkId, expectedNumChunks)
+                GameStateUpdate::serialize(participantId, entitiesBlock, chunkId, expectedNumChunks)
             );
             std::cout << "Sent GameStateUpdate ["  << entitiesBlock.size() << "]" << std::endl;
             entitiesBlock.clear();
@@ -248,7 +247,7 @@ void ServerApplication::sendGameStateUpdatesToClients(void) {
     if(!entitiesBlock.empty()) {
         transmitter->sendGameStateUpdate(
             0, 
-            GameStateUpdate::serialize(currentParticipantId, entitiesBlock, chunkId, expectedNumChunks)
+            GameStateUpdate::serialize(participantId, entitiesBlock, chunkId, expectedNumChunks)
         );
         std::cout << "Sent GameStateUpdate ["  << entitiesBlock.size() << "]" << std::endl;
     }
