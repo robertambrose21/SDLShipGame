@@ -74,10 +74,6 @@ void StdOutSubscriber::onPublish(const Event<ItemEventData>& event) {
         return;
     }
 
-    if(event.data.owner == nullptr) {
-        return;
-    }
-
     std::string items = "";
 
     for(int i = 0; i < event.data.items.size(); i++) {
@@ -88,8 +84,8 @@ void StdOutSubscriber::onPublish(const Event<ItemEventData>& event) {
         }
     }
 
-    if(event.data.owner != nullptr) {
-        spdlog::info("{} dropped [{}]", getEntityIdentifier(event.data.owner), items);
+    if(event.data.droppedBy != Item::UnknownOwner) {
+        spdlog::info("{} dropped [{}]", event.data.droppedBy, items);
     }
     else {
         spdlog::info("[{}] was dropped", items);

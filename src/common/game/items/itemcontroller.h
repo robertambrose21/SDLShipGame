@@ -17,6 +17,48 @@ class ItemController :
     public EventPublisher<ItemEventData>,
     public EventSubscriber<EntityEventData>
 {
+public:
+    ItemController();
+
+    void initialise(ApplicationContext& context);
+
+    Item* addItem(
+        const std::string& name, 
+        const glm::ivec2& position, 
+        const std::string& droppedBy,
+        bool canPublishEvent = true
+    );
+    Item* addItem(
+        const std::string& name, 
+        const glm::ivec2& position, 
+        uint32_t id, 
+        const std::string& droppedBy,
+        bool canPublishEvent = true
+    );
+    std::vector<Item*> addItems(
+        const std::vector<std::string>& itemNames, 
+        const glm::ivec2& position, 
+        const std::string& droppedBy
+    );
+    std::vector<Item*> addItems(
+        const std::vector<std::pair<uint32_t, std::string>>& items, 
+        const glm::ivec2& position, 
+        const std::string& droppedBy
+    );
+
+    void removeItem(uint32_t id);
+    void removeItems(const std::vector<uint32_t>& ids);
+    std::vector<Item*> getItemsAt(const glm::ivec2& position);
+    bool hasItem(uint32_t id);
+    Item* getItem(uint32_t id);
+
+    void flagWorldItemsDirty(void);
+
+    std::map<uint32_t, std::unique_ptr<Item>> const& getItems(void) const;
+    std::vector<Item*> getWorldItems(void);
+
+    void onPublish(const Event<EntityEventData>& event);
+
 private:
     typedef struct itemDefinition {
         std::string filename;
@@ -43,27 +85,4 @@ private:
     Item::Rarity mapToRarity(const std::string& rarityString);
     bool isGear(const std::string& type);
     bool isWeapon(const std::string& type);
-
-public:
-    ItemController();
-
-    void initialise(ApplicationContext& context);
-
-    Item* addItem(const std::string& name, const glm::ivec2& position, Entity* owner, bool canPublishEvent = true);
-    Item* addItem(const std::string& name, const glm::ivec2& position, uint32_t id, Entity* owner, bool canPublishEvent = true);
-    std::vector<Item*> addItems(const std::vector<std::string>& itemNames, const glm::ivec2& position, Entity* owner);
-    std::vector<Item*> addItems(const std::vector<std::pair<uint32_t, std::string>>& items, const glm::ivec2& position, Entity* owner);
-
-    void removeItem(uint32_t id);
-    void removeItems(const std::vector<uint32_t>& ids);
-    std::vector<Item*> getItemsAt(const glm::ivec2& position);
-    bool hasItem(uint32_t id);
-    Item* getItem(uint32_t id);
-
-    void flagWorldItemsDirty(void);
-
-    std::map<uint32_t, std::unique_ptr<Item>> const& getItems(void) const;
-    std::vector<Item*> getWorldItems(void);
-
-    void onPublish(const Event<EntityEventData>& event);
 };

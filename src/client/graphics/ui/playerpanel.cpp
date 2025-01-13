@@ -141,17 +141,12 @@ void PlayerPanel::onPublish(const Event<ItemEventData>& event) {
     if(event.data.type == ItemEventData::Type::REMOVED) {
         return;
     }
-
-    if(event.data.owner == nullptr) {
-        return;
-    }
-
     std::vector<TextSegment> line;
 
-    if(event.data.owner != nullptr) {
+    if(event.data.droppedBy != Item::UnknownOwner) {
         line = {
             { getTimestampString(event.timestamp), TimestampColour },
-            { getEntityIdentifier(event.data.owner), HighlightColour },
+            { event.data.droppedBy, HighlightColour },
             { " dropped ", StdTextColour }
         };
         appendItemsToLine(line, event.data.items);

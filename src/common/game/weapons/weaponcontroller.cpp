@@ -143,7 +143,7 @@ Item* WeaponController::getItem(const std::string& itemName, Entity* owner) {
         return nullptr;
     }
 
-    auto item = context->getItemController()->addItem(itemName, glm::ivec2(0, 0), owner, false);
+    auto item = context->getItemController()->addItem(itemName, glm::ivec2(0, 0), owner->toString(), false);
     item->setParticipantId(owner->getParticipantId());
 
     return item;

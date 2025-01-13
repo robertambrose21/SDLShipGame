@@ -270,6 +270,10 @@ std::string Entity::getName(void) const {
     return name;
 }
 
+std::string Entity::toString(void) const {
+    return name + "#" + std::to_string(id);
+}
+
 void Entity::setName(const std::string& name) {
     this->name = name;
 }

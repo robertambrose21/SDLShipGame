@@ -26,7 +26,7 @@ struct ItemEventData {
         REMOVED
     };
 
-    Entity* owner;
+    std::string droppedBy;
     std::vector<Item*> items;
     Type type;
 };

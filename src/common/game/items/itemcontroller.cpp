@@ -80,19 +80,19 @@ bool ItemController::isWeapon(const std::string& type) {
 }
 
 Item* ItemController::addItem(
-    const std::string& name, 
-    const glm::ivec2& position, 
-    Entity* owner,
-    bool canPublishEvent
+        const std::string& name, 
+        const glm::ivec2& position, 
+        const std::string& droppedBy,
+        bool canPublishEvent
 ) {
-    return addItem(name, position, getNewId(), owner, canPublishEvent);
+    return addItem(name, position, getNewId(), droppedBy, canPublishEvent);
 }
 
 Item* ItemController::addItem(
     const std::string& name, 
     const glm::ivec2& position, 
     uint32_t id,
-    Entity* owner,
+    const std::string& droppedBy,
     bool canPublishEvent
 ) {
     game_assert(initialised);
@@ -102,6 +102,7 @@ Item* ItemController::addItem(
     auto definition = itemDefinitions[name];
     auto item = std::make_unique<Item>(
         definition.name,
+        droppedBy,
         mapToRarity(definition.rarity),
         definition.stats,
         definition.type,
@@ -120,7 +121,7 @@ Item* ItemController::addItem(
 
     if(canPublishEvent) {
         publish<ItemEventData>({
-            owner,
+            droppedBy,
             { items[id].get() }, 
             ItemEventData::SPAWN
         });
@@ -134,18 +135,18 @@ Item* ItemController::addItem(
 std::vector<Item*> ItemController::addItems(
     const std::vector<std::string>& itemNames, 
     const glm::ivec2& position,
-    Entity* owner
+    const std::string& droppedBy
 ) {
     game_assert(initialised);
 
     std::vector<Item*> addedItems;
 
     for(const auto& itemName : itemNames) {
-        addedItems.push_back(addItem(itemName, position, owner, false));
+        addedItems.push_back(addItem(itemName, position, droppedBy, false));
     }
 
     publish<ItemEventData>({ 
-        owner,
+        droppedBy,
         addedItems,
         ItemEventData::SPAWN
     });
@@ -156,18 +157,18 @@ std::vector<Item*> ItemController::addItems(
 std::vector<Item*> ItemController::addItems(
     const std::vector<std::pair<uint32_t, std::string>>& items, 
     const glm::ivec2& position,
-    Entity* owner
+    const std::string& droppedBy
 ) {
     game_assert(initialised);
 
     std::vector<Item*> addedItems;
 
     for(const auto& [id, name] : items) {
-        addedItems.push_back(addItem(name, position, id, owner, false));
+        addedItems.push_back(addItem(name, position, id, droppedBy, false));
     }
 
     publish<ItemEventData>({
-        owner,
+        droppedBy,
         addedItems,
         ItemEventData::SPAWN
     });
@@ -177,7 +178,7 @@ std::vector<Item*> ItemController::addItems(
 
 void ItemController::removeItem(uint32_t id) {
     publish<ItemEventData>({
-        nullptr, 
+        Item::UnknownOwner, 
         { items[id].get() }, 
         ItemEventData::REMOVED
     });
@@ -194,7 +195,7 @@ void ItemController::removeItems(const std::vector<uint32_t>& ids) {
         itemsToRemove.push_back(items[id].get());
     }
 
-    publish<ItemEventData>({ nullptr, itemsToRemove, ItemEventData::REMOVED });
+    publish<ItemEventData>({ Item::UnknownOwner, itemsToRemove, ItemEventData::REMOVED });
 
     for(auto id : ids) {
         items.erase(id);
@@ -255,6 +256,5 @@ void ItemController::onPublish(const Event<EntityEventData>& event) {
         return;
     }    
 
-    // TODO: owner should be nullptr - need to handle gameservertransmitter
-    addItems(itemsDropped, entity->getPosition(), entity);
+    addItems(itemsDropped, entity->getPosition(), entity == nullptr ? Item::UnknownOwner : entity->toString());
 }

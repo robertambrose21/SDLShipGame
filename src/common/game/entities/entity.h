@@ -192,6 +192,7 @@ public:
     uint32_t getId(void) const;
     void setId(uint32_t id);
     std::string getName(void) const;
+    std::string toString(void) const;
     void setName(const std::string& name);
 
     glm::ivec2 getPosition(void) const;

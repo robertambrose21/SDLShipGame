@@ -142,16 +142,13 @@ void GameClientMessagesReceiver::receiveSetTurn(SetTurnMessage* message) {
 }
 
 void GameClientMessagesReceiver::receiveSpawnItems(SpawnItemsMessage* message) {
-    auto entityPool = context.getEntityPool();
-
-    Entity* owner = nullptr;
-
-    if(entityPool->hasEntity(message->ownerId)) {
-        owner = entityPool->getEntity(message->ownerId);
-    }
-
     for(int i = 0; i < message->numItems; i++) {
-        context.getItemController()->addItem(message->items[i].name, { message->x, message->y }, message->items[i].id, owner);
+        context.getItemController()->addItem(
+            message->items[i].name, 
+            { message->x, message->y }, 
+            message->items[i].id, 
+            message->droppedBy
+        );
     }
 }
 

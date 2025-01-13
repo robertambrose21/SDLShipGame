@@ -5,6 +5,7 @@ GameServerMessagesTransmitter::GameServerMessagesTransmitter(
     GameServer& server,
     ServerTurnController* turnController,
     VisiblityController* visibilityController,
+    ItemController* itemController,
     std::function<void(int)> onClientConnectFunc,
     std::function<void(int)> onClientDisconnectFunc
 ) :
@@ -12,7 +13,8 @@ GameServerMessagesTransmitter::GameServerMessagesTransmitter(
     onClientConnectFunc(onClientConnectFunc),
     onClientDisconnectFunc(onClientDisconnectFunc),
     turnController(turnController),
-    visibilityController(visibilityController)
+    visibilityController(visibilityController),
+    itemController(itemController)
 { }
 
 void GameServerMessagesTransmitter::onClientConnected(int clientIndex) {
@@ -28,29 +30,8 @@ void GameServerMessagesTransmitter::onPublish(const Event<ItemEventData>& event)
         return;
     }
 
-    std::map<glm::ivec2, std::vector<Item*>> itemGroups;
-
-    for(auto item : event.data.items) {
-        itemGroups[item->getPosition()].push_back(item);
-    }
-    
     for(auto [_, clientIndex] : turnController->getAllAttachedClients()) {
-        // TODO: handle items > 64
-        for(auto [position, items] : itemGroups) {
-            SpawnItemsMessage* message = (SpawnItemsMessage*) server.createMessage(0, GameMessageType::SPAWN_ITEMS);
-
-            message->x = position.x;
-            message->y = position.y;
-            message->ownerId = event.data.owner->getId();
-            message->numItems = items.size();
-
-            for(int i = 0; i < items.size(); i++) {
-                message->items[i].id = items[i]->getId();
-                strcpy(message->items[i].name, items[i]->getName().data());
-            }
-
-            server.sendMessage(clientIndex, message);
-        }
+        sendItems(clientIndex, event.data.items);
     }
 }
 
@@ -343,6 +324,34 @@ void GameServerMessagesTransmitter::sendRevealedTiles(const std::vector<Revealed
     }
 }
 
+void GameServerMessagesTransmitter::sendItems(int clientIndex, const std::vector<Item*>& items) {
+    std::map<std::pair<glm::ivec2, std::string>, std::vector<Item*>> itemGroups;
+
+    for(auto item : items) {
+        itemGroups[{ item->getPosition(), item->getDroppedBy() }].push_back(item);
+    }
+    
+    for(auto [_, clientIndex] : turnController->getAllAttachedClients()) {
+        // TODO: handle items > 64
+        for(auto [key, items] : itemGroups) {
+            auto [position, droppedBy] = key;
+            SpawnItemsMessage* message = (SpawnItemsMessage*) server.createMessage(0, GameMessageType::SPAWN_ITEMS);
+
+            message->x = position.x;
+            message->y = position.y;
+            strcpy(message->droppedBy, droppedBy.data());
+            message->numItems = items.size();
+
+            for(int i = 0; i < items.size(); i++) {
+                message->items[i].id = items[i]->getId();
+                strcpy(message->items[i].name, items[i]->getName().data());
+            }
+
+            server.sendMessage(clientIndex, message);
+        }
+    }
+}
+
 void GameServerMessagesTransmitter::sendEngagement(
     int participantIdA, 
     int participantIdB, 
@@ -360,6 +369,7 @@ void GameServerMessagesTransmitter::sendEngagement(
     server.sendMessage(clientIndex, message);
 }
 
+// TODO: Move this elsewhere
 // TODO: This is essentially going to become the new GameStateUpdate, should be reliable.
 void GameServerMessagesTransmitter::sendLoadGameToClient(int clientIndex) {
     auto participantId = turnController->getAttachedParticipantId(clientIndex);
@@ -380,6 +390,9 @@ void GameServerMessagesTransmitter::sendLoadGameToClient(int clientIndex) {
 
     sendRevealedTiles(revealedTiles, participantId);
 
+    // -- TURN NUMBER --
+    sendSetTurn(clientIndex, turnController->getCurrentParticipantId(), turnController->getTurnNumber());
+
     // -- ENGAGEMENTS --
     auto engagements = turnController->getParticipant(participantId)->getEngagements();
 
@@ -393,8 +406,8 @@ void GameServerMessagesTransmitter::sendLoadGameToClient(int clientIndex) {
         );
     }
 
-    // -- TURN NUMBER --
-    sendSetTurn(clientIndex, turnController->getCurrentParticipantId(), turnController->getTurnNumber());
+    // -- ITEMS --
+    sendItems(clientIndex, itemController->getWorldItems());
 
     // -- ENTITIES --
 }

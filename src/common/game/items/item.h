@@ -23,6 +23,7 @@ public:
     };
 
     static const std::set<std::string> EquippableItemTypes;
+    static const std::string UnknownOwner;
 
 private:
     typedef struct _colour {
@@ -45,6 +46,7 @@ private:
 
     std::string name;
     std::string type;
+    std::string droppedBy;
     Rarity rarity;
     Stats::ItemStats stats;
 
@@ -56,11 +58,27 @@ private:
     int participantId;
 
 public:
-    Item(const std::string& name, Rarity rarity, const Stats::ItemStats& stats, const std::string& type, const glm::ivec2& position);
-    Item(const std::string& name, Rarity rarity, const Stats::ItemStats& stats, const std::string& type, const glm::ivec2& position, uint32_t id);
+    Item(
+        const std::string& name,
+        const std::string& droppedBy,
+        Rarity rarity, 
+        const Stats::ItemStats& stats, 
+        const std::string& type, 
+        const glm::ivec2& position
+    );
+    Item(
+        const std::string& name,
+        const std::string& droppedBy,
+        Rarity rarity, 
+        const Stats::ItemStats& stats, 
+        const std::string& type, 
+        const glm::ivec2& position, 
+        uint32_t id
+    );
 
     std::string getName(void) const;
     std::string getType(void) const;
+    std::string getDroppedBy(void) const;
     Rarity getRarity(void) const;
     Stats::ItemStats getStats(void) const;
     void setWeaponStats(const Stats::WeaponStats& weaponStats);

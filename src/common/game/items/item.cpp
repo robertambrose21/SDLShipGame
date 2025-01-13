@@ -8,18 +8,22 @@ const std::set<std::string> Item::EquippableItemTypes = {
     "Feet"
 };
 
+const std::string Item::UnknownOwner = "Unknown";
+
 Item::Item(
-    const std::string& name, 
+    const std::string& name,
+    const std::string& droppedBy,
     Rarity rarity, 
     const Stats::ItemStats& stats, 
     const std::string& type, 
     const glm::ivec2& position
 ) :
-    Item(name, rarity, stats, type, position, getNewId())    
+    Item(name, droppedBy, rarity, stats, type, position, getNewId())    
 { }
 
 Item::Item(
-    const std::string& name, 
+    const std::string& name,
+    const std::string& droppedBy,
     Rarity rarity, 
     const Stats::ItemStats& stats, 
     const std::string& type, 
@@ -27,13 +31,14 @@ Item::Item(
     uint32_t id
 ) :
     name(name),
+    droppedBy(droppedBy),
     type(type),
     rarity(rarity),
     stats(stats),
     position(position),
     id(id),
     participantId(-1)
-{ }
+{ } 
 
 uint32_t Item::getId(void) const {
     return id;
@@ -49,6 +54,10 @@ std::string Item::getName(void) const {
 
 std::string Item::getType(void) const {
     return type;
+}
+
+std::string Item::getDroppedBy(void) const {
+    return droppedBy;
 }
 
 Item::Rarity Item::getRarity(void) const {

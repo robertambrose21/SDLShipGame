@@ -64,6 +64,7 @@ void ServerApplication::initialise(void) {
         *server, 
         dynamic_cast<ServerTurnController*>(context.getTurnController()),
         context.getVisibilityController(),
+        context.getItemController(),
         [&](int clientIndex) { onClientConnect(clientIndex); },
         [&](int clientIndex) { onClientDisconnect(clientIndex); }
     );

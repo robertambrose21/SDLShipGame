@@ -341,14 +341,13 @@ public:
 class SpawnItemsMessage : public yojimbo::Message {
 public:
     int x, y;
-    uint32_t ownerId;
+    char droppedBy[64];
     int numItems;
     ItemUpdate items[64];
 
     SpawnItemsMessage() :
         x(0),
         y(0),
-        ownerId(0),
         numItems(0)
     { }
 
@@ -356,7 +355,7 @@ public:
     bool Serialize(Stream& stream) {
         serialize_bits(stream, x, 16);
         serialize_bits(stream, y, 16);
-        serialize_uint32(stream, ownerId);
+        serialize_string(stream, droppedBy, sizeof(droppedBy));
         serialize_int(stream, numItems, 0, 64);
         
         for(int i = 0; i < numItems; i++) {
