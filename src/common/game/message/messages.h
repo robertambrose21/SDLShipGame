@@ -30,6 +30,7 @@ enum class GameMessageType {
     SET_ENTITY_POSITION,
     REMOVE_ENTITY_VISIBILITY,
     ADD_ENTITY_VISIBILITY,
+    SET_TURN,
     COUNT
 };
 
@@ -659,6 +660,27 @@ public:
     YOJIMBO_VIRTUAL_SERIALIZE_FUNCTIONS();
 };
 
+class SetTurnMessage : public yojimbo::Message {
+public:
+    uint32_t turnNumber;
+    uint8_t currentParticipantId;
+
+    SetTurnMessage() :
+        turnNumber(0),
+        currentParticipantId(0)
+    { }
+
+    template<typename Stream>
+    bool Serialize(Stream& stream) {
+        serialize_uint32(stream, turnNumber);
+        serialize_bits(stream, currentParticipantId, 8);
+
+        return true;
+    }
+
+    YOJIMBO_VIRTUAL_SERIALIZE_FUNCTIONS();
+};
+
 YOJIMBO_MESSAGE_FACTORY_START(GameMessageFactory, (int)GameMessageType::COUNT);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::FIND_PATH, FindPathMessage);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::SELECT_ENTITY, SelectEntityMessage);
@@ -684,4 +706,5 @@ YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::TILES_REVEALED, TilesRevealed
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::SET_ENTITY_POSITION, SetEntityPositionMessage);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::REMOVE_ENTITY_VISIBILITY, RemoveEntityVisibilityMessage);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::ADD_ENTITY_VISIBILITY, AddEntityVisibilityMessage);
+YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::SET_TURN, SetTurnMessage);
 YOJIMBO_MESSAGE_FACTORY_FINISH();

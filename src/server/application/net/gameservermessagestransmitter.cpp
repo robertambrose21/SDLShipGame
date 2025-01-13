@@ -297,6 +297,15 @@ void GameServerMessagesTransmitter::sendNextTurn(int clientIndex, int participan
     server.sendMessage(clientIndex, message);
 }
 
+void GameServerMessagesTransmitter::sendSetTurn(int clientIndex, uint8_t currentParticipantId, uint32_t turnNumber) {
+    SetTurnMessage* message = (SetTurnMessage*) server.createMessage(clientIndex, GameMessageType::SET_TURN);
+
+    message->turnNumber = turnNumber;
+    message->currentParticipantId = currentParticipantId;
+
+    server.sendMessage(clientIndex, message);
+}
+
 void GameServerMessagesTransmitter::sendRevealedTiles(const std::vector<RevealedTile>& tiles, int participantId) {
     auto clientIndex = turnController->getAttachedClient(participantId);
 
@@ -383,4 +392,9 @@ void GameServerMessagesTransmitter::sendLoadGameToClient(int clientIndex) {
             clientIndex
         );
     }
+
+    // -- TURN NUMBER --
+    sendSetTurn(clientIndex, turnController->getCurrentParticipantId(), turnController->getTurnNumber());
+
+    // -- ENTITIES --
 }

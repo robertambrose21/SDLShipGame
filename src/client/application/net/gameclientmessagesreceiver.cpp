@@ -26,6 +26,7 @@ void GameClientMessagesReceiver::receiveMessage(yojimbo::Message* message) {
         case (int) GameMessageType::FIND_PATH:                  { receiveFindPath((FindPathMessage*) message); break; }
         case (int) GameMessageType::ATTACK_ENTITY:              { receiveAttackEntity((AttackMessage*) message); break; }
         case (int) GameMessageType::NEXT_TURN:                  { receiveNextTurn((NextTurnMessage*) message); break; }
+        case (int) GameMessageType::SET_TURN:                   { receiveSetTurn((SetTurnMessage*) message); break; }
         case (int) GameMessageType::SPAWN_ITEMS:                { receiveSpawnItems((SpawnItemsMessage*) message); break; }
         case (int) GameMessageType::TAKE_ITEMS:                 { receiveTakeItems((TakeItemsMessage*) message); break; }
         case (int) GameMessageType::ENGAGEMENT:                 { receiveEngagement((EngagementMessage*) message); break; }
@@ -131,7 +132,13 @@ void GameClientMessagesReceiver::receiveAttackEntity(AttackMessage* message) {
 }
 
 void GameClientMessagesReceiver::receiveNextTurn(NextTurnMessage* message) {
-    dynamic_cast<ClientTurnController*>(context.getTurnController())->receiveSetNextTurnFlag(message->participantId, message->turnNumber);
+    dynamic_cast<ClientTurnController*>(context.getTurnController())
+        ->receiveSetNextTurnFlag(message->participantId, message->turnNumber);
+}
+
+void GameClientMessagesReceiver::receiveSetTurn(SetTurnMessage* message) {
+    context.getTurnController()->setCurrentParticipant(message->currentParticipantId);
+    context.getTurnController()->setTurnNumber(message->turnNumber);
 }
 
 void GameClientMessagesReceiver::receiveSpawnItems(SpawnItemsMessage* message) {

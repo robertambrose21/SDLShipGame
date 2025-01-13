@@ -28,6 +28,7 @@ private:
     void receiveFindPath(FindPathMessage* message);
     void receiveAttackEntity(AttackMessage* message);
     void receiveNextTurn(NextTurnMessage* message);
+    void receiveSetTurn(SetTurnMessage* message);
     void receiveSpawnItems(SpawnItemsMessage* message);
     void receiveTakeItems(TakeItemsMessage* message);
     void receiveEngagement(EngagementMessage* message);

@@ -38,38 +38,13 @@ class TurnController :
         EquipWeaponActionEventData
     >
 {
-
-protected:
+public:
     typedef struct _engagement {
         int participantIdA;
         int participantIdB;
         bool isDisengage;
     } Engagement;
 
-    ApplicationContext* context;
-    bool initialised;
-
-    int turnNumber;
-    int currentParticipantId;
-
-    std::map<int, std::vector<Engagement>> engagementsQueue;
-
-    std::map<int, std::unique_ptr<Participant>> participants;
-    std::vector<std::function<void(int, int)>> onNextTurnWorkers;
-    std::function<void()> onAllParticipantsSet;
-
-    void endCurrentParticipantTurn(void);
-    void nextParticipantTurn(void);
-    void executeEntityActions(Entity* entity);
-    void incrementTurn(void);
-    void publishAction(Action& action);
-
-    void processEngagements();
-
-    virtual bool canProgressToNextTurn(int participantId) = 0;
-    virtual void additionalUpdate(int64_t timeSinceLastFrame, bool& quit) = 0;
-
-public:
     TurnController();
 
     void initialise(ApplicationContext& context);
@@ -111,4 +86,29 @@ public:
     void allParticipantsSet(void);
 
     int getTurnNumber(void) const;
+    void setTurnNumber(int turnNumber);
+
+protected:
+    ApplicationContext* context;
+    bool initialised;
+
+    int turnNumber;
+    int currentParticipantId;
+
+    std::map<int, std::vector<Engagement>> engagementsQueue;
+
+    std::map<int, std::unique_ptr<Participant>> participants;
+    std::vector<std::function<void(int, int)>> onNextTurnWorkers;
+    std::function<void()> onAllParticipantsSet;
+
+    void endCurrentParticipantTurn(void);
+    void nextParticipantTurn(void);
+    void executeEntityActions(Entity* entity);
+    void incrementTurn(void);
+    void publishAction(Action& action);
+
+    void processEngagements();
+
+    virtual bool canProgressToNextTurn(int participantId) = 0;
+    virtual void additionalUpdate(int64_t timeSinceLastFrame, bool& quit) = 0;
 };

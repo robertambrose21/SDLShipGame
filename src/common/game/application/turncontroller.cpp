@@ -184,7 +184,7 @@ void TurnController::passParticipant(int id) {
 }
 
 void TurnController::setCurrentParticipant(int id) {
-    throw std::runtime_error("not implemented");
+    currentParticipantId = id;
 }
 
 int TurnController::getCurrentParticipantId(void) const {
@@ -321,4 +321,8 @@ void TurnController::allParticipantsSet(void) {
 
 int TurnController::getTurnNumber(void) const {
     return turnNumber;
+}
+
+void TurnController::setTurnNumber(int turnNumber) {
+    this->turnNumber = turnNumber;
 }
