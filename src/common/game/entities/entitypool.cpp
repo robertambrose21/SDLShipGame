@@ -95,9 +95,16 @@ void EntityPool::updateEntity(Entity* entity, int64_t timeSinceLastFrame, bool& 
 }
 
 void EntityPool::killEntity(uint32_t entityId) {
+    auto turnController = context->getTurnController();
     auto entity = getEntity(entityId);
 
-    context->getTurnController()->getParticipant(entity->getParticipantId())->removeEntity(entity);
+    // Remove entity from participant
+    turnController->getParticipant(entity->getParticipantId())->removeEntity(entity);
+
+    // Remove visibility of entity from participants (and prevent a seg-fault)
+    for(auto participant : turnController->getParticipants()) {
+        participant->removeVisibleEntity(entity);
+    }
 
     publish<EntityEventData>({ entity, "Death" });
 
