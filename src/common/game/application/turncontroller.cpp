@@ -83,11 +83,12 @@ void TurnController::addEntityToParticipant(int participantId, Entity* entity) {
     game_assert(entity != nullptr);
 
     if(!participants.contains(participantId)) {
-        throw std::runtime_error(
-            "Could not add entity to participant with id " + 
-            std::to_string(participantId) + 
-            " participant does not exist"
+        spdlog::error(
+            "Could not add entity {} to participant with id {} participant does not exist", 
+            entity->toString(),
+            participantId
         );
+        return;
     }
 
     participants[participantId]->addEntity(entity);
