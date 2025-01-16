@@ -65,6 +65,7 @@ public:
     void addEntityToParticipant(int participantId, Entity* entity);
     Participant* getParticipant(int id);
     std::vector<Participant*> getParticipants(void);
+    bool hasParticipant(int id);
 
     void queueEngagement(int turnNumber, const Engagement& engagement);
 

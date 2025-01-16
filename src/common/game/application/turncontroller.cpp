@@ -104,6 +104,7 @@ Participant* TurnController::getParticipant(int id) {
     return participants[id].get();
 }
 
+// TODO: Replace me with less dumb
 std::vector<Participant*> TurnController::getParticipants(void) {
     game_assert(initialised);
 
@@ -116,6 +117,10 @@ std::vector<Participant*> TurnController::getParticipants(void) {
     }
 
     return vParticipants;
+}
+
+bool TurnController::hasParticipant(int id) {
+    return participants.contains(id);
 }
 
 void TurnController::reset(void) {

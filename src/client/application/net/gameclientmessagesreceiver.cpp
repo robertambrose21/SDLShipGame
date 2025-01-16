@@ -56,6 +56,12 @@ void GameClientMessagesReceiver::receiveTestMessage(GameTestMessage* message) {
 
 void GameClientMessagesReceiver::receiveSetParticipant(SetParticipantMessage* message) {
     auto turnController = context.getTurnController();
+
+    if(turnController->hasParticipant(message->participantId)) {
+        spdlog::info("Participant {} already attached to a client, nothing to do.", message->participantId);
+        return;
+    }
+
     auto participant = turnController->addParticipant(message->participantId, message->clientId != 0, { }, nullptr, false);
 
     // Are we this participant

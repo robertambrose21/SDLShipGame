@@ -231,9 +231,33 @@ void GameServerMessagesTransmitter::sendSetParticipant(
 
     message->participantId = participant->getId();
     message->numParticipantsToSet = turnController->getParticipants().size();
-    message->clientId = server.getClientId(clientIndex);
+
+    if(participant->getIsPlayer()) {
+        auto attachedClient = turnController->getAttachedClient(participant->getId());
+
+        if(attachedClient == -1) {
+            spdlog::warn(
+                "Failed sending set participant {} to client {}. Cannot find attached client",
+                clientIndex,
+                participant->getId()
+            );
+            return;
+        }
+
+        message->clientId = server.getClientId(attachedClient);
+    }
+    else {
+        message->clientId = 0;
+    }
 
     server.sendMessage(clientIndex, message);
+    spdlog::trace("Sending set participant {} to client {}", participant->getId(), clientIndex);
+}
+
+void GameServerMessagesTransmitter::sendSetParticipantToAllClients(Participant* participant) {
+    for(auto [_, clientIndex] : turnController->getAllAttachedClients()) {
+        sendSetParticipant(clientIndex, participant);
+    }
 }
 
 void GameServerMessagesTransmitter::sendGameStateUpdate(int clientIndex, const GameStateUpdate& update) {
