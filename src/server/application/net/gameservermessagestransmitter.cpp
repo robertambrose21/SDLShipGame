@@ -231,7 +231,7 @@ void GameServerMessagesTransmitter::sendSetParticipant(
 
     message->participantId = participant->getId();
     message->numParticipantsToSet = turnController->getParticipants().size();
-    message->isPlayer = participant->getIsPlayer();
+    message->clientId = server.getClientId(clientIndex);
 
     server.sendMessage(clientIndex, message);
 }
@@ -374,6 +374,8 @@ void GameServerMessagesTransmitter::sendEngagement(
 void GameServerMessagesTransmitter::sendLoadGameToClient(int clientIndex) {
     auto participantId = turnController->getAttachedParticipantId(clientIndex);
 
+    spdlog::trace("Sending load game to client {} for participant {}", clientIndex, participantId);
+
     if(participantId == -1) {
         spdlog::warn("Cannot send load game to client with index {}, no participant", clientIndex);
         return;
@@ -389,9 +391,16 @@ void GameServerMessagesTransmitter::sendLoadGameToClient(int clientIndex) {
     }
 
     sendRevealedTiles(revealedTiles, participantId);
+    spdlog::trace("Sent revealed/visible tiles to client {} for participant {}", clientIndex, participantId);
 
     // -- TURN NUMBER --
     sendSetTurn(clientIndex, turnController->getCurrentParticipantId(), turnController->getTurnNumber());
+    spdlog::trace(
+        "Sent turn number [{}] to client {} for participant {}", 
+        turnController->getTurnNumber(), 
+        clientIndex, 
+        participantId
+    );
 
     // -- ENGAGEMENTS --
     auto engagements = turnController->getParticipant(participantId)->getEngagements();
@@ -405,9 +414,12 @@ void GameServerMessagesTransmitter::sendLoadGameToClient(int clientIndex) {
             clientIndex
         );
     }
+    spdlog::trace("Sent engagements to client {} for participant {}", clientIndex, participantId);
 
     // -- ITEMS --
     sendItems(clientIndex, itemController->getWorldItems());
 
     // -- ENTITIES --
+
+    spdlog::trace("Done sending load game to client {} for participant {}", clientIndex, participantId);
 }

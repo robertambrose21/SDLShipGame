@@ -67,13 +67,18 @@ void ClientApplication::initialise(void) {
     clientStateMachine = std::make_unique<ClientStateMachine>();
     clientStateMachine->setState(std::make_unique<ClientLoadingState>());
 
+    // TODO: Generate this from some kind of web server
+    uint64_t clientId = 1337;
+
     clientMessagesReceiver = std::make_unique<GameClientMessagesReceiver>(
-        application->getContext(), 
+        application->getContext(),
+        clientId,
         tileSet.getWalkableTiles()
     );
 
     client = std::make_unique<GameClient>(
         std::make_unique<GameMessageLogger>("client_messages.log"),
+        clientId,
         *clientMessagesReceiver,
         yojimbo::Address("127.0.0.1", 8081)
     );

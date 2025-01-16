@@ -25,7 +25,7 @@ private:
     StdOutSubscriber stdoutSubscriber;
 
     void sendLoadMapToClient(int clientIndex);
-    void sendGameStateUpdatesToParticipant(int participantId);
+    void sendGameStateUpdatesToParticipant(int clientIndex);
 
     void onClientConnect(int clientIndex);
     void onClientDisconnect(int clientIndex);

@@ -1,11 +1,12 @@
 #include "gameclientmessagesreceiver.h"
 
-// Handle with events?
 GameClientMessagesReceiver::GameClientMessagesReceiver(
-    ApplicationContext& context, 
+    ApplicationContext& context,
+    uint64_t clientId,
     const std::map<unsigned, bool>& walkableTileIds
 ) :
     context(context),
+    clientId(clientId),
     walkableTileIds(walkableTileIds)
 { }
 
@@ -55,9 +56,10 @@ void GameClientMessagesReceiver::receiveTestMessage(GameTestMessage* message) {
 
 void GameClientMessagesReceiver::receiveSetParticipant(SetParticipantMessage* message) {
     auto turnController = context.getTurnController();
-    auto participant = turnController->addParticipant(message->participantId, message->isPlayer, { }, nullptr, false);
+    auto participant = turnController->addParticipant(message->participantId, message->clientId != 0, { }, nullptr, false);
 
-    if(message->isPlayer) {
+    // Are we this participant
+    if(message->clientId == clientId) {
         playerController->setParticipant(participant);
     }
 

@@ -131,24 +131,36 @@ void ServerApplication::onClientConnect(int clientIndex) {
         }
 
         participant = turnController->getParticipant(participantId);
+        spdlog::trace("Client {} reconnected and is attaching to participant {}", clientIndex, participant->getId());
     }
     else {
         participant = turnController->addParticipant(true, { addPlayer(false) });
-        turnController->reset();
+        turnController->reset(); // TODO: Probably shouldn't do this?
+        spdlog::trace("Client {} connected and is attaching to participant {}", clientIndex, participant->getId());
     }
 
     turnController->attachParticipantToClient(participant->getId(), clientIndex, clientId);
+    spdlog::trace("Attached client {}:[{}] to participant {}", clientIndex, clientId, participant->getId());
 
-    for(auto& participant : turnController->getParticipants()) {
-        transmitter->sendSetParticipant(clientIndex, participant);
+    // TOOD: Send just unready participants to all clients
+    for(auto& p : turnController->getParticipants()) {
+        transmitter->sendSetParticipant(clientIndex, p);
+        spdlog::trace("Sending set participant {} to client {}", p->getId(), clientIndex);
     }
     
     // sendLoadMapToClient(clientIndex);
-    sendGameStateUpdatesToParticipant(participant->getId());
+    sendGameStateUpdatesToParticipant(clientIndex);
 
     // Temp hack to trigger a grid tile reveal
     for(auto entity : participant->getEntities()) {
         entity->setPosition(entity->getPosition());
+        spdlog::trace(
+            "Entity {} spawned at position ({}, {}) for participant {}", 
+            entity->toString(), 
+            entity->getPosition().x,
+            entity->getPosition().y,
+            participant->getId()
+        );
     }
     
     transmitter->sendLoadGameToClient(clientIndex);
@@ -213,8 +225,10 @@ void ServerApplication::sendLoadMapToClient(int clientIndex) {
 }
 
 // TODO: Move elsewhere
-void ServerApplication::sendGameStateUpdatesToParticipant(int participantId) {
+void ServerApplication::sendGameStateUpdatesToParticipant(int clientIndex) {
     auto& context = application->getContext();
+    auto turnController = dynamic_cast<ServerTurnController*>(context.getTurnController());
+    auto participantId = turnController->getAttachedParticipantId(clientIndex);
 
     auto chunkId = getNewId();
 
@@ -236,23 +250,23 @@ void ServerApplication::sendGameStateUpdatesToParticipant(int participantId) {
 
         if(entitiesBlock.size() == MaxEntities) {
             transmitter->sendGameStateUpdate(
-                0, 
+                clientIndex, 
                 GameStateUpdate::serialize(participantId, entitiesBlock, chunkId, expectedNumChunks)
             );
-            std::cout << "Sent GameStateUpdate ["  << entitiesBlock.size() << "]" << std::endl;
+            spdlog::trace("Sent GameStateUpdate [{}] to participant {}", entitiesBlock.size(), participantId);
             entitiesBlock.clear();
         }
     }
 
     if(!entitiesBlock.empty()) {
         transmitter->sendGameStateUpdate(
-            0, 
+            clientIndex, 
             GameStateUpdate::serialize(participantId, entitiesBlock, chunkId, expectedNumChunks)
         );
-        std::cout << "Sent GameStateUpdate ["  << entitiesBlock.size() << "]" << std::endl;
+        spdlog::trace("Sent GameStateUpdate [{}] to participant {}", entitiesBlock.size(), participantId);
     }
 
-    std::cout << "Total entities " << visibleEntities.size() << std::endl;
+    spdlog::trace("Total visible entities [{}] to participant {}", visibleEntities.size(), participantId);
 }
 
 std::vector<GenerationStrategy::Room> ServerApplication::loadMap(void) {

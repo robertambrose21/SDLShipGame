@@ -189,19 +189,19 @@ class SetParticipantMessage : public yojimbo::Message {
 public:
     int participantId;
     int numParticipantsToSet;
-    bool isPlayer;
+    uint64_t clientId;
 
     SetParticipantMessage() :
         participantId(0),
         numParticipantsToSet(0),
-        isPlayer(false)
+        clientId(0)
     { }
 
     template <typename Stream>
     bool Serialize(Stream& stream) {
         serialize_int(stream, participantId, 0, 64);
         serialize_int(stream, numParticipantsToSet, 0, 64);
-        serialize_bool(stream, isPlayer);
+        serialize_uint64(stream, clientId);
 
         return true;
     }

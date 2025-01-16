@@ -2,10 +2,12 @@
 
 GameClient::GameClient(
     std::unique_ptr<MessageLogger> messageLogger,
+    uint64_t clientId,
     ClientMessagesReceiver& receiver,
     const yojimbo::Address& serverAddress
 ) :
     messageLogger(std::move(messageLogger)),
+    clientId(clientId),
     receiver(receiver),
     adapter(ClientGameAdapter()),
     client(
@@ -17,9 +19,6 @@ GameClient::GameClient(
     )
 {
     game_assert(connectionConfig.numChannels == 2);
-    // uint64_t clientId;
-    // yojimbo::random_bytes((uint8_t*)&clientId, 8);
-    uint64_t clientId = 1337; // TODO: This should be received from a web backend and sent to the client
     client.InsecureConnect(DEFAULT_PRIVATE_KEY_CLIENT, clientId, serverAddress);
 }
 
@@ -66,4 +65,8 @@ void GameClient::processMessages(void) {
 void GameClient::processMessage(yojimbo::Message* message) {
     receiver.receiveMessage(message);
     messageLogger->logMessage(message, true);
+}
+
+uint64_t GameClient::getClientId(void) const {
+    return clientId;
 }

@@ -15,10 +15,24 @@ class GameClientMessagesReceiver :
     public ClientMessagesReceiver,
     public EventPublisher<ApplyDamageEventData>
 {
+public:
+    GameClientMessagesReceiver(
+        ApplicationContext& context,
+        uint64_t clientId,
+        const std::map<unsigned, bool>& walkableTileIds
+    );
+
+    void setPlayerController(PlayerController* playerController);
+    void setTransmitter(GameClientMessagesTransmitter* transmitter);
+
+    void receiveMessage(yojimbo::Message* message) override;
+
 private:
     ApplicationContext& context;
     GameClientMessagesTransmitter* transmitter;
     PlayerController* playerController;
+
+    uint64_t clientId;
     std::map<unsigned, bool> walkableTileIds;
 
     void receiveTestMessage(GameTestMessage* message);
@@ -39,15 +53,4 @@ private:
     void receiveSetEntityPositionMessage(SetEntityPositionMessage* message);
     void receiveAddEntityVisibilityMessage(AddEntityVisibilityMessage* message);
     void receiveRemoveEntityVisibilityMessage(RemoveEntityVisibilityMessage* message);
-
-public:
-    GameClientMessagesReceiver(
-        ApplicationContext& context, 
-        const std::map<unsigned, bool>& walkableTileIds
-    );
-
-    void setPlayerController(PlayerController* playerController);
-    void setTransmitter(GameClientMessagesTransmitter* transmitter);
-
-    void receiveMessage(yojimbo::Message* message) override;
 };

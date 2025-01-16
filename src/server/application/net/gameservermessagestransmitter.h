@@ -27,27 +27,6 @@ class GameServerMessagesTransmitter :
     public EventSubscriber<EntitySetPositionEventData>,
     public EventSubscriber<EntityVisibilityToParticipantData>
 {
-private:
-    GameServer& server;
-    ServerTurnController* turnController;
-    VisiblityController* visibilityController;
-    ItemController* itemController;
-
-    std::function<void(int)> onClientConnectFunc;
-    std::function<void(int)> onClientDisconnectFunc;
-
-    void onClientConnected(int clientIndex) override;
-    void onClientDisconnected(int clientIndex) override;
-
-    void sendRevealedTiles(const std::vector<RevealedTile>& tiles, int participantId);
-    void sendEngagement(
-        int participantIdA, 
-        int participantIdB, 
-        int turnToEngageOn,
-        EngagementType type,
-        int clientIndex
-    );
-
 public:
     GameServerMessagesTransmitter(
         GameServer& server,
@@ -81,4 +60,25 @@ public:
     void sendItems(int clientIndex, const std::vector<Item*>& items);
 
     void sendLoadGameToClient(int clientIndex);
+
+private:
+    GameServer& server;
+    ServerTurnController* turnController;
+    VisiblityController* visibilityController;
+    ItemController* itemController;
+
+    std::function<void(int)> onClientConnectFunc;
+    std::function<void(int)> onClientDisconnectFunc;
+
+    void onClientConnected(int clientIndex) override;
+    void onClientDisconnected(int clientIndex) override;
+
+    void sendRevealedTiles(const std::vector<RevealedTile>& tiles, int participantId);
+    void sendEngagement(
+        int participantIdA, 
+        int participantIdB, 
+        int turnToEngageOn,
+        EngagementType type,
+        int clientIndex
+    );
 };
