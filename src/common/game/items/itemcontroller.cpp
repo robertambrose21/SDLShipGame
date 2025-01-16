@@ -97,7 +97,11 @@ Item* ItemController::addItem(
 ) {
     game_assert(initialised);
     game_assert(itemDefinitions.contains(name));
-    game_assert(!items.contains(id));
+
+    if(items.contains(id)) {
+        spdlog::warn("Item {}#{} already exists, duplicate id {}. Retrieving existing item", name, id, id);
+        return items[id].get();
+    }
     
     auto definition = itemDefinitions[name];
     auto item = std::make_unique<Item>(
@@ -128,6 +132,15 @@ Item* ItemController::addItem(
     }
 
     areWorldItemsDirty = true;
+
+    spdlog::trace(
+        "Added item {}#{} at position ({}, {}), dropped by: {}",
+        name,
+        id,
+        position.x,
+        position.y,
+        droppedBy
+    );
 
     return items[id].get();
 }

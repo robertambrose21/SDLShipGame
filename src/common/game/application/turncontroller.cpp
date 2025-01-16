@@ -132,6 +132,15 @@ void TurnController::engage(int participantIdA, int participantIdB) {
     auto& participantA = participants[participantIdA];
     auto& participantB = participants[participantIdB];
 
+    if(participantA == nullptr) {
+        spdlog::critical("Cannot engage participant with id {} participant does not exist", participantIdA);
+        return;
+    }
+    if(participantB == nullptr) {
+        spdlog::critical("Cannot engage participant with id {} participant does not exist", participantIdB);
+        return;
+    }
+
     participantA->engage(participantIdB, turnNumber);
     participantB->engage(participantIdA, turnNumber);
 

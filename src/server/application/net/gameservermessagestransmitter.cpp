@@ -331,24 +331,35 @@ void GameServerMessagesTransmitter::sendItems(int clientIndex, const std::vector
         itemGroups[{ item->getPosition(), item->getDroppedBy() }].push_back(item);
     }
     
-    for(auto [_, clientIndex] : turnController->getAllAttachedClients()) {
-        // TODO: handle items > 64
-        for(auto [key, items] : itemGroups) {
-            auto [position, droppedBy] = key;
-            SpawnItemsMessage* message = (SpawnItemsMessage*) server.createMessage(0, GameMessageType::SPAWN_ITEMS);
+    // TODO: handle items > 64
+    for(auto [key, items] : itemGroups) {
+        auto [position, droppedBy] = key;
+        SpawnItemsMessage* message = (SpawnItemsMessage*) server.createMessage(clientIndex, GameMessageType::SPAWN_ITEMS);
 
-            message->x = position.x;
-            message->y = position.y;
-            strcpy(message->droppedBy, droppedBy.data());
-            message->numItems = items.size();
+        message->x = position.x;
+        message->y = position.y;
+        strcpy(message->droppedBy, droppedBy.data());
+        message->numItems = items.size();
 
-            for(int i = 0; i < items.size(); i++) {
-                message->items[i].id = items[i]->getId();
-                strcpy(message->items[i].name, items[i]->getName().data());
-            }
+        std::string itemsList = "";
 
-            server.sendMessage(clientIndex, message);
+        for(int i = 0; i < items.size(); i++) {
+            message->items[i].id = items[i]->getId();
+            strcpy(message->items[i].name, items[i]->getName().data());
+
+            #if !defined(NDEBUG)
+                itemsList += items[i]->getName() + "#" + std::to_string(items[i]->getId());
+
+                if(i < items.size() - 1) {
+                    itemsList += ", ";
+                }
+            #endif
         }
+
+        server.sendMessage(clientIndex, message);
+        #if !defined(NDEBUG)
+            spdlog::trace("Sending spawn item message {}:[{}] to client {}", items.size(), itemsList, clientIndex);
+        #endif
     }
 }
 
