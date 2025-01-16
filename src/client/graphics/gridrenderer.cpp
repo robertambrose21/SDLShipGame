@@ -67,7 +67,7 @@ void GridRenderer::buildChunkTexture(GraphicsContext& graphicsContext, Chunk* ch
     auto renderer = graphicsContext.getRenderer();
 
     // auto const& data = grid->getData();
-    auto const& data = visiblityController->getTilesWithVisibility(1);
+    auto const& data = visiblityController->getTilesWithVisibility(participant->getId());
 
     auto target = std::unique_ptr<SDL_Texture, Texture::sdl_deleter>(
         SDL_CreateTexture(
@@ -286,6 +286,11 @@ bool GridRenderer::isTileInChunk(Chunk* chunk, int x, int y) {
 }
 
 void GridRenderer::draw(GraphicsContext& graphicsContext) {
+    if(participant == nullptr) {
+        // Wait for participant to be set before we draw anything
+        return;
+    }
+
     auto camPos = camera->getPosition();
 
     for(auto& chunk : chunks) {
