@@ -302,6 +302,12 @@ void GameServerMessagesTransmitter::sendNextTurn(int clientIndex, int participan
     server.sendMessage(clientIndex, message);
 }
 
+void GameServerMessagesTransmitter::sendNextTurnToAllClients(int participantId, int turnNumber) {
+    for(auto [_, clientIndex] : turnController->getAllAttachedClients()) {
+        sendNextTurn(clientIndex, participantId, turnNumber);
+    }
+}
+
 void GameServerMessagesTransmitter::sendSetTurn(int clientIndex, uint8_t currentParticipantId, uint32_t turnNumber) {
     SetTurnMessage* message = (SetTurnMessage*) server.createMessage(clientIndex, GameMessageType::SET_TURN);
 

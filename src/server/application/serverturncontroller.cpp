@@ -91,9 +91,8 @@ bool ServerTurnController::canProgressToNextTurn(int participantId) {
         return false;
     }
 
-    // TODO: Need to add a check to see if any fully dead participants still have projectiles/animations in progress
     if(participant->getEntities().empty()) {
-        transmitter->sendNextTurn(0, currentParticipantId, turnNumber);
+        transmitter->sendNextTurnToAllClients(currentParticipantId, turnNumber);
         return true;
     }
 
@@ -110,14 +109,14 @@ bool ServerTurnController::canProgressToNextTurn(int participantId) {
     }
 
     if(participant->getBehaviourStrategy() != nullptr && participant->getBehaviourStrategy()->endTurnCondition()) {
-        transmitter->sendNextTurn(0, currentParticipantId, turnNumber);
+        transmitter->sendNextTurnToAllClients(currentParticipantId, turnNumber);
         return true;
     }
 
     auto nextTurn = haveEntitiesTurnsFinished || participant->isPassingNextTurn();
 
     if(nextTurn) {
-        transmitter->sendNextTurn(0, currentParticipantId, turnNumber);
+        transmitter->sendNextTurnToAllClients(currentParticipantId, turnNumber);
     }
 
     return nextTurn;

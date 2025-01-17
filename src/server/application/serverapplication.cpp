@@ -144,8 +144,7 @@ void ServerApplication::onClientConnect(int clientIndex) {
 
     // TOOD: Send just unready participants to all clients
     for(auto& p : turnController->getParticipants()) {
-        transmitter->sendSetParticipant(clientIndex, p);
-        spdlog::trace("Sending set participant {} to client {}", p->getId(), clientIndex);
+        transmitter->sendSetParticipantToAllClients(p);
     }
     
     // sendLoadMapToClient(clientIndex);

@@ -57,6 +57,7 @@ public:
     void sendLoadMap(int clientIndex, const MapBlock& block);
     void sendActionsRollResponse(int clientIndex, int participantId, const std::vector<DiceActionResult>& dice);
     void sendNextTurn(int clientIndex, int participantId, int turnNumber);
+    void sendNextTurnToAllClients(int participantId, int turnNumber);
     void sendSetTurn(int clientIndex, uint8_t currentParticipantId, uint32_t turnNumber);
     void sendItems(int clientIndex, const std::vector<Item*>& items);
 
