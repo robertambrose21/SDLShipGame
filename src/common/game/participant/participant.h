@@ -28,6 +28,7 @@ public:
     void engage(int otherParticipantId, int turnEngaged);
     void disengage(int otherParticipantId);
     bool hasEngagement(int otherParticipantId);
+    bool isEngaged(void);
 
     void endTurn(void);
     void passTurn(void);

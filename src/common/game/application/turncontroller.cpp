@@ -23,6 +23,12 @@ void TurnController::update(int64_t timeSinceLastFrame, bool& quit) {
     additionalUpdate(timeSinceLastFrame, quit);
     executeActions(currentParticipantId);
 
+    for(auto const& [participantId, participant] : participants) {
+        if(participantId != currentParticipantId && !participant->isEngaged()) {
+            executeActions(participantId);
+        }
+    }
+
     if(canProgressToNextTurn(currentParticipantId)) {
         endCurrentParticipantTurn();
         nextParticipantTurn();
@@ -210,7 +216,7 @@ int TurnController::getCurrentParticipantId(void) const {
 void TurnController::executeActions(int participantId) {
     game_assert(initialised);
 
-    for(auto entity : participants[currentParticipantId]->getEntities()) {
+    for(auto entity : participants[participantId]->getEntities()) {
         executeEntityActions(entity);
     }
 }

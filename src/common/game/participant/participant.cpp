@@ -44,6 +44,10 @@ bool Participant::hasEngagement(int otherParticipantId) {
     return false;
 }
 
+bool Participant::isEngaged(void) {
+    return !engagements.empty();
+}
+
 void Participant::endTurn(void) {
     for(auto const& entity : entities) {
         entity->endTurn();
