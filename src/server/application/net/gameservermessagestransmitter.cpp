@@ -57,7 +57,13 @@ void GameServerMessagesTransmitter::onPublish(const Event<MoveActionEventData>& 
 void GameServerMessagesTransmitter::onPublish(const Event<AttackActionEventData>& event) {
     for(auto [participantId, clientIndex] : turnController->getAllAttachedClients()) {
         if(turnController->getAttachedClient(event.data.owner->getParticipantId()) == clientIndex) {
-            return;
+            spdlog::trace(
+                "Not sending attack to participant {}, owning entity {}/{} sent the attack",
+                participantId,
+                event.data.owner->getParticipantId(),
+                event.data.owner->toString()
+            );
+            continue;
         }
 
         AttackMessage* message = (AttackMessage*) server.createMessage(clientIndex, GameMessageType::ATTACK_ENTITY);
@@ -68,6 +74,11 @@ void GameServerMessagesTransmitter::onPublish(const Event<AttackActionEventData>
         memcpy(message->weaponIdBytes, &event.data.weapon->getId().getBytes()[0], 16);
         message->turnNumber = event.data.turnNumber;
 
+        spdlog::trace("Sending attack to participant {}, owning entity {}/{} sent the attack",
+            participantId,
+            event.data.owner->getParticipantId(),
+            event.data.owner->toString()
+        );
         server.sendMessage(clientIndex, message);
     }
 }
@@ -198,7 +209,7 @@ void GameServerMessagesTransmitter::onPublish(const Event<EntitySetPositionEvent
 }
 
 void GameServerMessagesTransmitter::onPublish(const Event<EntityVisibilityToParticipantData>& event) {
-    int clientIndex = turnController->getAttachedClient(event.data.participantId);
+    int clientIndex = turnController->getAttachedClient(event.data.visibleToParticipantId);
 
     if(clientIndex == -1) {
         return;
@@ -209,7 +220,7 @@ void GameServerMessagesTransmitter::onPublish(const Event<EntityVisibilityToPart
             (AddEntityVisibilityMessage*) server.createMessage(clientIndex, GameMessageType::ADD_ENTITY_VISIBILITY);
 
         message->entity = EntityStateUpdate::serialize(event.data.entity);
-        message->participantId = event.data.participantId;
+        message->visibleToParticipantId = event.data.visibleToParticipantId;
         server.sendMessage(clientIndex, message);
     } 
     else {
@@ -217,7 +228,7 @@ void GameServerMessagesTransmitter::onPublish(const Event<EntityVisibilityToPart
             (RemoveEntityVisibilityMessage*) server.createMessage(clientIndex, GameMessageType::REMOVE_ENTITY_VISIBILITY);
 
         message->entityId = event.data.entity->getId();
-        message->participantId = event.data.participantId;
+        message->participantId = event.data.visibleToParticipantId;
 
         server.sendMessage(clientIndex, message);
     }

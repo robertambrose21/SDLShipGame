@@ -46,7 +46,7 @@ void GameClientMessagesReceiver::receiveMessage(yojimbo::Message* message) {
 }
 
 void GameClientMessagesReceiver::receiveGameStateUpdate(GameStateUpdateMessage* message) {
-    // std::cout << "Got game state update " << update.currentParticipantId << std::endl;
+    // std::cout << "Got game state update" << std::endl;
     context.getEntityPool()->addGameStateUpdate(message->gameStateUpdate);
 }
 
@@ -115,6 +115,7 @@ void GameClientMessagesReceiver::receiveFindPath(FindPathMessage* message) {
 }
 
 void GameClientMessagesReceiver::receiveAttackEntity(AttackMessage* message) {
+    spdlog::trace("Received attack entity message {} -> ({}, {})", message->entityId, message->x, message->y);
     auto entityPool = context.getEntityPool();
 
     if(!entityPool->hasEntity(message->entityId)) {
@@ -126,7 +127,7 @@ void GameClientMessagesReceiver::receiveAttackEntity(AttackMessage* message) {
 
     for(auto weapon : entity->getWeapons()) {
         if(weapon->getId() == weaponId) {
-            context.getTurnController()->queueAction(
+            auto isQueued = context.getTurnController()->queueAction(
                 std::make_unique<AttackAction>(
                     message->turnNumber, 
                     entity, 
@@ -135,6 +136,8 @@ void GameClientMessagesReceiver::receiveAttackEntity(AttackMessage* message) {
                     true
                 )
             );
+
+            spdlog::trace("Attack action queued: {}", isQueued);
         }
     }
 }
@@ -312,16 +315,16 @@ void GameClientMessagesReceiver::receiveRemoveEntityVisibilityMessage(RemoveEnti
 }
 
 void GameClientMessagesReceiver::receiveAddEntityVisibilityMessage(AddEntityVisibilityMessage* message) {
-    auto participant = playerController->getParticipant();
+    auto clientParticipant = playerController->getParticipant();
 
-    if(message->participantId != participant->getId()) {
+    if(message->visibleToParticipantId != clientParticipant->getId()) {
         std::cout 
             << "Cannot set visibility for entity with id "
             << message->entity.id
             << " message is for participant "
-            << message->participantId
+            << message->visibleToParticipantId
             << " and this is participant "
-            << participant->getId()
+            << clientParticipant->getId()
             << std::endl;
         return;
     }
@@ -334,6 +337,17 @@ void GameClientMessagesReceiver::receiveAddEntityVisibilityMessage(AddEntityVisi
     }
 
     auto entity = context.getEntityPool()->addEntity(message->entity.name, message->entity.id);
+
+    if(!context.getTurnController()->hasParticipant(message->entity.participantId)) {
+        spdlog::warn(
+            "Cannot add entity {} which has a non-existant participant {}",
+            entity->toString(),
+            message->entity.participantId
+        );
+        return;
+    }
+
+    context.getTurnController()->getParticipant(message->entity.participantId)->addEntity(entity);
 
     for(int j = 0; j < entityStateUpdate.numWeapons; j++) {
         auto const& weaponUpdate = entityStateUpdate.weaponUpdates[j];
@@ -352,9 +366,9 @@ void GameClientMessagesReceiver::receiveAddEntityVisibilityMessage(AddEntityVisi
 
     EntityStateUpdate::deserialize(message->entity, entity);
 
-    if(participant->hasVisibleEntity(entity)) {
+    if(clientParticipant->hasVisibleEntity(entity)) {
         std::cout << std::format("Warning: received already visible entity {}", entity->getId()) << std::endl;
     }
     
-    participant->addVisibleEntity(entity);
+    clientParticipant->addVisibleEntity(entity);
 }

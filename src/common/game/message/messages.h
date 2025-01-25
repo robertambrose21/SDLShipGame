@@ -642,16 +642,16 @@ public:
 class AddEntityVisibilityMessage : public yojimbo::Message {
 public:
     EntityStateUpdate entity;
-    uint8_t participantId;
+    uint8_t visibleToParticipantId;
 
     AddEntityVisibilityMessage() :
-        participantId(0)
+        visibleToParticipantId(0)
     { }
 
     template<typename Stream>
     bool Serialize(Stream& stream) {
         serialize_entity_state_update(stream, entity);
-        serialize_bits(stream, participantId, 8);
+        serialize_bits(stream, visibleToParticipantId, 8);
 
         return true;
     }
