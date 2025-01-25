@@ -35,9 +35,9 @@ void ChaseAndAttackStrategy::onUpdate(int participantId, int64_t timeSinceLastFr
     if(canDisengage) {
         auto participants = turnController->getParticipants();
 
-        for(auto participant : participants) {
-            if(participantId != participant->getId()) {
-                turnController->disengage(participantId, participant->getId());
+        for(auto other : participants) {
+            if(participantId != other->getId() && participant->hasEngagement(other->getId())) {
+                turnController->disengage(participantId, other->getId());
             }
         }
     }
