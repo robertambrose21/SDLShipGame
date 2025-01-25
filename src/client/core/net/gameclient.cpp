@@ -22,6 +22,10 @@ GameClient::GameClient(
     client.InsecureConnect(DEFAULT_PRIVATE_KEY_CLIENT, clientId, serverAddress);
 }
 
+GameClient::~GameClient() {
+    client.Disconnect();
+}
+
 void GameClient::update(int64_t timeSinceLastFrame) {
     client.AdvanceTime(client.GetTime() + ((double) timeSinceLastFrame) / 1000.0f);
     client.ReceivePackets();

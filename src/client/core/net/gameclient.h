@@ -33,6 +33,7 @@ public:
         ClientMessagesReceiver& receiver,
         const yojimbo::Address& serverAddress
     );
+    ~GameClient();
 
     void update(int64_t timeSinceLastFrame);
     yojimbo::Message* createMessage(const GameMessageType& messageType);

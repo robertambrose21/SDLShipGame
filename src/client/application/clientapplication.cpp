@@ -4,6 +4,7 @@ ClientApplication::ClientApplication()
 { }
 
 ClientApplication::~ClientApplication() {
+    client.reset(); // Free client resources and disconnect so we can cleanly shutdown yojimbo
     ShutdownYojimbo();
 }
 
