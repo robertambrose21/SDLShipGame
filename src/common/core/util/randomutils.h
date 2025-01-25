@@ -4,31 +4,34 @@
 #include <random>
 #include "gameassert.h"
 
-// TODO: Template
+inline std::mt19937& getRandomGenerator() {
+    static std::random_device dev;
+    static std::mt19937 rng(dev());
+    return rng;
+}
+
+inline void setRandomGeneratorSeed(uint32_t seed) {
+    getRandomGenerator() = std::mt19937(seed);
+}
+
 inline uint32_t randomRange(uint32_t lower, uint32_t upper) {
     game_assert(upper >= lower);
-    std::random_device dev;
-    std::mt19937 rng(dev());
     std::uniform_int_distribution<std::mt19937::result_type> dist(lower, upper);
 
-    return dist(rng);
+    return dist(getRandomGenerator());
 }
 
 inline double randomRangeDouble(double lower, double upper) {
     game_assert(upper >= lower);
-    std::random_device dev;
-    std::mt19937 rng(dev());
     std::uniform_real_distribution<> dist(lower, upper);
 
-    return dist(rng);
+    return dist(getRandomGenerator());
 }
 
 inline uint32_t randomDN(uint32_t n) {
-    std::random_device dev;
-    std::mt19937 rng(dev());
     std::uniform_int_distribution<std::mt19937::result_type> distn(1, n);
 
-    return distn(rng);
+    return distn(getRandomGenerator());
 }
 
 inline uint32_t randomD6(void) {
