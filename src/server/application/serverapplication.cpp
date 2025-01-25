@@ -146,9 +146,6 @@ void ServerApplication::onClientConnect(int clientIndex) {
     for(auto& p : turnController->getParticipants()) {
         transmitter->sendSetParticipantToAllClients(p);
     }
-    
-    // sendLoadMapToClient(clientIndex);
-    sendGameStateUpdatesToParticipant(clientIndex);
 
     // Temp hack to trigger a grid tile reveal
     for(auto entity : participant->getEntities()) {
@@ -163,8 +160,7 @@ void ServerApplication::onClientConnect(int clientIndex) {
     }
     
     transmitter->sendLoadGameToClient(clientIndex);
-
-    // sendGameStateUpdatesToClients();
+    sendGameStateUpdatesToParticipant(clientIndex);
 }
 
 void ServerApplication::onClientDisconnect(int clientIndex) {

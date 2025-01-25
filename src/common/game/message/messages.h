@@ -621,17 +621,17 @@ public:
 class RemoveEntityVisibilityMessage : public yojimbo::Message {
 public:
     uint32_t entityId;
-    uint8_t participantId;
+    uint8_t visibleToParticipantId;
 
     RemoveEntityVisibilityMessage() :
         entityId(0),
-        participantId(0)
+        visibleToParticipantId(0)
     { }
 
     template<typename Stream>
     bool Serialize(Stream& stream) {
         serialize_uint32(stream, entityId);
-        serialize_bits(stream, participantId, 8);
+        serialize_bits(stream, visibleToParticipantId, 8);
 
         return true;
     }

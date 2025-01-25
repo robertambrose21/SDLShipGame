@@ -221,6 +221,11 @@ void GameServerMessagesTransmitter::onPublish(const Event<EntityVisibilityToPart
 
         message->entity = EntityStateUpdate::serialize(event.data.entity);
         message->visibleToParticipantId = event.data.visibleToParticipantId;
+        spdlog::trace(
+            "Sending AddEntityVisibilityMessage for entity {} to {}", 
+            event.data.entity->toString(), 
+            event.data.visibleToParticipantId
+        );
         server.sendMessage(clientIndex, message);
     } 
     else {
@@ -228,8 +233,12 @@ void GameServerMessagesTransmitter::onPublish(const Event<EntityVisibilityToPart
             (RemoveEntityVisibilityMessage*) server.createMessage(clientIndex, GameMessageType::REMOVE_ENTITY_VISIBILITY);
 
         message->entityId = event.data.entity->getId();
-        message->participantId = event.data.visibleToParticipantId;
-
+        message->visibleToParticipantId = event.data.visibleToParticipantId;
+        spdlog::trace(
+            "Sending AddEntityVisibilityMessage for entity {} to {}", 
+            event.data.entity->toString(), 
+            event.data.visibleToParticipantId
+        );
         server.sendMessage(clientIndex, message);
     }
 }
@@ -276,6 +285,7 @@ void GameServerMessagesTransmitter::sendGameStateUpdate(int clientIndex, const G
 
     message->gameStateUpdate = update;
 
+    spdlog::trace("Sending GameStateUpdate to client {}", clientIndex);
     server.sendMessage(clientIndex, message);
 }
 

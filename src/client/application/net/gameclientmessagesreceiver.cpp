@@ -46,7 +46,7 @@ void GameClientMessagesReceiver::receiveMessage(yojimbo::Message* message) {
 }
 
 void GameClientMessagesReceiver::receiveGameStateUpdate(GameStateUpdateMessage* message) {
-    // std::cout << "Got game state update" << std::endl;
+    spdlog::trace("Got game state update, num entities: [{}]", message->gameStateUpdate.numEntities);
     context.getEntityPool()->addGameStateUpdate(message->gameStateUpdate);
 }
 
@@ -288,16 +288,22 @@ void GameClientMessagesReceiver::receiveSetEntityPositionMessage(SetEntityPositi
 
 
 void GameClientMessagesReceiver::receiveRemoveEntityVisibilityMessage(RemoveEntityVisibilityMessage* message) {
-    auto participant = playerController->getParticipant();
+    auto clientParticipant = playerController->getParticipant();
+
+    spdlog::trace(
+        "Received RemoveEntityVisibilityMessage for entity id {} and participant {}", 
+        message->entityId,
+        clientParticipant->getId()
+    );
     
-    if(message->participantId != participant->getId()) {
+    if(message->visibleToParticipantId != clientParticipant->getId()) {
         std::cout 
             << "Cannot set visibility for entity with id "
             << message->entityId
             << " message is for participant "
-            << message->participantId
+            << message->visibleToParticipantId
             << " and this is participant "
-            << participant->getId()
+            << clientParticipant->getId()
             << std::endl;
         return;
     }
@@ -305,7 +311,7 @@ void GameClientMessagesReceiver::receiveRemoveEntityVisibilityMessage(RemoveEnti
 
     if(context.getEntityPool()->hasEntity(message->entityId)) {
         auto entityToRemove = context.getEntityPool()->getEntity(message->entityId);
-        participant->removeVisibleEntity(entityToRemove);
+        clientParticipant->removeVisibleEntity(entityToRemove);
 
         context.getEntityPool()->removeEntity(message->entityId);
     }
@@ -316,6 +322,12 @@ void GameClientMessagesReceiver::receiveRemoveEntityVisibilityMessage(RemoveEnti
 
 void GameClientMessagesReceiver::receiveAddEntityVisibilityMessage(AddEntityVisibilityMessage* message) {
     auto clientParticipant = playerController->getParticipant();
+
+    spdlog::trace(
+        "Received AddEntityVisibilityMessage for entity id {} and participant {}", 
+        message->entity.id,
+        clientParticipant->getId()
+    );
 
     if(message->visibleToParticipantId != clientParticipant->getId()) {
         std::cout 
