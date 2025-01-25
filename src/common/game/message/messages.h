@@ -6,6 +6,7 @@
 // Note: Yojimbo seems to have a limit on the size of the messages which can be sent
 // be careful about how big some of these messages are
 enum class GameMessageType {
+    PING,
     FIND_PATH,
     SELECT_ENTITY,
     ATTACK_ENTITY,
@@ -32,6 +33,23 @@ enum class GameMessageType {
     ADD_ENTITY_VISIBILITY,
     SET_TURN,
     COUNT
+};
+
+// TODO: Remove these and use serialize_int
+#define serialize_uint32(stream, value) serialize_int(stream, value, 0, INT32_MAX)
+#define serialize_uint64(stream, value) serialize_int(stream, value, 0, INT32_MAX)
+
+class PingMessage : public yojimbo::Message {
+public:
+    PingMessage()
+    { }
+
+    template <typename Stream>
+    bool Serialize(Stream& stream) {
+        return true;
+    }
+
+    YOJIMBO_VIRTUAL_SERIALIZE_FUNCTIONS();
 };
 
 class FindPathMessage : public yojimbo::Message {
@@ -681,6 +699,7 @@ public:
 };
 
 YOJIMBO_MESSAGE_FACTORY_START(GameMessageFactory, (int)GameMessageType::COUNT);
+YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::PING, PingMessage);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::FIND_PATH, FindPathMessage);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::SELECT_ENTITY, SelectEntityMessage);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::ATTACK_ENTITY, AttackMessage);

@@ -14,4 +14,4 @@ add_library(
 )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX CXX_STANDARD 20)
-target_link_libraries(ClientApplicationLib ${SDL2_LIBRARIES} ${SDL2_IMAGE_LIBRARIES})
+target_link_libraries(ClientApplicationLib ${SDL2_LIBRARIES} ${SDL2_IMAGE_LIBRARIES} yojimbo)

@@ -9,7 +9,6 @@ private:
     void logSelectEntity(SelectEntityMessage* message, bool isIncoming);
     void logAttackEntity(AttackMessage* message, bool isIncoming);
     void logGameStateUpdate(GameStateUpdateMessage* message, bool isIncoming);
-    void logTestMessage(TestMessage* message, bool isIncoming);
     void logSetParticipant(SetParticipantMessage* message, bool isIncoming);
     void logSetParticipantAck(SetParticipantAckMessage* message, bool isIncoming);
     void logPassParticipantTurn(PassParticipantTurnMessage* message, bool isIncoming);

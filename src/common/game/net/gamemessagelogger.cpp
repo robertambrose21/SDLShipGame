@@ -7,7 +7,6 @@ GameMessageLogger::GameMessageLogger(const std::string& filename) :
 void GameMessageLogger::logMessage(yojimbo::Message* message, bool isIncoming) {
     switch(message->GetType()) {
         case (int) GameMessageType::GAME_STATE_UPDATE:      { logGameStateUpdate((GameStateUpdateMessage*) message, isIncoming); break; }
-        case (int) GameMessageType::TEST_MESSAGE:           { logTestMessage((TestMessage*) message, isIncoming); break;}
         case (int) GameMessageType::SET_PARTICIPANT:        { logSetParticipant((SetParticipantMessage*) message, isIncoming); break; }
         case (int) GameMessageType::LOAD_MAP:               { logLoadMap((LoadMapMessage*) message, isIncoming); break; }
         case (int) GameMessageType::FIND_PATH:              { logFindPath((FindPathMessage*) message, isIncoming); break; }
@@ -45,10 +44,6 @@ void GameMessageLogger::logAttackEntity(AttackMessage* message, bool isIncoming)
 
 void GameMessageLogger::logGameStateUpdate(GameStateUpdateMessage* message, bool isIncoming) {
     printToOutFile(isIncoming, message->GetId(), "GameStateUpdateMessage");
-}
-
-void GameMessageLogger::logTestMessage(TestMessage* message, bool isIncoming) {
-    printToOutFile(isIncoming, message->GetId(), "TestMessage");
 }
 
 void GameMessageLogger::logSetParticipant(SetParticipantMessage* message, bool isIncoming) {

@@ -12,4 +12,4 @@ add_library(
 )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX CXX_STANDARD 20)
-target_link_libraries(ServerApplicationLib)
+target_link_libraries(ServerApplicationLib yojimbo)
