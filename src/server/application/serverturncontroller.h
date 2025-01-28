@@ -27,7 +27,8 @@ private:
     GameServerMessagesTransmitter* transmitter;
 
     bool canProgressToNextTurn(int participantId) override;
-    void additionalUpdate(int64_t timeSinceLastFrame, bool& quit);
+    void onParticipantTurnEnd(int participantId) override;
+    void additionalUpdate(int64_t timeSinceLastFrame, bool& quit) override;
     
     void checkForItems(void);
     void assignEngagements(int participantIdToCheck);

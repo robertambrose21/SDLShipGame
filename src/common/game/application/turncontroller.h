@@ -112,4 +112,5 @@ protected:
 
     virtual bool canProgressToNextTurn(int participantId) = 0;
     virtual void additionalUpdate(int64_t timeSinceLastFrame, bool& quit) = 0;
+    virtual void onParticipantTurnEnd(int participantId) = 0;
 };

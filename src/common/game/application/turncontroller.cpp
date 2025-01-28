@@ -175,6 +175,7 @@ void TurnController::disengage(int participantIdA, int participantIdB) {
 void TurnController::endCurrentParticipantTurn(void) {
     auto& participant = participants[currentParticipantId];
     participant->endTurn();
+    onParticipantTurnEnd(currentParticipantId);
 }
 
 void TurnController::nextParticipantTurn(void) {

@@ -25,6 +25,10 @@ bool ClientTurnController::canProgressToNextTurn(int participantId) {
     return true;
 }
 
+void ClientTurnController::onParticipantTurnEnd(int participantId) {
+    // no-op
+}
+
 void ClientTurnController::receiveSetNextTurnFlag(int participantId, int receivedTurnNumber) {
     nextTurnFlags.push(receivedTurnNumber);
 }

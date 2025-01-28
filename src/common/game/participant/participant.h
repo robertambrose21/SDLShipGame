@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <set>
+#include <limits>
 
 #include "core/grid/grid.h"
 #include "game/entities/entity.h"
@@ -24,6 +25,8 @@ public:
     } Engagement;
 
     Participant(int id);
+
+    float distanceToOtherParticipant(Participant* other);
 
     void engage(int otherParticipantId, int turnEngaged);
     void disengage(int otherParticipantId);

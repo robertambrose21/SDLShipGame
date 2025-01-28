@@ -122,6 +122,31 @@ bool ServerTurnController::canProgressToNextTurn(int participantId) {
     return nextTurn;
 }
 
+void ServerTurnController::onParticipantTurnEnd(int participantId) {
+    auto participant = context->getTurnController()->getParticipant(participantId);
+    game_assert(participant != nullptr);
+
+    for(auto const& [otherParticipantId, _] : participant->getEngagements()) {
+        auto otherParticipant = context->getTurnController()->getParticipant(otherParticipantId);
+
+        if(otherParticipant == nullptr) {
+            spdlog::debug(
+                "Cannot disengage non-existant participant {} from this participant {}", 
+                participantId, 
+                otherParticipantId
+            );
+            continue;
+        }
+
+        auto distance = participant->distanceToOtherParticipant(otherParticipant);
+
+        // TODO: Determine actual disengagement range properly
+        if(distance > 15) {
+            participant->disengage(otherParticipantId);
+        }
+    }
+}
+
 void ServerTurnController::checkForItems(void) {
     auto itemController = context->getItemController();
 

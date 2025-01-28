@@ -5,6 +5,26 @@ Participant::Participant(int id) :
     passNextTurn(false)
 { }
 
+// TODO: There's some efficiencies we can do here.
+// - Grid based partitioning,
+// - k-d Tree? Whatever the hell that is: https://en.wikipedia.org/wiki/K-d_tree
+float Participant::distanceToOtherParticipant(Participant* other) {
+    game_assert(other != nullptr);
+    float shortestDistance = std::numeric_limits<float>::infinity();
+
+    for(auto entity : entities) {
+        for(auto otherEntity : other->getEntities()) {
+            float distance = glm::distance(glm::vec2(entity->getPosition()), glm::vec2(otherEntity->getPosition()));
+
+            if(distance < shortestDistance) {
+                shortestDistance = distance;
+            }
+        }
+    }
+
+    return shortestDistance;
+}
+
 void Participant::engage(int otherParticipantId, int turnEngaged) {
     for(auto engagement : engagements) {
         if(engagement.otherParticipantId == otherParticipantId) {
