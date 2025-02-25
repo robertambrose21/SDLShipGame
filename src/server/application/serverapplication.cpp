@@ -135,6 +135,8 @@ void ServerApplication::onClientConnect(int clientIndex) {
     }
     else {
         participant = turnController->addParticipant(true, { addPlayer(false) });
+        participant->setFaction("Based");
+        participant->addHostileFaction("Cringe");
         turnController->reset(); // TODO: Probably shouldn't do this?
         spdlog::trace("Client {} connected and is attaching to participant {}", clientIndex, participant->getId());
     }
@@ -319,7 +321,14 @@ void ServerApplication::loadGame(const std::vector<GenerationStrategy::Room>& ro
         }
     }
 
-    context.getTurnController()->addParticipant(false, enemies, std::make_unique<ChaseAndAttackStrategy>(context));
+    auto participant = context.getTurnController()->addParticipant(
+        false, 
+        enemies, 
+        std::make_unique<ChaseAndAttackStrategy>(context)
+    );
+    participant->setFaction("Cringe");
+    participant->addHostileFaction("Based");
+
     context.getTurnController()->reset();
 }
 

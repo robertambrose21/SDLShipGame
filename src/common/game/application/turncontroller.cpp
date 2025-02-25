@@ -151,6 +151,14 @@ void TurnController::engage(int participantIdA, int participantIdB) {
         spdlog::critical("Cannot engage participant with id {} participant does not exist", participantIdB);
         return;
     }
+    if(!participantA->isHostile(participantB.get())) {
+        spdlog::warn("Cannot engage participant {}, not hostile to participant {}", participantIdA, participantIdB);
+        return;
+    }
+    if(!participantB->isHostile(participantA.get())) {
+        spdlog::warn("Cannot engage participant {}, not hostile to participant {}", participantIdB, participantIdA);
+        return;
+    }
 
     participantA->engage(participantIdB, turnNumber);
     participantB->engage(participantIdA, turnNumber);

@@ -2,7 +2,8 @@
 
 Participant::Participant(int id) :
     id(id),
-    passNextTurn(false)
+    passNextTurn(false),
+    faction("None")
 { }
 
 // TODO: There's some efficiencies we can do here.
@@ -188,4 +189,24 @@ void Participant::removeVisibleEntity(Entity* entity) {
 
 bool Participant::hasVisibleEntity(Entity* entity) {
     return visibleEntities.contains(entity);
+}
+
+std::string Participant::getFaction(void) const {
+    return faction;
+}
+
+void Participant::setFaction(const std::string& faction) {
+    this->faction = faction;
+}
+
+bool Participant::isHostile(Participant* other) {
+    return hostileFactions.contains(other->getFaction());
+}
+
+void Participant::addHostileFaction(const std::string& hostileFaction) {
+    hostileFactions.insert(hostileFaction);
+}
+
+void Participant::removeHostileFaction(const std::string& hostileFaction) {
+    hostileFactions.erase(hostileFaction);
 }

@@ -67,14 +67,24 @@ public:
     void removeVisibleEntity(Entity* entity);
     bool hasVisibleEntity(Entity* entity);
 
+    std::string getFaction(void) const;
+    void setFaction(const std::string& faction);
+    bool isHostile(Participant* other);
+    void addHostileFaction(const std::string& hostileFaction);
+    void removeHostileFaction(const std::string& hostileFaction);
+
 private:
     int id;
     bool isReady;
     bool isPlayer;
+    std::string faction;
     std::vector<Entity*> entities;
     std::vector<Item*> items;
     bool passNextTurn;
     std::unique_ptr<BehaviourStrategy> behaviourStrategy;
+    
     std::set<Engagement> engagements;
+    std::set<std::string> hostileFactions;
+
     std::set<Entity*> visibleEntities;
 };

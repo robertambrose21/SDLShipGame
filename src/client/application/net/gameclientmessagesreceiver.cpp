@@ -64,6 +64,15 @@ void GameClientMessagesReceiver::receiveSetParticipant(SetParticipantMessage* me
 
     auto participant = turnController->addParticipant(message->participantId, message->clientId != 0, { }, nullptr, false);
 
+    if(participant->getIsPlayer()) {
+        participant->setFaction("Based");
+        participant->addHostileFaction("Cringe");
+    }
+    else {
+        participant->setFaction("Cringe");
+        participant->addHostileFaction("Based");
+    }
+
     // Are we this participant
     if(message->clientId == clientId) {
         playerController->setParticipant(participant);

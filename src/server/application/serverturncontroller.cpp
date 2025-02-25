@@ -69,7 +69,7 @@ std::map<int, int> ServerTurnController::getAllAttachedClients(void) {
 
 void ServerTurnController::additionalUpdate(int64_t timeSinceLastFrame, bool& quit) {
     for(auto& [participantId, _] : participants) {
-        // TODO: This should be called on end of turn, not every update tick
+        // TODO: This should be called when an entity moves, not every update tick
         assignEngagements(participantId);
     }
 
@@ -141,8 +141,9 @@ void ServerTurnController::onParticipantTurnEnd(int participantId) {
         auto distance = participant->distanceToOtherParticipant(otherParticipant);
 
         // TODO: Determine actual disengagement range properly
+        // TODO: Bug! call disengage outside of the loop, otherwise an rb tree error can occur in the set
         if(distance > 15) {
-            participant->disengage(otherParticipantId);
+            disengage(participantId, otherParticipantId);
         }
     }
 }
@@ -184,6 +185,10 @@ void ServerTurnController::compareAndEngageParticipants(Participant* participant
             disengage(participantA->getId(), participantB->getId());
         }
 
+        return;
+    }
+
+    if(!participantA->isHostile(participantB) || !participantB->isHostile(participantA)) {
         return;
     }
 
