@@ -4,6 +4,7 @@ EngagementController::EngagementController(ApplicationContext* context) :
     context(context)
 { }
 
+// TODO: Set engagements on participant (check remove too)
 uint32_t EngagementController::createEngagement(const std::vector<Participant*>& orderedParticipants) {
     game_assert(!orderedParticipants.empty());
 
@@ -15,6 +16,10 @@ uint32_t EngagementController::createEngagement(const std::vector<Participant*>&
         orderedParticipants.size()
     );
     engagements[engagement->getId()] = std::move(engagement);
+
+    for(auto participant : orderedParticipants) {
+        participant->setEngagement(engagement.get());
+    }
 
     return engagement->getId();
 }
@@ -32,7 +37,7 @@ void EngagementController::removeEngagement(uint32_t engagementId) {
     );
 
     for(auto participant : engagements[engagementId]->getParticipants()) {
-        participant->setEngagementId(std::nullopt);
+        participant->setEngagement(nullptr);
     }
 
     engagements.erase(engagementId);
@@ -54,6 +59,7 @@ void EngagementController::addToEngagement(uint32_t engagementId, Participant* p
     }
     spdlog::trace("Adding participant {} to engagement {}", participant->getId(), engagementId);
     engagements[engagementId]->addParticipant(participant);
+    participant->setEngagement(engagements[engagementId].get());
 }
 
 void EngagementController::disengage(uint32_t engagementId, Participant* participant) {
@@ -65,7 +71,7 @@ void EngagementController::disengage(uint32_t engagementId, Participant* partici
     spdlog::trace("Removing participant {} from engagement {}", participant->getId(), engagementId);
     engagements[engagementId]->removeParticipant(participant->getId());
 
-    participant->setEngagementId(std::nullopt);
+    participant->setEngagement(nullptr);
 
     if(engagements[engagementId]->getParticipants().empty()) {
         removeEngagement(engagementId);

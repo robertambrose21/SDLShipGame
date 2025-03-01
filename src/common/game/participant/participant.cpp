@@ -4,7 +4,7 @@ Participant::Participant(int id) :
     id(id),
     passNextTurn(false),
     faction("None"),
-    engagementId(std::nullopt)
+    engagement(nullptr)
 { }
 
 // TODO: There's some efficiencies we can do here.
@@ -28,15 +28,19 @@ float Participant::distanceToOtherParticipant(Participant* other) {
 }
 
 bool Participant::hasEngagement(Participant* other) {
-    return engagementId == other->getEngagementId();
+    if(engagement == nullptr || other->getEngagement() == nullptr) {
+        return false;
+    }
+
+    return engagement->getId() == other->getEngagement()->getId();
 }
 
-std::optional<uint32_t> Participant::getEngagementId(void) const {
-    return engagementId;
+Engagement* Participant::getEngagement(void) {
+    return engagement;
 }
 
-void Participant::setEngagementId(const std::optional<uint32_t>& engagementId) {
-    this->engagementId = engagementId;
+void Participant::setEngagement(Engagement* engagement) {
+    this->engagement = engagement;
 }
 
 float Participant::getAverageEntitySpeed(void) {

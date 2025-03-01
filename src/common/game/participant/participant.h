@@ -12,6 +12,7 @@
 #include "spdlog/spdlog.h"
 
 class BehaviourStrategy;
+class Engagement;
 
 class Participant {
 public:
@@ -34,8 +35,10 @@ public:
     // bool hasEngagement(int otherParticipantId);
     bool hasEngagement(Participant* other);
     // bool isEngaged(void);
-    std::optional<uint32_t> getEngagementId(void) const;
-    void setEngagementId(const std::optional<uint32_t>& engagementId);
+    // std::optional<uint32_t> getEngagementId(void) const;
+    // void setEngagementId(const std::optional<uint32_t>& engagementId);
+    Engagement* getEngagement(void);
+    void setEngagement(Engagement* engagement);
     float getAverageEntitySpeed(void);
 
     void endTurn(void);
@@ -89,7 +92,8 @@ private:
     std::unique_ptr<BehaviourStrategy> behaviourStrategy;
     
     // std::set<Engagement> engagements;
-    std::optional<uint32_t> engagementId;
+    // std::optional<uint32_t> engagementId;
+    Engagement* engagement;
     std::set<std::string> hostileFactions;
 
     std::set<Entity*> visibleEntities;

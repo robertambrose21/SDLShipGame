@@ -217,7 +217,7 @@ void ServerTurnController::compareAndEngageParticipants(Participant* participant
     }
 
     // Check if an engagment between these participants already exists
-    if(participantA->getEngagementId().has_value() && participantA->getEngagementId() == participantB->getEngagementId()) {
+    if(participantA->getEngagement() != nullptr && participantA->hasEngagement(participantB)) {
         return;
     }
 
@@ -233,7 +233,7 @@ void ServerTurnController::compareAndEngageParticipants(Participant* participant
         return;
     }
 
-    if(!participantA->getEngagementId().has_value() && !participantB->getEngagementId().has_value()) {
+    if(participantA->getEngagement() == nullptr && participantB->getEngagement() == nullptr) {
         if(participantA->getAverageEntitySpeed() > participantB->getAverageEntitySpeed()) {
             engagementController->createEngagement({ participantA, participantB });
         }
@@ -241,16 +241,16 @@ void ServerTurnController::compareAndEngageParticipants(Participant* participant
             engagementController->createEngagement({ participantB, participantA });
         }
     }
-    else if(participantA->getEngagementId().has_value() && !participantB->getEngagementId().has_value()) {
-        engagementController->addToEngagement(participantA->getEngagementId().value(), participantB);
+    else if(participantA->getEngagement() != nullptr && participantB->getEngagement() == nullptr) {
+        engagementController->addToEngagement(participantA->getEngagement()->getId(), participantB);
     }
-    else if(!participantA->getEngagementId().has_value() && participantB->getEngagementId().has_value()) {
-        engagementController->addToEngagement(participantB->getEngagementId().value(), participantA);
+    else if(participantA->getEngagement() == nullptr && participantB->getEngagement() != nullptr) {
+        engagementController->addToEngagement(participantB->getEngagement()->getId(), participantA);
     }
     else {
         mergeEngagements(
-            engagementController->getEngagement(participantA->getEngagementId().value()), 
-            engagementController->getEngagement(participantB->getEngagementId().value())
+            engagementController->getEngagement(participantA->getEngagement()->getId()), 
+            engagementController->getEngagement(participantB->getEngagement()->getId())
         );
     }
 
