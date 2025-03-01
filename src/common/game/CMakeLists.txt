@@ -33,7 +33,8 @@ add_library(
     weapons/weaponcontroller.cpp
     weapons/damagesource.cpp
     application/turncontroller.cpp
-    application/engagementcontroller.cpp
+    engagements/engagement.cpp
+    engagements/engagementcontroller.cpp
     application/stdoutsubscriber.cpp
     application/visibilitycontroller.cpp
     actions/action.cpp

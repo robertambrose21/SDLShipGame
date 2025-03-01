@@ -260,43 +260,40 @@ void ServerTurnController::compareAndEngageParticipants(Participant* participant
     // }
 }
 
-void ServerTurnController::mergeEngagements(
-    const EngagementController::Engagement& engagementA, 
-    const EngagementController::Engagement& engagementB
-) {
+void ServerTurnController::mergeEngagements(Engagement* engagementA, Engagement* engagementB) {
     std::vector<Participant*> participantsToMerge;
 
-    if(engagementA.participants.size() == engagementB.participants.size()) {
+    if(engagementA->getParticipants().size() == engagementB->getParticipants().size()) {
         float engagementAAverageSpeed = 0.0f;
         float engagementBAverageSpeed = 0.0f;
 
-        for(auto participant : engagementA.participants) {
+        for(auto participant : engagementA->getParticipants()) {
             engagementAAverageSpeed += participant->getAverageEntitySpeed();
         }
-        for(auto participant : engagementB.participants) {
+        for(auto participant : engagementB->getParticipants()) {
             engagementBAverageSpeed += participant->getAverageEntitySpeed();
         }
 
         // TODO: If the same, consider another heuristic - probably just random and have some kind of announcement on screen
         if(engagementAAverageSpeed >= engagementBAverageSpeed) {
-            insertAll(participantsToMerge, engagementA.participants);
-            insertAll(participantsToMerge, engagementB.participants);
+            insertAll(participantsToMerge, engagementA->getParticipants());
+            insertAll(participantsToMerge, engagementB->getParticipants());
         }
         else {
-            insertAll(participantsToMerge, engagementB.participants);
-            insertAll(participantsToMerge, engagementA.participants);
+            insertAll(participantsToMerge, engagementB->getParticipants());
+            insertAll(participantsToMerge, engagementA->getParticipants());
         }
-    } else if(engagementA.participants.size() > engagementB.participants.size()) {
-        insertAll(participantsToMerge, engagementA.participants);
-        insertAll(participantsToMerge, engagementB.participants);
+    } else if(engagementA->getParticipants().size() > engagementB->getParticipants().size()) {
+        insertAll(participantsToMerge, engagementA->getParticipants());
+        insertAll(participantsToMerge, engagementB->getParticipants());
     }
     else {
-        insertAll(participantsToMerge, engagementB.participants);
-        insertAll(participantsToMerge, engagementA.participants);
+        insertAll(participantsToMerge, engagementB->getParticipants());
+        insertAll(participantsToMerge, engagementA->getParticipants());
     }
 
-    engagementController->removeEngagement(engagementA.id);
-    engagementController->removeEngagement(engagementB.id);
+    engagementController->removeEngagement(engagementA->getId());
+    engagementController->removeEngagement(engagementB->getId());
 
     engagementController->createEngagement(participantsToMerge);
 }

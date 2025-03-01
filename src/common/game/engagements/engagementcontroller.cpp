@@ -10,39 +10,39 @@ void EngagementController::update(int64_t timeSinceLastFrame) {
         // check if we can progress to next turn
         // Go to next turn if we can
 
-        executeActions(engagement);
+        executeActions(engagement.get());
 
         if(true /* Can progress to next turn*/) {
-            endCurrentParticipantTurn(engagement);
-            nextParticipantTurn(engagement);
+            endCurrentParticipantTurn(engagement.get());
+            nextParticipantTurn(engagement.get());
         }
     }
 }
 
-void EngagementController::endCurrentParticipantTurn(const Engagement& engagement) {
-    engagement.getCurrentParticipant()->endTurn();
+void EngagementController::endCurrentParticipantTurn(Engagement* engagement) {
+    engagement->getCurrentParticipant()->endTurn();
     // onParticipantTurnEnd(currentParticipantId);
 }
 
-void EngagementController::nextParticipantTurn(Engagement& engagement) {
-    engagement.nextTurn();
+void EngagementController::nextParticipantTurn(Engagement* engagement) {
+    engagement->nextTurn();
 }
 
-void EngagementController::executeActions(const Engagement& engagement) {
-    for(auto entity : engagement.getCurrentParticipant()->getEntities()) {
+void EngagementController::executeActions(Engagement* engagement) {
+    for(auto entity : engagement->getCurrentParticipant()->getEntities()) {
         executeEntityActions(engagement, entity);
     }
 }
 
-void EngagementController::executeEntityActions(const Engagement& engagement, Entity* entity) {
-    bool moreActionsToProcess = !entity->getActionsChain(engagement.turnNumber).empty();
+void EngagementController::executeEntityActions(Engagement* engagement, Entity* entity) {
+    bool moreActionsToProcess = !entity->getActionsChain(engagement->getTurnNumber()).empty();
 
     while(moreActionsToProcess) {
-        auto action = entity->getActionsChain(engagement.turnNumber).front();
+        auto action = entity->getActionsChain(engagement->getTurnNumber()).front();
 
         if(action->isFinished()) {
-            entity->popAction(engagement.turnNumber);
-            moreActionsToProcess = !entity->getActionsChain(engagement.turnNumber).empty();
+            entity->popAction(engagement->getTurnNumber());
+            moreActionsToProcess = !entity->getActionsChain(engagement->getTurnNumber()).empty();
         }
         // TODO: If precondition fails - just drop?
         else if(action->passesPrecondition() && !action->isExecuted()) {
@@ -58,15 +58,16 @@ void EngagementController::executeEntityActions(const Engagement& engagement, En
 uint32_t EngagementController::createEngagement(const std::vector<Participant*>& orderedParticipants) {
     game_assert(!orderedParticipants.empty());
 
-    auto id = getNewId();
+    auto engagement = std::make_unique<Engagement>(orderedParticipants);
 
     spdlog::trace(
         "Adding engagement {} with {} participants", 
-        id, 
-        engagements[id].participants.size()
+        engagement->getId(), 
+        orderedParticipants.size()
     );
-    engagements[id] = { id, orderedParticipants, 0, 0 };
-    return id;
+    engagements[engagement->getId()] = std::move(engagement);
+
+    return engagement->getId();
 }
 
 void EngagementController::removeEngagement(uint32_t engagementId) {
@@ -78,10 +79,10 @@ void EngagementController::removeEngagement(uint32_t engagementId) {
     spdlog::trace(
         "Removing engagement {} with {} participants", 
         engagementId, 
-        engagements[engagementId].participants.size()
+        engagements[engagementId]->getParticipants().size()
     );
 
-    for(auto participant : engagements[engagementId].participants) {
+    for(auto participant : engagements[engagementId]->getParticipants()) {
         participant->setEngagementId(std::nullopt);
     }
 
@@ -94,7 +95,7 @@ void EngagementController::addToEngagement(uint32_t engagementId, Participant* p
         return;
     }
 
-    if(contains(engagements[engagementId].participants, participant)) {
+    if(contains(engagements[engagementId]->getParticipants(), participant)) {
         spdlog::warn(
             "Cannot add participant {} to engagement {}, participant already part of this engagement",
             participant->getId(),
@@ -103,7 +104,7 @@ void EngagementController::addToEngagement(uint32_t engagementId, Participant* p
         return;
     }
     spdlog::trace("Adding participant {} to engagement {}", participant->getId(), engagementId);
-    engagements[engagementId].participants.push_back(participant);
+    engagements[engagementId]->addParticipant(participant);
 }
 
 void EngagementController::disengage(uint32_t engagementId, Participant* participant) {
@@ -113,21 +114,19 @@ void EngagementController::disengage(uint32_t engagementId, Participant* partici
     }
 
     spdlog::trace("Removing participant {} from engagement {}", participant->getId(), engagementId);
-    std::erase_if(engagements[engagementId].participants, [&](const auto& item) {
-        return participant == item;
-    });
+    engagements[engagementId]->removeParticipant(participant->getId());
 
     participant->setEngagementId(std::nullopt);
 
-    if(engagements[engagementId].participants.empty()) {
+    if(engagements[engagementId]->getParticipants().empty()) {
         removeEngagement(engagementId);
     }
 }
 
-const std::map<uint32_t, EngagementController::Engagement>& EngagementController::getEngagements(void) const {
+const std::map<uint32_t, std::unique_ptr<Engagement>>& EngagementController::getEngagements(void) const {
     return engagements;
 }
 
-EngagementController::Engagement EngagementController::getEngagement(uint32_t id) const {
-    return engagements.at(id);
+Engagement* EngagementController::getEngagement(uint32_t id) {
+    return engagements.at(id).get();
 }

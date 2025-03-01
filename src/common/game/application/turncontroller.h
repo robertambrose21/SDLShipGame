@@ -23,7 +23,7 @@
 #include "game/items/itemcontroller.h"
 #include "game/effects/effectcontroller.h"
 #include "game/participant/participant.h"
-#include "engagementcontroller.h"
+#include "game/engagements/engagementcontroller.h"
 
 class BehaviourStrategy;
 class Participant;
