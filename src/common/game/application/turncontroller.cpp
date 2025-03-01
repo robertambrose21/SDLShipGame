@@ -24,7 +24,7 @@ void TurnController::update(int64_t timeSinceLastFrame, bool& quit) {
     executeActions(currentParticipantId);
 
     for(auto const& [participantId, participant] : participants) {
-        if(participantId != currentParticipantId && !participant->isEngaged()) {
+        if(participantId != currentParticipantId && !participant->getEngagementId().has_value()) {
             executeActions(participantId);
         }
     }
@@ -36,19 +36,19 @@ void TurnController::update(int64_t timeSinceLastFrame, bool& quit) {
 }
 
 void TurnController::processEngagements() {
-    if (engagementsQueue[turnNumber].empty()) {
-        return; 
-    }
+    // if (engagementsQueue[turnNumber].empty()) {
+    //     return; 
+    // }
 
-    for (auto& engagement : engagementsQueue[turnNumber]) {
-        if (engagement.isDisengage) {
-            disengage(engagement.participantIdA, engagement.participantIdB);
-        } else {
-            engage(engagement.participantIdA, engagement.participantIdB);
-        }
-    }
+    // for (auto& engagement : engagementsQueue[turnNumber]) {
+    //     if (engagement.isDisengage) {
+    //         disengage(engagement.participantIdA, engagement.participantIdB);
+    //     } else {
+    //         engage(engagement.participantIdA, engagement.participantIdB);
+    //     }
+    // }
 
-    engagementsQueue[turnNumber].clear();
+    // engagementsQueue[turnNumber].clear();
 }
 
 Participant* TurnController::addParticipant(
@@ -99,9 +99,9 @@ void TurnController::addEntityToParticipant(int participantId, Entity* entity) {
 
     participants[participantId]->addEntity(entity);
 
-    if(!participants[participantId]->getEngagements().empty()) {
-        entity->engage();
-    }
+    // if(!participants[participantId]->getEngagements().empty()) {
+    //     entity->engage();
+    // }
 }
 
 Participant* TurnController::getParticipant(int id) {
@@ -139,46 +139,118 @@ void TurnController::reset(void) {
     }
 }
 
-void TurnController::engage(int participantIdA, int participantIdB) {
-    auto& participantA = participants[participantIdA];
-    auto& participantB = participants[participantIdB];
+uint32_t TurnController::createEngagement(const std::vector<int>& orderedParticipantIds) {
+    auto id = getNewId();
 
-    if(participantA == nullptr) {
-        spdlog::critical("Cannot engage participant with id {} participant does not exist", participantIdA);
-        return;
-    }
-    if(participantB == nullptr) {
-        spdlog::critical("Cannot engage participant with id {} participant does not exist", participantIdB);
-        return;
-    }
-    if(!participantA->isHostile(participantB.get())) {
-        spdlog::warn("Cannot engage participant {}, not hostile to participant {}", participantIdA, participantIdB);
-        return;
-    }
-    if(!participantB->isHostile(participantA.get())) {
-        spdlog::warn("Cannot engage participant {}, not hostile to participant {}", participantIdB, participantIdA);
-        return;
-    }
-
-    participantA->engage(participantIdB, turnNumber);
-    participantB->engage(participantIdA, turnNumber);
-
-    publish<EngagementEventData>({ participantIdA, participantIdB, EngagementType::ENGAGED });
+    spdlog::trace(
+        "Adding engagement {} with {} participants", 
+        id, 
+        engagements[id].participants.size()
+    );
+    engagements[id] = { id, orderedParticipantIds };
+    return id;
 }
 
-void TurnController::queueEngagement(int turnNumber, const Engagement& engagement) {
-    engagementsQueue[turnNumber].push_back(engagement);
+void TurnController::removeEngagement(uint32_t engagementId) {
+    if(!engagements.contains(engagementId)) {
+        spdlog::warn("Cannot remove non-existant engagement with id {}", engagementId);
+        return;
+    }
+
+    spdlog::trace(
+        "Removing engagement {} with {} participants", 
+        engagementId, 
+        engagements[engagementId].participants.size()
+    );
+
+    for(auto participantId : engagements[engagementId].participants) {
+        participants[participantId]->setEngagementId(std::nullopt);
+    }
+
+    engagements.erase(engagementId);
 }
 
-void TurnController::disengage(int participantIdA, int participantIdB) {
-    auto& participantA = participants[participantIdA];
-    auto& participantB = participants[participantIdB];
+void TurnController::addToEngagement(uint32_t engagementId, int participantId) {
+    if(!engagements.contains(engagementId)) {
+        spdlog::warn("Cannot add participant to non-existant engagement with id {}", engagementId);
+        return;
+    }
 
-    participantA->disengage(participantIdB);
-    participantB->disengage(participantIdA);
-
-    publish<EngagementEventData>({ participantIdA, participantIdB, EngagementType::DISENGAGED });
+    if(contains(engagements[engagementId].participants, participantId)) {
+        spdlog::warn(
+            "Cannot add participant {} to engagement {}, participant already part of this engagement",
+            participantId,
+            engagementId
+        );
+        return;
+    }
+    spdlog::trace("Adding participant {} to engagement {}", participantId, engagementId);
+    engagements[engagementId].participants.push_back(participantId);
 }
+
+void TurnController::disengage(uint32_t engagementId, int participantId) {
+    if(!engagements.contains(engagementId)) {
+        spdlog::warn("Cannot disengage participant from non-existant engagement with id {}", engagementId);
+        return;
+    }
+
+    spdlog::trace("Removing participant {} from engagement {}", participantId, engagementId);
+    std::erase_if(engagements[engagementId].participants, [&](const auto& item) {
+        return participantId == item;
+    });
+
+    participants[participantId]->setEngagementId(std::nullopt);
+
+    if(engagements[engagementId].participants.empty()) {
+        removeEngagement(engagementId);
+    }
+}
+
+const std::map<uint32_t, TurnController::Engagement>& TurnController::getEngagements(void) const {
+    return engagements;
+}
+
+
+// void TurnController::engage(int participantIdA, int participantIdB) {
+//     auto& participantA = participants[participantIdA];
+//     auto& participantB = participants[participantIdB];
+
+//     if(participantA == nullptr) {
+//         spdlog::critical("Cannot engage participant with id {} participant does not exist", participantIdA);
+//         return;
+//     }
+//     if(participantB == nullptr) {
+//         spdlog::critical("Cannot engage participant with id {} participant does not exist", participantIdB);
+//         return;
+//     }
+//     if(!participantA->isHostile(participantB.get())) {
+//         spdlog::warn("Cannot engage participant {}, not hostile to participant {}", participantIdA, participantIdB);
+//         return;
+//     }
+//     if(!participantB->isHostile(participantA.get())) {
+//         spdlog::warn("Cannot engage participant {}, not hostile to participant {}", participantIdB, participantIdA);
+//         return;
+//     }
+
+//     participantA->engage(participantIdB, turnNumber);
+//     participantB->engage(participantIdA, turnNumber);
+
+//     publish<EngagementEventData>({ participantIdA, participantIdB, EngagementType::ENGAGED });
+// }
+
+// void TurnController::queueEngagement(int turnNumber, const Engagement& engagement) {
+//     engagementsQueue[turnNumber].push_back(engagement);
+// }
+
+// void TurnController::disengage(int participantIdA, int participantIdB) {
+//     auto& participantA = participants[participantIdA];
+//     auto& participantB = participants[participantIdB];
+
+//     participantA->disengage(participantIdB);
+//     participantB->disengage(participantIdA);
+
+//     publish<EngagementEventData>({ participantIdA, participantIdB, EngagementType::DISENGAGED });
+// }
 
 void TurnController::endCurrentParticipantTurn(void) {
     auto& participant = participants[currentParticipantId];

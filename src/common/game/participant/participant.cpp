@@ -3,7 +3,8 @@
 Participant::Participant(int id) :
     id(id),
     passNextTurn(false),
-    faction("None")
+    faction("None"),
+    engagementId(std::nullopt)
 { }
 
 // TODO: There's some efficiencies we can do here.
@@ -26,48 +27,71 @@ float Participant::distanceToOtherParticipant(Participant* other) {
     return shortestDistance;
 }
 
-void Participant::engage(int otherParticipantId, int turnEngaged) {
-    for(auto engagement : engagements) {
-        if(engagement.otherParticipantId == otherParticipantId) {
-            spdlog::trace("Attempting to engage to already engaged participant {} -> {}", id, otherParticipantId);
-            return;
-        }
-    }
-
-    engagements.insert({ otherParticipantId, turnEngaged });
-
-    if(engagements.size() == 1) {
-        for(auto entity : entities) {
-            entity->engage();
-        }
-    }
+bool Participant::hasEngagement(Participant* other) {
+    return engagementId == other->getEngagementId();
 }
 
-void Participant::disengage(int otherParticipantId) {
-    std::erase_if(engagements, [&](const auto& engagement) {
-        return otherParticipantId == engagement.otherParticipantId;
-    });
-
-    if(engagements.empty()) {
-        for(auto entity : entities) {
-            entity->disengage();
-        }
-    }
+std::optional<uint32_t> Participant::getEngagementId(void) const {
+    return engagementId;
 }
 
-bool Participant::hasEngagement(int otherParticipantId) {
-    for(auto const& engagement : engagements) {
-        if(otherParticipantId == engagement.otherParticipantId) {
-            return true;
-        }
+void Participant::setEngagementId(const std::optional<uint32_t>& engagementId) {
+    this->engagementId = engagementId;
+}
+
+float Participant::getAverageEntitySpeed(void) {
+    float totalSpeed = 0;
+
+    for(auto entity : entities) {
+        totalSpeed += entity->getSpeed();
     }
 
-    return false;
+    return totalSpeed / (float) entities.size();
 }
 
-bool Participant::isEngaged(void) {
-    return !engagements.empty();
-}
+// void Participant::engage(int otherParticipantId, int turnEngaged) {
+//     for(auto engagement : engagements) {
+//         if(engagement.otherParticipantId == otherParticipantId) {
+//             spdlog::trace("Attempting to engage to already engaged participant {} -> {}", id, otherParticipantId);
+//             return;
+//         }
+//     }
+
+//     engagements.insert({ otherParticipantId, turnEngaged });
+
+//     if(engagements.size() == 1) {
+//         for(auto entity : entities) {
+//             entity->engage();
+//         }
+//     }
+// }
+
+// void Participant::disengage(int otherParticipantId) {
+//     std::erase_if(engagements, [&](const auto& engagement) {
+//         return otherParticipantId == engagement.otherParticipantId;
+//     });
+
+//     if(engagements.empty()) {
+//         for(auto entity : entities) {
+//             entity->disengage();
+//         }
+//     }
+// }
+
+// bool Participant::hasEngagement(int otherParticipantId) {
+//     for(auto const& engagement : engagements) {
+//         if(otherParticipantId == engagement.otherParticipantId) {
+//             return true;
+//         }
+//     }
+
+//     return false;
+// }
+
+// bool Participant::isEngaged(void) {
+//     // return !engagements.empty();
+//     return engagementId != 0;
+// }
 
 void Participant::endTurn(void) {
     for(auto const& entity : entities) {
@@ -167,9 +191,9 @@ void Participant::setBehaviourStrategy(std::unique_ptr<BehaviourStrategy> behavi
     this->behaviourStrategy = std::move(behaviourStrategy);
 }
 
-const std::set<Participant::Engagement>& Participant::getEngagements(void) const {
-    return engagements;
-}
+// const std::set<Participant::Engagement>& Participant::getEngagements(void) const {
+//     return engagements;
+// }
 
 void Participant::setVisibleEntities(const std::set<Entity*>& visibleEntities) {
     this->visibleEntities = visibleEntities;

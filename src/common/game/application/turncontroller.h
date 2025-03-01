@@ -40,9 +40,15 @@ class TurnController :
 {
 public:
     typedef struct _engagement {
-        int participantIdA;
-        int participantIdB;
-        bool isDisengage;
+        uint32_t id;
+        std::vector<int> participants;
+        // int participantIdA;
+        // int participantIdB;
+        // bool isDisengage;
+
+        bool operator<(const _engagement& other) const {
+            return id < other.id;
+        }
     } Engagement;
 
     TurnController();
@@ -67,10 +73,16 @@ public:
     std::vector<Participant*> getParticipants(void);
     bool hasParticipant(int id);
 
-    void queueEngagement(int turnNumber, const Engagement& engagement);
+    // void queueEngagement(int turnNumber, const Engagement& engagement);
 
-    void engage(int participantIdA, int participantIdB);
-    void disengage(int participantIdA, int participantIdB);
+    // void engage(int participantIdA, int participantIdB);
+    // void disengage(int participantIdA, int participantIdB);
+
+    uint32_t createEngagement(const std::vector<int>& orderedParticipantIds);
+    void removeEngagement(uint32_t engagementId);
+    void addToEngagement(uint32_t engagementId, int participantId);
+    void disengage(uint32_t engagementId, int participantId);
+    const std::map<uint32_t, Engagement>& getEngagements(void) const;
 
     void reset(void);
     
@@ -96,7 +108,8 @@ protected:
     int turnNumber;
     int currentParticipantId;
 
-    std::map<int, std::vector<Engagement>> engagementsQueue;
+    // std::map<int, std::vector<Engagement>> engagementsQueue;
+    std::map<uint32_t, Engagement> engagements;
 
     std::map<int, std::unique_ptr<Participant>> participants;
     std::vector<std::function<void(int, int)>> onNextTurnWorkers;

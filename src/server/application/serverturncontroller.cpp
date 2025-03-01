@@ -126,26 +126,26 @@ void ServerTurnController::onParticipantTurnEnd(int participantId) {
     auto participant = context->getTurnController()->getParticipant(participantId);
     game_assert(participant != nullptr);
 
-    for(auto const& [otherParticipantId, _] : participant->getEngagements()) {
-        auto otherParticipant = context->getTurnController()->getParticipant(otherParticipantId);
+    // for(auto const& [otherParticipantId, _] : participant->getEngagements()) {
+    //     auto otherParticipant = context->getTurnController()->getParticipant(otherParticipantId);
 
-        if(otherParticipant == nullptr) {
-            spdlog::debug(
-                "Cannot disengage non-existant participant {} from this participant {}", 
-                participantId, 
-                otherParticipantId
-            );
-            continue;
-        }
+    //     if(otherParticipant == nullptr) {
+    //         spdlog::debug(
+    //             "Cannot disengage non-existant participant {} from this participant {}", 
+    //             participantId, 
+    //             otherParticipantId
+    //         );
+    //         continue;
+    //     }
 
-        auto distance = participant->distanceToOtherParticipant(otherParticipant);
+    //     auto distance = participant->distanceToOtherParticipant(otherParticipant);
 
-        // TODO: Determine actual disengagement range properly
-        // TODO: Bug! call disengage outside of the loop, otherwise an rb tree error can occur in the set
-        if(distance > 15) {
-            disengage(participantId, otherParticipantId);
-        }
-    }
+    //     // TODO: Determine actual disengagement range properly
+    //     // TODO: Bug! call disengage outside of the loop, otherwise an rb tree error can occur in the set
+    //     if(distance > 15) {
+    //         disengage(participantId, otherParticipantId);
+    //     }
+    // }
 }
 
 void ServerTurnController::checkForItems(void) {
@@ -167,7 +167,7 @@ void ServerTurnController::checkForItems(void) {
 }
 
 void ServerTurnController::assignEngagements(int participantIdToCheck) {
-    auto behaviour = participants[participantIdToCheck]->getBehaviourStrategy();
+    // auto behaviour = participants[participantIdToCheck]->getBehaviourStrategy();
 
     for(auto& [participantId, participant] : participants) {
         compareAndEngageParticipants(participant.get(), participants[participantIdToCheck].get());
@@ -175,30 +175,126 @@ void ServerTurnController::assignEngagements(int participantIdToCheck) {
 }
 
 void ServerTurnController::compareAndEngageParticipants(Participant* participantA, Participant* participantB) {
+    // if(participantA->getId() == participantB->getId()) {
+    //     return;
+    // }
+
+    // // We only need to check the engagements for one of the participants
+    // if(participantA->hasEngagement(participantB->getId())) {
+    //     if(participantA->getEntities().empty() || participantB->getEntities().empty()) {
+    //         disengage(participantA->getId(), participantB->getId());
+    //     }
+
+    //     return;
+    // }
+
+    // if(!participantA->isHostile(participantB) || !participantB->isHostile(participantA)) {
+    //     return;
+    // }
+
+    // // Exit early if we find an engagement
+    // for(auto entityToCheck : participantA->getEntities()) {
+    //     if(hasEntityEngagement(entityToCheck, participantB)) {
+    //         engage(participantA->getId(), participantB->getId());
+    //         return;
+    //     }
+    // }
+
+    // Same participant - irrelevant
     if(participantA->getId() == participantB->getId()) {
         return;
     }
 
-    // We only need to check the engagements for one of the participants
-    if(participantA->hasEngagement(participantB->getId())) {
-        if(participantA->getEntities().empty() || participantB->getEntities().empty()) {
-            disengage(participantA->getId(), participantB->getId());
-        }
-
-        return;
-    }
-
+    // Not hostile - irrelevant
     if(!participantA->isHostile(participantB) || !participantB->isHostile(participantA)) {
         return;
     }
 
-    // Exit early if we find an engagement
+    // Check if an engagment between these participants already exists
+    if(participantA->getEngagementId().has_value() && participantA->getEngagementId() == participantB->getEngagementId()) {
+        return;
+    }
+
+    bool canEngage = false;
     for(auto entityToCheck : participantA->getEntities()) {
         if(hasEntityEngagement(entityToCheck, participantB)) {
-            engage(participantA->getId(), participantB->getId());
-            return;
+            canEngage = true;
+            break;
         }
     }
+
+    if(!canEngage) {
+        return;
+    }
+
+    if(!participantA->getEngagementId().has_value() && !participantB->getEngagementId().has_value()) {
+        if(participantA->getAverageEntitySpeed() > participantB->getAverageEntitySpeed()) {
+            createEngagement({ participantA->getId(), participantB->getId() });
+        }
+        else {
+            createEngagement({ participantB->getId(), participantA->getId() });
+        }
+    }
+    else if(participantA->getEngagementId().has_value() && !participantB->getEngagementId().has_value()) {
+        addToEngagement(participantA->getEngagementId().value(), participantB->getId());
+    }
+    else if(!participantA->getEngagementId().has_value() && participantB->getEngagementId().has_value()) {
+        addToEngagement(participantB->getEngagementId().value(), participantA->getId());
+    }
+    else {
+        mergeEngagements(
+            engagements[participantA->getEngagementId().value()], 
+            engagements[participantB->getEngagementId().value()]
+        );
+    }
+
+    // std::map<int, uint32_t> currentEngagements;
+    // for(auto const& [_, engagement] : getEngagements()) {
+    //     for(auto participant : engagement.participants) {
+    //         currentEngagements[participant]
+    //     }
+    //     // if(containsAll(engagement.participants, { participantA->getId(), participantB->getId() })) {
+    //     //     return;
+    //     // }
+    // }
+}
+
+void ServerTurnController::mergeEngagements(const Engagement& engagementA, const Engagement& engagementB) {
+    std::vector<int> participantsToMerge;
+
+    if(engagementA.participants.size() == engagementB.participants.size()) {
+        float engagementAAverageSpeed = 0.0f;
+        float engagementBAverageSpeed = 0.0f;
+
+        for(auto pariticpantId : engagementA.participants) {
+            engagementAAverageSpeed += participants[pariticpantId]->getAverageEntitySpeed();
+        }
+        for(auto pariticpantId : engagementB.participants) {
+            engagementBAverageSpeed += participants[pariticpantId]->getAverageEntitySpeed();
+        }
+
+        // TODO: If the same, consider another heuristic - probably just random and have some kind of announcement on screen
+        if(engagementAAverageSpeed >= engagementBAverageSpeed) {
+            insertAll(participantsToMerge, engagementA.participants);
+            insertAll(participantsToMerge, engagementB.participants);
+        }
+        else {
+            insertAll(participantsToMerge, engagementB.participants);
+            insertAll(participantsToMerge, engagementA.participants);
+        }
+    } else if(engagementA.participants.size() > engagementB.participants.size()) {
+        insertAll(participantsToMerge, engagementA.participants);
+        insertAll(participantsToMerge, engagementB.participants);
+    }
+    else {
+        insertAll(participantsToMerge, engagementB.participants);
+        insertAll(participantsToMerge, engagementA.participants);
+    }
+
+    removeEngagement(engagementA.id);
+    removeEngagement(engagementB.id);
+
+    createEngagement(participantsToMerge);
 }
 
 bool ServerTurnController::hasEntityEngagement(Entity* target, Participant* participant) {
