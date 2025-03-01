@@ -79,6 +79,7 @@ void ServerTurnController::additionalUpdate(int64_t timeSinceLastFrame, bool& qu
         participant->getBehaviourStrategy()->onUpdate(participant->getId(), timeSinceLastFrame, quit);
     }
 
+    // TODO: This should be called when an entity moves, not every update tick
     checkForItems();
 }
 
@@ -229,22 +230,22 @@ void ServerTurnController::compareAndEngageParticipants(Participant* participant
 
     if(!participantA->getEngagementId().has_value() && !participantB->getEngagementId().has_value()) {
         if(participantA->getAverageEntitySpeed() > participantB->getAverageEntitySpeed()) {
-            createEngagement({ participantA->getId(), participantB->getId() });
+            engagementController.createEngagement({ participantA, participantB });
         }
         else {
-            createEngagement({ participantB->getId(), participantA->getId() });
+            engagementController.createEngagement({ participantB, participantA });
         }
     }
     else if(participantA->getEngagementId().has_value() && !participantB->getEngagementId().has_value()) {
-        addToEngagement(participantA->getEngagementId().value(), participantB->getId());
+        engagementController.addToEngagement(participantA->getEngagementId().value(), participantB);
     }
     else if(!participantA->getEngagementId().has_value() && participantB->getEngagementId().has_value()) {
-        addToEngagement(participantB->getEngagementId().value(), participantA->getId());
+        engagementController.addToEngagement(participantB->getEngagementId().value(), participantA);
     }
     else {
         mergeEngagements(
-            engagements[participantA->getEngagementId().value()], 
-            engagements[participantB->getEngagementId().value()]
+            engagementController.getEngagement(participantA->getEngagementId().value()), 
+            engagementController.getEngagement(participantB->getEngagementId().value())
         );
     }
 
@@ -259,18 +260,21 @@ void ServerTurnController::compareAndEngageParticipants(Participant* participant
     // }
 }
 
-void ServerTurnController::mergeEngagements(const Engagement& engagementA, const Engagement& engagementB) {
-    std::vector<int> participantsToMerge;
+void ServerTurnController::mergeEngagements(
+    const EngagementController::Engagement& engagementA, 
+    const EngagementController::Engagement& engagementB
+) {
+    std::vector<Participant*> participantsToMerge;
 
     if(engagementA.participants.size() == engagementB.participants.size()) {
         float engagementAAverageSpeed = 0.0f;
         float engagementBAverageSpeed = 0.0f;
 
-        for(auto pariticpantId : engagementA.participants) {
-            engagementAAverageSpeed += participants[pariticpantId]->getAverageEntitySpeed();
+        for(auto participant : engagementA.participants) {
+            engagementAAverageSpeed += participant->getAverageEntitySpeed();
         }
-        for(auto pariticpantId : engagementB.participants) {
-            engagementBAverageSpeed += participants[pariticpantId]->getAverageEntitySpeed();
+        for(auto participant : engagementB.participants) {
+            engagementBAverageSpeed += participant->getAverageEntitySpeed();
         }
 
         // TODO: If the same, consider another heuristic - probably just random and have some kind of announcement on screen
@@ -291,10 +295,10 @@ void ServerTurnController::mergeEngagements(const Engagement& engagementA, const
         insertAll(participantsToMerge, engagementA.participants);
     }
 
-    removeEngagement(engagementA.id);
-    removeEngagement(engagementB.id);
+    engagementController.removeEngagement(engagementA.id);
+    engagementController.removeEngagement(engagementB.id);
 
-    createEngagement(participantsToMerge);
+    engagementController.createEngagement(participantsToMerge);
 }
 
 bool ServerTurnController::hasEntityEngagement(Entity* target, Participant* participant) {

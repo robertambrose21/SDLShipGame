@@ -14,25 +14,33 @@ void TurnController::initialise(ApplicationContext& context) {
 void TurnController::update(int64_t timeSinceLastFrame, bool& quit) {
     game_assert(initialised);
 
-    // We need at least two participants to start a game
-    if(participants.size() < 2) {
-        return;
-    }
+    // // We need at least two participants to start a game
+    // if(participants.size() < 2) {
+    //     return;
+    // }
 
-    processEngagements();
-    additionalUpdate(timeSinceLastFrame, quit);
-    executeActions(currentParticipantId);
+    // processEngagements();
+    // additionalUpdate(timeSinceLastFrame, quit);
+    // executeActions(currentParticipantId);
 
-    for(auto const& [participantId, participant] : participants) {
-        if(participantId != currentParticipantId && !participant->getEngagementId().has_value()) {
-            executeActions(participantId);
-        }
-    }
+    // for(auto const& [participantId, participant] : participants) {
+    //     if(participantId != currentParticipantId && !participant->getEngagementId().has_value()) {
+    //         executeActions(participantId);
+    //     }
+    // }
 
-    if(canProgressToNextTurn(currentParticipantId)) {
-        endCurrentParticipantTurn();
-        nextParticipantTurn();
-    }
+    // if(canProgressToNextTurn(currentParticipantId)) {
+    //     endCurrentParticipantTurn();
+    //     nextParticipantTurn();
+    // }
+    
+    // for(auto const& [_, engagement] : engagements) {
+    //     // execute actions
+    //     // check if we can progress to next turn
+    //     // Go to next turn if we can
+    // }
+
+    // Do free roam stuff
 }
 
 void TurnController::processEngagements() {
@@ -138,78 +146,6 @@ void TurnController::reset(void) {
         }
     }
 }
-
-uint32_t TurnController::createEngagement(const std::vector<int>& orderedParticipantIds) {
-    auto id = getNewId();
-
-    spdlog::trace(
-        "Adding engagement {} with {} participants", 
-        id, 
-        engagements[id].participants.size()
-    );
-    engagements[id] = { id, orderedParticipantIds };
-    return id;
-}
-
-void TurnController::removeEngagement(uint32_t engagementId) {
-    if(!engagements.contains(engagementId)) {
-        spdlog::warn("Cannot remove non-existant engagement with id {}", engagementId);
-        return;
-    }
-
-    spdlog::trace(
-        "Removing engagement {} with {} participants", 
-        engagementId, 
-        engagements[engagementId].participants.size()
-    );
-
-    for(auto participantId : engagements[engagementId].participants) {
-        participants[participantId]->setEngagementId(std::nullopt);
-    }
-
-    engagements.erase(engagementId);
-}
-
-void TurnController::addToEngagement(uint32_t engagementId, int participantId) {
-    if(!engagements.contains(engagementId)) {
-        spdlog::warn("Cannot add participant to non-existant engagement with id {}", engagementId);
-        return;
-    }
-
-    if(contains(engagements[engagementId].participants, participantId)) {
-        spdlog::warn(
-            "Cannot add participant {} to engagement {}, participant already part of this engagement",
-            participantId,
-            engagementId
-        );
-        return;
-    }
-    spdlog::trace("Adding participant {} to engagement {}", participantId, engagementId);
-    engagements[engagementId].participants.push_back(participantId);
-}
-
-void TurnController::disengage(uint32_t engagementId, int participantId) {
-    if(!engagements.contains(engagementId)) {
-        spdlog::warn("Cannot disengage participant from non-existant engagement with id {}", engagementId);
-        return;
-    }
-
-    spdlog::trace("Removing participant {} from engagement {}", participantId, engagementId);
-    std::erase_if(engagements[engagementId].participants, [&](const auto& item) {
-        return participantId == item;
-    });
-
-    participants[participantId]->setEngagementId(std::nullopt);
-
-    if(engagements[engagementId].participants.empty()) {
-        removeEngagement(engagementId);
-    }
-}
-
-const std::map<uint32_t, TurnController::Engagement>& TurnController::getEngagements(void) const {
-    return engagements;
-}
-
 
 // void TurnController::engage(int participantIdA, int participantIdB) {
 //     auto& participantA = participants[participantIdA];

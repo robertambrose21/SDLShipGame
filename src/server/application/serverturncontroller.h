@@ -33,6 +33,9 @@ private:
     void checkForItems(void);
     void assignEngagements(int participantIdToCheck);
     void compareAndEngageParticipants(Participant* participantA, Participant* participantB);
-    void mergeEngagements(const Engagement& engagementA, const Engagement& engagementB);
+    void mergeEngagements(
+        const EngagementController::Engagement& engagementA, 
+        const EngagementController::Engagement& engagementB
+    );
     bool hasEntityEngagement(Entity* target, Participant* participant);
 };
