@@ -230,22 +230,22 @@ void ServerTurnController::compareAndEngageParticipants(Participant* participant
 
     if(!participantA->getEngagementId().has_value() && !participantB->getEngagementId().has_value()) {
         if(participantA->getAverageEntitySpeed() > participantB->getAverageEntitySpeed()) {
-            engagementController.createEngagement({ participantA, participantB });
+            engagementController->createEngagement({ participantA, participantB });
         }
         else {
-            engagementController.createEngagement({ participantB, participantA });
+            engagementController->createEngagement({ participantB, participantA });
         }
     }
     else if(participantA->getEngagementId().has_value() && !participantB->getEngagementId().has_value()) {
-        engagementController.addToEngagement(participantA->getEngagementId().value(), participantB);
+        engagementController->addToEngagement(participantA->getEngagementId().value(), participantB);
     }
     else if(!participantA->getEngagementId().has_value() && participantB->getEngagementId().has_value()) {
-        engagementController.addToEngagement(participantB->getEngagementId().value(), participantA);
+        engagementController->addToEngagement(participantB->getEngagementId().value(), participantA);
     }
     else {
         mergeEngagements(
-            engagementController.getEngagement(participantA->getEngagementId().value()), 
-            engagementController.getEngagement(participantB->getEngagementId().value())
+            engagementController->getEngagement(participantA->getEngagementId().value()), 
+            engagementController->getEngagement(participantB->getEngagementId().value())
         );
     }
 
@@ -295,10 +295,10 @@ void ServerTurnController::mergeEngagements(
         insertAll(participantsToMerge, engagementA.participants);
     }
 
-    engagementController.removeEngagement(engagementA.id);
-    engagementController.removeEngagement(engagementB.id);
+    engagementController->removeEngagement(engagementA.id);
+    engagementController->removeEngagement(engagementB.id);
 
-    engagementController.createEngagement(participantsToMerge);
+    engagementController->createEngagement(participantsToMerge);
 }
 
 bool ServerTurnController::hasEntityEngagement(Entity* target, Participant* participant) {

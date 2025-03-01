@@ -1,5 +1,60 @@
 #include "engagementcontroller.h"
 
+EngagementController::EngagementController(ApplicationContext* context) :
+    context(context)
+{ }
+
+void EngagementController::update(int64_t timeSinceLastFrame) {
+    for(auto& [_, engagement] : engagements) {
+        // execute actions
+        // check if we can progress to next turn
+        // Go to next turn if we can
+
+        executeActions(engagement);
+
+        if(true /* Can progress to next turn*/) {
+            endCurrentParticipantTurn(engagement);
+            nextParticipantTurn(engagement);
+        }
+    }
+}
+
+void EngagementController::endCurrentParticipantTurn(const Engagement& engagement) {
+    engagement.getCurrentParticipant()->endTurn();
+    // onParticipantTurnEnd(currentParticipantId);
+}
+
+void EngagementController::nextParticipantTurn(Engagement& engagement) {
+    engagement.nextTurn();
+}
+
+void EngagementController::executeActions(const Engagement& engagement) {
+    for(auto entity : engagement.getCurrentParticipant()->getEntities()) {
+        executeEntityActions(engagement, entity);
+    }
+}
+
+void EngagementController::executeEntityActions(const Engagement& engagement, Entity* entity) {
+    bool moreActionsToProcess = !entity->getActionsChain(engagement.turnNumber).empty();
+
+    while(moreActionsToProcess) {
+        auto action = entity->getActionsChain(engagement.turnNumber).front();
+
+        if(action->isFinished()) {
+            entity->popAction(engagement.turnNumber);
+            moreActionsToProcess = !entity->getActionsChain(engagement.turnNumber).empty();
+        }
+        // TODO: If precondition fails - just drop?
+        else if(action->passesPrecondition() && !action->isExecuted()) {
+            action->execute(context);
+            moreActionsToProcess = false;
+        }
+        else {
+            moreActionsToProcess = false;
+        }
+    }
+}
+
 uint32_t EngagementController::createEngagement(const std::vector<Participant*>& orderedParticipants) {
     game_assert(!orderedParticipants.empty());
 

@@ -86,7 +86,7 @@ public:
 
 protected:
     ApplicationContext* context;
-    EngagementController engagementController;
+    std::unique_ptr<EngagementController> engagementController;
 
     bool initialised;
 

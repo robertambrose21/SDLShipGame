@@ -1,5 +1,6 @@
 #include "turncontroller.h"
 
+// This will effectively become a game controller
 TurnController::TurnController() :
     initialised(false),
     turnNumber(0),
@@ -8,6 +9,7 @@ TurnController::TurnController() :
 
 void TurnController::initialise(ApplicationContext& context) {
     this->context = &context;
+    engagementController = std::make_unique<EngagementController>(context);
     initialised = true;
 }
 
@@ -39,6 +41,8 @@ void TurnController::update(int64_t timeSinceLastFrame, bool& quit) {
     //     // check if we can progress to next turn
     //     // Go to next turn if we can
     // }
+
+    engagementController->update(timeSinceLastFrame);
 
     // Do free roam stuff
 }
