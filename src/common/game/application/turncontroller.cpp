@@ -2,9 +2,9 @@
 
 // This will effectively become a game controller
 TurnController::TurnController() :
-    initialised(false),
-    turnNumber(0),
-    currentParticipantId(0)
+    initialised(false)//,
+    // turnNumber(0),
+    // currentParticipantId(0)
 { }
 
 void TurnController::initialise(ApplicationContext& context) {
@@ -35,32 +35,71 @@ void TurnController::update(int64_t timeSinceLastFrame, bool& quit) {
     //     endCurrentParticipantTurn();
     //     nextParticipantTurn();
     // }
-    
-    // for(auto const& [_, engagement] : engagements) {
-    //     // execute actions
-    //     // check if we can progress to next turn
-    //     // Go to next turn if we can
-    // }
 
-    engagementController->update(timeSinceLastFrame);
+    additionalUpdate(timeSinceLastFrame, quit);
+    
+    for(auto& [_, engagement] : engagementController->getEngagements()) {
+        executeActions(engagement.get());
+
+        if(canProgressToNextTurn(engagement.get())) {
+            endCurrentParticipantTurn(engagement.get());
+            nextParticipantTurn(engagement.get());
+        }
+    }
 
     // Do free roam stuff
 }
 
-void TurnController::processEngagements() {
-    // if (engagementsQueue[turnNumber].empty()) {
-    //     return; 
-    // }
+// void TurnController::processEngagements() {
+//     // if (engagementsQueue[turnNumber].empty()) {
+//     //     return; 
+//     // }
 
-    // for (auto& engagement : engagementsQueue[turnNumber]) {
-    //     if (engagement.isDisengage) {
-    //         disengage(engagement.participantIdA, engagement.participantIdB);
-    //     } else {
-    //         engage(engagement.participantIdA, engagement.participantIdB);
-    //     }
-    // }
+//     // for (auto& engagement : engagementsQueue[turnNumber]) {
+//     //     if (engagement.isDisengage) {
+//     //         disengage(engagement.participantIdA, engagement.participantIdB);
+//     //     } else {
+//     //         engage(engagement.participantIdA, engagement.participantIdB);
+//     //     }
+//     // }
 
-    // engagementsQueue[turnNumber].clear();
+//     // engagementsQueue[turnNumber].clear();
+// }
+
+void TurnController::endCurrentParticipantTurn(Engagement* engagement) {
+    engagement->getCurrentParticipant()->endTurn();
+    onParticipantTurnEnd(engagement);
+}
+
+void TurnController::nextParticipantTurn(Engagement* engagement) {
+    engagement->nextTurn();
+}
+
+void TurnController::executeActions(Engagement* engagement) {
+    for(auto entity : engagement->getCurrentParticipant()->getEntities()) {
+        executeEntityActions(engagement, entity);
+    }
+}
+
+void TurnController::executeEntityActions(Engagement* engagement, Entity* entity) {
+    bool moreActionsToProcess = !entity->getActionsChain(engagement->getTurnNumber()).empty();
+
+    while(moreActionsToProcess) {
+        auto action = entity->getActionsChain(engagement->getTurnNumber()).front();
+
+        if(action->isFinished()) {
+            entity->popAction(engagement->getTurnNumber());
+            moreActionsToProcess = !entity->getActionsChain(engagement->getTurnNumber()).empty();
+        }
+        // TODO: If precondition fails - just drop?
+        else if(action->passesPrecondition() && !action->isExecuted()) {
+            action->execute(context);
+            moreActionsToProcess = false;
+        }
+        else {
+            moreActionsToProcess = false;
+        }
+    }
 }
 
 Participant* TurnController::addParticipant(
@@ -192,84 +231,84 @@ void TurnController::reset(void) {
 //     publish<EngagementEventData>({ participantIdA, participantIdB, EngagementType::DISENGAGED });
 // }
 
-void TurnController::endCurrentParticipantTurn(void) {
-    auto& participant = participants[currentParticipantId];
-    participant->endTurn();
-    onParticipantTurnEnd(currentParticipantId);
-}
+// void TurnController::endCurrentParticipantTurn(void) {
+//     auto& participant = participants[currentParticipantId];
+//     participant->endTurn();
+//     onParticipantTurnEnd(currentParticipantId);
+// }
 
-void TurnController::nextParticipantTurn(void) {
-    game_assert(initialised);
+// void TurnController::nextParticipantTurn(void) {
+//     game_assert(initialised);
 
-    currentParticipantId = (currentParticipantId + 1) % participants.size();
+//     currentParticipantId = (currentParticipantId + 1) % participants.size();
 
-    participants[currentParticipantId]->nextTurn();
+//     participants[currentParticipantId]->nextTurn();
 
-    for(auto const& onNextTurnFunc : onNextTurnWorkers) {
-        onNextTurnFunc(currentParticipantId, turnNumber);
-    }
+//     for(auto const& onNextTurnFunc : onNextTurnWorkers) {
+//         onNextTurnFunc(currentParticipantId, turnNumber);
+//     }
 
-    incrementTurn();
+//     incrementTurn();
 
-    context->getEffectController()->onNextTurn();
-}
+//     context->getEffectController()->onNextTurn();
+// }
 
-void TurnController::incrementTurn(void) {
-    turnNumber++;
-    context->getGrid()->nextTurn();
-    publish<TurnEventData>({ turnNumber, currentParticipantId });
-}
+// void TurnController::incrementTurn(void) {
+//     turnNumber++;
+//     context->getGrid()->nextTurn();
+//     publish<TurnEventData>({ turnNumber, currentParticipantId });
+// }
 
-void TurnController::passParticipant(int id) {
-    game_assert(participants.contains(id));
-    participants[id]->passTurn();
-}
+// void TurnController::passParticipant(int id) {
+//     game_assert(participants.contains(id));
+//     participants[id]->passTurn();
+// }
 
-void TurnController::setCurrentParticipant(int id) {
-    currentParticipantId = id;
-}
+// void TurnController::setCurrentParticipant(int id) {
+//     currentParticipantId = id;
+// }
 
-int TurnController::getCurrentParticipantId(void) const {
-    game_assert(initialised);
-    return currentParticipantId;
-}
+// int TurnController::getCurrentParticipantId(void) const {
+//     game_assert(initialised);
+//     return currentParticipantId;
+// }
 
-void TurnController::executeActions(int participantId) {
-    game_assert(initialised);
+// void TurnController::executeActions(int participantId) {
+//     game_assert(initialised);
 
-    for(auto entity : participants[participantId]->getEntities()) {
-        executeEntityActions(entity);
-    }
-}
+//     for(auto entity : participants[participantId]->getEntities()) {
+//         executeEntityActions(entity);
+//     }
+// }
 
-void TurnController::executeEntityActions(Entity* entity) {
-    bool moreActionsToProcess = !entity->getActionsChain(turnNumber).empty();
+// void TurnController::executeEntityActions(Entity* entity) {
+//     bool moreActionsToProcess = !entity->getActionsChain(turnNumber).empty();
 
-    while(moreActionsToProcess) {
-        auto action = entity->getActionsChain(turnNumber).front();
+//     while(moreActionsToProcess) {
+//         auto action = entity->getActionsChain(turnNumber).front();
 
-        if(action->isFinished()) {
-            entity->popAction(turnNumber);
-            moreActionsToProcess = !entity->getActionsChain(turnNumber).empty();
-        }
-        // TODO: If precondition fails - just drop?
-        else if(action->passesPrecondition() && !action->isExecuted()) {
-            action->execute(context);
-            moreActionsToProcess = false;
-        }
-        else {
-            moreActionsToProcess = false;
-        }
-    }
-}
+//         if(action->isFinished()) {
+//             entity->popAction(turnNumber);
+//             moreActionsToProcess = !entity->getActionsChain(turnNumber).empty();
+//         }
+//         // TODO: If precondition fails - just drop?
+//         else if(action->passesPrecondition() && !action->isExecuted()) {
+//             action->execute(context);
+//             moreActionsToProcess = false;
+//         }
+//         else {
+//             moreActionsToProcess = false;
+//         }
+//     }
+// }
 
 bool TurnController::queueAction(std::unique_ptr<Action> action) {
-    bool skipValidation = turnNumber != action->getTurnNumber(); // TODO: Should this be <= ?
+    bool skipValidation = false;//turnNumber != action->getTurnNumber(); // TODO: Should this be <= ?
 
     if(skipValidation) {
         spdlog::trace(
             "[{}, {}] Skipping validation, action is for turn {}",
-            turnNumber,
+            0,// turnNumber, <-- TODO
             action->typeToString(),
             action->getTurnNumber()
         );
@@ -286,63 +325,63 @@ bool TurnController::queueAction(std::unique_ptr<Action> action) {
 // TODO: Gross
 void TurnController::publishAction(Action& action) {
     switch(action.getType()) {
-        case Action::Move: {
-            auto moveAction = dynamic_cast<MoveAction&>(action);
-            publish<MoveActionEventData>({ 
-                turnNumber, 
-                moveAction.getEntity(), 
-                moveAction.getPosition(), 
-                moveAction.getShortStopSteps() 
-            });
-            break;
-        }
+        // case Action::Move: {
+        //     auto moveAction = dynamic_cast<MoveAction&>(action);
+        //     publish<MoveActionEventData>({ 
+        //         turnNumber, 
+        //         moveAction.getEntity(), 
+        //         moveAction.getPosition(), 
+        //         moveAction.getShortStopSteps() 
+        //     });
+        //     break;
+        // }
 
-        case Action::Attack: {
-            auto attackAction = dynamic_cast<AttackAction&>(action);
-            publish<AttackActionEventData>({
-                turnNumber,
-                attackAction.getEntity(),
-                attackAction.getTarget(),
-                attackAction.getWeapon()
-            });
-            break;
-        }
+        // case Action::Attack: {
+        //     auto attackAction = dynamic_cast<AttackAction&>(action);
+        //     publish<AttackActionEventData>({
+        //         turnNumber,
+        //         attackAction.getEntity(),
+        //         attackAction.getTarget(),
+        //         attackAction.getWeapon()
+        //     });
+        //     break;
+        // }
 
-        case Action::TakeItem: {
-            auto takeItemAction = dynamic_cast<TakeItemAction&>(action);
-            publish<TakeItemActionEventData>({
-                turnNumber,
-                takeItemAction.getEntity(),
-                takeItemAction.getItems()
-            });
-            break;
-        }
+        // case Action::TakeItem: {
+        //     auto takeItemAction = dynamic_cast<TakeItemAction&>(action);
+        //     publish<TakeItemActionEventData>({
+        //         turnNumber,
+        //         takeItemAction.getEntity(),
+        //         takeItemAction.getItems()
+        //     });
+        //     break;
+        // }
 
-        case Action::EquipItem: {
-            auto equipItemAction = dynamic_cast<EquipGearAction&>(action);
-            publish<EquipItemActionEventData>({
-                turnNumber,
-                equipItemAction.getEntity(),
-                equipItemAction.getItem(),
-                equipItemAction.getSlot(),
-                equipItemAction.getIsUnequip()
-            });
-            break;
-        }
+        // case Action::EquipItem: {
+        //     auto equipItemAction = dynamic_cast<EquipGearAction&>(action);
+        //     publish<EquipItemActionEventData>({
+        //         turnNumber,
+        //         equipItemAction.getEntity(),
+        //         equipItemAction.getItem(),
+        //         equipItemAction.getSlot(),
+        //         equipItemAction.getIsUnequip()
+        //     });
+        //     break;
+        // }
 
-        case Action::EquipWeaponItem: {
-            auto equipWeaponAction = dynamic_cast<EquipWeaponAction&>(action);
-            publish<EquipWeaponActionEventData>({
-                turnNumber,
-                equipWeaponAction.getEntity(),
-                equipWeaponAction.getItem(),
-                equipWeaponAction.getWeaponId()
-            });
-            break;
-        }
+        // case Action::EquipWeaponItem: {
+        //     auto equipWeaponAction = dynamic_cast<EquipWeaponAction&>(action);
+        //     publish<EquipWeaponActionEventData>({
+        //         turnNumber,
+        //         equipWeaponAction.getEntity(),
+        //         equipWeaponAction.getItem(),
+        //         equipWeaponAction.getWeaponId()
+        //     });
+        //     break;
+        // }
 
-        default:
-            break;
+        // default:
+        //     break;
     }
 }
 
@@ -361,10 +400,10 @@ void TurnController::allParticipantsSet(void) {
     }
 }
 
-int TurnController::getTurnNumber(void) const {
-    return turnNumber;
-}
+// int TurnController::getTurnNumber(void) const {
+//     return turnNumber;
+// }
 
-void TurnController::setTurnNumber(int turnNumber) {
-    this->turnNumber = turnNumber;
-}
+// void TurnController::setTurnNumber(int turnNumber) {
+//     this->turnNumber = turnNumber;
+// }

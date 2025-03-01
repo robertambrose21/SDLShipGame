@@ -8,15 +8,16 @@ void ClientTurnController::additionalUpdate(int64_t timeSinceLastFrame, bool& qu
     // no-op
 }
 
-bool ClientTurnController::canProgressToNextTurn(int participantId) {
+bool ClientTurnController::canProgressToNextTurn(Engagement* engagement) {
     if(nextTurnFlags.empty()) {
         return false;
     }
 
-    auto& participant = participants[participantId];
+    // auto& participant = participants[participantId];
+    auto participant = engagement->getCurrentParticipant();
 
     for(auto entity : participant->getEntities()) {
-        if(entity->hasAnimationsInProgress() || !entity->getActionsChain(turnNumber).empty()) {
+        if(entity->hasAnimationsInProgress() || !entity->getActionsChain(engagement->getTurnNumber()).empty()) {
             return false;
         }
     }
@@ -25,7 +26,7 @@ bool ClientTurnController::canProgressToNextTurn(int participantId) {
     return true;
 }
 
-void ClientTurnController::onParticipantTurnEnd(int participantId) {
+void ClientTurnController::onParticipantTurnEnd(Engagement* engagement) {
     // no-op
 }
 

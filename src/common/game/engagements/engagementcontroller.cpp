@@ -4,57 +4,6 @@ EngagementController::EngagementController(ApplicationContext* context) :
     context(context)
 { }
 
-void EngagementController::update(int64_t timeSinceLastFrame) {
-    for(auto& [_, engagement] : engagements) {
-        // execute actions
-        // check if we can progress to next turn
-        // Go to next turn if we can
-
-        executeActions(engagement.get());
-
-        if(true /* Can progress to next turn*/) {
-            endCurrentParticipantTurn(engagement.get());
-            nextParticipantTurn(engagement.get());
-        }
-    }
-}
-
-void EngagementController::endCurrentParticipantTurn(Engagement* engagement) {
-    engagement->getCurrentParticipant()->endTurn();
-    // onParticipantTurnEnd(currentParticipantId);
-}
-
-void EngagementController::nextParticipantTurn(Engagement* engagement) {
-    engagement->nextTurn();
-}
-
-void EngagementController::executeActions(Engagement* engagement) {
-    for(auto entity : engagement->getCurrentParticipant()->getEntities()) {
-        executeEntityActions(engagement, entity);
-    }
-}
-
-void EngagementController::executeEntityActions(Engagement* engagement, Entity* entity) {
-    bool moreActionsToProcess = !entity->getActionsChain(engagement->getTurnNumber()).empty();
-
-    while(moreActionsToProcess) {
-        auto action = entity->getActionsChain(engagement->getTurnNumber()).front();
-
-        if(action->isFinished()) {
-            entity->popAction(engagement->getTurnNumber());
-            moreActionsToProcess = !entity->getActionsChain(engagement->getTurnNumber()).empty();
-        }
-        // TODO: If precondition fails - just drop?
-        else if(action->passesPrecondition() && !action->isExecuted()) {
-            action->execute(context);
-            moreActionsToProcess = false;
-        }
-        else {
-            moreActionsToProcess = false;
-        }
-    }
-}
-
 uint32_t EngagementController::createEngagement(const std::vector<Participant*>& orderedParticipants) {
     game_assert(!orderedParticipants.empty());
 

@@ -73,20 +73,24 @@ void ServerTurnController::additionalUpdate(int64_t timeSinceLastFrame, bool& qu
         assignEngagements(participantId);
     }
 
-    auto participant = participants.at(currentParticipantId).get();
+    // TODO: update all AI
+    // auto participant = participants.at(currentParticipantId).get();
 
-    if(participant->getBehaviourStrategy() != nullptr) {
-        participant->getBehaviourStrategy()->onUpdate(participant->getId(), timeSinceLastFrame, quit);
-    }
+    // if(participant->getBehaviourStrategy() != nullptr) {
+    //     participant->getBehaviourStrategy()->onUpdate(participant->getId(), timeSinceLastFrame, quit);
+    // }
 
     // TODO: This should be called when an entity moves, not every update tick
     checkForItems();
 }
 
-bool ServerTurnController::canProgressToNextTurn(int participantId) {
+bool ServerTurnController::canProgressToNextTurn(Engagement* engagement) {
     game_assert(transmitter != nullptr);
 
-    auto& participant = participants[participantId];
+    // auto& participant = participants[participantId];
+    auto participant = engagement->getCurrentParticipant();
+    auto currentParticipantId = participant->getId();
+    auto turnNumber = engagement->getTurnNumber();
 
     if(!participant->getIsReady()) {
         return false;
@@ -123,9 +127,9 @@ bool ServerTurnController::canProgressToNextTurn(int participantId) {
     return nextTurn;
 }
 
-void ServerTurnController::onParticipantTurnEnd(int participantId) {
-    auto participant = context->getTurnController()->getParticipant(participantId);
-    game_assert(participant != nullptr);
+void ServerTurnController::onParticipantTurnEnd(Engagement* engagement) {
+    // auto participant = context->getTurnController()->getParticipant(participantId);
+    // game_assert(participant != nullptr);
 
     // for(auto const& [otherParticipantId, _] : participant->getEngagements()) {
     //     auto otherParticipant = context->getTurnController()->getParticipant(otherParticipantId);
@@ -161,7 +165,8 @@ void ServerTurnController::checkForItems(void) {
             auto items = itemController->getItemsAt(entity->getPosition());
             
             if(!items.empty()) {
-                queueAction(std::make_unique<TakeItemAction>(turnNumber, entity, items));
+                // TODO:
+                // queueAction(std::make_unique<TakeItemAction>(turnNumber, entity, items));
             }
         }
     }
