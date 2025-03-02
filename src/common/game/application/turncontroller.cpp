@@ -302,13 +302,65 @@ void TurnController::reset(void) {
 //     }
 // }
 
+bool TurnController::executeActionImmediately(std::unique_ptr<Action> action) {
+    if(action->getTurnNumber().has_value()) {
+        spdlog::error(
+            "Execute [{}]: Cannot execute immediately - turn number set {}",
+            action->typeToString(),
+            action->getTurnNumber().value()
+        );
+        return false;
+    }
+
+    if(action->getParticipant()->getEngagement() != nullptr) {
+        spdlog::error(
+            "Execute [{}]: Cannot execute immediately - participant {} has engagement {}",
+            action->typeToString(),
+            action->getParticipant()->getId(),
+            action->getParticipant()->getEngagement()->getId()
+        );
+        return false;
+    }
+
+    if(action->isExecuted()) {
+        spdlog::warn("Execute [{}]: Cannot execute immediately - action already executed", action->typeToString());
+        return false;
+    }
+
+    if(!action->passesPrecondition()) {
+        spdlog::warn("Execute [{}]: Cannot execute immediately - action fails precondition", action->typeToString());
+        return false;
+    }
+    
+    action->execute(context);
+    return true;
+}
+
 bool TurnController::queueAction(std::unique_ptr<Action> action) {
-    bool skipValidation = false;//turnNumber != action->getTurnNumber(); // TODO: Should this be <= ?
+    // bool skipValidation = false;//turnNumber != action->getTurnNumber(); // TODO: Should this be <= ?
+
+    if(!action->getTurnNumber().has_value()) {
+        spdlog::error("Queue [{}]: Cannot queue action - no turn number is set", action->typeToString());
+        return false;
+    }
+
+    // TODO: This can all happen on the action class
+    // bool skipValidation = false;
+
+    auto engagement = action->getParticipant()->getEngagement();
+    bool skipValidation = engagement != nullptr && engagement->getTurnNumber() != action->getTurnNumber().value();
+
+    // if(engagement == nullptr) {
+    //     skipValidation = false;
+    // }
+    // else {
+    //     skipValidation = engagement->getTurnNumber() != action->getTurnNumber().value();
+    // }
 
     if(skipValidation) {
         spdlog::trace(
             "[{}, {}] Skipping validation, action is for turn {}",
-            0,// turnNumber, <-- TODO
+            engagement->getTurnNumber(),
             action->typeToString(),
             action->getTurnNumber()
         );
@@ -323,65 +375,73 @@ bool TurnController::queueAction(std::unique_ptr<Action> action) {
 }
 
 // TODO: Gross
+// TODO: publishedQueuedAction
 void TurnController::publishAction(Action& action) {
+    if(!action.getTurnNumber().has_value()) {
+        spdlog::error("[{}]: Cannot publish queued action - no turn number (this shouldn't happen)", action.typeToString());
+        return;
+    }
+
+    auto turnNumber = action.getTurnNumber().value();
+
     switch(action.getType()) {
-        // case Action::Move: {
-        //     auto moveAction = dynamic_cast<MoveAction&>(action);
-        //     publish<MoveActionEventData>({ 
-        //         turnNumber, 
-        //         moveAction.getEntity(), 
-        //         moveAction.getPosition(), 
-        //         moveAction.getShortStopSteps() 
-        //     });
-        //     break;
-        // }
+        case Action::Move: {
+            auto moveAction = dynamic_cast<MoveAction&>(action);
+            publish<MoveActionEventData>({ 
+                turnNumber, 
+                moveAction.getEntity(), 
+                moveAction.getPosition(), 
+                moveAction.getShortStopSteps() 
+            });
+            break;
+        }
 
-        // case Action::Attack: {
-        //     auto attackAction = dynamic_cast<AttackAction&>(action);
-        //     publish<AttackActionEventData>({
-        //         turnNumber,
-        //         attackAction.getEntity(),
-        //         attackAction.getTarget(),
-        //         attackAction.getWeapon()
-        //     });
-        //     break;
-        // }
+        case Action::Attack: {
+            auto attackAction = dynamic_cast<AttackAction&>(action);
+            publish<AttackActionEventData>({
+                turnNumber,
+                attackAction.getEntity(),
+                attackAction.getTarget(),
+                attackAction.getWeapon()
+            });
+            break;
+        }
 
-        // case Action::TakeItem: {
-        //     auto takeItemAction = dynamic_cast<TakeItemAction&>(action);
-        //     publish<TakeItemActionEventData>({
-        //         turnNumber,
-        //         takeItemAction.getEntity(),
-        //         takeItemAction.getItems()
-        //     });
-        //     break;
-        // }
+        case Action::TakeItem: {
+            auto takeItemAction = dynamic_cast<TakeItemAction&>(action);
+            publish<TakeItemActionEventData>({
+                turnNumber,
+                takeItemAction.getEntity(),
+                takeItemAction.getItems()
+            });
+            break;
+        }
 
-        // case Action::EquipItem: {
-        //     auto equipItemAction = dynamic_cast<EquipGearAction&>(action);
-        //     publish<EquipItemActionEventData>({
-        //         turnNumber,
-        //         equipItemAction.getEntity(),
-        //         equipItemAction.getItem(),
-        //         equipItemAction.getSlot(),
-        //         equipItemAction.getIsUnequip()
-        //     });
-        //     break;
-        // }
+        case Action::EquipItem: {
+            auto equipItemAction = dynamic_cast<EquipGearAction&>(action);
+            publish<EquipItemActionEventData>({
+                turnNumber,
+                equipItemAction.getEntity(),
+                equipItemAction.getItem(),
+                equipItemAction.getSlot(),
+                equipItemAction.getIsUnequip()
+            });
+            break;
+        }
 
-        // case Action::EquipWeaponItem: {
-        //     auto equipWeaponAction = dynamic_cast<EquipWeaponAction&>(action);
-        //     publish<EquipWeaponActionEventData>({
-        //         turnNumber,
-        //         equipWeaponAction.getEntity(),
-        //         equipWeaponAction.getItem(),
-        //         equipWeaponAction.getWeaponId()
-        //     });
-        //     break;
-        // }
+        case Action::EquipWeaponItem: {
+            auto equipWeaponAction = dynamic_cast<EquipWeaponAction&>(action);
+            publish<EquipWeaponActionEventData>({
+                turnNumber,
+                equipWeaponAction.getEntity(),
+                equipWeaponAction.getItem(),
+                equipWeaponAction.getWeaponId()
+            });
+            break;
+        }
 
-        // default:
-        //     break;
+        default:
+            break;
     }
 }
 

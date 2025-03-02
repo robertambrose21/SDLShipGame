@@ -114,10 +114,12 @@ void GameClientMessagesReceiver::receiveFindPath(FindPathMessage* message) {
     }
 
     auto const& entity = context.getEntityPool()->getEntity(message->entityId);
+    auto participant = context.getTurnController()->getParticipant(entity->getParticipantId());
     
     context.getTurnController()->queueAction(std::make_unique<MoveAction>(
-        message->turnNumber, 
+        participant,
         entity, 
+        message->turnNumber, 
         glm::ivec2(message->x, message->y), 
         message->shortStopSteps
     ));
@@ -133,13 +135,15 @@ void GameClientMessagesReceiver::receiveAttackEntity(AttackMessage* message) {
 
     auto weaponId = UUID::fromBytes(message->weaponIdBytes);
     auto const& entity = entityPool->getEntity(message->entityId);
+    auto participant = context.getTurnController()->getParticipant(entity->getParticipantId());
 
     for(auto weapon : entity->getWeapons()) {
         if(weapon->getId() == weaponId) {
             auto isQueued = context.getTurnController()->queueAction(
                 std::make_unique<AttackAction>(
-                    message->turnNumber, 
+                    participant,
                     entity, 
+                    message->turnNumber, 
                     weapon, 
                     glm::ivec2(message->x, message->y), 
                     true
@@ -157,8 +161,8 @@ void GameClientMessagesReceiver::receiveNextTurn(NextTurnMessage* message) {
 }
 
 void GameClientMessagesReceiver::receiveSetTurn(SetTurnMessage* message) {
-    context.getTurnController()->setCurrentParticipant(message->currentParticipantId);
-    context.getTurnController()->setTurnNumber(message->turnNumber);
+    // context.getTurnController()->setCurrentParticipant(message->currentParticipantId);
+    // context.getTurnController()->setTurnNumber(message->turnNumber);
 }
 
 void GameClientMessagesReceiver::receiveSpawnItems(SpawnItemsMessage* message) {
@@ -180,6 +184,7 @@ void GameClientMessagesReceiver::receiveTakeItems(TakeItemsMessage* message) {
     }
 
     auto const& entity = entityPool->getEntity(message->entityId);
+    auto participant = context.getTurnController()->getParticipant(entity->getParticipantId());
 
     std::vector<Item*> itemsToTake;
 
@@ -191,18 +196,23 @@ void GameClientMessagesReceiver::receiveTakeItems(TakeItemsMessage* message) {
         }
     }
 
-    context.getTurnController()->queueAction(std::make_unique<TakeItemAction>(message->turnNumber, entity, itemsToTake));
+    context.getTurnController()->queueAction(
+        std::make_unique<TakeItemAction>(
+            participant,
+            entity,
+            message->turnNumber,
+            itemsToTake));
 }
 
 void GameClientMessagesReceiver::receiveEngagement(EngagementMessage* message) {
-    context.getTurnController()->queueEngagement(
-        message->turnToEngageOn, 
-        { 
-            message->participantIdA, 
-            message->participantIdB, 
-            message->type == EngagementType::DISENGAGED 
-        }
-    );
+    // context.getTurnController()->queueEngagement(
+    //     message->turnToEngageOn, 
+    //     { 
+    //         message->participantIdA, 
+    //         message->participantIdB, 
+    //         message->type == EngagementType::DISENGAGED 
+    //     }
+    // );
 }
 
 void GameClientMessagesReceiver::receiveApplyDamageMessage(ApplyDamageMessage* message) {

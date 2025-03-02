@@ -1,17 +1,32 @@
 #include "takeitemaction.h"
 
-TakeItemAction::TakeItemAction(int turnNumber, Entity* entity, const std::vector<Item*>& items) :
-    Action(turnNumber, entity),
+TakeItemAction::TakeItemAction(Participant* participant, Entity* entity, const std::vector<Item*>& items) :
+    Action(participant, entity),
     items(items)
 { }
 
+TakeItemAction::TakeItemAction(
+    Participant* participant, 
+    Entity* entity,
+    int turnNumber,
+    const std::vector<Item*>& items
+) :
+    Action(participant, entity, turnNumber),
+    items(items)
+{ }
+
+
 bool TakeItemAction::onValidate(ApplicationContext* context) {
     if(items.empty()) {
-        spdlog::trace("[{}, TakeItem]: Failed to validate action, no items to take", turnNumber);
+        spdlog::trace("[TakeItem]: Failed to validate action, no items to take");
         return false;
     }
 
-    for(auto action : entity->getActionsChain(turnNumber)) {
+    if(participant->getEngagement() == nullptr || !turnNumber.has_value()) {
+        return true;
+    }
+
+    for(auto action : entity->getActionsChain(turnNumber.value())) {
         if(
             action->getType() == Action::Type::TakeItem && 
             containsAny(items, dynamic_cast<TakeItemAction*>(action)->getItems())

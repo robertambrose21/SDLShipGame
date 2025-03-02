@@ -102,13 +102,14 @@ void GameServerMessagesTransmitter::onPublish(const Event<TakeItemActionEventDat
 
 void GameServerMessagesTransmitter::onPublish(const Event<EngagementEventData>& event) {
     for(auto [participantId, clientIndex] : turnController->getAllAttachedClients()) {
-        sendEngagement(
-            event.data.participantIdA,
-            event.data.participantIdB,
-            turnController->getTurnNumber(),
-            event.data.type,
-            clientIndex
-        );
+        // TODO: This is wrong, need new messages
+        // sendEngagement(
+        //     event.data.participantIdA,
+        //     event.data.participantIdB,
+        //     turnController->getTurnNumber(),
+        //     event.data.type,
+        //     clientIndex
+        // );
     }
 }
 
@@ -455,28 +456,29 @@ void GameServerMessagesTransmitter::sendLoadGameToClient(int clientIndex) {
     sendRevealedTiles(revealedTiles, participantId);
     spdlog::trace("Sent revealed/visible tiles to client {} for participant {}", clientIndex, participantId);
 
+    // TODO: needs rework
     // -- TURN NUMBER --
-    sendSetTurn(clientIndex, turnController->getCurrentParticipantId(), turnController->getTurnNumber());
-    spdlog::trace(
-        "Sent turn number [{}] to client {} for participant {}", 
-        turnController->getTurnNumber(), 
-        clientIndex, 
-        participantId
-    );
+    // sendSetTurn(clientIndex, turnController->getCurrentParticipantId(), turnController->getTurnNumber());
+    // spdlog::trace(
+    //     "Sent turn number [{}] to client {} for participant {}", 
+    //     turnController->getTurnNumber(), 
+    //     clientIndex, 
+    //     participantId
+    // );
 
-    // -- ENGAGEMENTS --
-    auto engagements = turnController->getParticipant(participantId)->getEngagements();
+    // // -- ENGAGEMENTS --
+    // auto engagements = turnController->getParticipant(participantId)->getEngagements();
 
-    for(auto engagement : engagements) {
-        sendEngagement(
-            participantId,
-            engagement.otherParticipantId,
-            engagement.turnEngaged,
-            EngagementType::ENGAGED,
-            clientIndex
-        );
-    }
-    spdlog::trace("Sent engagements to client {} for participant {}", clientIndex, participantId);
+    // for(auto engagement : engagements) {
+    //     sendEngagement(
+    //         participantId,
+    //         engagement.otherParticipantId,
+    //         engagement.turnEngaged,
+    //         EngagementType::ENGAGED,
+    //         clientIndex
+    //     );
+    // }
+    // spdlog::trace("Sent engagements to client {} for participant {}", clientIndex, participantId);
 
     // -- ITEMS --
     sendItems(clientIndex, itemController->getWorldItems());

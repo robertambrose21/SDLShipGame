@@ -14,7 +14,8 @@ private:
     UUID weaponId;
 
 public:
-    EquipWeaponAction(int turnNumber, Entity* entity, Item* item, const UUID& weaponId);
+    EquipWeaponAction(Participant* participant, Entity* entity, Item* item, const UUID& weaponId);
+    EquipWeaponAction(Participant* participant, Entity* entity, int turnNumber, Item* item, const UUID& weaponId);
 
     bool passesPrecondition(void);
     Type getType(void);

@@ -16,12 +16,21 @@ private:
 
 public:
     EquipGearAction(
-        int turnNumber, 
+        Participant* participant, 
         Entity* entity, 
         Item* item, 
         Equippable<Stats::GearStats>::Slot slot, 
         bool isUnequip = false
     );
+    EquipGearAction(
+        Participant* participant, 
+        Entity* entity,
+        int turnNumber,
+        Item* item, 
+        Equippable<Stats::GearStats>::Slot slot, 
+        bool isUnequip = false
+    );
+
 
     bool passesPrecondition(void);
     Type getType(void);

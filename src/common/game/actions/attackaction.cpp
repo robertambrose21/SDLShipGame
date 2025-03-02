@@ -1,13 +1,27 @@
 #include "attackaction.h"
 
 AttackAction::AttackAction(
-    int turnNumber,
+    Participant* participant,
     Entity* entity,
     Weapon* weapon,
     const glm::ivec2& target,
     bool isAnimationOnly
 ) :
-    Action(turnNumber, entity),
+    Action(participant, entity),
+    weapon(weapon),
+    target(target),
+    isAnimationOnly(isAnimationOnly)
+{ }
+
+AttackAction::AttackAction(
+    Participant* participant,
+    Entity* entity,
+    int turnNumber,
+    Weapon* weapon,
+    const glm::ivec2& target,
+    bool isAnimationOnly
+) : 
+    Action(participant, entity, turnNumber),
     weapon(weapon),
     target(target),
     isAnimationOnly(isAnimationOnly)
@@ -35,14 +49,13 @@ bool AttackAction::passesPrecondition(void) {
 
 bool AttackAction::onValidate(ApplicationContext* context) {
     if(weapon == nullptr) {
-        spdlog::trace("[{}, Attack]: Failed to validate action, weapon is null", turnNumber);
+        spdlog::trace("[Attack]: Failed to validate action, weapon is null");
         return false;
     }
 
     if(!weapon->isInRange(target)) {
         spdlog::trace(
-            "[{}, Attack]: Failed to validate action, weapon is out of range of entity. Weapon[{}#{}] range=({}) pos=({}, {}), targetPos=({}, {})", 
-            turnNumber,
+            "[Attack]: Failed to validate action, weapon is out of range of entity. Weapon[{}#{}] range=({}) pos=({}, {}), targetPos=({}, {})", 
             weapon->getName(),
             weapon->getId().getString(),
             weapon->getStats().range,
@@ -54,8 +67,7 @@ bool AttackAction::onValidate(ApplicationContext* context) {
 
     if(weapon->getUsesLeft() == 0 || weapon->getUsesLeft() < numAttacksInChain()) {
         spdlog::trace(
-            "[{}, Attack]: Failed to validate action, not enough uses Weapon[{}#{}] ({}/{}), chain: {}",
-            turnNumber,
+            "[Attack]: Failed to validate action, not enough uses Weapon[{}#{}] ({}/{}), chain: {}",
             weapon->getName(),
             weapon->getId().getString(),
             weapon->getUsesLeft(),
@@ -77,9 +89,13 @@ bool AttackAction::hasFinished(void) {
 }
 
 int AttackAction::numAttacksInChain(void) {
+    if(participant->getEngagement() == nullptr || !turnNumber.has_value()) {
+        return weapon->getUsesLeft();
+    }
+
     int numAttacks = 0;
 
-    for(auto& action : entity->getActionsChain(turnNumber)) {
+    for(auto& action : entity->getActionsChain(turnNumber.value())) {
         if(action->getType() != Action::Type::Attack) {
             continue;
         }

@@ -69,10 +69,11 @@ public:
 
     void reset(void);
     
-    void passParticipant(int id);
+    // void passParticipant(int id);
     // void setCurrentParticipant(int id);
     // int getCurrentParticipantId(void) const;
 
+    bool executeActionImmediately(std::unique_ptr<Action> action);
     bool queueAction(std::unique_ptr<Action> action);
     // void executeActions(int participantId);
 

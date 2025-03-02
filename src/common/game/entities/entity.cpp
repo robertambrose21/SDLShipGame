@@ -83,6 +83,7 @@ void Entity::update(int64_t timeSinceLastFrame, bool& quit) {
         path.pop_front();
         timeSinceLastMoved = 0;
 
+        // TODO: This can go away with new engagements work
         if(isEngaged()) {
             useMoves(1);
         }
@@ -423,13 +424,18 @@ bool Entity::queueAction(
     std::function<void(Action&)> onSuccessfulQueue,
     bool skipValidation
 ) {
+    if(!action->getTurnNumber().has_value()) {
+        spdlog::error("[{}], Trying to queue with no turn number, dropping action", action->typeToString());
+        return false;
+    }
+
     if(!skipValidation && !action->validate(context)) {
         return false;
     }
 
     onSuccessfulQueue(*action);
 
-    actionsChain[action->getTurnNumber()].push_back(std::move(action));
+    actionsChain[action->getTurnNumber().value()].push_back(std::move(action));
     externalActionsChainNeedsRecalculating = true;
 
     return true;

@@ -1,21 +1,40 @@
 #include "action.h"
 
-Action::Action(int turnNumber, Entity* entity) :
-    turnNumber(turnNumber),
+Action::Action(Participant* participant, Entity* entity) :
+    participant(participant),
     entity(entity),
-    _isExecuted(false)
+    _isExecuted(false), 
+    turnNumber(participant->getEngagement() != nullptr ? 
+        std::optional<int>(participant->getEngagement()->getTurnNumber()) : 
+        std::nullopt
+    )
 { }
+
+Action::Action(Participant* participant, Entity* entity, int turnNumber) :
+    participant(participant),
+    entity(entity),
+    _isExecuted(false),
+    turnNumber(std::optional<int>(turnNumber))
+{
+    if(participant->getEngagement() == nullptr) {
+        spdlog::warn(
+            "[{}]: Turn number {} is set, but supplied participant {} is not in an engagement",
+            typeToString(),
+            turnNumber,
+            participant->getId()
+        );
+    }
+}
 
 bool Action::validate(ApplicationContext* context) {
     if(entity == nullptr) {
-        spdlog::trace("[{}, {}]: Failed to validate action, entity is null", turnNumber, typeToString());
+        spdlog::trace("[{}]: Failed to validate action, entity is null", typeToString());
         return false;
     }
 
     if(entity->getCurrentHP() <= 0) {
         spdlog::trace(
-            "[{}, {}]: Failed to validate action, Entity[{}#{}] hp is {}", 
-            turnNumber,
+            "[{}]: Failed to validate action, Entity[{}#{}] hp is {}", 
             typeToString(),
             entity->getName(),
             entity->getId(), 
@@ -25,7 +44,7 @@ bool Action::validate(ApplicationContext* context) {
     }
 
     if(!passesPrecondition()) {
-        spdlog::trace("[{}, {}]: Failed to validate action, failed precondition", turnNumber, typeToString());
+        spdlog::trace("[{}]: Failed to validate action, failed precondition", typeToString());
         return false;
     }
 
@@ -49,6 +68,10 @@ bool Action::isFinished(void) {
     return hasFinished();
 }
 
+Participant* Action::getParticipant(void) {
+    return participant;
+}
+
 Entity* Action::getEntity(void) {
     return entity;
 }
@@ -57,7 +80,7 @@ bool Action::isExecuted(void) const {
     return _isExecuted;
 }
 
-int Action::getTurnNumber(void) const {
+std::optional<int> Action::getTurnNumber(void) const {
     return turnNumber;
 }
 

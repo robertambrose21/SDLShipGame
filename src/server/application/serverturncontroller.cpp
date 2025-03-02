@@ -166,7 +166,7 @@ void ServerTurnController::checkForItems(void) {
             
             if(!items.empty()) {
                 // TODO:
-                // queueAction(std::make_unique<TakeItemAction>(turnNumber, entity, items));
+                queueAction(std::make_unique<TakeItemAction>(participant.get(), entity, items));
             }
         }
     }

@@ -16,8 +16,16 @@ private:
 
 public:
     AttackAction(
-        int turnNumber,
+        Participant* participant,
         Entity* entity,
+        Weapon* weapon,
+        const glm::ivec2& target,
+        bool isAnimationOnly = false
+    );
+    AttackAction(
+        Participant* participant,
+        Entity* entity,
+        int turnNumber,
         Weapon* weapon,
         const glm::ivec2& target,
         bool isAnimationOnly = false

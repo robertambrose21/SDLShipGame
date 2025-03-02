@@ -1,21 +1,37 @@
 #include "equipweaponaction.h"
 
-EquipWeaponAction::EquipWeaponAction(int turnNumber, Entity* entity, Item* item, const UUID& weaponId) :
-    Action(turnNumber, entity),
+EquipWeaponAction::EquipWeaponAction(
+    Participant* participant, 
+    Entity* entity, 
+    Item* item, 
+    const UUID& weaponId
+) :
+    Action(participant, entity),
+    item(item),
+    weaponId(weaponId)
+{ }
+
+EquipWeaponAction::EquipWeaponAction(
+    Participant* participant, 
+    Entity* entity,
+    int turnNumber,
+    Item* item, 
+    const UUID& weaponId
+) :
+    Action(participant, entity, turnNumber),
     item(item),
     weaponId(weaponId)
 { }
 
 bool EquipWeaponAction::onValidate(ApplicationContext* context) {
     if(item == nullptr) {
-        spdlog::trace("[{}, EquipWeaponItem]: Failed to validate action, item is null", turnNumber);
+        spdlog::trace("[EquipWeaponItem]: Failed to validate action, item is null");
         return false;
     }
 
     if(item->getParticipantId() != entity->getParticipantId()) {
         spdlog::trace(
-            "[{}, EquipWeaponItem]: Failed to validate action, item participant ({}) does not match entity participant ({})",
-            turnNumber,
+            "[EquipWeaponItem]: Failed to validate action, item participant ({}) does not match entity participant ({})",
             item->getParticipantId(),
             entity->getParticipantId()
         );
@@ -27,8 +43,7 @@ bool EquipWeaponAction::onValidate(ApplicationContext* context) {
 
         if(alreadyHasWeapon) {
             spdlog::trace(
-                "[{}, EquipWeaponItem]: Entity already has Weapon[{}#{}] item {}", 
-                turnNumber,
+                "[EquipWeaponItem]: Entity already has Weapon[{}#{}] item {}",
                 entity->getWeapon(weaponId)->getName(),
                 weaponId.getString(),
                 item->getId()
@@ -36,8 +51,7 @@ bool EquipWeaponAction::onValidate(ApplicationContext* context) {
         }
         else {
             spdlog::trace(
-                "[{}, EquipWeaponItem]: Failed to validate action, Weapon[{}#{}] item id {} does not match supplied item id {}", 
-                turnNumber,
+                "[EquipWeaponItem]: Failed to validate action, Weapon[{}#{}] item id {} does not match supplied item id {}",
                 entity->getWeapon(weaponId)->getName(),
                 weaponId.getString(),
                 entity->getWeapon(weaponId)->getItem()->getId(),
@@ -60,8 +74,7 @@ bool EquipWeaponAction::onValidate(ApplicationContext* context) {
 
     if(!hasItem) {
         spdlog::trace(
-            "[{}, EquipWeaponItem]: Failed to validate action, cannot find Item[{}] in inventory for participant {}",
-            turnNumber,
+            "[EquipWeaponItem]: Failed to validate action, cannot find Item[{}] in inventory for participant {}",
             item->getId(),
             participant->getId()
         );
