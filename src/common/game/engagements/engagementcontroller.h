@@ -17,6 +17,8 @@ public:
     void removeEngagement(uint32_t engagementId);
     void addToEngagement(uint32_t engagementId, Participant* participant);
     void disengage(uint32_t engagementId, Participant* participant);
+    void merge(uint32_t engagementIdA, uint32_t engagementIdB);
+
     const std::map<uint32_t,  std::unique_ptr<Engagement>>& getEngagements(void) const;
     Engagement* getEngagement(uint32_t id);
 

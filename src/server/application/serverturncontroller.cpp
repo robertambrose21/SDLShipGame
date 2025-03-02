@@ -248,9 +248,9 @@ void ServerTurnController::compareAndEngageParticipants(Participant* participant
         engagementController->addToEngagement(participantB->getEngagement()->getId(), participantA);
     }
     else {
-        mergeEngagements(
-            engagementController->getEngagement(participantA->getEngagement()->getId()), 
-            engagementController->getEngagement(participantB->getEngagement()->getId())
+        engagementController->merge(
+            participantA->getEngagement()->getId(), 
+            participantB->getEngagement()->getId()
         );
     }
 
@@ -263,44 +263,6 @@ void ServerTurnController::compareAndEngageParticipants(Participant* participant
     //     //     return;
     //     // }
     // }
-}
-
-void ServerTurnController::mergeEngagements(Engagement* engagementA, Engagement* engagementB) {
-    std::vector<Participant*> participantsToMerge;
-
-    if(engagementA->getParticipants().size() == engagementB->getParticipants().size()) {
-        float engagementAAverageSpeed = 0.0f;
-        float engagementBAverageSpeed = 0.0f;
-
-        for(auto participant : engagementA->getParticipants()) {
-            engagementAAverageSpeed += participant->getAverageEntitySpeed();
-        }
-        for(auto participant : engagementB->getParticipants()) {
-            engagementBAverageSpeed += participant->getAverageEntitySpeed();
-        }
-
-        // TODO: If the same, consider another heuristic - probably just random and have some kind of announcement on screen
-        if(engagementAAverageSpeed >= engagementBAverageSpeed) {
-            insertAll(participantsToMerge, engagementA->getParticipants());
-            insertAll(participantsToMerge, engagementB->getParticipants());
-        }
-        else {
-            insertAll(participantsToMerge, engagementB->getParticipants());
-            insertAll(participantsToMerge, engagementA->getParticipants());
-        }
-    } else if(engagementA->getParticipants().size() > engagementB->getParticipants().size()) {
-        insertAll(participantsToMerge, engagementA->getParticipants());
-        insertAll(participantsToMerge, engagementB->getParticipants());
-    }
-    else {
-        insertAll(participantsToMerge, engagementB->getParticipants());
-        insertAll(participantsToMerge, engagementA->getParticipants());
-    }
-
-    engagementController->removeEngagement(engagementA->getId());
-    engagementController->removeEngagement(engagementB->getId());
-
-    engagementController->createEngagement(participantsToMerge);
 }
 
 bool ServerTurnController::hasEntityEngagement(Entity* target, Participant* participant) {

@@ -78,6 +78,46 @@ void EngagementController::disengage(uint32_t engagementId, Participant* partici
     }
 }
 
+void EngagementController::merge(uint32_t engagementIdA, uint32_t engagementIdB) {
+    std::vector<Participant*> participantsToMerge;
+    auto engagementA = getEngagement(engagementIdA);
+    auto engagementB = getEngagement(engagementIdB);
+
+    if(engagementA->getParticipants().size() == engagementB->getParticipants().size()) {
+        float engagementAAverageSpeed = 0.0f;
+        float engagementBAverageSpeed = 0.0f;
+
+        for(auto participant : engagementA->getParticipants()) {
+            engagementAAverageSpeed += participant->getAverageEntitySpeed();
+        }
+        for(auto participant : engagementB->getParticipants()) {
+            engagementBAverageSpeed += participant->getAverageEntitySpeed();
+        }
+
+        // TODO: If the same, consider another heuristic - probably just random and have some kind of announcement on screen
+        if(engagementAAverageSpeed >= engagementBAverageSpeed) {
+            insertAll(participantsToMerge, engagementA->getParticipants());
+            insertAll(participantsToMerge, engagementB->getParticipants());
+        }
+        else {
+            insertAll(participantsToMerge, engagementB->getParticipants());
+            insertAll(participantsToMerge, engagementA->getParticipants());
+        }
+    } else if(engagementA->getParticipants().size() > engagementB->getParticipants().size()) {
+        insertAll(participantsToMerge, engagementA->getParticipants());
+        insertAll(participantsToMerge, engagementB->getParticipants());
+    }
+    else {
+        insertAll(participantsToMerge, engagementB->getParticipants());
+        insertAll(participantsToMerge, engagementA->getParticipants());
+    }
+
+    removeEngagement(engagementA->getId());
+    removeEngagement(engagementB->getId());
+
+    createEngagement(participantsToMerge);
+}
+
 const std::map<uint32_t, std::unique_ptr<Engagement>>& EngagementController::getEngagements(void) const {
     return engagements;
 }
