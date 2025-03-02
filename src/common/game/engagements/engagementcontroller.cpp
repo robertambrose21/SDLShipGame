@@ -6,11 +6,12 @@ EngagementController::EngagementController(ApplicationContext* context) :
 
 uint32_t EngagementController::createEngagement(
     const std::vector<Participant*>& orderedParticipants,
+    uint32_t id,
     bool canPublish
 ) {
     game_assert(!orderedParticipants.empty());
 
-    auto engagement = std::make_unique<Engagement>(orderedParticipants);
+    auto engagement = std::make_unique<Engagement>(id, orderedParticipants);
 
     spdlog::trace(
         "Adding engagement {} with {} participants", 
@@ -103,7 +104,12 @@ void EngagementController::disengage(uint32_t engagementId, Participant* partici
     }
 }
 
-uint32_t EngagementController::merge(uint32_t engagementIdA, uint32_t engagementIdB, bool canPublish) {
+uint32_t EngagementController::merge(
+    uint32_t engagementIdA, 
+    uint32_t engagementIdB,
+    uint32_t id,
+    bool canPublish
+) {
     std::vector<Participant*> participantsToMerge;
     auto engagementA = getEngagement(engagementIdA);
     auto engagementB = getEngagement(engagementIdB);
@@ -140,7 +146,7 @@ uint32_t EngagementController::merge(uint32_t engagementIdA, uint32_t engagement
     removeEngagement(engagementA->getId(), false);
     removeEngagement(engagementB->getId(), false);
 
-    auto newEngagementId = createEngagement(participantsToMerge, false);
+    auto newEngagementId = createEngagement(participantsToMerge, id, false);
 
     if(canPublish) {
         std::vector<int> participantIds;

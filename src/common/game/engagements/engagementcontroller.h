@@ -24,11 +24,15 @@ class EngagementController :
 public:
     EngagementController(ApplicationContext* context);
 
-    uint32_t createEngagement(const std::vector<Participant*>& orderedParticipants, bool canPublish = true);
+    uint32_t createEngagement(
+        const std::vector<Participant*>& orderedParticipants, 
+        uint32_t id = getNewId(), 
+        bool canPublish = true
+    );
     void removeEngagement(uint32_t engagementId, bool canPublish = true);
     void addToEngagement(uint32_t engagementId, Participant* participant, bool canPublish = true);
     void disengage(uint32_t engagementId, Participant* participant, bool canPublish = true);
-    uint32_t merge(uint32_t engagementIdA, uint32_t engagementIdB, bool canPublish = true);
+    uint32_t merge(uint32_t engagementIdA, uint32_t engagementIdB, uint32_t id = getNewId(), bool canPublish = true);
 
     const std::map<uint32_t,  std::unique_ptr<Engagement>>& getEngagements(void) const;
     Engagement* getEngagement(uint32_t id);
