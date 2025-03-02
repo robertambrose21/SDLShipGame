@@ -84,11 +84,40 @@ struct ApplyDamageEventData {
     int damage;
 };
 
+// TODO: Remove
 struct EngagementEventData {
     int participantIdA;
     int participantIdB;
     EngagementType type;
 };
+
+// -- Engagements -------------------------------
+struct CreateEngagementEventData {
+    uint32_t engagementId;
+    std::vector<int> participants;
+};
+
+struct AddToEngagementEventData {
+    uint32_t engagementId;
+    int participantId;
+};
+
+struct DisengageEventData {
+    uint32_t engagementId;
+    int participantId;
+};
+
+struct RemoveEngagementEventData {
+    uint32_t engagementId;
+};
+
+struct MergeEngagementEventData {
+    uint32_t newEngagementId;
+    uint32_t engagementIdA;
+    uint32_t engagementIdB;
+    std::vector<int> participants;
+};
+// ----------------------------------------------
 
 struct TileEventData {
     int x, y;

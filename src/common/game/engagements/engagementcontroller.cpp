@@ -4,8 +4,10 @@ EngagementController::EngagementController(ApplicationContext* context) :
     context(context)
 { }
 
-// TODO: Set engagements on participant (check remove too)
-uint32_t EngagementController::createEngagement(const std::vector<Participant*>& orderedParticipants) {
+uint32_t EngagementController::createEngagement(
+    const std::vector<Participant*>& orderedParticipants,
+    bool canPublish
+) {
     game_assert(!orderedParticipants.empty());
 
     auto engagement = std::make_unique<Engagement>(orderedParticipants);
@@ -21,10 +23,19 @@ uint32_t EngagementController::createEngagement(const std::vector<Participant*>&
         participant->setEngagement(engagement.get());
     }
 
+    if(canPublish) {
+        std::vector<int> participantIds;
+        for(auto participant : orderedParticipants) {
+            participantIds.push_back(participant->getId());
+        }
+
+        publish<CreateEngagementEventData>({ engagement->getId(), participantIds });
+    }
+
     return engagement->getId();
 }
 
-void EngagementController::removeEngagement(uint32_t engagementId) {
+void EngagementController::removeEngagement(uint32_t engagementId, bool canPublish) {
     if(!engagements.contains(engagementId)) {
         spdlog::warn("Cannot remove non-existant engagement with id {}", engagementId);
         return;
@@ -41,9 +52,13 @@ void EngagementController::removeEngagement(uint32_t engagementId) {
     }
 
     engagements.erase(engagementId);
+
+    if(canPublish) {
+        publish<RemoveEngagementEventData>({ engagementId });
+    }
 }
 
-void EngagementController::addToEngagement(uint32_t engagementId, Participant* participant) {
+void EngagementController::addToEngagement(uint32_t engagementId, Participant* participant, bool canPublish) {
     if(!engagements.contains(engagementId)) {
         spdlog::warn("Cannot add participant to non-existant engagement with id {}", engagementId);
         return;
@@ -57,12 +72,18 @@ void EngagementController::addToEngagement(uint32_t engagementId, Participant* p
         );
         return;
     }
+
     spdlog::trace("Adding participant {} to engagement {}", participant->getId(), engagementId);
+
     engagements[engagementId]->addParticipant(participant);
     participant->setEngagement(engagements[engagementId].get());
+
+    if(canPublish) {
+        publish<AddToEngagementEventData>({ engagementId, participant->getId() });
+    }
 }
 
-void EngagementController::disengage(uint32_t engagementId, Participant* participant) {
+void EngagementController::disengage(uint32_t engagementId, Participant* participant, bool canPublish) {
     if(!engagements.contains(engagementId)) {
         spdlog::warn("Cannot disengage participant from non-existant engagement with id {}", engagementId);
         return;
@@ -73,12 +94,16 @@ void EngagementController::disengage(uint32_t engagementId, Participant* partici
 
     participant->setEngagement(nullptr);
 
+    if(canPublish) {
+        publish<DisengageEventData>({ engagementId, participant->getId() });
+    }
+
     if(engagements[engagementId]->getParticipants().empty()) {
         removeEngagement(engagementId);
     }
 }
 
-void EngagementController::merge(uint32_t engagementIdA, uint32_t engagementIdB) {
+uint32_t EngagementController::merge(uint32_t engagementIdA, uint32_t engagementIdB, bool canPublish) {
     std::vector<Participant*> participantsToMerge;
     auto engagementA = getEngagement(engagementIdA);
     auto engagementB = getEngagement(engagementIdB);
@@ -112,10 +137,21 @@ void EngagementController::merge(uint32_t engagementIdA, uint32_t engagementIdB)
         insertAll(participantsToMerge, engagementA->getParticipants());
     }
 
-    removeEngagement(engagementA->getId());
-    removeEngagement(engagementB->getId());
+    removeEngagement(engagementA->getId(), false);
+    removeEngagement(engagementB->getId(), false);
 
-    createEngagement(participantsToMerge);
+    auto newEngagementId = createEngagement(participantsToMerge, false);
+
+    if(canPublish) {
+        std::vector<int> participantIds;
+        for(auto participant : participantsToMerge) {
+            participantIds.push_back(participant->getId());
+        }
+
+        publish<MergeEngagementEventData>({ newEngagementId, engagementIdA, engagementIdB, participantIds });
+    }
+
+    return newEngagementId;
 }
 
 const std::map<uint32_t, std::unique_ptr<Engagement>>& EngagementController::getEngagements(void) const {
