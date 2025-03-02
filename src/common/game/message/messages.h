@@ -31,7 +31,12 @@ enum class GameMessageType {
     SET_ENTITY_POSITION,
     REMOVE_ENTITY_VISIBILITY,
     ADD_ENTITY_VISIBILITY,
-    SET_TURN,
+    SET_TURN, // remove?
+    CREATE_ENGAGEMENT,
+    ADD_TO_ENGAGEMENT,
+    DISENGAGE,
+    REMOVE_ENGAGEMENT,
+    MERGE_ENGAGEMENTS,
     COUNT
 };
 
@@ -698,6 +703,123 @@ public:
     YOJIMBO_VIRTUAL_SERIALIZE_FUNCTIONS();
 };
 
+class CreateEngagementMessage : public yojimbo::Message {
+public:
+    uint32_t engagementId;
+    uint8_t numParticipants;
+    int participants[64];
+
+    CreateEngagementMessage() :
+        engagementId(0),
+        numParticipants(0)
+    { }
+
+    template<typename Stream>
+    bool Serialize(Stream& stream) {
+        serialize_uint32(stream, engagementId);
+        serialize_int(stream, numParticipants, 0, 64);
+        for(int i = 0; i < numParticipants; i++) {
+            serialize_int(stream, participants[i], 0, 64);
+        }
+
+        return true;
+    }
+
+    YOJIMBO_VIRTUAL_SERIALIZE_FUNCTIONS();
+};
+
+class AddToEngagementMessage : public yojimbo::Message {
+public:
+    uint32_t engagementId;
+    int participantId;
+
+    AddToEngagementMessage() :
+        engagementId(0),
+        participantId(0)
+    { }
+
+    template<typename Stream>
+    bool Serialize(Stream& stream) {
+        serialize_uint32(stream, engagementId);
+        serialize_int(stream, participantId, 0, 64);
+
+        return true;
+    }
+
+    YOJIMBO_VIRTUAL_SERIALIZE_FUNCTIONS();
+};
+
+class DisengageMessage : public yojimbo::Message {
+public:
+    uint32_t engagementId;
+    int participantId;
+
+    DisengageMessage() :
+        engagementId(0),
+        participantId(0)
+    { }
+
+    template<typename Stream>
+    bool Serialize(Stream& stream) {
+        serialize_uint32(stream, engagementId);
+        serialize_int(stream, participantId, 0, 64);
+
+        return true;
+    }
+
+    YOJIMBO_VIRTUAL_SERIALIZE_FUNCTIONS();
+};
+
+class RemoveEngagementMessage : public yojimbo::Message {
+public:
+    uint32_t engagementId;
+
+    RemoveEngagementMessage() :
+        engagementId(0)
+    { }
+
+    template<typename Stream>
+    bool Serialize(Stream& stream) {
+        serialize_uint32(stream, engagementId);
+
+        return true;
+    }
+
+    YOJIMBO_VIRTUAL_SERIALIZE_FUNCTIONS();
+};
+
+class MergeEngagementsMessage : public yojimbo::Message {
+    public:
+        uint32_t newEngagementId;
+        uint32_t engagementIdA;
+        uint32_t engagementIdB;
+        uint8_t numParticipants;
+        int participants[64];
+    
+        MergeEngagementsMessage() :
+            newEngagementId(0),
+            engagementIdA(0),
+            engagementIdB(0),
+            numParticipants(0)
+        { }
+    
+        template<typename Stream>
+        bool Serialize(Stream& stream) {
+            serialize_uint32(stream, newEngagementId);
+            serialize_uint32(stream, engagementIdA);
+            serialize_uint32(stream, engagementIdB);
+
+            serialize_int(stream, numParticipants, 0, 64);
+            for(int i = 0; i < numParticipants; i++) {
+                serialize_int(stream, participants[i], 0, 64);
+            }
+    
+            return true;
+        }
+    
+        YOJIMBO_VIRTUAL_SERIALIZE_FUNCTIONS();
+    };
+
 YOJIMBO_MESSAGE_FACTORY_START(GameMessageFactory, (int)GameMessageType::COUNT);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::PING, PingMessage);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::FIND_PATH, FindPathMessage);
@@ -725,4 +847,9 @@ YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::SET_ENTITY_POSITION, SetEntit
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::REMOVE_ENTITY_VISIBILITY, RemoveEntityVisibilityMessage);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::ADD_ENTITY_VISIBILITY, AddEntityVisibilityMessage);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::SET_TURN, SetTurnMessage);
+YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::CREATE_ENGAGEMENT, CreateEngagementMessage);
+YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::ADD_TO_ENGAGEMENT, AddToEngagementMessage);
+YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::DISENGAGE, DisengageMessage);
+YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::REMOVE_ENGAGEMENT, RemoveEngagementMessage);
+YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::MERGE_ENGAGEMENTS, MergeEngagementsMessage);
 YOJIMBO_MESSAGE_FACTORY_FINISH();
