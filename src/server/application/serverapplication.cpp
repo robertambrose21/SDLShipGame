@@ -56,7 +56,7 @@ void ServerApplication::initialise(void) {
 
     server = std::make_unique<GameServer>(
         std::make_unique<GameMessageLogger>("server_messages.log"),
-        yojimbo::Address("127.0.0.1", 8081)
+        yojimbo::Address("192.168.178.26", 8081)
     );
 
     receiver = std::make_unique<GameServerMessagesReceiver>(application->getContext());
@@ -90,6 +90,11 @@ void ServerApplication::initialise(void) {
     context.getEntityPool()->subscribe<EntitySetPositionEventData>(context.getVisibilityController());
     context.getEntityPool()->subscribe<EntitySetPositionEventData>(transmitter.get());
     context.getVisibilityController()->subscribe<EntityVisibilityToParticipantData>(transmitter.get());
+    context.getTurnController()->getEngagementController()->subscribe<CreateEngagementEventData>(transmitter.get());
+    context.getTurnController()->getEngagementController()->subscribe<AddToEngagementEventData>(transmitter.get());
+    context.getTurnController()->getEngagementController()->subscribe<DisengageEventData>(transmitter.get());
+    context.getTurnController()->getEngagementController()->subscribe<RemoveEngagementEventData>(transmitter.get());
+    context.getTurnController()->getEngagementController()->subscribe<MergeEngagementEventData>(transmitter.get());
 
     application->addLogicWorker([&](ApplicationContext& c, auto const& timeSinceLastFrame, auto& quit) {
         server->update(timeSinceLastFrame);
@@ -335,15 +340,24 @@ void ServerApplication::loadGame(const std::vector<GenerationStrategy::Room>& ro
 Entity* ServerApplication::addPlayer(bool hasFreezeGun) {
     auto& context = application->getContext();
 
+    static int i = 0;
+
     auto room = randomChoice(unfilledRooms);
+    SpawnController::SpawnBox spawnBoxA = { { 31, 91 }, { 31, 91 } };
+    SpawnController::SpawnBox spawnBoxB = { { 15, 91 }, { 15, 91 } };
+
     auto entities = context.getSpawnController()->spawnEntities(
         {
             {
                 { "Player", { "Grenade Launcher" } }
+                // { "Player FreezeGun", { "Freeze Gun" } }
             }
         },
-        { room.min, room.max }
+        // { room.min, room.max }
+        i == 0 ? spawnBoxA : spawnBoxB
     );
+
+    i++;
 
     return entities.front();
 

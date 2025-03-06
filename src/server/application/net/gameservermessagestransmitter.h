@@ -25,7 +25,12 @@ class GameServerMessagesTransmitter :
     public EventSubscriber<GridEffectEvent>,
     public EventSubscriber<TilesRevealedEventData>,
     public EventSubscriber<EntitySetPositionEventData>,
-    public EventSubscriber<EntityVisibilityToParticipantData>
+    public EventSubscriber<EntityVisibilityToParticipantData>,
+    public EventSubscriber<CreateEngagementEventData>,
+    public EventSubscriber<AddToEngagementEventData>,
+    public EventSubscriber<DisengageEventData>,
+    public EventSubscriber<RemoveEngagementEventData>,
+    public EventSubscriber<MergeEngagementEventData>
 {
 public:
     GameServerMessagesTransmitter(
@@ -50,6 +55,11 @@ public:
     void onPublish(const Event<TilesRevealedEventData>& event);
     void onPublish(const Event<EntitySetPositionEventData>& event);
     void onPublish(const Event<EntityVisibilityToParticipantData>& event);
+    void onPublish(const Event<CreateEngagementEventData>& event);
+    void onPublish(const Event<AddToEngagementEventData>& event);
+    void onPublish(const Event<DisengageEventData>& event);
+    void onPublish(const Event<RemoveEngagementEventData>& event);
+    void onPublish(const Event<MergeEngagementEventData>& event);
 
     void sendSetParticipant(int clientIndex, Participant* participant);
     void sendSetParticipantToAllClients(Participant* participant);

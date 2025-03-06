@@ -460,6 +460,10 @@ void TurnController::allParticipantsSet(void) {
     }
 }
 
+EngagementController* TurnController::getEngagementController(void) {
+    return engagementController.get();
+}
+
 // int TurnController::getTurnNumber(void) const {
 //     return turnNumber;
 // }

@@ -244,6 +244,75 @@ void GameServerMessagesTransmitter::onPublish(const Event<EntityVisibilityToPart
     }
 }
 
+void GameServerMessagesTransmitter::onPublish(const Event<CreateEngagementEventData>& event) {
+    for(auto [participantId, clientIndex] : turnController->getAllAttachedClients()) {
+        CreateEngagementMessage* message = 
+            (CreateEngagementMessage*) server.createMessage(clientIndex, GameMessageType::CREATE_ENGAGEMENT);
+
+        message->engagementId = event.data.engagementId;
+        message->numParticipants = event.data.participants.size();
+
+        for(auto i = 0; i < event.data.participants.size(); i++) {
+            message->participants[i] = event.data.participants[i];
+        }
+
+        server.sendMessage(clientIndex, message);
+    }
+}
+
+void GameServerMessagesTransmitter::onPublish(const Event<AddToEngagementEventData>& event) {
+    for(auto [participantId, clientIndex] : turnController->getAllAttachedClients()) {
+        AddToEngagementMessage* message = 
+            (AddToEngagementMessage*) server.createMessage(clientIndex, GameMessageType::ADD_TO_ENGAGEMENT);
+
+        message->engagementId = event.data.engagementId;
+        message->participantId = event.data.participantId;
+
+        server.sendMessage(clientIndex, message);
+    }
+}
+
+void GameServerMessagesTransmitter::onPublish(const Event<DisengageEventData>& event) {
+    for(auto [participantId, clientIndex] : turnController->getAllAttachedClients()) {
+        DisengageMessage* message = 
+            (DisengageMessage*) server.createMessage(clientIndex, GameMessageType::DISENGAGE);
+
+        message->engagementId = event.data.engagementId;
+        message->participantId = event.data.participantId;
+
+        server.sendMessage(clientIndex, message);
+    }
+}
+
+void GameServerMessagesTransmitter::onPublish(const Event<RemoveEngagementEventData>& event) {
+    for(auto [participantId, clientIndex] : turnController->getAllAttachedClients()) {
+        RemoveEngagementMessage* message = 
+            (RemoveEngagementMessage*) server.createMessage(clientIndex, GameMessageType::REMOVE_ENGAGEMENT);
+
+        message->engagementId = event.data.engagementId;
+
+        server.sendMessage(clientIndex, message);
+    }
+}
+
+void GameServerMessagesTransmitter::onPublish(const Event<MergeEngagementEventData>& event) {
+    for(auto [participantId, clientIndex] : turnController->getAllAttachedClients()) {
+        MergeEngagementsMessage* message = 
+            (MergeEngagementsMessage*) server.createMessage(clientIndex, GameMessageType::MERGE_ENGAGEMENTS);
+
+        message->newEngagementId = event.data.newEngagementId;
+        message->engagementIdA = event.data.engagementIdA;
+        message->engagementIdB = event.data.engagementIdB;
+        message->numParticipants = event.data.participants.size();
+
+        for(auto i = 0; i < event.data.participants.size(); i++) {
+            message->participants[i] = event.data.participants[i];
+        }
+
+        server.sendMessage(clientIndex, message);
+    }
+}
+
 void GameServerMessagesTransmitter::sendSetParticipant(
     int clientIndex, 
     Participant* participant

@@ -82,6 +82,8 @@ public:
 
     void allParticipantsSet(void);
 
+    EngagementController* getEngagementController(void);
+
     // int getTurnNumber(void) const;
     // void setTurnNumber(int turnNumber);
 
