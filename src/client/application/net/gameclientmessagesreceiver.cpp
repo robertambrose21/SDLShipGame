@@ -38,6 +38,11 @@ void GameClientMessagesReceiver::receiveMessage(yojimbo::Message* message) {
         case (int) GameMessageType::SET_ENTITY_POSITION:        { receiveSetEntityPositionMessage((SetEntityPositionMessage*) message); break; }
         case (int) GameMessageType::ADD_ENTITY_VISIBILITY:      { receiveAddEntityVisibilityMessage((AddEntityVisibilityMessage*) message); break; }
         case (int) GameMessageType::REMOVE_ENTITY_VISIBILITY:   { receiveRemoveEntityVisibilityMessage((RemoveEntityVisibilityMessage*) message); break; }
+        case (int) GameMessageType::CREATE_ENGAGEMENT:          { receiveCreateEngagementMessage((CreateEngagementMessage*) message); break; }
+        case (int) GameMessageType::ADD_TO_ENGAGEMENT:          { receiveAddToEngagementMessage((AddToEngagementMessage*) message); break; }
+        case (int) GameMessageType::DISENGAGE:                  { receiveDisenageMessage((DisengageMessage*) message); break; }
+        case (int) GameMessageType::REMOVE_ENGAGEMENT:          { receiveRemoveEngagementMessage((RemoveEngagementMessage*) message); break; }
+        case (int) GameMessageType::MERGE_ENGAGEMENTS:          { receiveMergeEngagementsMessage((MergeEngagementsMessage*) message); break; }
 
         default:
             std::cout << "Received unhandled message: " << message->GetType() << std::endl;
@@ -403,3 +408,95 @@ void GameClientMessagesReceiver::receiveAddEntityVisibilityMessage(AddEntityVisi
     
     clientParticipant->addVisibleEntity(entity);
 }
+
+void GameClientMessagesReceiver::receiveCreateEngagementMessage(CreateEngagementMessage* message) {
+    auto turnController = context.getTurnController();
+    auto engagementController = turnController->getEngagementController();
+
+    std::vector<Participant*> participants;
+
+    for(auto i = 0; i < message->numParticipants; i++) {
+        auto participant = turnController->getParticipant(message->participants[i]);
+        
+        if(participant == nullptr) {
+            spdlog::error(
+                "CreateEngagementMessage invalid: participant {} not found, engagementId: {}",
+                message->participants[i],
+                message->engagementId
+            );
+            return;
+        }
+
+        participants.push_back(participant);
+    }
+
+    engagementController->createEngagement(participants, message->engagementId);
+}
+
+void GameClientMessagesReceiver::receiveAddToEngagementMessage(AddToEngagementMessage* message) {
+    auto turnController = context.getTurnController();
+    auto engagementController = turnController->getEngagementController();
+
+    auto participant = turnController->getParticipant(message->participantId);
+        
+    if(participant == nullptr) {
+        spdlog::error(
+            "AddToEngagementMessage invalid: participant {} not found, engagementId: {}",
+            message->participantId,
+            message->engagementId
+        );
+        return;
+    }
+
+    engagementController->addToEngagement(message->engagementId, participant);
+}
+
+void GameClientMessagesReceiver::receiveDisenageMessage(DisengageMessage* message) {
+    auto turnController = context.getTurnController();
+    auto engagementController = turnController->getEngagementController();
+
+    auto participant = turnController->getParticipant(message->participantId);
+        
+    if(participant == nullptr) {
+        spdlog::error(
+            "DisengageMessage invalid: participant {} not found, engagementId: {}",
+            message->participantId,
+            message->engagementId
+        );
+        return;
+    }
+
+    engagementController->disengage(message->engagementId, participant);
+}
+
+void GameClientMessagesReceiver::receiveRemoveEngagementMessage(RemoveEngagementMessage* message) {
+    auto turnController = context.getTurnController();
+    auto engagementController = turnController->getEngagementController();
+
+    engagementController->removeEngagement(message->engagementId);
+}
+
+void GameClientMessagesReceiver::receiveMergeEngagementsMessage(MergeEngagementsMessage* message) {
+    auto turnController = context.getTurnController();
+    auto engagementController = turnController->getEngagementController();
+
+    std::vector<Participant*> participants;
+
+    for(auto i = 0; i < message->numParticipants; i++) {
+        auto participant = turnController->getParticipant(message->participants[i]);
+        
+        if(participant == nullptr) {
+            spdlog::error(
+                "MergeEngagementsMessage invalid: participant {} not found, engagementId: {}",
+                message->participants[i],
+                message->newEngagementId
+            );
+            return;
+        }
+
+        participants.push_back(participant);
+    }
+
+    engagementController->merge(message->engagementIdA, message->engagementIdB, message->newEngagementId);
+}
+

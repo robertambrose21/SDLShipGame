@@ -53,4 +53,11 @@ private:
     void receiveSetEntityPositionMessage(SetEntityPositionMessage* message);
     void receiveAddEntityVisibilityMessage(AddEntityVisibilityMessage* message);
     void receiveRemoveEntityVisibilityMessage(RemoveEntityVisibilityMessage* message);
+
+    // Engagemnets
+    void receiveCreateEngagementMessage(CreateEngagementMessage* message);
+    void receiveAddToEngagementMessage(AddToEngagementMessage* message);
+    void receiveDisenageMessage(DisengageMessage* message);
+    void receiveRemoveEngagementMessage(RemoveEngagementMessage* message);
+    void receiveMergeEngagementsMessage(MergeEngagementsMessage* message);
 };
