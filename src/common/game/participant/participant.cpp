@@ -27,6 +27,10 @@ float Participant::distanceToOtherParticipant(Participant* other) {
     return shortestDistance;
 }
 
+bool Participant::hasAnyEngagement(void) {
+    return engagement != nullptr;
+}
+
 bool Participant::hasEngagement(Participant* other) {
     if(engagement == nullptr || other->getEngagement() == nullptr) {
         return false;

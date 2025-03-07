@@ -34,6 +34,7 @@ public:
     // void disengage(int otherParticipantId);
     // bool hasEngagement(int otherParticipantId);
     bool hasEngagement(Participant* other);
+    bool hasAnyEngagement(void);
     // bool isEngaged(void);
     // std::optional<uint32_t> getEngagementId(void) const;
     // void setEngagementId(const std::optional<uint32_t>& engagementId);

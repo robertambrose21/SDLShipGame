@@ -331,7 +331,7 @@ void PlayerController::attack(const glm::ivec2& target) {
         auto const& weapon = entity->getCurrentWeapon();
         
         // TODO: ClientTurnController actions
-        if(turnController->queueAction(
+        if(doAction(
             std::make_unique<AttackAction>(
                 participant, 
                 entity, 
@@ -392,7 +392,7 @@ void PlayerController::setHoverTiles(void) {
 void PlayerController::equipItem(Item* item, Equippable<Stats::GearStats>::Slot slot) {
     auto entity = selectedEntities[0];
 
-    if(turnController->queueAction(
+    if(doAction(
         std::make_unique<EquipGearAction>(
             participant, 
             entity, 
@@ -408,7 +408,7 @@ void PlayerController::equipItem(Item* item, Equippable<Stats::GearStats>::Slot 
 void PlayerController::unequipItem(Item* item, Equippable<Stats::GearStats>::Slot slot) {
     auto entity = selectedEntities[0];
 
-    if(turnController->queueAction(
+    if(doAction(
         std::make_unique<EquipGearAction>(
             participant, 
             entity, 
@@ -425,7 +425,7 @@ void PlayerController::equipWeapon(Item* item) {
     auto entity = selectedEntities[0];
     auto weaponId = UUID::getNewUUID();
 
-    if(turnController->queueAction(
+    if(doAction(
         std::make_unique<EquipWeaponAction>(
             participant, 
             entity, 
@@ -440,7 +440,7 @@ void PlayerController::equipWeapon(Item* item) {
 void PlayerController::unequipWeapon(Weapon* weapon) {
     auto entity = selectedEntities[0];
 
-    if(turnController->queueAction(
+    if(doAction(
         std::make_unique<EquipWeaponAction>(
             participant,
             entity,
@@ -450,6 +450,15 @@ void PlayerController::unequipWeapon(Weapon* weapon) {
     ) {
         clientMessagesTransmitter.sendEquipWeaponMessage(weapon->getItem()->getId(), entity->getId(), weapon->getId(), true);
     }
+}
+
+bool PlayerController::doAction(std::unique_ptr<Action> action) {
+    if(participant->hasAnyEngagement()) {
+        return turnController->queueAction(std::move(action));
+    }
+
+
+    return turnController->executeActionImmediately(std::move(action));
 }
 
 const std::vector<Entity*>& PlayerController::getSelectedEntities(void) const {
