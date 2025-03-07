@@ -25,7 +25,7 @@ private:
     bool canDisengage;
 
     Weapon* getBestInRangeWeapon(Entity* attacker, const glm::ivec2& target);
-    EntityTurnResult doTurnForEntity(Entity* entity, int participantId);
+    EntityTurnResult doTurnForEntity(Entity* entity, Participant* participant);
 
 public:
     ChaseAndAttackStrategy(ApplicationContext& context);

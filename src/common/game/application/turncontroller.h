@@ -27,6 +27,8 @@
 
 class BehaviourStrategy;
 class Participant;
+class Engagement;
+class EngagementController;
 
 class TurnController : 
     public EventPublisher<

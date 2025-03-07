@@ -12,6 +12,8 @@
 #include "core/event/event.h"
 #include "engagement.h"
 
+class Engagement;
+
 class EngagementController : 
     public EventPublisher<
         CreateEngagementEventData,
