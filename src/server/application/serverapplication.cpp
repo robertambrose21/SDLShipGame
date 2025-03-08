@@ -106,12 +106,12 @@ void ServerApplication::initialise(void) {
 
     // TODO: This somehow makes the game state messages get received first rather than the set participant ones.
     // On the client side we need to wait until participants are all set before we load the rest of the map
-    context.getTurnController()->addOnNextTurnFunction([&](auto const& currentParticipantId, auto const& turnNumber) {
-        // TODO: This has a synching issue currently particularly around entity movement not completing in time before
-        // an entities "moves left" is set by the update. Consider making updates just set positions/health?
+    // context.getTurnController()->addOnNextTurnFunction([&](auto const& currentParticipantId, auto const& turnNumber) {
+    //     // TODO: This has a synching issue currently particularly around entity movement not completing in time before
+    //     // an entities "moves left" is set by the update. Consider making updates just set positions/health?
 
-        // sendGameStateUpdatesToClients();
-    });
+    //     // sendGameStateUpdatesToClients();
+    // });
 
     auto rooms = loadMap();
     loadGame(rooms);

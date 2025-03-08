@@ -129,6 +129,10 @@ void Participant::nextTurn(void) {
     }
     
     entitiesForDeletion.clear();
+
+    if(behaviourStrategy != nullptr) {
+        behaviourStrategy->onNextTurn();
+    }
 }
 
 int Participant::getId(void) const {

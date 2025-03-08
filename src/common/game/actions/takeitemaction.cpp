@@ -33,7 +33,7 @@ bool TakeItemAction::onValidate(ApplicationContext* context) {
         ) {
             spdlog::trace(
                 "[{}, TakeItem]: Failed to validate action, there are already actions on the chain to take these items [{}]",
-                turnNumber,
+                turnNumber.value(),
                 getItemsAsStringList()
             );
             return false;

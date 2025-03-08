@@ -56,12 +56,13 @@ void ProjectilePool::loadProjectileDefinitions(void) {
     game_assert(!projectileDefinitions.empty());
 }
 
-std::function<void(int, const glm::ivec2&, int, bool)> ProjectilePool::buildOnHitCallback(const ProjectileDefinition& definition) {
+std::function<void(int, const glm::ivec2&, bool)> ProjectilePool::buildOnHitCallback(const ProjectileDefinition& definition) {
     auto const& aoe = definition.aoe;
     
-    return [&](auto ownerId, auto target, auto turnNumber, auto isAnimationOnly) {
+    return [&](auto ownerId, auto target, auto isAnimationOnly) {
         if(aoe != "") {
-            context->getAreaOfEffectPool()->add(aoe, ownerId, turnNumber, target, isAnimationOnly);
+            // context->getAreaOfEffectPool()->add(aoe, ownerId, turnNumber, target, isAnimationOnly);
+            context->getAreaOfEffectPool()->add(aoe, ownerId, target, isAnimationOnly);
         }
     };
 }

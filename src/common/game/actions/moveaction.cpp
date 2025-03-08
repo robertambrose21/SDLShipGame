@@ -1,4 +1,5 @@
 #include "moveaction.h"
+#include "game/participant/participant.h"
 
 MoveAction::MoveAction(
     Participant* participant,

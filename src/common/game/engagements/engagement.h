@@ -1,10 +1,13 @@
-#pragma once
+    #pragma once
 
 #include <vector>
 #include <cstdint>
+#include <functional>
 
 #include "spdlog/spdlog.h"
 #include "game/participant/participant.h"
+
+class Participant;
 
 class Engagement {
 public:
@@ -19,12 +22,16 @@ public:
     void addParticipant(Participant* participant);
     void removeParticipant(int participantId);
 
+    void addOnNextTurnWorker(std::function<void(int, int)> worker);
+
     uint32_t getId(void) const;
     Participant* getCurrentParticipant(void);
     int getTurnNumber(void) const;
     const std::vector<Participant*>& getParticipants(void) const;
 
 private:
+    std::vector<std::function<void(int, int)>> onNextTurnWorkers;
+
     uint32_t id;
     std::vector<Participant*> participants;
     int currentParticipantIndex;

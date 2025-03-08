@@ -15,9 +15,10 @@ void Engagement::nextTurn(void) {
     currentParticipantIndex = (currentParticipantIndex + 1) % participants.size();
     getCurrentParticipant()->nextTurn();
 
-    // for(auto const& onNextTurnFunc : onNextTurnWorkers) {
-    //     onNextTurnFunc(currentParticipantId, turnNumber);
-    // }
+    for(auto const& onNextTurnFunc : onNextTurnWorkers) {
+        onNextTurnFunc(getCurrentParticipant()->getId(), turnNumber);
+    }
+    
     // context->getEffectController()->onNextTurn();
 
     turnNumber++;
@@ -38,6 +39,10 @@ void Engagement::removeParticipant(int participantId) {
     std::erase_if(participants, [&](const auto& item) {
         return participantId == item->getId();
     });
+}
+
+void Engagement::addOnNextTurnWorker(std::function<void(int, int)> worker) {
+    onNextTurnWorkers.push_back(worker);
 }
 
 uint32_t Engagement::getId(void) const {

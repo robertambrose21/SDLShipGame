@@ -13,6 +13,20 @@
 using json = nlohmann::json;
 
 class AreaOfEffectPool : public EventPublisher<AreaOfEffectEventData> {
+public:
+    AreaOfEffectPool();
+
+    void initialise(ApplicationContext& context);
+
+    void add(const std::string& name, int ownerId, const glm::ivec2& position, bool isAnimationOnly);
+
+    void update(int64_t timeSinceLastFrame);
+
+    // std::vector<AreaOfEffect*> getAoeEffects(void);
+    const std::map<uint32_t, std::vector<std::unique_ptr<AreaOfEffect>>>& getEngagementAoEs(void) const;
+    const std::vector<std::unique_ptr<AreaOfEffect>>& getAdhocAoEs(void) const;
+    Stats::AoEStats getStatsFor(const std::string& key);
+
 private:
     typedef struct _aoeDefinition {
         std::string filename;
@@ -26,23 +40,13 @@ private:
 
     std::map<std::string, AoeDefinition> aoeDefinitions;
 
-    std::vector<std::pair<int, std::unique_ptr<AreaOfEffect>>> aoeObjects;
+    // std::vector<std::pair<int, std::unique_ptr<AreaOfEffect>>> aoeObjects;
+    std::map<uint32_t, std::vector<std::unique_ptr<AreaOfEffect>>> engagementAoEs;
+    std::vector<std::unique_ptr<AreaOfEffect>> adhocAoEs;
     std::vector<int> aoeObjectsForDeletion;
 
     ApplicationContext* context;
     bool initialised;
 
     void loadAoeDefinitions(void);
-
-public:
-    AreaOfEffectPool();
-
-    void initialise(ApplicationContext& context);
-
-    void add(const std::string& name, int ownerId, int turnNumber, const glm::ivec2& position, bool isAnimationOnly);
-
-    void update(int64_t timeSinceLastFrame);
-
-    std::vector<AreaOfEffect*> getAoeEffects(void);
-    Stats::AoEStats getStatsFor(const std::string& key);
 };

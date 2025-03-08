@@ -1,4 +1,5 @@
 #include "equipgearaction.h"
+#include "game/participant/participant.h"
 
 EquipGearAction::EquipGearAction(
     Participant* participant,
@@ -19,7 +20,7 @@ EquipGearAction::EquipGearAction(
     int turnNumber,
     Item* item, 
     Equippable<Stats::GearStats>::Slot slot, 
-    bool isUnequip = false
+    bool isUnequip
 ) :
     Action(participant, entity, turnNumber),
     item(item),

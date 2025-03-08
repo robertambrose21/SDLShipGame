@@ -13,13 +13,6 @@ uint32_t EngagementController::createEngagement(
 
     auto engagement = std::make_unique<Engagement>(id, orderedParticipants);
 
-    spdlog::trace(
-        "Adding engagement {} with {} participants", 
-        engagement->getId(), 
-        orderedParticipants.size()
-    );
-    engagements[engagement->getId()] = std::move(engagement);
-
     for(auto participant : orderedParticipants) {
         participant->setEngagement(engagement.get());
     }
@@ -33,7 +26,14 @@ uint32_t EngagementController::createEngagement(
         publish<CreateEngagementEventData>({ engagement->getId(), participantIds });
     }
 
-    return engagement->getId();
+    spdlog::trace(
+        "Adding engagement {} with {} participants", 
+        engagement->getId(), 
+        orderedParticipants.size()
+    );
+    engagements[engagement->getId()] = std::move(engagement);
+
+    return id;
 }
 
 void EngagementController::removeEngagement(uint32_t engagementId, bool canPublish) {
@@ -65,14 +65,14 @@ void EngagementController::addToEngagement(uint32_t engagementId, Participant* p
         return;
     }
 
-    if(contains(engagements[engagementId]->getParticipants(), participant)) {
-        spdlog::warn(
-            "Cannot add participant {} to engagement {}, participant already part of this engagement",
-            participant->getId(),
-            engagementId
-        );
-        return;
-    }
+    // if(contains(engagements[engagementId]->getParticipants(), participant)) {
+    //     spdlog::warn(
+    //         "Cannot add participant {} to engagement {}, participant already part of this engagement",
+    //         participant->getId(),
+    //         engagementId
+    //     );
+    //     return;
+    // }
 
     spdlog::trace("Adding participant {} to engagement {}", participant->getId(), engagementId);
 
@@ -165,5 +165,10 @@ const std::map<uint32_t, std::unique_ptr<Engagement>>& EngagementController::get
 }
 
 Engagement* EngagementController::getEngagement(uint32_t id) {
+    if(!engagements.contains(id)) {
+        spdlog::warn("Cannot find engagement with id {}", id);
+        return nullptr;
+    }
+
     return engagements.at(id).get();
 }

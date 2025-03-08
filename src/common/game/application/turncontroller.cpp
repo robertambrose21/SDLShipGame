@@ -9,7 +9,7 @@ TurnController::TurnController() :
 
 void TurnController::initialise(ApplicationContext& context) {
     this->context = &context;
-    engagementController = std::make_unique<EngagementController>(context);
+    engagementController = std::make_unique<EngagementController>(&context);
     initialised = true;
 }
 
@@ -362,7 +362,7 @@ bool TurnController::queueAction(std::unique_ptr<Action> action) {
             "[{}, {}] Skipping validation, action is for turn {}",
             engagement->getTurnNumber(),
             action->typeToString(),
-            action->getTurnNumber()
+            action->getTurnNumber().value()
         );
     }
 
@@ -445,9 +445,9 @@ void TurnController::publishAction(Action& action) {
     }
 }
 
-void TurnController::addOnNextTurnFunction(std::function<void(int, int)> onNextTurnFunc) {
-    onNextTurnWorkers.push_back(onNextTurnFunc);
-}
+// void TurnController::addOnNextTurnFunction(std::function<void(int, int)> onNextTurnFunc) {
+//     onNextTurnWorkers.push_back(onNextTurnFunc);
+// }
 
 void TurnController::setOnAllParticipantsSetFunction(std::function<void()> onAllParticipantsSet) {
     this->onAllParticipantsSet = onAllParticipantsSet;

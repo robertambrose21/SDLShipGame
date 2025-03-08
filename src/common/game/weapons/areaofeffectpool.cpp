@@ -9,11 +9,11 @@ AreaOfEffectPool::AreaOfEffectPool() :
 void AreaOfEffectPool::initialise(ApplicationContext& context) {
     this->context = &context;
 
-    context.getTurnController()->addOnNextTurnFunction([&](auto const& currentParticipantId, auto const& turnNumber) {
-        for(auto&& [_, aoe]  : aoeObjects) {
-            aoe->onNextTurn(currentParticipantId, turnNumber);
-        }
-    });
+    // context.getTurnController()->addOnNextTurnFunction([&](auto const& currentParticipantId, auto const& turnNumber) {
+    //     for(auto&& [_, aoe]  : aoeObjects) {
+    //         aoe->onNextTurn(currentParticipantId, turnNumber);
+    //     }
+    // });
 
     initialised = true;
 }
@@ -42,62 +42,136 @@ void AreaOfEffectPool::loadAoeDefinitions(void) {
     game_assert(!aoeDefinitions.empty());
 }
 
-void AreaOfEffectPool::add(const std::string& name, int ownerId, int turnNumber, const glm::ivec2& position, bool isAnimationOnly) {
+void AreaOfEffectPool::add(const std::string& name, int ownerId, const glm::ivec2& position, bool isAnimationOnly) {
     game_assert(initialised);
     game_assert(aoeDefinitions.contains(name));
 
     auto const& definition = aoeDefinitions[name];
     auto damageSource = DamageSource::parse(definition.damageSource, definition.power);
 
-    aoeObjects.push_back(
-        std::make_pair(context->getTurnController()->getTurnNumber(),
-            std::make_unique<AreaOfEffect>(
-                context->getGrid(),
-                context->getEntityPool(),
-                *this,
-                definition.textureId,
-                ownerId,
-                turnNumber,
-                isAnimationOnly,
-                position,
-                damageSource,
-                Stats::AoEStats { damageSource.getStats(), definition.radius, definition.turns }
-            )
-        )
+    // aoeObjects.push_back(
+    //     std::make_pair(context->getTurnController()->getTurnNumber(),
+    //         std::make_unique<AreaOfEffect>(
+    //             context->getGrid(),
+    //             context->getEntityPool(),
+    //             *this,
+    //             definition.textureId,
+    //             ownerId,
+    //             turnNumber,
+    //             isAnimationOnly,
+    //             position,
+    //             damageSource,
+    //             Stats::AoEStats { damageSource.getStats(), definition.radius, definition.turns }
+    //         )
+    //     )
+    // );
+
+    auto areaOfEffect = std::make_unique<AreaOfEffect>(
+        context->getGrid(),
+        context->getEntityPool(),
+        *this,
+        definition.textureId,
+        ownerId,
+        isAnimationOnly,
+        position,
+        damageSource,
+        Stats::AoEStats { damageSource.getStats(), definition.radius, definition.turns }
     );
+
+    auto participant = context->getTurnController()->getParticipant(ownerId);
+    if(participant->hasAnyEngagement()) {
+        auto engagement = participant->getEngagement();
+
+        if(!engagementAoEs.contains(engagement->getId())) {
+            engagement->addOnNextTurnWorker([&](int currentParticipantId, int turnNumber) {
+                for(auto const& aoe : engagementAoEs[engagement->getId()]) {
+                    aoe->onNextTurn(currentParticipantId, turnNumber);
+                }
+            });
+        }
+
+        engagementAoEs[engagement->getId()].push_back(std::move(areaOfEffect));
+    }
+    else {
+        adhocAoEs.push_back(std::move(areaOfEffect));
+    }
 }
 
 void AreaOfEffectPool::update(int64_t timeSinceLastFrame) {
     game_assert(initialised);
 
-    for(auto const& index : aoeObjectsForDeletion) {
-        aoeObjects.erase(aoeObjects.begin() + index);
-    }
+    // for(auto const& index : aoeObjectsForDeletion) {
+    //     aoeObjects.erase(aoeObjects.begin() + index);
+    // }
     
-    aoeObjectsForDeletion.clear();
+    // aoeObjectsForDeletion.clear();
 
-    for(auto i = 0; i < aoeObjects.size(); i++) {
-        auto&& [startTurn, areaOfEffect] = aoeObjects[i];
+    // for(auto i = 0; i < aoeObjects.size(); i++) {
+    //     auto&& [startTurn, areaOfEffect] = aoeObjects[i];
 
-        areaOfEffect->update(timeSinceLastFrame);
+    //     areaOfEffect->update(timeSinceLastFrame);
 
-        if(context->getTurnController()->getTurnNumber() - startTurn >= areaOfEffect->getStats().duration) {
-            aoeObjectsForDeletion.push_back(i);
+    //     if(context->getTurnController()->getTurnNumber() - startTurn >= areaOfEffect->getStats().duration) {
+    //         aoeObjectsForDeletion.push_back(i);
+    //     }
+    // }
+    
+    // TODO: Move different AoE handling to separate methods
+    // Engagement AoEs
+    auto engagementController = context->getTurnController()->getEngagementController();
+
+    for(auto& [engagementId, areaOfEffects] : engagementAoEs) {
+        auto engagement = engagementController->getEngagement(engagementId);
+
+        if(engagement == nullptr) {
+            spdlog::warn(
+                "Cannot process {} AoEs for engagement {}, engagement does not exist", 
+                areaOfEffects.size(), 
+                engagementId
+            );
+            continue;
         }
+
+        std::erase_if(areaOfEffects, [](const auto& areaOfEffect) {
+            return areaOfEffect->isComplete();
+        });
+
+        for(auto const& areaOfEffect : areaOfEffects) {
+            areaOfEffect->update(timeSinceLastFrame);
+        }
+    }
+
+    // Adhoc AoEs
+    std::erase_if(adhocAoEs, [](const auto& areaOfEffect) {
+        return areaOfEffect->isComplete();
+    });
+
+    for(auto& areaOfEffect : adhocAoEs) {
+        // TODO: Make these timed and not execute on every update tick
+        areaOfEffect->onNextTurn(areaOfEffect->getOwnerId(), -1);
+        areaOfEffect->update(timeSinceLastFrame);
     }
 }
 
-std::vector<AreaOfEffect*> AreaOfEffectPool::getAoeEffects(void) {
-    game_assert(initialised);
+// std::vector<AreaOfEffect*> AreaOfEffectPool::getAoeEffects(void) {
+//     game_assert(initialised);
 
-    // TODO: just return the map
-    std::vector<AreaOfEffect*> aoes;
+//     // TODO: just return the map
+//     std::vector<AreaOfEffect*> aoes;
 
-    for(auto&& [_, aoe] : aoeObjects) {
-        aoes.push_back(aoe.get());
-    }
+//     // for(auto&& [_, aoe] : aoeObjects) {
+//     //     aoes.push_back(aoe.get());
+//     // }
 
-    return aoes;
+//     return aoes;
+// }
+
+const std::map<uint32_t, std::vector<std::unique_ptr<AreaOfEffect>>>& AreaOfEffectPool::getEngagementAoEs(void) const {
+    return engagementAoEs;
+}
+
+const std::vector<std::unique_ptr<AreaOfEffect>>& AreaOfEffectPool::getAdhocAoEs(void) const {
+    return adhocAoEs;
 }
 
 Stats::AoEStats AreaOfEffectPool::getStatsFor(const std::string& key) {

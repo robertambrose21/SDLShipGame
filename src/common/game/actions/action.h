@@ -4,7 +4,6 @@
 
 #include "spdlog/spdlog.h"
 #include "game/application/applicationcontext.h"
-#include "game/participant/participant.h"
 
 class Participant;
 

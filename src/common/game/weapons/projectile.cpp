@@ -11,7 +11,7 @@ Projectile::Projectile(
     const Stats::ProjectileStats& stats,
     const DamageSource& damageSource,
     bool isAnimationOnly,
-    std::function<void(int, const glm::ivec2&, int, bool)> onHitCallback
+    std::function<void(int, const glm::ivec2&, bool)> onHitCallback
 ) :
     context(context),
     publisher(publisher),
@@ -53,7 +53,7 @@ Stats::ProjectileStats Projectile::getStats(void) const {
 }
 
 void Projectile::doHit(const glm::ivec2& position) {
-    onHitCallback(ownerId, position, 1, isAnimationOnly);
+    onHitCallback(ownerId, position, isAnimationOnly);
 
     if(!isAnimationOnly) {
         apply(position);

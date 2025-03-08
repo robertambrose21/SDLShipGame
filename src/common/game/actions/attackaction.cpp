@@ -1,4 +1,5 @@
 #include "attackaction.h"
+#include "game/participant/participant.h"
 
 AttackAction::AttackAction(
     Participant* participant,

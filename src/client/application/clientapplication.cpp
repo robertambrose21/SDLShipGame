@@ -69,7 +69,7 @@ void ClientApplication::initialise(void) {
     clientStateMachine->setState(std::make_unique<ClientLoadingState>());
 
     // TODO: Generate this from some kind of web server
-    uint64_t clientId = 1337;
+    uint64_t clientId = randomRange(1000, 9999);
 
     clientMessagesReceiver = std::make_unique<GameClientMessagesReceiver>(
         application->getContext(),
@@ -81,7 +81,7 @@ void ClientApplication::initialise(void) {
         std::make_unique<GameMessageLogger>("client_messages.log"),
         clientId,
         *clientMessagesReceiver,
-        yojimbo::Address("127.0.0.1", 8081)
+        yojimbo::Address("192.168.178.26", 8081)
     );
     clientMessagesTransmitter = std::make_unique<GameClientMessagesTransmitter>(*client);
 
@@ -166,8 +166,16 @@ void ClientApplication::drawGameLoop(GraphicsContext& graphicsContext) {
         itemDrawStrategy->draw(item, graphicsContext);
     }
 
-    for(auto aoe : areaOfEffectPool->getAoeEffects()) {
-        areaOfEffectDrawStrategy->draw(aoe, graphicsContext);
+    // for(auto aoe : areaOfEffectPool->getAoeEffects()) {
+    //     areaOfEffectDrawStrategy->draw(aoe, graphicsContext);
+    // }
+    for(auto const& [_, aoes] : areaOfEffectPool->getEngagementAoEs()) {
+        for(auto const& aoe : aoes) {
+            areaOfEffectDrawStrategy->draw(aoe.get(), graphicsContext);
+        }
+    }
+    for(auto const& aoe : areaOfEffectPool->getAdhocAoEs()) {
+        areaOfEffectDrawStrategy->draw(aoe.get(), graphicsContext);
     }
 
     for(auto entity : entityPool->getEntities()) {

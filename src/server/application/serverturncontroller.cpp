@@ -3,13 +3,13 @@
 ServerTurnController::ServerTurnController() :
     TurnController()
 {
-    addOnNextTurnFunction([&](auto const& currentParticipantId, auto const& turnNumber) {
-        auto behaviourStrategy = participants[currentParticipantId]->getBehaviourStrategy();
+    // addOnNextTurnFunction([&](auto const& currentParticipantId, auto const& turnNumber) {
+    //     auto behaviourStrategy = participants[currentParticipantId]->getBehaviourStrategy();
 
-        if(behaviourStrategy != nullptr) {
-            behaviourStrategy->onNextTurn();
-        }
-    });
+    //     if(behaviourStrategy != nullptr) {
+    //         behaviourStrategy->onNextTurn();
+    //     }
+    // });
 }
 
 void ServerTurnController::attachParticipantToClient(int participantId, int clientIndex, uint64_t clientId) {
@@ -217,7 +217,7 @@ void ServerTurnController::compareAndEngageParticipants(Participant* participant
     }
 
     // Check if an engagment between these participants already exists
-    if(participantA->getEngagement() != nullptr && participantA->hasEngagement(participantB)) {
+    if(participantA->hasEngagement(participantB)) {
         return;
     }
 

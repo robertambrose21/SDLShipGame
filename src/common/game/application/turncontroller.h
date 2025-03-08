@@ -79,7 +79,7 @@ public:
     bool queueAction(std::unique_ptr<Action> action);
     // void executeActions(int participantId);
 
-    void addOnNextTurnFunction(std::function<void(int, int)> onNextTurnFunc);
+    // void addOnNextTurnFunction(std::function<void(int, int)> onNextTurnFunc);
     void setOnAllParticipantsSetFunction(std::function<void()> onAllParticipantsSet);
 
     void allParticipantsSet(void);
@@ -99,7 +99,7 @@ protected:
     // int currentParticipantId;
 
     std::map<int, std::unique_ptr<Participant>> participants;
-    std::vector<std::function<void(int, int)>> onNextTurnWorkers;
+    // std::vector<std::function<void(int, int)>> onNextTurnWorkers;
     std::function<void()> onAllParticipantsSet;
 
     // void endCurrentParticipantTurn(void);
