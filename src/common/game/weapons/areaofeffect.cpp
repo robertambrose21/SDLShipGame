@@ -48,16 +48,16 @@ void AreaOfEffect::apply(void) {
     for(auto const& entity : effectedEntities) {
         publisher.publish<AreaOfEffectEventData>({ this, entity, damageSource.apply(entity) });
     }
-
-    turnsLeft--;
 }
 
 void AreaOfEffect::onNextTurn(int currentParticipantId, int turnNumber) {
-    if(isAnimationOnly) {
+    if(currentParticipantId != ownerId) {
         return;
     }
 
-    if(currentParticipantId != ownerId) {
+    turnsLeft--;
+
+    if(isAnimationOnly) {
         return;
     }
 
