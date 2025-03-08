@@ -38,6 +38,7 @@ public:
 
     const std::map<uint32_t,  std::unique_ptr<Engagement>>& getEngagements(void) const;
     Engagement* getEngagement(uint32_t id);
+    bool hasEngagement(uint32_t id);
 
 private:
     ApplicationContext* context;

@@ -172,3 +172,7 @@ Engagement* EngagementController::getEngagement(uint32_t id) {
 
     return engagements.at(id).get();
 }
+
+bool EngagementController::hasEngagement(uint32_t id) {
+    return engagements.contains(id);
+}

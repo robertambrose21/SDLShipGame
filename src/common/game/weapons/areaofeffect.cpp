@@ -61,7 +61,9 @@ void AreaOfEffect::onNextTurn(int currentParticipantId, int turnNumber) {
         return;
     }
 
-    apply();
+    if(turnsLeft > 0) {
+        apply();
+    }
 }
 
 int AreaOfEffect::getOwnerId(void) const {

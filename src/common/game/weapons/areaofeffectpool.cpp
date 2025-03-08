@@ -42,23 +42,6 @@ void AreaOfEffectPool::add(const std::string& name, int ownerId, const glm::ivec
     auto const& definition = aoeDefinitions[name];
     auto damageSource = DamageSource::parse(definition.damageSource, definition.power);
 
-    // aoeObjects.push_back(
-    //     std::make_pair(context->getTurnController()->getTurnNumber(),
-    //         std::make_unique<AreaOfEffect>(
-    //             context->getGrid(),
-    //             context->getEntityPool(),
-    //             *this,
-    //             definition.textureId,
-    //             ownerId,
-    //             turnNumber,
-    //             isAnimationOnly,
-    //             position,
-    //             damageSource,
-    //             Stats::AoEStats { damageSource.getStats(), definition.radius, definition.turns }
-    //         )
-    //     )
-    // );
-
     auto areaOfEffect = std::make_unique<AreaOfEffect>(
         context->getGrid(),
         context->getEntityPool(),
@@ -94,29 +77,20 @@ void AreaOfEffectPool::add(const std::string& name, int ownerId, const glm::ivec
 void AreaOfEffectPool::update(int64_t timeSinceLastFrame) {
     game_assert(initialised);
 
-    // for(auto const& index : aoeObjectsForDeletion) {
-    //     aoeObjects.erase(aoeObjects.begin() + index);
-    // }
-    
-    // aoeObjectsForDeletion.clear();
-
-    // for(auto i = 0; i < aoeObjects.size(); i++) {
-    //     auto&& [startTurn, areaOfEffect] = aoeObjects[i];
-
-    //     areaOfEffect->update(timeSinceLastFrame);
-
-    //     if(context->getTurnController()->getTurnNumber() - startTurn >= areaOfEffect->getStats().duration) {
-    //         aoeObjectsForDeletion.push_back(i);
-    //     }
-    // }
-    
     // TODO: Move different AoE handling to separate methods
     // Engagement AoEs
     auto engagementController = context->getTurnController()->getEngagementController();
 
+    // Remove dead engagements
+    std::erase_if(engagementAoEs, [&](const auto& engagementAoE) {
+        auto& [engagementId, _] = engagementAoE;
+        return !engagementController->hasEngagement(engagementId);
+    });
+
     for(auto& [engagementId, areaOfEffects] : engagementAoEs) {
         auto engagement = engagementController->getEngagement(engagementId);
 
+        // Shouldn't happen
         if(engagement == nullptr) {
             spdlog::critical(
                 "Cannot process {} AoEs for engagement {}, engagement does not exist", 

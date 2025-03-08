@@ -72,18 +72,10 @@ void ServerTurnController::additionalUpdate(int64_t timeSinceLastFrame, bool& qu
         // TODO: This should be called when an entity moves, not every update tick
         assignEngagements(participantId);
 
-
         if(participant->getBehaviourStrategy() != nullptr) {
             participant->getBehaviourStrategy()->onUpdate(participantId, timeSinceLastFrame, quit);
         }
     }
-
-    // TODO: update all AI
-    // auto participant = participants.at(currentParticipantId).get();
-
-    // if(participant->getBehaviourStrategy() != nullptr) {
-    //     participant->getBehaviourStrategy()->onUpdate(participant->getId(), timeSinceLastFrame, quit);
-    // }
 
     // TODO: This should be called when an entity moves, not every update tick
     checkForItems();
@@ -133,29 +125,21 @@ bool ServerTurnController::canProgressToNextTurn(Engagement* engagement) {
 }
 
 void ServerTurnController::onParticipantTurnEnd(Engagement* engagement) {
-    // auto participant = context->getTurnController()->getParticipant(participantId);
-    // game_assert(participant != nullptr);
+    auto participant = engagement->getCurrentParticipant();
+    bool canDisengage = true;
 
-    // for(auto const& [otherParticipantId, _] : participant->getEngagements()) {
-    //     auto otherParticipant = context->getTurnController()->getParticipant(otherParticipantId);
+    for(auto const& other : engagement->getParticipants()) {
+        if(other->getId() == participant->getId()) {
+            continue;
+        }
 
-    //     if(otherParticipant == nullptr) {
-    //         spdlog::debug(
-    //             "Cannot disengage non-existant participant {} from this participant {}", 
-    //             participantId, 
-    //             otherParticipantId
-    //         );
-    //         continue;
-    //     }
+        // TODO: Determine actual disengagement range properly
+        canDisengage = canDisengage && participant->distanceToOtherParticipant(other) > 15;
+    }
 
-    //     auto distance = participant->distanceToOtherParticipant(otherParticipant);
-
-    //     // TODO: Determine actual disengagement range properly
-    //     // TODO: Bug! call disengage outside of the loop, otherwise an rb tree error can occur in the set
-    //     if(distance > 15) {
-    //         disengage(participantId, otherParticipantId);
-    //     }
-    // }
+    if(canDisengage) {
+        engagementController->disengage(engagement->getId(), participant);
+    }
 }
 
 void ServerTurnController::checkForItems(void) {
