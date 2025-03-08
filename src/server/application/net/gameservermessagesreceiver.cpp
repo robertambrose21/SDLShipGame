@@ -17,7 +17,8 @@ void GameServerMessagesReceiver::receiveMessage(int clientIndex, yojimbo::Messag
                 clientIndex, 
                 findPathMessage->entityId, 
                 { findPathMessage->x, findPathMessage->y },
-                findPathMessage->shortStopSteps
+                findPathMessage->shortStopSteps,
+                findPathMessage->turnNumber
             );
             break;
         }
@@ -85,7 +86,8 @@ void GameServerMessagesReceiver::receiveFindPathMessage(
     int clientIndex,
     uint32_t entityId,
     const glm::ivec2& position,
-    int shortStopSteps
+    int shortStopSteps,
+    int turnNumber
 ) {
     if(!context.getEntityPool()->hasEntity(entityId)) {
         return;
@@ -103,15 +105,17 @@ void GameServerMessagesReceiver::receiveFindPathMessage(
     auto const& entities = participant->getEntities();
 
     for(auto const& entity : entities) {
-        if(entity->getId() == entityId) {
-            turnController->queueAction(
-                std::make_unique<MoveAction>(
-                    participant, 
-                    entity, 
-                    position
-                )
-            );
+        if(entity->getId() != entityId) {
+            continue;
         }
+
+        if(turnNumber == -1) {
+            turnController->executeActionImmediately(std::make_unique<MoveAction>(participant, entity, position));
+        }
+        else {
+            turnController->queueAction(std::make_unique<MoveAction>(participant, entity, turnNumber, position));
+        }
+        
     }
 }
 

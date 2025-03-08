@@ -83,13 +83,14 @@ void AreaOfEffectPool::add(const std::string& name, int ownerId, const glm::ivec
         auto engagement = participant->getEngagement();
 
         if(!engagementAoEs.contains(engagement->getId())) {
-            engagement->addOnNextTurnWorker([&](int currentParticipantId, int turnNumber) {
-                for(auto const& aoe : engagementAoEs[engagement->getId()]) {
+            engagement->addOnNextTurnWorker([&](int currentParticipantId, int turnNumber, uint32_t engagementId) {
+                for(auto const& aoe : engagementAoEs[engagementId]) {
                     aoe->onNextTurn(currentParticipantId, turnNumber);
                 }
             });
         }
 
+        spdlog::trace("Adding AoE to engagement {} from participant {}", engagement->getId(), ownerId);
         engagementAoEs[engagement->getId()].push_back(std::move(areaOfEffect));
     }
     else {
@@ -124,11 +125,12 @@ void AreaOfEffectPool::update(int64_t timeSinceLastFrame) {
         auto engagement = engagementController->getEngagement(engagementId);
 
         if(engagement == nullptr) {
-            spdlog::warn(
+            spdlog::critical(
                 "Cannot process {} AoEs for engagement {}, engagement does not exist", 
                 areaOfEffects.size(), 
                 engagementId
             );
+            game_assert(false);
             continue;
         }
 

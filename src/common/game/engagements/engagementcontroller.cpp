@@ -14,7 +14,7 @@ uint32_t EngagementController::createEngagement(
     auto engagement = std::make_unique<Engagement>(id, orderedParticipants);
 
     for(auto participant : orderedParticipants) {
-        participant->setEngagement(engagement.get());
+        participant->engage(engagement.get());
     }
 
     if(canPublish) {
@@ -49,7 +49,7 @@ void EngagementController::removeEngagement(uint32_t engagementId, bool canPubli
     );
 
     for(auto participant : engagements[engagementId]->getParticipants()) {
-        participant->setEngagement(nullptr);
+        participant->disengage();
     }
 
     engagements.erase(engagementId);
@@ -77,7 +77,7 @@ void EngagementController::addToEngagement(uint32_t engagementId, Participant* p
     spdlog::trace("Adding participant {} to engagement {}", participant->getId(), engagementId);
 
     engagements[engagementId]->addParticipant(participant);
-    participant->setEngagement(engagements[engagementId].get());
+    participant->engage(engagements[engagementId].get());
 
     if(canPublish) {
         publish<AddToEngagementEventData>({ engagementId, participant->getId() });
@@ -93,7 +93,7 @@ void EngagementController::disengage(uint32_t engagementId, Participant* partici
     spdlog::trace("Removing participant {} from engagement {}", participant->getId(), engagementId);
     engagements[engagementId]->removeParticipant(participant->getId());
 
-    participant->setEngagement(nullptr);
+    participant->disengage();
 
     if(canPublish) {
         publish<DisengageEventData>({ engagementId, participant->getId() });

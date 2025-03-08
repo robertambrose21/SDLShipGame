@@ -39,7 +39,9 @@ public:
     // std::optional<uint32_t> getEngagementId(void) const;
     // void setEngagementId(const std::optional<uint32_t>& engagementId);
     Engagement* getEngagement(void);
-    void setEngagement(Engagement* engagement);
+    // void setEngagement(Engagement* engagement);
+    void engage(Engagement* engagement);
+    void disengage(void);
     float getAverageEntitySpeed(void);
 
     void endTurn(void);

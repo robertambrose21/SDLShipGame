@@ -22,7 +22,7 @@ public:
     void addParticipant(Participant* participant);
     void removeParticipant(int participantId);
 
-    void addOnNextTurnWorker(std::function<void(int, int)> worker);
+    void addOnNextTurnWorker(std::function<void(int, int, uint32_t)> worker);
 
     uint32_t getId(void) const;
     Participant* getCurrentParticipant(void);
@@ -30,7 +30,7 @@ public:
     const std::vector<Participant*>& getParticipants(void) const;
 
 private:
-    std::vector<std::function<void(int, int)>> onNextTurnWorkers;
+    std::vector<std::function<void(int, int, uint32_t)>> onNextTurnWorkers;
 
     uint32_t id;
     std::vector<Participant*> participants;

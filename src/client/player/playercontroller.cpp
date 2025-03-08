@@ -319,9 +319,11 @@ void PlayerController::deselectAll(void) {
 }
 
 void PlayerController::move(const glm::ivec2& position) {
+    int turnNumber = participant->hasAnyEngagement() ? participant->getEngagement()->getTurnNumber() : -1;
+
     for(auto const& entity : selectedEntities) {
         if(!grid->findPath(entity->getPosition(), position).empty()) {
-            clientMessagesTransmitter.sendFindPathMessage(entity->getId(), position, 0);
+            clientMessagesTransmitter.sendFindPathMessage(entity->getId(), position, 0, turnNumber);
         }
     }
 }

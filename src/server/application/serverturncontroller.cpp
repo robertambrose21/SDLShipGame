@@ -68,9 +68,14 @@ std::map<int, int> ServerTurnController::getAllAttachedClients(void) {
 }
 
 void ServerTurnController::additionalUpdate(int64_t timeSinceLastFrame, bool& quit) {
-    for(auto& [participantId, _] : participants) {
+    for(auto& [participantId, participant] : participants) {
         // TODO: This should be called when an entity moves, not every update tick
         assignEngagements(participantId);
+
+
+        if(participant->getBehaviourStrategy() != nullptr) {
+            participant->getBehaviourStrategy()->onUpdate(participantId, timeSinceLastFrame, quit);
+        }
     }
 
     // TODO: update all AI

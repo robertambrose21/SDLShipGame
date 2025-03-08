@@ -16,7 +16,7 @@ void Engagement::nextTurn(void) {
     getCurrentParticipant()->nextTurn();
 
     for(auto const& onNextTurnFunc : onNextTurnWorkers) {
-        onNextTurnFunc(getCurrentParticipant()->getId(), turnNumber);
+        onNextTurnFunc(getCurrentParticipant()->getId(), turnNumber, id);
     }
     
     // context->getEffectController()->onNextTurn();
@@ -41,7 +41,7 @@ void Engagement::removeParticipant(int participantId) {
     });
 }
 
-void Engagement::addOnNextTurnWorker(std::function<void(int, int)> worker) {
+void Engagement::addOnNextTurnWorker(std::function<void(int, int, uint32_t)> worker) {
     onNextTurnWorkers.push_back(worker);
 }
 

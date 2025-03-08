@@ -23,7 +23,8 @@ private:
         int clientIndex, 
         uint32_t entityId, 
         const glm::ivec2& position,
-        int shortStopSteps
+        int shortStopSteps,
+        int turnNumber
     );
     void receiveSelectEntityMessage(int clientIndex, uint32_t entityId);
     void receieveAttackMessage(

@@ -43,8 +43,40 @@ Engagement* Participant::getEngagement(void) {
     return engagement;
 }
 
-void Participant::setEngagement(Engagement* engagement) {
+// void Participant::setEngagement(Engagement* engagement) {
+//     this->engagement = engagement;
+// }
+
+void Participant::engage(Engagement* engagement) {
+    if(this->engagement != nullptr && this->engagement != engagement) {
+        spdlog::info(
+            "Overriding participant {}'s existing engagement {} with new engagement {}",
+            id,
+            this->engagement->getId(),
+            engagement->getId()
+        );
+    }
+    if(this->engagement == engagement) {
+        spdlog::trace(
+            "Participant::engage: participant {} already has engagement {}",
+            id,
+            this->engagement->getId()
+        );
+    }
+
     this->engagement = engagement;
+
+    for(auto entity : entities) {
+        entity->engage();
+    }
+}
+
+void Participant::disengage(void) {
+    engagement = nullptr;
+
+    for(auto entity : entities) {
+        entity->disengage();
+    }
 }
 
 float Participant::getAverageEntitySpeed(void) {
@@ -167,6 +199,10 @@ void Participant::addEntity(Entity* entity) {
     game_assert(!entity->hasParticipant());
 
     entity->setParticipantId(id);
+
+    if(hasAnyEngagement()) {
+        entity->engage();
+    }
     
     entities.push_back(entity);
     addVisibleEntity(entity);

@@ -15,7 +15,8 @@ void GameClientMessagesTransmitter::sendActionsRollMessage(int participantId) {
 void GameClientMessagesTransmitter::sendFindPathMessage(
     uint32_t entityId,
     const glm::ivec2& position,
-    int shortStopSteps
+    int shortStopSteps,
+    int turnNumber
 ) {
     FindPathMessage* message = (FindPathMessage*) client.createMessage(GameMessageType::FIND_PATH);
 
@@ -23,6 +24,7 @@ void GameClientMessagesTransmitter::sendFindPathMessage(
     message->x = position.x;
     message->y = position.y;
     message->shortStopSteps = shortStopSteps;
+    message->turnNumber = turnNumber;
 
     client.sendMessage(message);
 }

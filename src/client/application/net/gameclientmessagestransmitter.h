@@ -15,7 +15,8 @@ public:
     void sendFindPathMessage(
         uint32_t entityId, 
         const glm::ivec2& position,
-        int shortStopSteps
+        int shortStopSteps,
+        int turnNumber = -1
     );
     void sendSelectEntityMessage(uint32_t entityId);
     void sendAttackMessage(
