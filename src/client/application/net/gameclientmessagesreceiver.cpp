@@ -162,7 +162,7 @@ void GameClientMessagesReceiver::receiveAttackEntity(AttackMessage* message) {
 
 void GameClientMessagesReceiver::receiveNextTurn(NextTurnMessage* message) {
     dynamic_cast<ClientTurnController*>(context.getTurnController())
-        ->receiveSetNextTurnFlag(message->participantId, message->turnNumber);
+        ->receiveSetNextTurnFlag(message->participantId, message->engagementId, message->turnNumber);
 }
 
 void GameClientMessagesReceiver::receiveSetTurn(SetTurnMessage* message) {

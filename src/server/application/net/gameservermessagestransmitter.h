@@ -66,8 +66,8 @@ public:
     void sendGameStateUpdate(int clientIndex, const GameStateUpdate& update);
     void sendLoadMap(int clientIndex, const MapBlock& block);
     void sendActionsRollResponse(int clientIndex, int participantId, const std::vector<DiceActionResult>& dice);
-    void sendNextTurn(int clientIndex, int participantId, int turnNumber);
-    void sendNextTurnToAllClients(int participantId, int turnNumber);
+    void sendNextTurn(int clientIndex, int participantId, uint32_t engagementId, int turnNumber);
+    void sendNextTurnToAllClients(int participantId, uint32_t engagementId, int turnNumber);
     void sendSetTurn(int clientIndex, uint8_t currentParticipantId, uint32_t turnNumber);
     void sendItems(int clientIndex, const std::vector<Item*>& items);
 

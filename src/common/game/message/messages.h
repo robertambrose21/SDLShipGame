@@ -343,16 +343,19 @@ public:
 class NextTurnMessage : public yojimbo::Message {
 public:
     int participantId;
+    uint32_t engagementId;
     int turnNumber;
 
     NextTurnMessage() :
         participantId(0),
+        engagementId(0),
         turnNumber(0) 
     { }
 
     template <typename Stream>
     bool Serialize(Stream& stream) {
         serialize_int(stream, participantId, 0, 64);
+        serialize_uint32(stream, engagementId);
         serialize_int(stream, turnNumber, 0, UINT16_MAX); // Max turn number??
 
         return true;

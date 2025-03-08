@@ -22,6 +22,13 @@ void Engagement::nextTurn(void) {
     // context->getEffectController()->onNextTurn();
 
     turnNumber++;
+
+    spdlog::trace(
+        "Engagement {} next turn: {} - current participant is {}",
+        id,
+        turnNumber,
+        getCurrentParticipant()->getId()
+    );
     // context->getGrid()->nextTurn();
     // publish<TurnEventData>({ turnNumber, currentParticipantId });
 }

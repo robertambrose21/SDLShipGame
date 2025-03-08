@@ -1,6 +1,7 @@
 #pragma once
 
 #include <queue>
+#include <map>
 
 #include "game/application/turncontroller.h"
 
@@ -9,10 +10,10 @@ class ClientTurnController : public TurnController {
 public:
     ClientTurnController();
 
-    void receiveSetNextTurnFlag(int participantId, int receivedTurnNumber);
+    void receiveSetNextTurnFlag(int participantId, uint32_t engagementId, int receivedTurnNumber);
 
 private:
-    std::queue<int> nextTurnFlags;
+    std::map<uint32_t, std::queue<int>> nextTurnFlags;
 
     bool canProgressToNextTurn(Engagement* engagement) override;
     void onParticipantTurnEnd(Engagement* engagement) override;

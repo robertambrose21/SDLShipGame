@@ -94,7 +94,7 @@ bool ServerTurnController::canProgressToNextTurn(Engagement* engagement) {
     }
 
     if(participant->getEntities().empty()) {
-        transmitter->sendNextTurnToAllClients(currentParticipantId, turnNumber);
+        transmitter->sendNextTurnToAllClients(currentParticipantId, engagement->getId(), turnNumber);
         return true;
     }
 
@@ -111,14 +111,14 @@ bool ServerTurnController::canProgressToNextTurn(Engagement* engagement) {
     }
 
     if(participant->getBehaviourStrategy() != nullptr && participant->getBehaviourStrategy()->endTurnCondition()) {
-        transmitter->sendNextTurnToAllClients(currentParticipantId, turnNumber);
+        transmitter->sendNextTurnToAllClients(currentParticipantId, engagement->getId(), turnNumber);
         return true;
     }
 
     auto nextTurn = haveEntitiesTurnsFinished || participant->isPassingNextTurn();
 
     if(nextTurn) {
-        transmitter->sendNextTurnToAllClients(currentParticipantId, turnNumber);
+        transmitter->sendNextTurnToAllClients(currentParticipantId, engagement->getId(), turnNumber);
     }
 
     return nextTurn;

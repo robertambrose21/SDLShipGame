@@ -384,18 +384,19 @@ void GameServerMessagesTransmitter::sendActionsRollResponse(
     server.sendMessage(clientIndex, message);
 }
 
-void GameServerMessagesTransmitter::sendNextTurn(int clientIndex, int participantId, int turnNumber) {
+void GameServerMessagesTransmitter::sendNextTurn(int clientIndex, int participantId, uint32_t engagementId, int turnNumber) {
     NextTurnMessage* message = (NextTurnMessage*) server.createMessage(clientIndex, GameMessageType::NEXT_TURN);
 
     message->participantId = participantId;
+    message->engagementId = engagementId;
     message->turnNumber = turnNumber;
 
     server.sendMessage(clientIndex, message);
 }
 
-void GameServerMessagesTransmitter::sendNextTurnToAllClients(int participantId, int turnNumber) {
+void GameServerMessagesTransmitter::sendNextTurnToAllClients(int participantId, uint32_t engagementId, int turnNumber) {
     for(auto [_, clientIndex] : turnController->getAllAttachedClients()) {
-        sendNextTurn(clientIndex, participantId, turnNumber);
+        sendNextTurn(clientIndex, participantId, engagementId, turnNumber);
     }
 }
 
