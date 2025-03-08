@@ -40,7 +40,8 @@ void GameClientMessagesTransmitter::sendSelectEntityMessage(uint32_t entityId) {
 void GameClientMessagesTransmitter::sendAttackMessage(
     uint32_t entityId, 
     const glm::ivec2& target,
-    UUID weaponId
+    UUID weaponId,
+    int turnNumber
 ) {
     AttackMessage* message = (AttackMessage*) client.createMessage(GameMessageType::ATTACK_ENTITY);
     
@@ -48,6 +49,7 @@ void GameClientMessagesTransmitter::sendAttackMessage(
     message->x = target.x;
     message->y = target.y;
     memcpy(message->weaponIdBytes, &weaponId.getBytes()[0], 16);
+    message->turnNumber = turnNumber;
 
     client.sendMessage(message);
 }

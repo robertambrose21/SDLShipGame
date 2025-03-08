@@ -329,6 +329,8 @@ void PlayerController::move(const glm::ivec2& position) {
 }
 
 void PlayerController::attack(const glm::ivec2& target) {
+    int turnNumber = participant->hasAnyEngagement() ? participant->getEngagement()->getTurnNumber() : -1;
+
     for(auto const& entity : selectedEntities) {
         auto const& weapon = entity->getCurrentWeapon();
         
@@ -345,7 +347,8 @@ void PlayerController::attack(const glm::ivec2& target) {
             clientMessagesTransmitter.sendAttackMessage(
                 entity->getId(), 
                 target, 
-                weapon->getId()
+                weapon->getId(),
+                turnNumber
             );
         }
     }

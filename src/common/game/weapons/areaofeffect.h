@@ -10,24 +10,9 @@ class EntityPool;
 class AreaOfEffect;
 
 class AreaOfEffect {
-private:
-    Grid* grid;
-    EntityPool* entityPool;
-    EventPublisher<AreaOfEffectEventData>& publisher;
-
-    uint32_t textureId;
-
-    std::vector<glm::ivec2> effectedTilePositions;
-
-    int ownerId;
-    // int liveTurn;
-    uint8_t turnsLeft;
-    bool isAnimationOnly;
-    glm::ivec2 position;
-    DamageSource damageSource;
-    Stats::AoEStats stats;
-
 public:
+    static const int64_t RealTimeTick = 1000;
+
     AreaOfEffect(
         Grid* grid,
         EntityPool* entityPool,
@@ -54,4 +39,29 @@ public:
     uint32_t getTextureId(void) const;
     glm::ivec2 getPosition(void) const;
     bool isComplete(void);
+
+    int64_t getAdhocDuration(void) const;
+    int64_t getTimeSinceLastTick(void) const;
+    bool hasElapsedAdhocDuration(void);
+
+private:
+    Grid* grid;
+    EntityPool* entityPool;
+    EventPublisher<AreaOfEffectEventData>& publisher;
+
+    uint32_t textureId;
+
+    std::vector<glm::ivec2> effectedTilePositions;
+
+    int ownerId;
+    // int liveTurn;
+    uint8_t turnsLeft;
+    bool isAnimationOnly;
+    glm::ivec2 position;
+    DamageSource damageSource;
+    Stats::AoEStats stats;
+
+    int64_t adhocDuration;
+    int64_t elapsedTime;
+    int64_t timeSinceLastTick;
 };

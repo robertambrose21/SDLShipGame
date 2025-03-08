@@ -36,7 +36,8 @@ void GameServerMessagesReceiver::receiveMessage(int clientIndex, yojimbo::Messag
                 attackMessage->entityId, 
                 attackMessage->x, 
                 attackMessage->y,
-                attackMessage->weaponIdBytes
+                attackMessage->weaponIdBytes,
+                attackMessage->turnNumber
             );
             break;
         }
@@ -134,7 +135,8 @@ void GameServerMessagesReceiver::receieveAttackMessage(
     uint32_t entityId, 
     int x,
     int y,
-    uint8_t weaponIdBytes[16]
+    uint8_t weaponIdBytes[16],
+    int turnNumber
 ) {
     if(!context.getEntityPool()->hasEntity(entityId)) {
         return;
@@ -153,11 +155,26 @@ void GameServerMessagesReceiver::receieveAttackMessage(
     auto participant = turnController->getParticipant(participantId);
 
     for(auto weapon : entity->getWeapons()) {
-        if(weapon->getId() == weaponId) {
+        if(weapon->getId() != weaponId) {
+            continue;
+        }
+        
+        if(turnNumber != -1) {
             context.getTurnController()->queueAction(
                 std::make_unique<AttackAction>(
                     participant, 
-                    entity, 
+                    entity,
+                    turnNumber,
+                    weapon, 
+                    glm::ivec2(x, y)
+                )
+            );
+        }
+        else {
+            context.getTurnController()->executeActionImmediately(
+                std::make_unique<AttackAction>(
+                    participant, 
+                    entity,
                     weapon, 
                     glm::ivec2(x, y)
                 )

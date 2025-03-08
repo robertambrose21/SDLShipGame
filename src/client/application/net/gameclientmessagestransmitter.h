@@ -22,7 +22,8 @@ public:
     void sendAttackMessage(
         uint32_t entityId, 
         const glm::ivec2& target, 
-        UUID weaponId
+        UUID weaponId,
+        int turnNumber = -1
     );
     void sendPassParticipantTurnMessage(int participantId);
     void sendSetParticipantAckMessage(int participantId);

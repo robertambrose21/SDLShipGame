@@ -102,7 +102,15 @@ void AreaOfEffectPool::update(int64_t timeSinceLastFrame) {
         }
 
         std::erase_if(areaOfEffects, [](const auto& areaOfEffect) {
-            return areaOfEffect->isComplete();
+            bool isComplete = areaOfEffect->isComplete();
+            if(isComplete) {
+                spdlog::trace(
+                    "AoE at ({}, {}) complete - removing", 
+                    areaOfEffect->getPosition().x, 
+                    areaOfEffect->getPosition().y
+                );
+            }
+            return isComplete;
         });
 
         for(auto const& areaOfEffect : areaOfEffects) {
@@ -112,12 +120,22 @@ void AreaOfEffectPool::update(int64_t timeSinceLastFrame) {
 
     // Adhoc AoEs
     std::erase_if(adhocAoEs, [](const auto& areaOfEffect) {
-        return areaOfEffect->isComplete();
+        bool isComplete = areaOfEffect->isComplete();
+        if(isComplete) {
+            spdlog::trace(
+                "AoE at ({}, {}) complete - removing", 
+                areaOfEffect->getPosition().x, 
+                areaOfEffect->getPosition().y
+            );
+        }
+        return isComplete;
     });
 
     for(auto& areaOfEffect : adhocAoEs) {
-        // TODO: Make these timed and not execute on every update tick
-        areaOfEffect->onNextTurn(areaOfEffect->getOwnerId(), -1);
+        if(areaOfEffect->getTimeSinceLastTick() >= AreaOfEffect::RealTimeTick) {
+            areaOfEffect->onNextTurn(areaOfEffect->getOwnerId(), -1);
+        }
+
         areaOfEffect->update(timeSinceLastFrame);
     }
 }

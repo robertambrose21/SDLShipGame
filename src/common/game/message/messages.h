@@ -79,7 +79,7 @@ public:
         serialize_int(stream, x, 0, 512);
         serialize_int(stream, y, 0, 512);
         serialize_int(stream, shortStopSteps, 0, 512);
-        serialize_int(stream, turnNumber, -1, 512);
+        serialize_int(stream, turnNumber, -1, INT16_MAX);
         return true;
     }
 
@@ -123,7 +123,7 @@ public:
         serialize_int(stream, x, 0, 512);
         serialize_int(stream, y, 0, 512);
         serialize_bytes(stream, weaponIdBytes, 16);
-        serialize_int(stream, turnNumber, 0, 512);
+        serialize_int(stream, turnNumber, -1, INT16_MAX);
         return true;
     }
 
