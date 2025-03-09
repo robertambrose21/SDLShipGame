@@ -72,6 +72,10 @@ void TurnController::endCurrentParticipantTurn(Engagement* engagement) {
 }
 
 void TurnController::nextParticipantTurn(Engagement* engagement) {
+    if(engagement == nullptr) {
+        return;
+    }
+
     engagement->nextTurn();
 }
 
