@@ -68,7 +68,7 @@ void AreaOfEffect::onNextTurn(int currentParticipantId, int turnNumber) {
         return;
     }
 
-    if(turnsLeft >= 0) {
+    if(turnsLeft > 0) {
         apply();
     }
 }
