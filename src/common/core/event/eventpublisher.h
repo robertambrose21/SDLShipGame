@@ -8,23 +8,12 @@
 
 template<typename... Types>
 class EventPublisher {
-private:
-    std::tuple<std::vector<EventSubscriber<Types>*>...> subscribers;
-
-    template<typename T>
-    Event<T> constructEvent(const T& data) {
-        Event<T> event;
-        event.data = data;
-        event.timestamp = std::time(nullptr);
-        return event;
-    }
-
 public:
     template<typename T>
     void publish(const T& data) {
         auto const& event = constructEvent(data);
 
-        for(auto subscriber : std::get<std::vector<EventSubscriber<T>*>>(subscribers)) {
+        for(auto const& subscriber : std::get<std::vector<EventSubscriber<T>*>>(subscribers)) {
             subscriber->onPublish(event);
         }
     }
@@ -38,5 +27,16 @@ public:
     void unsubscribe(EventSubscriber<T>* subscriber) {
         auto& v = std::get<std::vector<EventSubscriber<T>*>>(subscribers);
         v.erase(std::remove(v.begin(), v.end(), subscriber), v.end());
+    }
+
+private:
+    std::tuple<std::vector<EventSubscriber<Types>*>...> subscribers;
+
+    template<typename T>
+    Event<T> constructEvent(const T& data) {
+        Event<T> event;
+        event.data = data;
+        event.timestamp = std::time(nullptr);
+        return event;
     }
 };
