@@ -152,10 +152,23 @@ void ServerTurnController::checkForItems(void) {
 
         for(auto entity : participant->getEntities()) {
             auto items = itemController->getItemsAt(entity->getPosition());
+
+            if(items.empty()) {
+                continue;
+            }
             
-            if(!items.empty()) {
-                // TODO:
-                queueAction(std::make_unique<TakeItemAction>(participant.get(), entity, items));
+            if(participant->hasAnyEngagement()) {
+                queueAction(
+                    std::make_unique<TakeItemAction>(
+                        participant.get(), 
+                        entity,
+                        participant->getEngagement()->getTurnNumber(),
+                        items
+                    )
+                );
+            }
+            else {
+                executeActionImmediately(std::make_unique<TakeItemAction>(participant.get(), entity, items));
             }
         }
     }
