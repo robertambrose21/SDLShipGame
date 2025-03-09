@@ -1,4 +1,8 @@
 #include "participant.h"
+#include "core/grid/grid.h"
+#include "game/entities/entity.h"
+#include "game/entities/behaviour/behaviourstrategy.h"
+#include "game/items/item.h"
 
 Participant::Participant(int id) :
     id(id),

@@ -4,8 +4,9 @@
 
 #include "spdlog/spdlog.h"
 #include "game/application/applicationcontext.h"
-
-class Participant;
+#include "game/participant/participant.h"
+#include "game/engagements/engagement.h"
+#include "game/entities/entity.h"
 
 class Action {
 public:

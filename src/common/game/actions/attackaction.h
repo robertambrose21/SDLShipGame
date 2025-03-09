@@ -1,6 +1,7 @@
 #pragma once
 
 #include "action.h"
+#include "game/weapons/weapon.h"
 
 class AttackAction : public Action {
 private:

@@ -6,8 +6,8 @@
 
 #include "spdlog/spdlog.h"
 #include "game/participant/participant.h"
-
-class Participant;
+#include "core/util/idgenerator.h"
+#include "core/util/vectorutils.h"
 
 class Engagement {
 public:

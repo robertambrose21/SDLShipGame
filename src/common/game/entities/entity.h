@@ -13,6 +13,7 @@
 #include "game/effects/effect.h"
 #include "game/stats/stats.h"
 #include "game/items/gear.h"
+#include "game/actions/action.h"
 
 // TODO: Fix with modules?
 class Weapon;

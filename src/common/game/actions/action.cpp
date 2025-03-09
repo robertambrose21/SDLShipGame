@@ -1,5 +1,4 @@
 #include "action.h"
-#include "game/participant/participant.h"
 
 Action::Action(Participant* participant, Entity* entity) :
     participant(participant),

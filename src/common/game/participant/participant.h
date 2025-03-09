@@ -5,14 +5,12 @@
 #include <limits>
 #include <optional>
 
-#include "core/grid/grid.h"
-#include "game/entities/entity.h"
-#include "game/entities/behaviour/behaviourstrategy.h"
-#include "game/items/item.h"
 #include "spdlog/spdlog.h"
 
+class Entity;
 class BehaviourStrategy;
 class Engagement;
+class Item;
 
 class Participant {
 public:
