@@ -108,7 +108,7 @@ bool EquipGearAction::hasFinished(void) {
 }
 
 bool EquipGearAction::passesPrecondition(void) {
-    return true;
+    return !participant->hasAnyEngagement();
 }
 
 Action::Type EquipGearAction::getType(void) {

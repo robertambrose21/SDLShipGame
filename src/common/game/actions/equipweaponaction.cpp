@@ -101,7 +101,7 @@ bool EquipWeaponAction::hasFinished(void) {
 }
 
 bool EquipWeaponAction::passesPrecondition(void) {
-    return true;
+    return !participant->hasAnyEngagement();
 }
 
 Action::Type EquipWeaponAction::getType(void) {

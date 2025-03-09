@@ -235,7 +235,7 @@ void GameServerMessagesReceiver::receiveEquipItemMessage(
     auto item = context.getItemController()->getItem(itemId);
     auto entity = context.getEntityPool()->getEntity(entityId);
 
-    turnController->queueAction(std::make_unique<EquipGearAction>(
+    turnController->executeActionImmediately(std::make_unique<EquipGearAction>(
         participant, 
         entity, 
         item,
@@ -272,7 +272,7 @@ void GameServerMessagesReceiver::receiveEquipWeaponMessage(
     auto item = context.getItemController()->getItem(itemId);
     auto entity = context.getEntityPool()->getEntity(entityId);
 
-    turnController->queueAction(std::make_unique<EquipWeaponAction>(
+    turnController->executeActionImmediately(std::make_unique<EquipWeaponAction>(
         participant, 
         entity, 
         item,
