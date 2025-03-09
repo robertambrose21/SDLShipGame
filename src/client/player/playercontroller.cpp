@@ -102,9 +102,15 @@ void PlayerController::drawUI(GraphicsContext& graphicsContext) {
         return !examineItemPanel->getIsOpen();
     });
 
-    std::erase_if(entityPanels, [](const auto& item) {
+    std::erase_if(entityPanels, [&](const auto& item) {
         auto const& [_, entityPanel] = item;
-        return !entityPanel->getIsOpen();
+        bool isOpen = entityPanel->getIsOpen();
+
+        if(!isOpen) {
+            entityPool->unsubscribe<EntityUpdateStatsEventData>(entityPanel.get());
+        }
+
+        return !isOpen;
     });
 
     for(auto& [_, examineItemPanel] : examineItemPanels) {

@@ -33,4 +33,10 @@ public:
     void subscribe(EventSubscriber<T>* subscriber) {
         std::get<std::vector<EventSubscriber<T>*>>(subscribers).push_back(subscriber); 
     }
+
+    template<typename T>
+    void unsubscribe(EventSubscriber<T>* subscriber) {
+        auto& v = std::get<std::vector<EventSubscriber<T>*>>(subscribers);
+        v.erase(std::remove(v.begin(), v.end(), subscriber), v.end());
+    }
 };
