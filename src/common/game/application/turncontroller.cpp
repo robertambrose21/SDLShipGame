@@ -333,6 +333,10 @@ bool TurnController::executeActionImmediately(std::unique_ptr<Action> action) {
     }
     
     action->execute(context);
+
+    // auto d = action->getPublishData();
+    action->publish(*this);
+
     return true;
 }
 
@@ -369,81 +373,81 @@ bool TurnController::queueAction(std::unique_ptr<Action> action) {
     return action->getEntity()->queueAction(
         context,
         std::move(action),
-        [&](auto& action) { publishAction(action); },
+        [&](auto& action) { action.publish(*this); /*publishAction(action);*/ },
         skipValidation
     );
 }
 
-// TODO: Gross
-// TODO: publishedQueuedAction
-void TurnController::publishAction(Action& action) {
-    if(!action.getTurnNumber().has_value()) {
-        spdlog::error("[{}]: Cannot publish queued action - no turn number (this shouldn't happen)", action.typeToString());
-        return;
-    }
+// // TODO: Gross
+// // TODO: publishedQueuedAction
+// void TurnController::publishAction(Action& action) {
+//     if(!action.getTurnNumber().has_value()) {
+//         spdlog::error("[{}]: Cannot publish queued action - no turn number (this shouldn't happen)", action.typeToString());
+//         return;
+//     }
 
-    auto turnNumber = action.getTurnNumber().value();
+//     auto turnNumber = action.getTurnNumber().value();
 
-    switch(action.getType()) {
-        case Action::Move: {
-            auto moveAction = dynamic_cast<MoveAction&>(action);
-            publish<MoveActionEventData>({ 
-                turnNumber, 
-                moveAction.getEntity(), 
-                moveAction.getPosition(), 
-                moveAction.getShortStopSteps() 
-            });
-            break;
-        }
+//     switch(action.getType()) {
+//         case Action::Move: {
+//             auto moveAction = dynamic_cast<MoveAction&>(action);
+//             publish<MoveActionEventData>({ 
+//                 turnNumber, 
+//                 moveAction.getEntity(), 
+//                 moveAction.getPosition(), 
+//                 moveAction.getShortStopSteps() 
+//             });
+//             break;
+//         }
 
-        case Action::Attack: {
-            auto attackAction = dynamic_cast<AttackAction&>(action);
-            publish<AttackActionEventData>({
-                turnNumber,
-                attackAction.getEntity(),
-                attackAction.getTarget(),
-                attackAction.getWeapon()
-            });
-            break;
-        }
+//         case Action::Attack: {
+//             auto attackAction = dynamic_cast<AttackAction&>(action);
+//             publish<AttackActionEventData>({
+//                 turnNumber,
+//                 attackAction.getEntity(),
+//                 attackAction.getTarget(),
+//                 attackAction.getWeapon()
+//             });
+//             break;
+//         }
 
-        case Action::TakeItem: {
-            auto takeItemAction = dynamic_cast<TakeItemAction&>(action);
-            publish<TakeItemActionEventData>({
-                turnNumber,
-                takeItemAction.getEntity(),
-                takeItemAction.getItems()
-            });
-            break;
-        }
+//         case Action::TakeItem: {
+//             auto takeItemAction = dynamic_cast<TakeItemAction&>(action);
+//             publish<TakeItemActionEventData>({
+//                 turnNumber,
+//                 takeItemAction.getEntity(),
+//                 takeItemAction.getItems()
+//             });
+//             break;
+//         }
 
-        case Action::EquipItem: {
-            auto equipItemAction = dynamic_cast<EquipGearAction&>(action);
-            publish<EquipItemActionEventData>({
-                turnNumber,
-                equipItemAction.getEntity(),
-                equipItemAction.getItem(),
-                equipItemAction.getSlot(),
-                equipItemAction.getIsUnequip()
-            });
-            break;
-        }
+//         case Action::EquipItem: {
+//             auto equipItemAction = dynamic_cast<EquipGearAction&>(action);
+//             publish<EquipItemActionEventData>({
+//                 turnNumber,
+//                 equipItemAction.getEntity(),
+//                 equipItemAction.getItem(),
+//                 equipItemAction.getSlot(),
+//                 equipItemAction.getIsUnequip()
+//             });
+//             break;
+//         }
 
-        case Action::EquipWeaponItem: {
-            auto equipWeaponAction = dynamic_cast<EquipWeaponAction&>(action);
-            publish<EquipWeaponActionEventData>({
-                turnNumber,
-                equipWeaponAction.getEntity(),
-                equipWeaponAction.getItem(),
-                equipWeaponAction.getWeaponId()
-            });
-            break;
-        }
+//         case Action::EquipWeaponItem: {
+//             auto equipWeaponAction = dynamic_cast<EquipWeaponAction&>(action);
+//             publish<EquipWeaponActionEventData>({
+//                 turnNumber,
+//                 equipWeaponAction.getEntity(),
+//                 equipWeaponAction.getItem(),
+//                 equipWeaponAction.getWeaponId()
+//             });
+//             break;
+//         }
 
-        default:
-            break;
-    }
-}
+//         default:
+//             break;
+//     }
+// }
 
 // void TurnController::addOnNextTurnFunction(std::function<void(int, int)> onNextTurnFunc) {
 //     onNextTurnWorkers.push_back(onNextTurnFunc);

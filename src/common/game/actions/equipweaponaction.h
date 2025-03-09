@@ -17,6 +17,8 @@ public:
     EquipWeaponAction(Participant* participant, Entity* entity, Item* item, const UUID& weaponId);
     EquipWeaponAction(Participant* participant, Entity* entity, int turnNumber, Item* item, const UUID& weaponId);
 
+    void publish(ActionPublisher& publisher) override;
+
     bool passesPrecondition(void);
     Type getType(void);
 

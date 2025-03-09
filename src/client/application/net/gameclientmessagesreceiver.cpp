@@ -201,12 +201,25 @@ void GameClientMessagesReceiver::receiveTakeItems(TakeItemsMessage* message) {
         }
     }
 
-    context.getTurnController()->queueAction(
-        std::make_unique<TakeItemAction>(
-            participant,
-            entity,
-            message->turnNumber,
-            itemsToTake));
+    if(message->turnNumber == -1) {
+        context.getTurnController()->executeActionImmediately(
+            std::make_unique<TakeItemAction>(
+                participant,
+                entity,
+                itemsToTake
+            )
+        );
+    }
+    else {
+        context.getTurnController()->queueAction(
+            std::make_unique<TakeItemAction>(
+                participant,
+                entity,
+                message->turnNumber,
+                itemsToTake
+            )
+        );
+    }
 }
 
 void GameClientMessagesReceiver::receiveEngagement(EngagementMessage* message) {

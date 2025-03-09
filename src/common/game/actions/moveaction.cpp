@@ -28,6 +28,10 @@ MoveAction::MoveAction(
     game_assert(shortStopSteps >= 0);
 }
 
+void MoveAction::publish(ActionPublisher& publisher) {
+    publisher.publish<MoveActionEventData>({ turnNumber, entity, position, shortStopSteps });
+}
+
 Action::Type MoveAction::getType(void) {
     return Action::Type::Move;
 }

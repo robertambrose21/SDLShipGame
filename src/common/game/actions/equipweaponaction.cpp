@@ -23,6 +23,10 @@ EquipWeaponAction::EquipWeaponAction(
     weaponId(weaponId)
 { }
 
+void EquipWeaponAction::publish(ActionPublisher& publisher) {
+    publisher.publish<EquipWeaponActionEventData>({ turnNumber, entity, item, weaponId });
+}
+
 bool EquipWeaponAction::onValidate(ApplicationContext* context) {
     if(item == nullptr) {
         spdlog::trace("[EquipWeaponItem]: Failed to validate action, item is null");

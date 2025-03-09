@@ -31,6 +31,7 @@ public:
         bool isUnequip = false
     );
 
+    void publish(ActionPublisher& publisher) override;
 
     bool passesPrecondition(void);
     Type getType(void);

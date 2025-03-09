@@ -24,23 +24,14 @@
 #include "game/effects/effectcontroller.h"
 #include "game/participant/participant.h"
 #include "game/engagements/engagementcontroller.h"
+#include "game/actions/actionpublisher.h"
 
 class BehaviourStrategy;
 class Participant;
 class Engagement;
 class EngagementController;
 
-class TurnController : 
-    public EventPublisher<
-        TurnEventData, 
-        MoveActionEventData,
-        AttackActionEventData,
-        TakeItemActionEventData,
-        EngagementEventData,
-        EquipItemActionEventData,
-        EquipWeaponActionEventData
-    >
-{
+class TurnController : public ActionPublisher {
 public:
     TurnController();
 
@@ -112,7 +103,7 @@ protected:
     void endCurrentParticipantTurn(Engagement* engagement);
     void nextParticipantTurn(Engagement* engagement);
 
-    void publishAction(Action& action);
+    // void publishAction(Action& action);
 
     // void processEngagements();
 

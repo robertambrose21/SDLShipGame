@@ -1,8 +1,11 @@
 #pragma once
 
 #include <optional>
+#include <any>
 
 #include "spdlog/spdlog.h"
+
+#include "actionpublisher.h"
 #include "game/application/applicationcontext.h"
 #include "game/participant/participant.h"
 #include "game/engagements/engagement.h"
@@ -23,6 +26,8 @@ public:
     Action(Participant* participant, Entity* entity);
     Action(Participant* participant, Entity* entity, int turnNumber);
     virtual ~Action() = default;
+
+    virtual void publish(ActionPublisher& publisher) = 0;
 
     bool validate(ApplicationContext* context);
     bool isFinished(void);

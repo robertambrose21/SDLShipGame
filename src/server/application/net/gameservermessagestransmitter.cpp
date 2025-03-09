@@ -48,7 +48,7 @@ void GameServerMessagesTransmitter::onPublish(const Event<MoveActionEventData>& 
         message->x = event.data.position.x;
         message->y = event.data.position.y;
         message->shortStopSteps = event.data.shortStopSteps;
-        message->turnNumber = event.data.turnNumber;
+        message->turnNumber = event.data.turnNumber.value_or(-1);
 
         // server.sendMessage(clientIndex, message);
     }
@@ -72,7 +72,7 @@ void GameServerMessagesTransmitter::onPublish(const Event<AttackActionEventData>
         message->x = event.data.target.x;
         message->y = event.data.target.y;
         memcpy(message->weaponIdBytes, &event.data.weapon->getId().getBytes()[0], 16);
-        message->turnNumber = event.data.turnNumber;
+        message->turnNumber = event.data.turnNumber.value_or(-1);
 
         spdlog::trace("Sending attack to participant {}, owning entity {}/{} sent the attack",
             participantId,
@@ -87,7 +87,7 @@ void GameServerMessagesTransmitter::onPublish(const Event<TakeItemActionEventDat
     for(auto [_, clientIndex] : turnController->getAllAttachedClients()) {
         TakeItemsMessage* message = (TakeItemsMessage*) server.createMessage(clientIndex, GameMessageType::TAKE_ITEMS);
 
-        message->turnNumber = event.data.turnNumber;
+        message->turnNumber = event.data.turnNumber.value_or(-1);
         message->entityId = event.data.entity->getId();
         message->numItems = event.data.items.size();
 

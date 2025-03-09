@@ -410,7 +410,7 @@ public:
 
     template <typename Stream>
     bool Serialize(Stream& stream) {
-        serialize_int(stream, turnNumber, 0, 512);
+        serialize_int(stream, turnNumber, -1, 512);
         serialize_uint32(stream, entityId);
         serialize_int(stream, numItems, 0, 64);
         

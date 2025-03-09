@@ -28,6 +28,10 @@ AttackAction::AttackAction(
     isAnimationOnly(isAnimationOnly)
 { }
 
+void AttackAction::publish(ActionPublisher& publisher) {
+    publisher.publish<AttackActionEventData>({ turnNumber, entity, target, weapon });
+}
+
 Action::Type AttackAction::getType(void) {
     return Action::Type::Attack;
 }

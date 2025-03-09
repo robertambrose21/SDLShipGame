@@ -1,6 +1,8 @@
 #pragma once
 
 #include <vector>
+#include <optional>
+
 #include "core/glmimport.h"
 #include "core/util/idgenerator.h"
 #include "game/effects/effecttypes.h"
@@ -51,25 +53,41 @@ struct MeleeWeaponEventData {
     int damage;
 };
 
-struct MoveActionEventData {
-    int turnNumber;
+// -- Actions -----------------------------------
+struct ActionEventData {
+    std::optional<int> turnNumber;
+};
+
+struct MoveActionEventData : public ActionEventData {
     Entity* entity;
     glm::ivec2 position;
     int shortStopSteps;
 };
 
-struct AttackActionEventData {
-    int turnNumber;
+struct AttackActionEventData : public ActionEventData {
     Entity* owner;
     glm::ivec2 target;
     Weapon* weapon;
 };
 
-struct TakeItemActionEventData {
-    int turnNumber;
+struct TakeItemActionEventData : public ActionEventData {
     Entity* entity;
     std::vector<Item*> items;
 };
+
+struct EquipItemActionEventData : public ActionEventData {
+    Entity* entity;
+    Item* item;
+    int slot;
+    bool isUnequip;
+};
+
+struct EquipWeaponActionEventData : public ActionEventData {
+    Entity* entity;
+    Item* item;
+    UUID weaponId;
+};
+// ----------------------------------------------
 
 enum DamageType {
     AOE,
@@ -124,21 +142,6 @@ struct TileEventData {
     int id;
     bool isWalkable;
     bool isFrozen;
-};
-
-struct EquipItemActionEventData {
-    int turnNumber;
-    Entity* entity;
-    Item* item;
-    int slot;
-    bool isUnequip;
-};
-
-struct EquipWeaponActionEventData {
-    int turnNumber;
-    Entity* entity;
-    Item* item;
-    UUID weaponId;
 };
 
 struct EntityEffectEvent {

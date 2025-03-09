@@ -32,6 +32,8 @@ public:
         bool isAnimationOnly = false
     );
 
+    void publish(ActionPublisher& publisher) override;
+
     bool passesPrecondition(void);
     Weapon* getWeapon(void);
     glm::ivec2 getTarget(void) const;
