@@ -4,6 +4,14 @@ EngagementController::EngagementController(ApplicationContext* context) :
     context(context)
 { }
 
+void EngagementController::update(int64_t timeSinceLastFrame) {
+    for(auto engagementId : engagementsForRemoval) {
+        removeEngagement(engagementId);
+    }
+
+    engagementsForRemoval.clear();
+}
+
 uint32_t EngagementController::createEngagement(
     const std::vector<Participant*>& orderedParticipants,
     uint32_t id,
@@ -175,4 +183,21 @@ Engagement* EngagementController::getEngagement(uint32_t id) {
 
 bool EngagementController::hasEngagement(uint32_t id) {
     return engagements.contains(id);
+}
+
+void EngagementController::flagForRemoval(uint32_t engagementId) {
+    if(!hasEngagement(engagementId)) {
+        spdlog::warn("Cannot flag engagement {} for removal, engagement doesn't exist", engagementId);
+        return;
+    }
+
+    if(engagementsForRemoval.contains(engagementId)) {
+        spdlog::warn("Engagement {} is already flagged for removal", engagementId);
+        return;
+    }
+
+    getEngagement(engagementId)->setIsFinished(true);
+    engagementsForRemoval.insert(engagementId);
+
+    spdlog::trace("Engagement {} flagged for removal", engagementId);
 }

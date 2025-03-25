@@ -26,6 +26,8 @@ class EngagementController :
 public:
     EngagementController(ApplicationContext* context);
 
+    void update(int64_t timeSinceLastFrame);
+
     uint32_t createEngagement(
         const std::vector<Participant*>& orderedParticipants, 
         uint32_t id = getNewId(), 
@@ -36,6 +38,8 @@ public:
     void disengage(uint32_t engagementId, Participant* participant, bool canPublish = true);
     uint32_t merge(uint32_t engagementIdA, uint32_t engagementIdB, uint32_t id = getNewId(), bool canPublish = true);
 
+    void flagForRemoval(uint32_t engagementId);
+
     const std::map<uint32_t,  std::unique_ptr<Engagement>>& getEngagements(void) const;
     Engagement* getEngagement(uint32_t id);
     bool hasEngagement(uint32_t id);
@@ -43,4 +47,5 @@ public:
 private:
     ApplicationContext* context;
     std::map<uint32_t, std::unique_ptr<Engagement>> engagements;
+    std::set<uint32_t> engagementsForRemoval;
 };

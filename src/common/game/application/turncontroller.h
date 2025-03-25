@@ -98,10 +98,10 @@ protected:
     // void executeEntityActions(Entity* entity);
     // void incrementTurn(void);
 
-    void executeActions(Engagement* engagement);
+    void executeActions(uint32_t engagementId);
     void executeEntityActions(Engagement* engagement, Entity* entity);
-    void endCurrentParticipantTurn(Engagement* engagement);
-    void nextParticipantTurn(Engagement* engagement);
+    void endCurrentParticipantTurn(uint32_t engagementId);
+    void nextParticipantTurn(uint32_t engagementId);
 
     // void publishAction(Action& action);
 

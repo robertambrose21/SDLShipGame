@@ -29,6 +29,9 @@ public:
     int getTurnNumber(void) const;
     const std::vector<Participant*>& getParticipants(void) const;
 
+    bool getIsFinished(void) const;
+    void setIsFinished(bool isFinished);
+
 private:
     std::vector<std::function<void(int, int, uint32_t)>> onNextTurnWorkers;
 
@@ -36,4 +39,5 @@ private:
     std::vector<Participant*> participants;
     int currentParticipantIndex;
     int turnNumber;
+    bool isFinished;
 };

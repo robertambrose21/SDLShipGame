@@ -38,14 +38,16 @@ void TurnController::update(int64_t timeSinceLastFrame, bool& quit) {
 
     additionalUpdate(timeSinceLastFrame, quit);
     
-    for(auto& [_, engagement] : engagementController->getEngagements()) {
-        executeActions(engagement.get());
+    for(auto& [engagementId, engagement] : engagementController->getEngagements()) {
+        executeActions(engagementId);
 
         if(canProgressToNextTurn(engagement.get())) {
-            endCurrentParticipantTurn(engagement.get());
-            nextParticipantTurn(engagement.get());
+            endCurrentParticipantTurn(engagementId);
+            nextParticipantTurn(engagementId);
         }
     }
+
+    engagementController->update(timeSinceLastFrame);
 
     // Do free roam stuff
 }
@@ -66,20 +68,46 @@ void TurnController::update(int64_t timeSinceLastFrame, bool& quit) {
 //     // engagementsQueue[turnNumber].clear();
 // }
 
-void TurnController::endCurrentParticipantTurn(Engagement* engagement) {
+void TurnController::endCurrentParticipantTurn(uint32_t engagementId) {
+    if(!engagementController->hasEngagement(engagementId)) {
+        spdlog::warn("Cannot find engagement {}, cannot end turn for current participant", engagementId);
+        return;
+    }
+
+    auto engagement = engagementController->getEngagement(engagementId);
     engagement->getCurrentParticipant()->endTurn();
     onParticipantTurnEnd(engagement);
 }
 
-void TurnController::nextParticipantTurn(Engagement* engagement) {
-    if(engagement == nullptr) {
+void TurnController::nextParticipantTurn(uint32_t engagementId) {
+    if(!engagementController->hasEngagement(engagementId)) {
+        spdlog::trace("Engagement {} no longer exists, not executing nextParticipantTurn", engagementId);
+        return;
+    }
+
+    auto engagement = engagementController->getEngagement(engagementId);
+
+    if(engagement->getIsFinished()) {
+        spdlog::trace("Engagement {} is finished, not executing nextParticipantTurn", engagementId);
         return;
     }
 
     engagement->nextTurn();
 }
 
-void TurnController::executeActions(Engagement* engagement) {
+void TurnController::executeActions(uint32_t engagementId) {
+    if(!engagementController->hasEngagement(engagementId)) {
+        spdlog::warn("Engagement {} no longer exists, cannot execute entity actions", engagementId);
+        return;
+    }
+
+    auto engagement = engagementController->getEngagement(engagementId);
+
+    if(engagement->getIsFinished()) {
+        spdlog::trace("Engagement {} is finished, not executing executeActions", engagementId);
+        return;
+    }
+
     for(auto entity : engagement->getCurrentParticipant()->getEntities()) {
         executeEntityActions(engagement, entity);
     }

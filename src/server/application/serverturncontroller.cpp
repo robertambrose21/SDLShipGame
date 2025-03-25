@@ -138,7 +138,7 @@ void ServerTurnController::onParticipantTurnEnd(Engagement* engagement) {
     }
 
     if(canDisengage) {
-        engagementController->disengage(engagement->getId(), participant);
+        engagementController->flagForRemoval(engagement->getId());
     }
 }
 
