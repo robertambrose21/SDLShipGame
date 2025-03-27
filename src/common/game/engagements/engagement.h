@@ -32,6 +32,8 @@ public:
     bool getIsFinished(void) const;
     void setIsFinished(bool isFinished);
 
+    bool hasHostileParticipants(void);
+
 private:
     std::vector<std::function<void(int, int, uint32_t)>> onNextTurnWorkers;
 

@@ -92,3 +92,14 @@ void Engagement::setIsFinished(bool isFinished) {
     this->isFinished = isFinished;
 }
 
+bool Engagement::hasHostileParticipants(void) {
+    for(auto participant : participants) {
+        for(auto otherParticipant : participants) {
+            if(participant->isHostile(otherParticipant)) {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}

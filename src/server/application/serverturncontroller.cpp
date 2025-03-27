@@ -128,13 +128,18 @@ void ServerTurnController::onParticipantTurnEnd(Engagement* engagement) {
     auto participant = engagement->getCurrentParticipant();
     bool canDisengage = true;
 
-    for(auto const& other : engagement->getParticipants()) {
-        if(other->getId() == participant->getId()) {
-            continue;
-        }
+    if(engagement->hasHostileParticipants()) {
+        for(auto const& other : engagement->getParticipants()) {
+            if(other->getId() == participant->getId()) {
+                continue;
+            }
 
-        // TODO: Determine actual disengagement range properly
-        canDisengage = canDisengage && participant->distanceToOtherParticipant(other) > 15;
+            // TODO: Determine actual disengagement range properly
+            canDisengage = canDisengage && participant->distanceToOtherParticipant(other) > 15;
+        }
+    }
+    else {
+        spdlog::trace("No hostile participants left in engagement {}, removing", engagement->getId());
     }
 
     if(canDisengage) {

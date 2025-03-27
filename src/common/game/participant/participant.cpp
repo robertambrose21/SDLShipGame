@@ -276,7 +276,7 @@ void Participant::setFaction(const std::string& faction) {
 }
 
 bool Participant::isHostile(Participant* other) {
-    return hostileFactions.contains(other->getFaction());
+    return this != other && hostileFactions.contains(other->getFaction());
 }
 
 void Participant::addHostileFaction(const std::string& hostileFaction) {
