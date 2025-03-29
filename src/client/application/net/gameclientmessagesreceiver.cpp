@@ -268,11 +268,13 @@ void GameClientMessagesReceiver::receiveApplyEntityEffectMessage(ApplyEntityEffe
 
     switch((EffectType) message->type) {
         case FREEZE:
-            context.getEffectController()->addEffect(std::make_unique<FreezeEffect>(target, stats));
+            context.getEffectController()->addEffect(
+                std::make_unique<FreezeEffect>(target, message->participantId, stats));
             break;
 
         case POISON:
-            context.getEffectController()->addEffect(std::make_unique<PoisonEffect>(target, stats));
+            context.getEffectController()->addEffect(
+                std::make_unique<PoisonEffect>(target, message->participantId, stats));
             break;
 
         default:
@@ -285,6 +287,7 @@ void GameClientMessagesReceiver::receiveApplyGridEffectMessage(ApplyGridEffectMe
         case FREEZE:
             context.getEffectController()->addGridEffect(std::make_unique<GridFreezeEffect>(
                 context.getGrid(),
+                message->participantId,
                 message->x, 
                 message->y, 
                 message->duration

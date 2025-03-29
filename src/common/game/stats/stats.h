@@ -90,7 +90,7 @@ namespace Stats {
             case POISON:
                 return "Poison";
             default:
-                return "!Uknown Effect!";
+                return "!Unknown Effect!";
         }
     }
 

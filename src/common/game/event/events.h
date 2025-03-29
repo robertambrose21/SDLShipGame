@@ -147,11 +147,13 @@ struct TileEventData {
 struct EntityEffectEvent {
     EffectType type;
     Entity* target;
+    int participantId;
     Stats::EffectStats stats;
 };
 
 struct GridEffectEvent {
     EffectType type;
+    int participantId;
     int x, y;
     int duration;
 };

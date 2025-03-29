@@ -43,6 +43,7 @@ void ServerApplication::initialise(void) {
     context.getItemController()->initialise(application->getContext());
     context.getSpawnController()->initialise(application->getContext());
     context.getVisibilityController()->initialise(application->getContext());
+    context.getEffectController()->initialise(application->getContext());
 
     // context.getTurnController()->subscribe<TurnEventData>(&stdoutSubscriber);
     context.getEntityPool()->subscribe<EntityEventData>(&stdoutSubscriber);
@@ -102,6 +103,7 @@ void ServerApplication::initialise(void) {
         c.getEntityPool()->updateEntities(timeSinceLastFrame, quit);
         c.getProjectilePool()->update(timeSinceLastFrame);
         c.getAreaOfEffectPool()->update(timeSinceLastFrame);
+        c.getEffectController()->update(timeSinceLastFrame);
     });
 
     // TODO: This somehow makes the game state messages get received first rather than the set participant ones.

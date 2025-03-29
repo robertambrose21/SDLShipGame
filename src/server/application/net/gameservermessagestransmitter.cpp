@@ -164,6 +164,7 @@ void GameServerMessagesTransmitter::onPublish(const Event<EntityEffectEvent>& ev
         
         message->type = event.data.type;
         message->targetId = event.data.target->getId();
+        message->participantId = event.data.participantId;
         message->effectStats.duration = event.data.stats.duration;
         message->effectStats.effectType = event.data.stats.type;
         message->effectStats.numDamageTicks = event.data.stats.damageTicks.size();
@@ -182,6 +183,7 @@ void GameServerMessagesTransmitter::onPublish(const Event<GridEffectEvent>& even
             (ApplyGridEffectMessage*) server.createMessage(clientIndex, GameMessageType::APPLY_GRID_EFFECT);
 
         message->type = event.data.type;
+        message->participantId = event.data.participantId;
         message->x = event.data.x;
         message->y = event.data.y;
         message->duration = event.data.duration;

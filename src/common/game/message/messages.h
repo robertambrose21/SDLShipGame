@@ -532,17 +532,20 @@ class ApplyEntityEffectMessage : public yojimbo::Message {
 public:
     uint8_t type;
     uint32_t targetId;
+    uint8_t participantId;
     EffectStatsUpdate effectStats;
 
     ApplyEntityEffectMessage() :
         type(0),
-        targetId(0)
+        targetId(0),
+        participantId(0)
     { }
 
     template <typename Stream>
     bool Serialize(Stream& stream) {
         serialize_bits(stream, type, 8);
         serialize_uint32(stream, targetId);
+        serialize_bits(stream, participantId, 8);
         serialize_bits(stream, effectStats.effectType, 8);
         serialize_bits(stream, effectStats.duration, 8);
         serialize_bits(stream, effectStats.numDamageTicks, 8);
@@ -560,11 +563,13 @@ public:
 class ApplyGridEffectMessage : public yojimbo::Message {
 public:
     uint8_t type;
+    uint8_t participantId;
     int x, y;
     uint8_t duration;
 
     ApplyGridEffectMessage() :
         type(0),
+        participantId(0),
         x(0),
         y(0),
         duration(0)
@@ -573,6 +578,7 @@ public:
     template <typename Stream>
     bool Serialize(Stream& stream) {
         serialize_bits(stream, type, 8);
+        serialize_bits(stream, participantId, 8);
         serialize_int(stream, x, 0, 512);
         serialize_int(stream, y, 0, 512);
         serialize_bits(stream, duration, 8);

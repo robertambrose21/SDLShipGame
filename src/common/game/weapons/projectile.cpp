@@ -65,7 +65,8 @@ void Projectile::apply(const glm::ivec2& position) {
         position.x,
         position.y,
         context->getEntityPool()->getEntities(),
-        ownerId);
+        ownerId
+    );
 
     int damage = 0;
 
@@ -75,11 +76,11 @@ void Projectile::apply(const glm::ivec2& position) {
         for (auto& effect : stats.effects) {
             switch(effect.type) {
             case FREEZE:
-                context->getEffectController()->addEffect(std::make_unique<FreezeEffect>(entity, effect));
+                context->getEffectController()->addEffect(std::make_unique<FreezeEffect>(entity, ownerId, effect));
                 break;
 
             case POISON: {
-                context->getEffectController()->addEffect(std::make_unique<PoisonEffect>(entity, effect));
+                context->getEffectController()->addEffect(std::make_unique<PoisonEffect>(entity, ownerId, effect));
                 break;
             }
 
@@ -100,11 +101,11 @@ void Projectile::apply(const glm::ivec2& position) {
                 auto pY = std::min(grid->getHeight() - 1, (int)std::round(perp.y));
 
                 context->getEffectController()->addGridEffect(
-                    std::make_unique<GridFreezeEffect>(grid, position.x, position.y, effect.duration));
+                    std::make_unique<GridFreezeEffect>(grid, ownerId, position.x, position.y, effect.duration));
                 context->getEffectController()->addGridEffect(
-                    std::make_unique<GridFreezeEffect>(grid, position.x + pX, position.y + pY, effect.duration));
+                    std::make_unique<GridFreezeEffect>(grid, ownerId, position.x + pX, position.y + pY, effect.duration));
                 context->getEffectController()->addGridEffect(
-                    std::make_unique<GridFreezeEffect>(grid, position.x - pX, position.y - pY, effect.duration));
+                    std::make_unique<GridFreezeEffect>(grid, ownerId, position.x - pX, position.y - pY, effect.duration));
 
                 break;
             }

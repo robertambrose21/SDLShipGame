@@ -44,6 +44,7 @@ void ClientApplication::initialise(void) {
     context.getItemController()->initialise(application->getContext());
     context.getSpawnController()->initialise(application->getContext());
     context.getVisibilityController()->initialise(application->getContext());
+    context.getEffectController()->initialise(application->getContext());
 
     // context.getTurnController()->subscribe<TurnEventData>(&stdoutSubscriber);
     context.getEntityPool()->subscribe<EntityEventData>(&stdoutSubscriber);
@@ -212,6 +213,7 @@ void ClientApplication::update(int64_t timeSinceLastFrame, bool& quit) {
     auto projectilePool = context.getProjectilePool();
     auto areaOfEffectPool = context.getAreaOfEffectPool();
     auto turnController = context.getTurnController();
+    auto effectController = context.getEffectController();
 
     client->update(timeSinceLastFrame);
     selectEntityOnStartupHack();
@@ -226,6 +228,7 @@ void ClientApplication::update(int64_t timeSinceLastFrame, bool& quit) {
             playerController->update(timeSinceLastFrame);
             projectilePool->update(timeSinceLastFrame);
             areaOfEffectPool->update(timeSinceLastFrame);
+            effectController->update(timeSinceLastFrame);
             break;
 
         default:
