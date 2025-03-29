@@ -81,6 +81,7 @@ void GridRenderer::buildChunkTexture(GraphicsContext& graphicsContext, Chunk* ch
     );
 
     SDL_SetRenderTarget(renderer, target.get());
+    SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0xFF);
     SDL_RenderClear(renderer);
 
     for(auto& revealedTile : data) {
