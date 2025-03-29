@@ -47,7 +47,7 @@ bool TakeItemAction::onValidate(ApplicationContext* context) {
 }
 
 void TakeItemAction::onExecute(ApplicationContext* context) {
-    auto participant = context->getTurnController()->getParticipant(entity->getParticipantId());
+    auto participant = context->getGameController()->getParticipant(entity->getParticipantId());
 
     if(!participant->getIsPlayer()) {
         return;

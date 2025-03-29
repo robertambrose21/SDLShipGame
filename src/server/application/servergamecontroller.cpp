@@ -1,7 +1,7 @@
-#include "serverturncontroller.h"
+#include "servergamecontroller.h"
 
-ServerTurnController::ServerTurnController() :
-    TurnController()
+ServerGameController::ServerGameController() :
+    GameController()
 {
     // addOnNextTurnFunction([&](auto const& currentParticipantId, auto const& turnNumber) {
     //     auto behaviourStrategy = participants[currentParticipantId]->getBehaviourStrategy();
@@ -12,19 +12,19 @@ ServerTurnController::ServerTurnController() :
     // });
 }
 
-void ServerTurnController::attachParticipantToClient(int participantId, int clientIndex, uint64_t clientId) {
+void ServerGameController::attachParticipantToClient(int participantId, int clientIndex, uint64_t clientId) {
     participantToClient[participantId] = { clientId, clientIndex };
     spdlog::debug("Attached client [{}] to participant [{}]", clientIndex, participantId);
 }
 
-void ServerTurnController::detachParticipantFromClient(int clientIndex) {
+void ServerGameController::detachParticipantFromClient(int clientIndex) {
     auto participantId = getAttachedParticipantId(clientIndex);
     participantToClient[participantId].index = -1; // Set to unused clientIndex
 
     spdlog::debug("Detached client [{}] from participant [{}]", clientIndex, participantId);
 }
 
-int ServerTurnController::getAttachedClient(int participantId) const {
+int ServerGameController::getAttachedClient(int participantId) const {
     if(!participantToClient.contains(participantId)) {
         return -1;
     }
@@ -32,7 +32,7 @@ int ServerTurnController::getAttachedClient(int participantId) const {
     return participantToClient.at(participantId).index;
 }
 
-int ServerTurnController::getAttachedParticipantId(int clientIndex) const {
+int ServerGameController::getAttachedParticipantId(int clientIndex) const {
     for(auto [participantId, client] : participantToClient) {
         if(client.index == clientIndex) {
             return participantId;
@@ -42,7 +42,7 @@ int ServerTurnController::getAttachedParticipantId(int clientIndex) const {
     return -1;
 }
 
-int ServerTurnController::getParticipantByClientId(uint64_t clientId) const {
+int ServerGameController::getParticipantByClientId(uint64_t clientId) const {
     for(auto [participantId, client] : participantToClient) {
         if(client.id == clientId) {
             return participantId;
@@ -52,7 +52,7 @@ int ServerTurnController::getParticipantByClientId(uint64_t clientId) const {
     return -1;
 }
 
-std::map<int, int> ServerTurnController::getAllAttachedClients(void) {
+std::map<int, int> ServerGameController::getAllAttachedClients(void) {
     std::map<int, int> participantToClientIndexes;
 
     for(auto& [participantId, client] : participantToClient) {
@@ -67,7 +67,7 @@ std::map<int, int> ServerTurnController::getAllAttachedClients(void) {
     return participantToClientIndexes;
 }
 
-void ServerTurnController::additionalUpdate(int64_t timeSinceLastFrame, bool& quit) {
+void ServerGameController::additionalUpdate(int64_t timeSinceLastFrame, bool& quit) {
     for(auto& [participantId, participant] : participants) {
         // TODO: This should be called when an entity moves, not every update tick
         assignEngagements(participantId);
@@ -81,7 +81,7 @@ void ServerTurnController::additionalUpdate(int64_t timeSinceLastFrame, bool& qu
     checkForItems();
 }
 
-bool ServerTurnController::canProgressToNextTurn(Engagement* engagement) {
+bool ServerGameController::canProgressToNextTurn(Engagement* engagement) {
     game_assert(transmitter != nullptr);
 
     // auto& participant = participants[participantId];
@@ -124,7 +124,7 @@ bool ServerTurnController::canProgressToNextTurn(Engagement* engagement) {
     return nextTurn;
 }
 
-void ServerTurnController::onParticipantTurnEnd(Engagement* engagement) {
+void ServerGameController::onParticipantTurnEnd(Engagement* engagement) {
     auto participant = engagement->getCurrentParticipant();
     bool canDisengage = true;
 
@@ -147,7 +147,7 @@ void ServerTurnController::onParticipantTurnEnd(Engagement* engagement) {
     }
 }
 
-void ServerTurnController::checkForItems(void) {
+void ServerGameController::checkForItems(void) {
     auto itemController = context->getItemController();
 
     for(auto& [_, participant] : participants) {
@@ -179,7 +179,7 @@ void ServerTurnController::checkForItems(void) {
     }
 }
 
-void ServerTurnController::assignEngagements(int participantIdToCheck) {
+void ServerGameController::assignEngagements(int participantIdToCheck) {
     // auto behaviour = participants[participantIdToCheck]->getBehaviourStrategy();
 
     for(auto& [participantId, participant] : participants) {
@@ -187,7 +187,7 @@ void ServerTurnController::assignEngagements(int participantIdToCheck) {
     }
 }
 
-void ServerTurnController::compareAndEngageParticipants(Participant* participantA, Participant* participantB) {
+void ServerGameController::compareAndEngageParticipants(Participant* participantA, Participant* participantB) {
     // if(participantA->getId() == participantB->getId()) {
     //     return;
     // }
@@ -272,7 +272,7 @@ void ServerTurnController::compareAndEngageParticipants(Participant* participant
     // }
 }
 
-bool ServerTurnController::hasEntityEngagement(Entity* target, Participant* participant) {
+bool ServerGameController::hasEntityEngagement(Entity* target, Participant* participant) {
     for(auto entity : participant->getEntities()) {
         if(context->getVisibilityController()->isVisible(entity, target)) {
             return true;
@@ -282,6 +282,6 @@ bool ServerTurnController::hasEntityEngagement(Entity* target, Participant* part
     return false;
 }
 
-void ServerTurnController::setTransmitter(GameServerMessagesTransmitter* transmitter) {
+void ServerGameController::setTransmitter(GameServerMessagesTransmitter* transmitter) {
     this->transmitter = transmitter;
 }

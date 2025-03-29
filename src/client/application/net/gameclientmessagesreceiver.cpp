@@ -60,14 +60,14 @@ void GameClientMessagesReceiver::receiveTestMessage(GameTestMessage* message) {
 }
 
 void GameClientMessagesReceiver::receiveSetParticipant(SetParticipantMessage* message) {
-    auto turnController = context.getTurnController();
+    auto gameController = context.getGameController();
 
-    if(turnController->hasParticipant(message->participantId)) {
+    if(gameController->hasParticipant(message->participantId)) {
         spdlog::info("Participant {} already attached to a client, nothing to do.", message->participantId);
         return;
     }
 
-    auto participant = turnController->addParticipant(message->participantId, message->clientId != 0, { }, nullptr, false);
+    auto participant = gameController->addParticipant(message->participantId, message->clientId != 0, { }, nullptr, false);
 
     if(participant->getIsPlayer()) {
         participant->setFaction("Based");
@@ -83,8 +83,8 @@ void GameClientMessagesReceiver::receiveSetParticipant(SetParticipantMessage* me
         playerController->setParticipant(participant);
     }
 
-    if(message->numParticipantsToSet == turnController->getParticipants().size()) {
-        turnController->allParticipantsSet();
+    if(message->numParticipantsToSet == gameController->getParticipants().size()) {
+        gameController->allParticipantsSet();
     }
 
     transmitter->sendSetParticipantAckMessage(message->participantId);
@@ -119,9 +119,9 @@ void GameClientMessagesReceiver::receiveFindPath(FindPathMessage* message) {
     }
 
     auto const& entity = context.getEntityPool()->getEntity(message->entityId);
-    auto participant = context.getTurnController()->getParticipant(entity->getParticipantId());
+    auto participant = context.getGameController()->getParticipant(entity->getParticipantId());
     
-    context.getTurnController()->queueAction(std::make_unique<MoveAction>(
+    context.getGameController()->queueAction(std::make_unique<MoveAction>(
         participant,
         entity, 
         message->turnNumber, 
@@ -140,11 +140,11 @@ void GameClientMessagesReceiver::receiveAttackEntity(AttackMessage* message) {
 
     auto weaponId = UUID::fromBytes(message->weaponIdBytes);
     auto const& entity = entityPool->getEntity(message->entityId);
-    auto participant = context.getTurnController()->getParticipant(entity->getParticipantId());
+    auto participant = context.getGameController()->getParticipant(entity->getParticipantId());
 
     for(auto weapon : entity->getWeapons()) {
         if(weapon->getId() == weaponId) {
-            auto isQueued = context.getTurnController()->queueAction(
+            auto isQueued = context.getGameController()->queueAction(
                 std::make_unique<AttackAction>(
                     participant,
                     entity, 
@@ -161,13 +161,13 @@ void GameClientMessagesReceiver::receiveAttackEntity(AttackMessage* message) {
 }
 
 void GameClientMessagesReceiver::receiveNextTurn(NextTurnMessage* message) {
-    dynamic_cast<ClientTurnController*>(context.getTurnController())
+    dynamic_cast<ClientGameController*>(context.getGameController())
         ->receiveSetNextTurnFlag(message->participantId, message->engagementId, message->turnNumber);
 }
 
 void GameClientMessagesReceiver::receiveSetTurn(SetTurnMessage* message) {
-    // context.getTurnController()->setCurrentParticipant(message->currentParticipantId);
-    // context.getTurnController()->setTurnNumber(message->turnNumber);
+    // context.getGameController()->setCurrentParticipant(message->currentParticipantId);
+    // context.getGameController()->setTurnNumber(message->turnNumber);
 }
 
 void GameClientMessagesReceiver::receiveSpawnItems(SpawnItemsMessage* message) {
@@ -189,7 +189,7 @@ void GameClientMessagesReceiver::receiveTakeItems(TakeItemsMessage* message) {
     }
 
     auto const& entity = entityPool->getEntity(message->entityId);
-    auto participant = context.getTurnController()->getParticipant(entity->getParticipantId());
+    auto participant = context.getGameController()->getParticipant(entity->getParticipantId());
 
     std::vector<Item*> itemsToTake;
 
@@ -202,7 +202,7 @@ void GameClientMessagesReceiver::receiveTakeItems(TakeItemsMessage* message) {
     }
 
     if(message->turnNumber == -1) {
-        context.getTurnController()->executeActionImmediately(
+        context.getGameController()->executeActionImmediately(
             std::make_unique<TakeItemAction>(
                 participant,
                 entity,
@@ -211,7 +211,7 @@ void GameClientMessagesReceiver::receiveTakeItems(TakeItemsMessage* message) {
         );
     }
     else {
-        context.getTurnController()->queueAction(
+        context.getGameController()->queueAction(
             std::make_unique<TakeItemAction>(
                 participant,
                 entity,
@@ -223,7 +223,7 @@ void GameClientMessagesReceiver::receiveTakeItems(TakeItemsMessage* message) {
 }
 
 void GameClientMessagesReceiver::receiveEngagement(EngagementMessage* message) {
-    // context.getTurnController()->queueEngagement(
+    // context.getGameController()->queueEngagement(
     //     message->turnToEngageOn, 
     //     { 
     //         message->participantIdA, 
@@ -390,7 +390,7 @@ void GameClientMessagesReceiver::receiveAddEntityVisibilityMessage(AddEntityVisi
 
     auto entity = context.getEntityPool()->addEntity(message->entity.name, message->entity.id);
 
-    if(!context.getTurnController()->hasParticipant(message->entity.participantId)) {
+    if(!context.getGameController()->hasParticipant(message->entity.participantId)) {
         spdlog::warn(
             "Cannot add entity {} which has a non-existant participant {}",
             entity->toString(),
@@ -399,7 +399,7 @@ void GameClientMessagesReceiver::receiveAddEntityVisibilityMessage(AddEntityVisi
         return;
     }
 
-    context.getTurnController()->getParticipant(message->entity.participantId)->addEntity(entity);
+    context.getGameController()->getParticipant(message->entity.participantId)->addEntity(entity);
 
     for(int j = 0; j < entityStateUpdate.numWeapons; j++) {
         auto const& weaponUpdate = entityStateUpdate.weaponUpdates[j];
@@ -426,13 +426,13 @@ void GameClientMessagesReceiver::receiveAddEntityVisibilityMessage(AddEntityVisi
 }
 
 void GameClientMessagesReceiver::receiveCreateEngagementMessage(CreateEngagementMessage* message) {
-    auto turnController = context.getTurnController();
-    auto engagementController = turnController->getEngagementController();
+    auto gameController = context.getGameController();
+    auto engagementController = gameController->getEngagementController();
 
     std::vector<Participant*> participants;
 
     for(auto i = 0; i < message->numParticipants; i++) {
-        auto participant = turnController->getParticipant(message->participants[i]);
+        auto participant = gameController->getParticipant(message->participants[i]);
         
         if(participant == nullptr) {
             spdlog::error(
@@ -450,10 +450,10 @@ void GameClientMessagesReceiver::receiveCreateEngagementMessage(CreateEngagement
 }
 
 void GameClientMessagesReceiver::receiveAddToEngagementMessage(AddToEngagementMessage* message) {
-    auto turnController = context.getTurnController();
-    auto engagementController = turnController->getEngagementController();
+    auto gameController = context.getGameController();
+    auto engagementController = gameController->getEngagementController();
 
-    auto participant = turnController->getParticipant(message->participantId);
+    auto participant = gameController->getParticipant(message->participantId);
         
     if(participant == nullptr) {
         spdlog::error(
@@ -468,10 +468,10 @@ void GameClientMessagesReceiver::receiveAddToEngagementMessage(AddToEngagementMe
 }
 
 void GameClientMessagesReceiver::receiveDisenageMessage(DisengageMessage* message) {
-    auto turnController = context.getTurnController();
-    auto engagementController = turnController->getEngagementController();
+    auto gameController = context.getGameController();
+    auto engagementController = gameController->getEngagementController();
 
-    auto participant = turnController->getParticipant(message->participantId);
+    auto participant = gameController->getParticipant(message->participantId);
         
     if(participant == nullptr) {
         spdlog::error(
@@ -486,20 +486,20 @@ void GameClientMessagesReceiver::receiveDisenageMessage(DisengageMessage* messag
 }
 
 void GameClientMessagesReceiver::receiveRemoveEngagementMessage(RemoveEngagementMessage* message) {
-    auto turnController = context.getTurnController();
-    auto engagementController = turnController->getEngagementController();
+    auto gameController = context.getGameController();
+    auto engagementController = gameController->getEngagementController();
 
     engagementController->removeEngagement(message->engagementId);
 }
 
 void GameClientMessagesReceiver::receiveMergeEngagementsMessage(MergeEngagementsMessage* message) {
-    auto turnController = context.getTurnController();
-    auto engagementController = turnController->getEngagementController();
+    auto gameController = context.getGameController();
+    auto engagementController = gameController->getEngagementController();
 
     std::vector<Participant*> participants;
 
     for(auto i = 0; i < message->numParticipants; i++) {
-        auto participant = turnController->getParticipant(message->participants[i]);
+        auto participant = gameController->getParticipant(message->participants[i]);
         
         if(participant == nullptr) {
             spdlog::error(

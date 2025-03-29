@@ -1,14 +1,14 @@
-#include "clientturncontroller.h"
+#include "clientgamecontroller.h"
 
-ClientTurnController::ClientTurnController() :
-    TurnController()
+ClientGameController::ClientGameController() :
+    GameController()
 { }
 
-void ClientTurnController::additionalUpdate(int64_t timeSinceLastFrame, bool& quit) {
+void ClientGameController::additionalUpdate(int64_t timeSinceLastFrame, bool& quit) {
     // no-op
 }
 
-bool ClientTurnController::canProgressToNextTurn(Engagement* engagement) {
+bool ClientGameController::canProgressToNextTurn(Engagement* engagement) {
     if(!nextTurnFlags.contains(engagement->getId()) || nextTurnFlags[engagement->getId()].empty()) {
         return false;
     }
@@ -25,10 +25,10 @@ bool ClientTurnController::canProgressToNextTurn(Engagement* engagement) {
     return true;
 }
 
-void ClientTurnController::onParticipantTurnEnd(Engagement* engagement) {
+void ClientGameController::onParticipantTurnEnd(Engagement* engagement) {
     // no-op
 }
 
-void ClientTurnController::receiveSetNextTurnFlag(int participantId, uint32_t engagementId, int receivedTurnNumber) {
+void ClientGameController::receiveSetNextTurnFlag(int participantId, uint32_t engagementId, int receivedTurnNumber) {
     nextTurnFlags[engagementId].push(receivedTurnNumber);
 }

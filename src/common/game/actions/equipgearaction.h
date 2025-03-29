@@ -2,7 +2,7 @@
 
 #include "action.h"
 #include "game/items/equippable.h"
-#include "game/application/turncontroller.h"
+#include "game/application/gamecontroller.h"
 
 class EquipGearAction : public Action {
 private:

@@ -7,7 +7,7 @@
 #include "imgui.h"
 #include "itemraritycolours.h"
 
-#include "game/application/turncontroller.h"
+#include "game/application/gamecontroller.h"
 #include "game/entities/entitypool.h"
 #include "core/event/eventsubscriber.h"
 

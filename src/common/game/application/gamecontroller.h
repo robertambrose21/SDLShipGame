@@ -31,9 +31,9 @@ class Participant;
 class Engagement;
 class EngagementController;
 
-class TurnController : public ActionPublisher {
+class GameController : public ActionPublisher {
 public:
-    TurnController();
+    GameController();
 
     void initialise(ApplicationContext& context);
     void update(int64_t timeSinceLastFrame, bool& quit);

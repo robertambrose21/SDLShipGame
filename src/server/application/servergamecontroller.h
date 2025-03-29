@@ -1,16 +1,16 @@
 #pragma once
 
-#include "game/application/turncontroller.h"
+#include "game/application/gamecontroller.h"
 #include "net/gameservermessagestransmitter.h"
 
-class ServerTurnController : public TurnController {
+class ServerGameController : public GameController {
 public:
     typedef struct _client {
         uint64_t id;
         int index;
     } Client;
 
-    ServerTurnController();
+    ServerGameController();
     
     void setTransmitter(GameServerMessagesTransmitter* transmitter);
     void attachParticipantToClient(int participantId, int clientIndex, uint64_t clientId);

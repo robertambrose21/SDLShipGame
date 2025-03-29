@@ -27,7 +27,7 @@ void ClientApplication::initialise(void) {
         std::make_unique<WeaponController>(),
         std::make_unique<ProjectilePool>(),
         std::make_unique<AreaOfEffectPool>(),
-        std::make_unique<ClientTurnController>(),
+        std::make_unique<ClientGameController>(),
         std::make_unique<ItemController>(),
         std::make_unique<EffectController>(),
         std::make_unique<SpawnController>(),
@@ -36,7 +36,7 @@ void ClientApplication::initialise(void) {
 
     auto& context = application->getContext();
 
-    context.getTurnController()->initialise(application->getContext());
+    context.getGameController()->initialise(application->getContext());
     context.getAreaOfEffectPool()->initialise(application->getContext());
     context.getProjectilePool()->initialise(application->getContext());
     context.getWeaponController()->initialise(application->getContext());
@@ -46,15 +46,15 @@ void ClientApplication::initialise(void) {
     context.getVisibilityController()->initialise(application->getContext());
     context.getEffectController()->initialise(application->getContext());
 
-    // context.getTurnController()->subscribe<TurnEventData>(&stdoutSubscriber);
+    // context.getGameController()->subscribe<TurnEventData>(&stdoutSubscriber);
     context.getEntityPool()->subscribe<EntityEventData>(&stdoutSubscriber);
     context.getWeaponController()->subscribe<MeleeWeaponEventData>(&stdoutSubscriber);
     context.getProjectilePool()->subscribe<ProjectileEventData>(&stdoutSubscriber);
     context.getAreaOfEffectPool()->subscribe<AreaOfEffectEventData>(&stdoutSubscriber);
     context.getItemController()->subscribe<ItemEventData>(&stdoutSubscriber);
-    context.getTurnController()->subscribe<TakeItemActionEventData>(&stdoutSubscriber);
-    context.getTurnController()->subscribe<EngagementEventData>(&stdoutSubscriber);
-    context.getTurnController()->subscribe<EquipItemActionEventData>(&stdoutSubscriber);
+    context.getGameController()->subscribe<TakeItemActionEventData>(&stdoutSubscriber);
+    context.getGameController()->subscribe<EngagementEventData>(&stdoutSubscriber);
+    context.getGameController()->subscribe<EquipItemActionEventData>(&stdoutSubscriber);
 
     weaponDrawStrategy = std::make_unique<WeaponDrawStrategy>();
     entityDrawStrategy = std::make_unique<EntityDrawStrategy>(weaponDrawStrategy.get());
@@ -89,7 +89,7 @@ void ClientApplication::initialise(void) {
     clientMessagesReceiver->setTransmitter(clientMessagesTransmitter.get());
     clientMessagesReceiver->subscribe<ApplyDamageEventData>(&stdoutSubscriber);
 
-    context.getTurnController()->setOnAllParticipantsSetFunction([&]() {
+    context.getGameController()->setOnAllParticipantsSetFunction([&]() {
         clientStateMachine->setState(std::make_unique<ClientGameLoopState>());
     });
 
@@ -212,7 +212,7 @@ void ClientApplication::update(int64_t timeSinceLastFrame, bool& quit) {
     auto entityPool = context.getEntityPool();
     auto projectilePool = context.getProjectilePool();
     auto areaOfEffectPool = context.getAreaOfEffectPool();
-    auto turnController = context.getTurnController();
+    auto gameController = context.getGameController();
     auto effectController = context.getEffectController();
 
     client->update(timeSinceLastFrame);
@@ -223,7 +223,7 @@ void ClientApplication::update(int64_t timeSinceLastFrame, bool& quit) {
             break;
 
         case ClientStateMachine::GameLoop:
-            turnController->update(timeSinceLastFrame, quit);
+            gameController->update(timeSinceLastFrame, quit);
             entityPool->updateEntities(timeSinceLastFrame, quit);
             playerController->update(timeSinceLastFrame);
             projectilePool->update(timeSinceLastFrame);

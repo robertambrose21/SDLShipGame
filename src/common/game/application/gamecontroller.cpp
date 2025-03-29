@@ -1,17 +1,17 @@
-#include "turncontroller.h"
+#include "gamecontroller.h"
 
 // This will effectively become a game controller
-TurnController::TurnController() :
+GameController::GameController() :
     initialised(false)
 { }
 
-void TurnController::initialise(ApplicationContext& context) {
+void GameController::initialise(ApplicationContext& context) {
     this->context = &context;
     engagementController = std::make_unique<EngagementController>(&context);
     initialised = true;
 }
 
-void TurnController::update(int64_t timeSinceLastFrame, bool& quit) {
+void GameController::update(int64_t timeSinceLastFrame, bool& quit) {
     game_assert(initialised);
 
     additionalUpdate(timeSinceLastFrame, quit);
@@ -28,7 +28,7 @@ void TurnController::update(int64_t timeSinceLastFrame, bool& quit) {
     engagementController->update(timeSinceLastFrame);
 }
 
-void TurnController::endCurrentParticipantTurn(uint32_t engagementId) {
+void GameController::endCurrentParticipantTurn(uint32_t engagementId) {
     if(!engagementController->hasEngagement(engagementId)) {
         spdlog::warn("Cannot find engagement {}, cannot end turn for current participant", engagementId);
         return;
@@ -39,7 +39,7 @@ void TurnController::endCurrentParticipantTurn(uint32_t engagementId) {
     onParticipantTurnEnd(engagement);
 }
 
-void TurnController::nextParticipantTurn(uint32_t engagementId) {
+void GameController::nextParticipantTurn(uint32_t engagementId) {
     if(!engagementController->hasEngagement(engagementId)) {
         spdlog::trace("Engagement {} no longer exists, not executing nextParticipantTurn", engagementId);
         return;
@@ -55,7 +55,7 @@ void TurnController::nextParticipantTurn(uint32_t engagementId) {
     engagement->nextTurn();
 }
 
-void TurnController::executeActions(uint32_t engagementId) {
+void GameController::executeActions(uint32_t engagementId) {
     if(!engagementController->hasEngagement(engagementId)) {
         spdlog::warn("Engagement {} no longer exists, cannot execute entity actions", engagementId);
         return;
@@ -73,7 +73,7 @@ void TurnController::executeActions(uint32_t engagementId) {
     }
 }
 
-void TurnController::executeEntityActions(Engagement* engagement, Entity* entity) {
+void GameController::executeEntityActions(Engagement* engagement, Entity* entity) {
     bool moreActionsToProcess = !entity->getActionsChain(engagement->getTurnNumber()).empty();
 
     while(moreActionsToProcess) {
@@ -94,7 +94,7 @@ void TurnController::executeEntityActions(Engagement* engagement, Entity* entity
     }
 }
 
-Participant* TurnController::addParticipant(
+Participant* GameController::addParticipant(
     bool isPlayer,
     const std::vector<Entity*>& entities, 
     std::unique_ptr<BehaviourStrategy> behaviourStrategy,
@@ -107,7 +107,7 @@ Participant* TurnController::addParticipant(
     return addParticipant(id++, isPlayer, entities, std::move(behaviourStrategy), isReady);
 }
 
-Participant* TurnController::addParticipant(
+Participant* GameController::addParticipant(
     int id,
     bool isPlayer,
     const std::vector<Entity*>& entities, 
@@ -127,7 +127,7 @@ Participant* TurnController::addParticipant(
     return participants[id].get();
 }
 
-void TurnController::addEntityToParticipant(int participantId, Entity* entity) {
+void GameController::addEntityToParticipant(int participantId, Entity* entity) {
     game_assert(initialised);
     game_assert(entity != nullptr);
 
@@ -143,14 +143,14 @@ void TurnController::addEntityToParticipant(int participantId, Entity* entity) {
     participants[participantId]->addEntity(entity);
 }
 
-Participant* TurnController::getParticipant(int id) {
+Participant* GameController::getParticipant(int id) {
     game_assert(initialised);
     game_assert(participants.contains(id));
     return participants[id].get();
 }
 
 // TODO: Replace me with less dumb
-std::vector<Participant*> TurnController::getParticipants(void) {
+std::vector<Participant*> GameController::getParticipants(void) {
     game_assert(initialised);
 
     std::vector<Participant*> vParticipants;
@@ -164,11 +164,11 @@ std::vector<Participant*> TurnController::getParticipants(void) {
     return vParticipants;
 }
 
-bool TurnController::hasParticipant(int id) {
+bool GameController::hasParticipant(int id) {
     return participants.contains(id);
 }
 
-void TurnController::reset(void) {
+void GameController::reset(void) {
     game_assert(initialised);
 
     for(auto& [participantId, participant] : participants) {
@@ -178,7 +178,7 @@ void TurnController::reset(void) {
     }
 }
 
-bool TurnController::executeActionImmediately(std::unique_ptr<Action> action) {
+bool GameController::executeActionImmediately(std::unique_ptr<Action> action) {
     if(action->getTurnNumber().has_value()) {
         spdlog::error(
             "Execute [{}]: Cannot execute immediately - turn number set {}",
@@ -215,7 +215,7 @@ bool TurnController::executeActionImmediately(std::unique_ptr<Action> action) {
     return true;
 }
 
-bool TurnController::queueAction(std::unique_ptr<Action> action) {
+bool GameController::queueAction(std::unique_ptr<Action> action) {
     if(!action->getTurnNumber().has_value()) {
         spdlog::error("Queue [{}]: Cannot queue action - no turn number is set", action->typeToString());
         return false;
@@ -241,17 +241,17 @@ bool TurnController::queueAction(std::unique_ptr<Action> action) {
     );
 }
 
-void TurnController::setOnAllParticipantsSetFunction(std::function<void()> onAllParticipantsSet) {
+void GameController::setOnAllParticipantsSetFunction(std::function<void()> onAllParticipantsSet) {
     this->onAllParticipantsSet = onAllParticipantsSet;
 }
 
-void TurnController::allParticipantsSet(void) {
+void GameController::allParticipantsSet(void) {
     onAllParticipantsSet();
     for(auto& [_, participant] : participants) {
         participant->setIsReady(true);
     }
 }
 
-EngagementController* TurnController::getEngagementController(void) {
+EngagementController* GameController::getEngagementController(void) {
     return engagementController.get();
 }

@@ -9,7 +9,7 @@ PlayerController::PlayerController(
     clientMessagesTransmitter(clientMessagesTransmitter),
     graphicsContext(graphicsContext),
     gridRenderer(graphicsContext.getGridRenderer()),
-    turnController(context.getTurnController()),
+    gameController(context.getGameController()),
     entityPool(context.getEntityPool()),
     grid(context.getGrid()),
     camera(graphicsContext.getGridRenderer().getCamera()),
@@ -34,13 +34,13 @@ PlayerController::PlayerController(
         }
     });
     
-    // turnController->subscribe<TurnEventData>(playerPanel.get());
+    // gameController->subscribe<TurnEventData>(playerPanel.get());
     entityPool->subscribe<EntityEventData>(playerPanel.get());
     context.getWeaponController()->subscribe<MeleeWeaponEventData>(playerPanel.get());
     context.getProjectilePool()->subscribe<ProjectileEventData>(playerPanel.get());
     context.getAreaOfEffectPool()->subscribe<AreaOfEffectEventData>(playerPanel.get());
     context.getItemController()->subscribe<ItemEventData>(playerPanel.get());
-    context.getTurnController()->subscribe<TakeItemActionEventData>(playerPanel.get());
+    context.getGameController()->subscribe<TakeItemActionEventData>(playerPanel.get());
 }
 
 void PlayerController::update(int64_t timeSinceLastFrame) {
@@ -127,7 +127,7 @@ void PlayerController::handleKeyPress(const SDL_Event& event) {
         switch(event.key.keysym.sym) {
             case SDLK_p: {
                 clientMessagesTransmitter.sendPassParticipantTurnMessage(participant->getId());
-                // turnController->passParticipant(participant->getId()); // TODO
+                // gameController->passParticipant(participant->getId()); // TODO
                 break;
             }
             
@@ -340,7 +340,7 @@ void PlayerController::attack(const glm::ivec2& target) {
     for(auto const& entity : selectedEntities) {
         auto const& weapon = entity->getCurrentWeapon();
         
-        // TODO: ClientTurnController actions
+        // TODO: ClientGameController actions
         if(doAction(
             std::make_unique<AttackAction>(
                 participant, 
@@ -465,11 +465,11 @@ void PlayerController::unequipWeapon(Weapon* weapon) {
 
 bool PlayerController::doAction(std::unique_ptr<Action> action) {
     if(participant->hasAnyEngagement()) {
-        return turnController->queueAction(std::move(action));
+        return gameController->queueAction(std::move(action));
     }
 
 
-    return turnController->executeActionImmediately(std::move(action));
+    return gameController->executeActionImmediately(std::move(action));
 }
 
 const std::vector<Entity*>& PlayerController::getSelectedEntities(void) const {

@@ -54,7 +54,7 @@ void AreaOfEffectPool::add(const std::string& name, int ownerId, const glm::ivec
         Stats::AoEStats { damageSource.getStats(), definition.radius, definition.turns }
     );
 
-    auto participant = context->getTurnController()->getParticipant(ownerId);
+    auto participant = context->getGameController()->getParticipant(ownerId);
     if(participant->hasAnyEngagement()) {
         auto engagement = participant->getEngagement();
 
@@ -83,7 +83,7 @@ void AreaOfEffectPool::update(int64_t timeSinceLastFrame) {
 
     // TODO: Move different AoE handling to separate methods
     // Engagement AoEs
-    auto engagementController = context->getTurnController()->getEngagementController();
+    auto engagementController = context->getGameController()->getEngagementController();
 
     // Remove dead engagements
     std::erase_if(engagementAoEs, [&](const auto& engagementAoE) {

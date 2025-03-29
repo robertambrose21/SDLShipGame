@@ -32,7 +32,7 @@ add_library(
     weapons/areaofeffectpool.cpp
     weapons/weaponcontroller.cpp
     weapons/damagesource.cpp
-    application/turncontroller.cpp
+    application/gamecontroller.cpp
     engagements/engagement.cpp
     engagements/engagementcontroller.cpp
     application/stdoutsubscriber.cpp

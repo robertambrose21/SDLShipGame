@@ -13,8 +13,8 @@ void ChaseAndAttackStrategy::onUpdate(int participantId, int64_t timeSinceLastFr
         return;
     }
 
-    auto turnController = getContext().getTurnController();
-    auto participant = turnController->getParticipant(participantId);
+    auto gameController = getContext().getGameController();
+    auto participant = gameController->getParticipant(participantId);
 
     if(!participant->hasAnyEngagement()) {
         return;
@@ -38,11 +38,11 @@ void ChaseAndAttackStrategy::onUpdate(int participantId, int64_t timeSinceLastFr
     canDisengage = entitiesDisengaged == participant->getEntities().size();
 
     if(canDisengage) {
-        auto participants = turnController->getParticipants();
+        auto participants = gameController->getParticipants();
 
         for(auto other : participants) {
             if(participant->hasEngagement(other)) {
-                turnController->getEngagementController()->disengage(participant->getEngagement()->getId(), other);
+                gameController->getEngagementController()->disengage(participant->getEngagement()->getId(), other);
             }
         }
     }
@@ -64,7 +64,7 @@ ChaseAndAttackStrategy::EntityTurnResult ChaseAndAttackStrategy::doTurnForEntity
     }
 
     auto bWeapon = getBestInRangeWeapon(entity, target->getPosition());
-    auto turnController = getContext().getTurnController();
+    auto gameController = getContext().getGameController();
     auto turnNumber = participant->getEngagement()->getTurnNumber();
 
     // TODO: Change 'current weapon' to best melee weapon
@@ -77,7 +77,7 @@ ChaseAndAttackStrategy::EntityTurnResult ChaseAndAttackStrategy::doTurnForEntity
             target->getPosition()
         );
         
-        if(entity->getCurrentWeapon()->getUsesLeft() <= 0 || !turnController->queueAction(std::move(action))) {
+        if(entity->getCurrentWeapon()->getUsesLeft() <= 0 || !gameController->queueAction(std::move(action))) {
             return { true, false };
         }
     }
@@ -90,7 +90,7 @@ ChaseAndAttackStrategy::EntityTurnResult ChaseAndAttackStrategy::doTurnForEntity
             target->getPosition()
         );
 
-        if(bWeapon->getUsesLeft() <= 0 || !turnController->queueAction(std::move(action))) {
+        if(bWeapon->getUsesLeft() <= 0 || !gameController->queueAction(std::move(action))) {
             return { true, false };
         }
     }
@@ -98,7 +98,7 @@ ChaseAndAttackStrategy::EntityTurnResult ChaseAndAttackStrategy::doTurnForEntity
         auto distanceToTarget = glm::distance(glm::vec2(entity->getPosition()), glm::vec2(target->getPosition()));
         auto action = std::make_unique<MoveAction>(participant, entity, turnNumber, target->getPosition(), 1);
         
-        if(!distanceToTarget <= entity->getAggroRange() && !turnController->queueAction(std::move(action))) {
+        if(!distanceToTarget <= entity->getAggroRange() && !gameController->queueAction(std::move(action))) {
             return { true, false };
         }
     }

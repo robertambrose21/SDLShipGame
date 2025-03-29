@@ -8,7 +8,7 @@
 #include "game/event/events.h"
 #include "core/event/eventpublisher.h"
 #include "game/application/applicationcontext.h"
-#include "game/application/turncontroller.h"
+#include "game/application/gamecontroller.h"
 
 class EffectController : public EventPublisher<EntityEffectEvent, GridEffectEvent> {
 public:

@@ -41,7 +41,7 @@ void EffectController::update(int64_t timeSinceLastFrame) {
 }
 
 void EffectController::updateEngagementEffects(int64_t timeSinceLastFrame) {
-    auto engagementController = context->getTurnController()->getEngagementController();
+    auto engagementController = context->getGameController()->getEngagementController();
 
     std::erase_if(engagementEffects, [&](const auto& engagementEffect) {
         auto& [engagementId, _] = engagementEffect;
@@ -138,7 +138,7 @@ Effect* EffectController::addEffect(std::unique_ptr<Effect> effect) {
     auto entityId = effect->getTarget()->getId();
     auto effectPtr = effect.get();
 
-    auto participant = context->getTurnController()->getParticipant(effect->getOwnerId());
+    auto participant = context->getGameController()->getParticipant(effect->getOwnerId());
 
     if(participant->hasAnyEngagement()) {
         auto engagement = participant->getEngagement();
@@ -180,7 +180,7 @@ GridEffect* EffectController::addGridEffect(std::unique_ptr<GridEffect> effect) 
     auto effectPtr = effect.get();
     // gridEffects.push_back(std::move(effect));
 
-    auto participant = context->getTurnController()->getParticipant(effect->getOwnerId());
+    auto participant = context->getGameController()->getParticipant(effect->getOwnerId());
 
     if(participant->hasAnyEngagement()) {
         auto engagement = participant->getEngagement();

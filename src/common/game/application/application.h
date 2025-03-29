@@ -4,7 +4,7 @@
 #include "applicationcontext.h"
 #include "game/weapons/projectilepool.h"
 #include "game/weapons/areaofeffectpool.h"
-#include "turncontroller.h"
+#include "gamecontroller.h"
 #include "game/entities/behaviour/chaseandattackstrategy.h"
 #include "game/weapons/projectileweapon.h"
 #include "game/weapons/meleeweapon.h"
@@ -23,7 +23,7 @@ private:
     std::unique_ptr<WeaponController> weaponController;
     std::unique_ptr<ProjectilePool> projectilePool;
     std::unique_ptr<AreaOfEffectPool> areaOfEffectPool;
-    std::unique_ptr<TurnController> turnController;
+    std::unique_ptr<GameController> gameController;
     std::unique_ptr<ItemController> itemController;
     std::unique_ptr<EffectController> effectController;
     std::unique_ptr<SpawnController> spawnController;
@@ -40,7 +40,7 @@ public:
         std::unique_ptr<WeaponController> weaponController,
         std::unique_ptr<ProjectilePool> projectilePool,
         std::unique_ptr<AreaOfEffectPool> areaOfEffectPool,
-        std::unique_ptr<TurnController> turnController,
+        std::unique_ptr<GameController> gameController,
         std::unique_ptr<ItemController> itemController,
         std::unique_ptr<EffectController> effectController,
         std::unique_ptr<SpawnController> spawnController,

@@ -6,7 +6,7 @@
 
 #include "core/json.hpp"
 #include "areaofeffect.h"
-#include "game/application/turncontroller.h"
+#include "game/application/gamecontroller.h"
 #include "core/event/eventpublisher.h"
 #include "game/application/applicationcontext.h"
 

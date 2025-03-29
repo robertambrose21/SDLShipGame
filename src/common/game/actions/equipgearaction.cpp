@@ -68,7 +68,7 @@ bool EquipGearAction::onValidate(ApplicationContext* context) {
         return hasEquippedGearSlot;
     }
 
-    auto participant = context->getTurnController()->getParticipant(entity->getParticipantId());
+    auto participant = context->getGameController()->getParticipant(entity->getParticipantId());
 
     bool hasItem = false;   
 
@@ -90,7 +90,7 @@ bool EquipGearAction::onValidate(ApplicationContext* context) {
 }
 
 void EquipGearAction::onExecute(ApplicationContext* context) {
-    auto participant = context->getTurnController()->getParticipant(entity->getParticipantId());
+    auto participant = context->getGameController()->getParticipant(entity->getParticipantId());
     auto existingGear = entity->getGear(slot);
 
     if(isUnequip) {

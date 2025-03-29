@@ -5,11 +5,11 @@
 #include "game/net/messages.h"
 #include "core/net/gameserver.h"
 #include "core/net/servermessagestransmitter.h"
-#include "game/application/turncontroller.h"
+#include "game/application/gamecontroller.h"
 #include "game/application/application.h"
 #include "game/application/visibilitycontroller.h"
 
-class ServerTurnController;
+class ServerGameController;
 
 class GameServerMessagesTransmitter : 
     public ServerMessagesTransmitter, 
@@ -35,7 +35,7 @@ class GameServerMessagesTransmitter :
 public:
     GameServerMessagesTransmitter(
         GameServer& server,
-        ServerTurnController* turnController,
+        ServerGameController* gameController,
         VisiblityController* visibilityController,
         ItemController* itemController,
         std::function<void(int)> onClientConnectFunc = [](int) { },
@@ -75,7 +75,7 @@ public:
 
 private:
     GameServer& server;
-    ServerTurnController* turnController;
+    ServerGameController* gameController;
     VisiblityController* visibilityController;
     ItemController* itemController;
 

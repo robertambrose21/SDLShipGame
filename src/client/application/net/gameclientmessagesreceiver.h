@@ -7,7 +7,7 @@
 #include "core/net/clientmessagesreceiver.h"
 #include "core/net/gameadapter.h"
 #include "player/playercontroller.h"
-#include "application/clientturncontroller.h"
+#include "application/clientgamecontroller.h"
 #include "game/actions/attackaction.h"
 #include "game/net/gamemessagelogger.h"
 

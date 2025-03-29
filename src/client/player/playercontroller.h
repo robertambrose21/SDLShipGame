@@ -12,7 +12,7 @@
 #include "game/entities/entity.h"
 #include "game/entities/entitypool.h"
 #include "game/weapons/weapon.h"
-#include "game/application/turncontroller.h"
+#include "game/application/gamecontroller.h"
 #include "graphics/ui/dice.h"
 #include "graphics/ui/button.h"
 #include "graphics/ui/playerpanel.h"
@@ -68,7 +68,7 @@ private:
 
     std::vector<Entity*> selectedEntities;
     GridRenderer& gridRenderer;
-    TurnController* turnController;
+    GameController* gameController;
     EntityPool* entityPool;
     Grid* grid;
     GraphicsContext& graphicsContext;

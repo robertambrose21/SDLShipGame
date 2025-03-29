@@ -66,7 +66,7 @@ bool EquipWeaponAction::onValidate(ApplicationContext* context) {
         return alreadyHasWeapon;
     }
 
-    auto participant = context->getTurnController()->getParticipant(entity->getParticipantId());
+    auto participant = context->getGameController()->getParticipant(entity->getParticipantId());
 
     bool hasItem = false;   
 
@@ -88,7 +88,7 @@ bool EquipWeaponAction::onValidate(ApplicationContext* context) {
 }
 
 void EquipWeaponAction::onExecute(ApplicationContext* context) {
-    auto participant = context->getTurnController()->getParticipant(entity->getParticipantId());
+    auto participant = context->getGameController()->getParticipant(entity->getParticipantId());
 
     if(entity->hasWeapon(weaponId)) {
         participant->addItem(item);

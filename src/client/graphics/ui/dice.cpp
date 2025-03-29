@@ -3,11 +3,11 @@
 Dice::Dice(
     int face,
     GameClientMessagesTransmitter& clientMessagesTransmitter,
-    TurnController* turnController
+    GameController* gameController
 ) :
     face(face),
     clientMessagesTransmitter(clientMessagesTransmitter),
-    turnController(turnController),
+    gameController(gameController),
     rolling(false)
 {
     game_assert(face >= 1 && face <= 6);
@@ -126,7 +126,7 @@ void Dice::rollFunc(int seconds) {
         }
     }
 
-    // turnController->setAvailableActions(0, 
+    // gameController->setAvailableActions(0, 
     //     {
     //         { Action::Type::Move, numMoveActions },
     //         { Action::Type::Attack, numAttackActions }

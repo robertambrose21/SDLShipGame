@@ -3,12 +3,12 @@
 #include <queue>
 #include <map>
 
-#include "game/application/turncontroller.h"
+#include "game/application/gamecontroller.h"
 
 // TODO: Handle turn/participant # desync
-class ClientTurnController : public TurnController {
+class ClientGameController : public GameController {
 public:
-    ClientTurnController();
+    ClientGameController();
 
     void receiveSetNextTurnFlag(int participantId, uint32_t engagementId, int receivedTurnNumber);
 

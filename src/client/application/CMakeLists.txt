@@ -8,7 +8,7 @@ add_library(
     clientapplication.cpp
     clientstatemachine.cpp
     clientstates.cpp
-    clientturncontroller.cpp
+    clientgamecontroller.cpp
     net/gameclientmessagesreceiver.cpp
     net/gameclientmessagestransmitter.cpp
 )

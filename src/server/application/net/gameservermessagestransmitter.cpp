@@ -1,9 +1,9 @@
 #include "gameservermessagestransmitter.h"
-#include "application/serverturncontroller.h"
+#include "application/servergamecontroller.h"
 
 GameServerMessagesTransmitter::GameServerMessagesTransmitter(
     GameServer& server,
-    ServerTurnController* turnController,
+    ServerGameController* gameController,
     VisiblityController* visibilityController,
     ItemController* itemController,
     std::function<void(int)> onClientConnectFunc,
@@ -12,7 +12,7 @@ GameServerMessagesTransmitter::GameServerMessagesTransmitter(
     server(server),
     onClientConnectFunc(onClientConnectFunc),
     onClientDisconnectFunc(onClientDisconnectFunc),
-    turnController(turnController),
+    gameController(gameController),
     visibilityController(visibilityController),
     itemController(itemController)
 { }
@@ -30,15 +30,15 @@ void GameServerMessagesTransmitter::onPublish(const Event<ItemEventData>& event)
         return;
     }
 
-    for(auto [_, clientIndex] : turnController->getAllAttachedClients()) {
+    for(auto [_, clientIndex] : gameController->getAllAttachedClients()) {
         sendItems(clientIndex, event.data.items);
     }
 }
 
 // TODO: Remove?
 void GameServerMessagesTransmitter::onPublish(const Event<MoveActionEventData>& event) {
-    for(auto [participantId, clientIndex] : turnController->getAllAttachedClients()) {
-        if(turnController->getAttachedClient(event.data.entity->getParticipantId()) == clientIndex) {
+    for(auto [participantId, clientIndex] : gameController->getAllAttachedClients()) {
+        if(gameController->getAttachedClient(event.data.entity->getParticipantId()) == clientIndex) {
             return;
         }
 
@@ -55,8 +55,8 @@ void GameServerMessagesTransmitter::onPublish(const Event<MoveActionEventData>& 
 }
 
 void GameServerMessagesTransmitter::onPublish(const Event<AttackActionEventData>& event) {
-    for(auto [participantId, clientIndex] : turnController->getAllAttachedClients()) {
-        if(turnController->getAttachedClient(event.data.owner->getParticipantId()) == clientIndex) {
+    for(auto [participantId, clientIndex] : gameController->getAllAttachedClients()) {
+        if(gameController->getAttachedClient(event.data.owner->getParticipantId()) == clientIndex) {
             spdlog::trace(
                 "Not sending attack to participant {}, owning entity {}/{} sent the attack",
                 participantId,
@@ -84,7 +84,7 @@ void GameServerMessagesTransmitter::onPublish(const Event<AttackActionEventData>
 }
 
 void GameServerMessagesTransmitter::onPublish(const Event<TakeItemActionEventData>& event) {
-    for(auto [_, clientIndex] : turnController->getAllAttachedClients()) {
+    for(auto [_, clientIndex] : gameController->getAllAttachedClients()) {
         TakeItemsMessage* message = (TakeItemsMessage*) server.createMessage(clientIndex, GameMessageType::TAKE_ITEMS);
 
         message->turnNumber = event.data.turnNumber.value_or(-1);
@@ -101,12 +101,12 @@ void GameServerMessagesTransmitter::onPublish(const Event<TakeItemActionEventDat
 }
 
 void GameServerMessagesTransmitter::onPublish(const Event<EngagementEventData>& event) {
-    for(auto [participantId, clientIndex] : turnController->getAllAttachedClients()) {
+    for(auto [participantId, clientIndex] : gameController->getAllAttachedClients()) {
         // TODO: This is wrong, need new messages
         // sendEngagement(
         //     event.data.participantIdA,
         //     event.data.participantIdB,
-        //     turnController->getTurnNumber(),
+        //     gameController->getTurnNumber(),
         //     event.data.type,
         //     clientIndex
         // );
@@ -114,7 +114,7 @@ void GameServerMessagesTransmitter::onPublish(const Event<EngagementEventData>& 
 }
 
 void GameServerMessagesTransmitter::onPublish(const Event<AreaOfEffectEventData>& event) {
-    for(auto [participantId, clientIndex] : turnController->getAllAttachedClients()) {
+    for(auto [participantId, clientIndex] : gameController->getAllAttachedClients()) {
         ApplyDamageMessage* message = (ApplyDamageMessage*) server.createMessage(clientIndex, GameMessageType::APPLY_DAMAGE);
 
         message->fromId = event.data.aoe->getOwnerId();
@@ -132,7 +132,7 @@ void GameServerMessagesTransmitter::onPublish(const Event<ProjectileEventData>& 
         return;
     }
 
-    for(auto [participantId, clientIndex] : turnController->getAllAttachedClients()) {
+    for(auto [participantId, clientIndex] : gameController->getAllAttachedClients()) {
         ApplyDamageMessage* message = (ApplyDamageMessage*) server.createMessage(clientIndex, GameMessageType::APPLY_DAMAGE);
 
         message->fromId = event.data.projectile->getOwnerId();
@@ -145,7 +145,7 @@ void GameServerMessagesTransmitter::onPublish(const Event<ProjectileEventData>& 
 }
 
 void GameServerMessagesTransmitter::onPublish(const Event<MeleeWeaponEventData>& event) {
-    for(auto [participantId, clientIndex] : turnController->getAllAttachedClients()) {
+    for(auto [participantId, clientIndex] : gameController->getAllAttachedClients()) {
         ApplyDamageMessage* message = (ApplyDamageMessage*) server.createMessage(clientIndex, GameMessageType::APPLY_DAMAGE);
 
         message->fromId = event.data.owner->getParticipantId();
@@ -158,7 +158,7 @@ void GameServerMessagesTransmitter::onPublish(const Event<MeleeWeaponEventData>&
 }
 
 void GameServerMessagesTransmitter::onPublish(const Event<EntityEffectEvent>& event) {
-    for(auto [participantId, clientIndex] : turnController->getAllAttachedClients()) {
+    for(auto [participantId, clientIndex] : gameController->getAllAttachedClients()) {
         ApplyEntityEffectMessage* message = 
             (ApplyEntityEffectMessage*) server.createMessage(clientIndex, GameMessageType::APPLY_ENTITY_EFFECT);
         
@@ -178,7 +178,7 @@ void GameServerMessagesTransmitter::onPublish(const Event<EntityEffectEvent>& ev
 }
 
 void GameServerMessagesTransmitter::onPublish(const Event<GridEffectEvent>& event) {
-    for(auto [participantId, clientIndex] : turnController->getAllAttachedClients()) {
+    for(auto [participantId, clientIndex] : gameController->getAllAttachedClients()) {
         ApplyGridEffectMessage* message = 
             (ApplyGridEffectMessage*) server.createMessage(clientIndex, GameMessageType::APPLY_GRID_EFFECT);
 
@@ -197,7 +197,7 @@ void GameServerMessagesTransmitter::onPublish(const Event<TilesRevealedEventData
 }
 
 void GameServerMessagesTransmitter::onPublish(const Event<EntitySetPositionEventData>& event) {
-    for(auto [participantId, clientIndex] : turnController->getAllAttachedClients()) {
+    for(auto [participantId, clientIndex] : gameController->getAllAttachedClients()) {
         SetEntityPositionMessage* message =
             (SetEntityPositionMessage*) server.createMessage(clientIndex, GameMessageType::SET_ENTITY_POSITION);
 
@@ -212,7 +212,7 @@ void GameServerMessagesTransmitter::onPublish(const Event<EntitySetPositionEvent
 }
 
 void GameServerMessagesTransmitter::onPublish(const Event<EntityVisibilityToParticipantData>& event) {
-    int clientIndex = turnController->getAttachedClient(event.data.visibleToParticipantId);
+    int clientIndex = gameController->getAttachedClient(event.data.visibleToParticipantId);
 
     if(clientIndex == -1) {
         return;
@@ -247,7 +247,7 @@ void GameServerMessagesTransmitter::onPublish(const Event<EntityVisibilityToPart
 }
 
 void GameServerMessagesTransmitter::onPublish(const Event<CreateEngagementEventData>& event) {
-    for(auto [participantId, clientIndex] : turnController->getAllAttachedClients()) {
+    for(auto [participantId, clientIndex] : gameController->getAllAttachedClients()) {
         CreateEngagementMessage* message = 
             (CreateEngagementMessage*) server.createMessage(clientIndex, GameMessageType::CREATE_ENGAGEMENT);
 
@@ -263,7 +263,7 @@ void GameServerMessagesTransmitter::onPublish(const Event<CreateEngagementEventD
 }
 
 void GameServerMessagesTransmitter::onPublish(const Event<AddToEngagementEventData>& event) {
-    for(auto [participantId, clientIndex] : turnController->getAllAttachedClients()) {
+    for(auto [participantId, clientIndex] : gameController->getAllAttachedClients()) {
         AddToEngagementMessage* message = 
             (AddToEngagementMessage*) server.createMessage(clientIndex, GameMessageType::ADD_TO_ENGAGEMENT);
 
@@ -275,7 +275,7 @@ void GameServerMessagesTransmitter::onPublish(const Event<AddToEngagementEventDa
 }
 
 void GameServerMessagesTransmitter::onPublish(const Event<DisengageEventData>& event) {
-    for(auto [participantId, clientIndex] : turnController->getAllAttachedClients()) {
+    for(auto [participantId, clientIndex] : gameController->getAllAttachedClients()) {
         DisengageMessage* message = 
             (DisengageMessage*) server.createMessage(clientIndex, GameMessageType::DISENGAGE);
 
@@ -287,7 +287,7 @@ void GameServerMessagesTransmitter::onPublish(const Event<DisengageEventData>& e
 }
 
 void GameServerMessagesTransmitter::onPublish(const Event<RemoveEngagementEventData>& event) {
-    for(auto [participantId, clientIndex] : turnController->getAllAttachedClients()) {
+    for(auto [participantId, clientIndex] : gameController->getAllAttachedClients()) {
         RemoveEngagementMessage* message = 
             (RemoveEngagementMessage*) server.createMessage(clientIndex, GameMessageType::REMOVE_ENGAGEMENT);
 
@@ -298,7 +298,7 @@ void GameServerMessagesTransmitter::onPublish(const Event<RemoveEngagementEventD
 }
 
 void GameServerMessagesTransmitter::onPublish(const Event<MergeEngagementEventData>& event) {
-    for(auto [participantId, clientIndex] : turnController->getAllAttachedClients()) {
+    for(auto [participantId, clientIndex] : gameController->getAllAttachedClients()) {
         MergeEngagementsMessage* message = 
             (MergeEngagementsMessage*) server.createMessage(clientIndex, GameMessageType::MERGE_ENGAGEMENTS);
 
@@ -322,10 +322,10 @@ void GameServerMessagesTransmitter::sendSetParticipant(
     SetParticipantMessage* message = (SetParticipantMessage*) server.createMessage(clientIndex, GameMessageType::SET_PARTICIPANT);
 
     message->participantId = participant->getId();
-    message->numParticipantsToSet = turnController->getParticipants().size();
+    message->numParticipantsToSet = gameController->getParticipants().size();
 
     if(participant->getIsPlayer()) {
-        auto attachedClient = turnController->getAttachedClient(participant->getId());
+        auto attachedClient = gameController->getAttachedClient(participant->getId());
 
         if(attachedClient == -1) {
             spdlog::warn(
@@ -347,7 +347,7 @@ void GameServerMessagesTransmitter::sendSetParticipant(
 }
 
 void GameServerMessagesTransmitter::sendSetParticipantToAllClients(Participant* participant) {
-    for(auto [_, clientIndex] : turnController->getAllAttachedClients()) {
+    for(auto [_, clientIndex] : gameController->getAllAttachedClients()) {
         sendSetParticipant(clientIndex, participant);
     }
 }
@@ -397,7 +397,7 @@ void GameServerMessagesTransmitter::sendNextTurn(int clientIndex, int participan
 }
 
 void GameServerMessagesTransmitter::sendNextTurnToAllClients(int participantId, uint32_t engagementId, int turnNumber) {
-    for(auto [_, clientIndex] : turnController->getAllAttachedClients()) {
+    for(auto [_, clientIndex] : gameController->getAllAttachedClients()) {
         sendNextTurn(clientIndex, participantId, engagementId, turnNumber);
     }
 }
@@ -412,7 +412,7 @@ void GameServerMessagesTransmitter::sendSetTurn(int clientIndex, uint8_t current
 }
 
 void GameServerMessagesTransmitter::sendRevealedTiles(const std::vector<RevealedTile>& tiles, int participantId) {
-    auto clientIndex = turnController->getAttachedClient(participantId);
+    auto clientIndex = gameController->getAttachedClient(participantId);
 
     if(clientIndex == -1) {
         return;
@@ -507,7 +507,7 @@ void GameServerMessagesTransmitter::sendEngagement(
 // TODO: Move this elsewhere
 // TODO: This is essentially going to become the new GameStateUpdate, should be reliable.
 void GameServerMessagesTransmitter::sendLoadGameToClient(int clientIndex) {
-    auto participantId = turnController->getAttachedParticipantId(clientIndex);
+    auto participantId = gameController->getAttachedParticipantId(clientIndex);
 
     spdlog::trace("Sending load game to client {} for participant {}", clientIndex, participantId);
 
@@ -530,16 +530,16 @@ void GameServerMessagesTransmitter::sendLoadGameToClient(int clientIndex) {
 
     // TODO: needs rework
     // -- TURN NUMBER --
-    // sendSetTurn(clientIndex, turnController->getCurrentParticipantId(), turnController->getTurnNumber());
+    // sendSetTurn(clientIndex, gameController->getCurrentParticipantId(), gameController->getTurnNumber());
     // spdlog::trace(
     //     "Sent turn number [{}] to client {} for participant {}", 
-    //     turnController->getTurnNumber(), 
+    //     gameController->getTurnNumber(), 
     //     clientIndex, 
     //     participantId
     // );
 
     // // -- ENGAGEMENTS --
-    // auto engagements = turnController->getParticipant(participantId)->getEngagements();
+    // auto engagements = gameController->getParticipant(participantId)->getEngagements();
 
     // for(auto engagement : engagements) {
     //     sendEngagement(

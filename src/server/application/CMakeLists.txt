@@ -6,7 +6,7 @@ include_directories(../)
 add_library(
     ${PROJECT_NAME}
     serverapplication.cpp
-    serverturncontroller.cpp
+    servergamecontroller.cpp
     net/gameservermessagesreceiver.cpp
     net/gameservermessagestransmitter.cpp
 )
