@@ -55,30 +55,16 @@ public:
     std::vector<Participant*> getParticipants(void);
     bool hasParticipant(int id);
 
-    // void queueEngagement(int turnNumber, const Engagement& engagement);
-
-    // void engage(int participantIdA, int participantIdB);
-    // void disengage(int participantIdA, int participantIdB);
-
     void reset(void);
-    
-    // void passParticipant(int id);
-    // void setCurrentParticipant(int id);
-    // int getCurrentParticipantId(void) const;
 
     bool executeActionImmediately(std::unique_ptr<Action> action);
     bool queueAction(std::unique_ptr<Action> action);
-    // void executeActions(int participantId);
 
-    // void addOnNextTurnFunction(std::function<void(int, int)> onNextTurnFunc);
     void setOnAllParticipantsSetFunction(std::function<void()> onAllParticipantsSet);
 
     void allParticipantsSet(void);
 
     EngagementController* getEngagementController(void);
-
-    // int getTurnNumber(void) const;
-    // void setTurnNumber(int turnNumber);
 
 protected:
     ApplicationContext* context;
@@ -86,29 +72,14 @@ protected:
 
     bool initialised;
 
-    // int turnNumber;
-    // int currentParticipantId;
-
     std::map<int, std::unique_ptr<Participant>> participants;
-    // std::vector<std::function<void(int, int)>> onNextTurnWorkers;
     std::function<void()> onAllParticipantsSet;
-
-    // void endCurrentParticipantTurn(void);
-    // void nextParticipantTurn(void);
-    // void executeEntityActions(Entity* entity);
-    // void incrementTurn(void);
 
     void executeActions(uint32_t engagementId);
     void executeEntityActions(Engagement* engagement, Entity* entity);
     void endCurrentParticipantTurn(uint32_t engagementId);
     void nextParticipantTurn(uint32_t engagementId);
-
-    // void publishAction(Action& action);
-
-    // void processEngagements();
-
-    // virtual bool canProgressToNextTurn(int participantId) = 0;
-    // virtual void onParticipantTurnEnd(int participantId) = 0;
+    
     virtual bool canProgressToNextTurn(Engagement* engagement) = 0;
     virtual void onParticipantTurnEnd(Engagement* engagement) = 0;
     virtual void additionalUpdate(int64_t timeSinceLastFrame, bool& quit) = 0;
