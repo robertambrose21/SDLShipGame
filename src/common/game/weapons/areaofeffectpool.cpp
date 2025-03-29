@@ -61,6 +61,10 @@ void AreaOfEffectPool::add(const std::string& name, int ownerId, const glm::ivec
         if(!engagementAoEs.contains(engagement->getId())) {
             engagement->addOnNextTurnWorker([&](int currentParticipantId, int turnNumber, uint32_t engagementId) {
                 for(auto const& aoe : engagementAoEs[engagementId]) {
+                    if(aoe->getOwnerId() != currentParticipantId) {
+                        continue;
+                    }
+
                     aoe->onNextTurn(currentParticipantId, turnNumber);
                 }
             });

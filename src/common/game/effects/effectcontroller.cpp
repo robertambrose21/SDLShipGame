@@ -142,6 +142,10 @@ Effect* EffectController::addEffect(std::unique_ptr<Effect> effect) {
         if(!engagementEffects.contains(engagement->getId())) {
             engagement->addOnNextTurnWorker([&](int currentParticipantId, int turnNumber, uint32_t engagementId) {
                 for(auto const& effect : engagementEffects[engagementId]) {
+                    if(effect->getOwnerId() != currentParticipantId) {
+                        continue;
+                    }
+
                     effect->apply();
                     effect->nextTurn();
                 }
@@ -180,6 +184,10 @@ GridEffect* EffectController::addGridEffect(std::unique_ptr<GridEffect> effect) 
         if(!engagementGridEffects.contains(engagement->getId())) {
             engagement->addOnNextTurnWorker([&](int currentParticipantId, int turnNumber, uint32_t engagementId) {
                 for(auto const& effect : engagementGridEffects[engagementId]) {
+                    if(effect->getOwnerId() != currentParticipantId) {
+                        continue;
+                    }
+
                     effect->apply();
                     effect->nextTurn();
                 }

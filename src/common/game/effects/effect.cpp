@@ -27,7 +27,7 @@ uint8_t Effect::getTicksLeft(void) const {
 }
 
 void Effect::nextTurn(void) {
-    spdlog::info("Effect tick ({}/{})", ticksLeft, stats.duration);
+    // spdlog::info("Effect tick ({}/{})", ticksLeft, stats.duration);
     ticksLeft--;
     timeSinceLastTick = 0;
 }
