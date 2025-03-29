@@ -33,10 +33,14 @@ void EffectController::initialise(ApplicationContext& context) {
 //     // }
 // }
 
-// TODO: Divide this up
 void EffectController::update(int64_t timeSinceLastFrame) {
     game_assert(initialised);
 
+    updateEngagementEffects(timeSinceLastFrame);
+    updateAdhocEffects(timeSinceLastFrame);
+}
+
+void EffectController::updateEngagementEffects(int64_t timeSinceLastFrame) {
     auto engagementController = context->getTurnController()->getEngagementController();
 
     std::erase_if(engagementEffects, [&](const auto& engagementEffect) {
@@ -82,7 +86,9 @@ void EffectController::update(int64_t timeSinceLastFrame) {
             effect->update(timeSinceLastFrame);
         }
     }
+}
 
+void EffectController::updateAdhocEffects(int64_t timeSinceLastFrame) {
     std::erase_if(adhocEffects, [](const auto& effect) {
         bool isComplete = effect->getTicksLeft() <= 0;
         if(isComplete) {
