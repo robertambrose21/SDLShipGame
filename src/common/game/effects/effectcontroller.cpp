@@ -61,16 +61,17 @@ void EffectController::updateEngagementEffects(int64_t timeSinceLastFrame) {
                     "Effect for participant {} complete - removing", 
                     effect->getOwnerId()
                 );
+                effect->onEffectEnd();
             }
             return isComplete;
         });
 
-        for(auto const& effect : effects) {
+        for(auto& effect : effects) {
             effect->update(timeSinceLastFrame);
         }
     }
 
-    for(auto& [engagementId, effects]: engagementGridEffects) {
+    for(auto& [engagementId, effects]: engagementGridEffects) {        
         std::erase_if(effects, [](const auto& effect) {
             bool isComplete = effect->getDuration() <= 0;
             if(isComplete) {
@@ -78,6 +79,7 @@ void EffectController::updateEngagementEffects(int64_t timeSinceLastFrame) {
                     "GridEffect for participant {} complete - removing", 
                     effect->getOwnerId()
                 );
+                effect->onEffectEnd();
             }
             return isComplete;
         });
@@ -88,7 +90,7 @@ void EffectController::updateEngagementEffects(int64_t timeSinceLastFrame) {
     }
 }
 
-void EffectController::updateAdhocEffects(int64_t timeSinceLastFrame) {
+void EffectController::updateAdhocEffects(int64_t timeSinceLastFrame) {    
     std::erase_if(adhocEffects, [](const auto& effect) {
         bool isComplete = effect->getTicksLeft() <= 0;
         if(isComplete) {
@@ -96,6 +98,7 @@ void EffectController::updateAdhocEffects(int64_t timeSinceLastFrame) {
                 "Effect for participant {} complete - removing", 
                 effect->getOwnerId()
             );
+            effect->onEffectEnd();
         }
         return isComplete;
     });
@@ -107,11 +110,12 @@ void EffectController::updateAdhocEffects(int64_t timeSinceLastFrame) {
                 "GridEffect for participant {} complete - removing", 
                 effect->getOwnerId()
             );
+            effect->onEffectEnd();
         }
         return isComplete;
     });
 
-    for(auto const& effect : adhocEffects) {
+    for(auto& effect : adhocEffects) {
         if(effect->getTimeSinceLastTick() >= Effect::RealTimeTick) {
             effect->apply();
             effect->nextTurn();
@@ -120,7 +124,7 @@ void EffectController::updateAdhocEffects(int64_t timeSinceLastFrame) {
         effect->update(timeSinceLastFrame);
     }
 
-    for(auto const& effect : adhocGridEffects) {
+    for(auto& effect : adhocGridEffects) {
         if(effect->getTimeSinceLastTick() >= Effect::RealTimeTick) {
             effect->apply();
             effect->nextTurn();

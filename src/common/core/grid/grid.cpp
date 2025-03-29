@@ -14,16 +14,6 @@ Grid::Grid(int width, int height, const std::vector<std::vector<Tile>>& data) :
     }
 }
 
-void Grid::nextTurn(void) {
-    for(auto y = 0; y < getHeight(); y++) {
-        for(auto x = 0; x < getWidth(); x++) {
-            data[y][x].isFrozen = false;
-        }
-    }
-
-    setDirty(true);
-}
-
 int Grid::getWidth(void) const {
     return width;
 }

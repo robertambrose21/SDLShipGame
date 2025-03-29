@@ -24,6 +24,8 @@ public:
 
     int64_t getTimeSinceLastTick(void) const;
 
+    virtual void onEffectEnd(void) = 0;
+
 protected:
     Grid* grid;
     int ownerId;
@@ -40,5 +42,7 @@ public:
     GridFreezeEffect(Grid* grid, int ownerId, int x, int y, int duration);
 
     void doApply(void);
+    void onEffectEnd(void);
+    
     EffectType getType(void) const;
 };

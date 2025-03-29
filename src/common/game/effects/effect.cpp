@@ -58,6 +58,9 @@ EffectType FreezeEffect::getType(void) const {
     return EffectType::FREEZE;
 }
 
+void FreezeEffect::onEffectEnd(void) {
+    target->setFrozen(false);
+}
 
 
 PoisonEffect::PoisonEffect(Entity* target, int ownerId, const Stats::EffectStats& stats) :
@@ -72,4 +75,8 @@ void PoisonEffect::doApply(void) {
 
 EffectType PoisonEffect::getType(void) const {
     return EffectType::POISON;
+}
+
+void PoisonEffect::onEffectEnd(void) {
+    target->setIsPoisoned(false);
 }

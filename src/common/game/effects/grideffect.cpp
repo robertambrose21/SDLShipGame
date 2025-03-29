@@ -55,6 +55,10 @@ void GridFreezeEffect::doApply(void) {
     grid->setTileFrozen(x, y, true);
 }
 
+void GridFreezeEffect::onEffectEnd(void) {
+    grid->setTileFrozen(x, y, false);
+}
+
 EffectType GridFreezeEffect::getType(void) const {
     return EffectType::FREEZE;
 }

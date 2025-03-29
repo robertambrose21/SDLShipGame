@@ -26,6 +26,8 @@ public:
 
     int64_t getTimeSinceLastTick(void) const;
 
+    virtual void onEffectEnd(void) = 0;
+
 protected:
     Entity* target;
     uint8_t ticksLeft;
@@ -42,6 +44,7 @@ public:
     FreezeEffect(Entity* target, int ownerId, const Stats::EffectStats& stats);
 
     void doApply(void);
+    void onEffectEnd(void);
     EffectType getType(void) const;
 };
 
@@ -50,5 +53,6 @@ public:
     PoisonEffect(Entity* target, int ownerId, const Stats::EffectStats& stats);
 
     void doApply(void);
+    void onEffectEnd(void);
     EffectType getType(void) const;
 };
