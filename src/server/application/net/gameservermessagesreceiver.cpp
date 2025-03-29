@@ -192,7 +192,14 @@ void GameServerMessagesReceiver::receivePassParticipantTurnMessage(
         return;
     }
 
-    // context.getTurnController()->passParticipant(receivedParticipantId); // TODO
+    auto participant = context.getTurnController()->getParticipant(receivedParticipantId);
+
+    if(!participant->getEngagement()) {
+        spdlog::warn("Participant {} does not have any engagement, cannot pass turn", receivedParticipantId);
+        return;
+    }
+
+    participant->passTurn();
 }
 
 void GameServerMessagesReceiver::receiveSetParticipantAckMessage(int clientIndex, int participantId) {

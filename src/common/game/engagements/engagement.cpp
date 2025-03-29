@@ -24,8 +24,6 @@ void Engagement::nextTurn(void) {
     for(auto const& onNextTurnFunc : onNextTurnWorkers) {
         onNextTurnFunc(getCurrentParticipant()->getId(), turnNumber, id);
     }
-    
-    // context->getEffectController()->onNextTurn();
 
     turnNumber++;
 
@@ -35,8 +33,6 @@ void Engagement::nextTurn(void) {
         turnNumber,
         getCurrentParticipant()->getId()
     );
-    // context->getGrid()->nextTurn();
-    // publish<TurnEventData>({ turnNumber, currentParticipantId });
 }
 
 void Engagement::addParticipant(Participant* participant) {
