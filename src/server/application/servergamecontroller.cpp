@@ -180,39 +180,12 @@ void ServerGameController::checkForItems(void) {
 }
 
 void ServerGameController::assignEngagements(int participantIdToCheck) {
-    // auto behaviour = participants[participantIdToCheck]->getBehaviourStrategy();
-
     for(auto& [participantId, participant] : participants) {
         compareAndEngageParticipants(participant.get(), participants[participantIdToCheck].get());
     }
 }
 
 void ServerGameController::compareAndEngageParticipants(Participant* participantA, Participant* participantB) {
-    // if(participantA->getId() == participantB->getId()) {
-    //     return;
-    // }
-
-    // // We only need to check the engagements for one of the participants
-    // if(participantA->hasEngagement(participantB->getId())) {
-    //     if(participantA->getEntities().empty() || participantB->getEntities().empty()) {
-    //         disengage(participantA->getId(), participantB->getId());
-    //     }
-
-    //     return;
-    // }
-
-    // if(!participantA->isHostile(participantB) || !participantB->isHostile(participantA)) {
-    //     return;
-    // }
-
-    // // Exit early if we find an engagement
-    // for(auto entityToCheck : participantA->getEntities()) {
-    //     if(hasEntityEngagement(entityToCheck, participantB)) {
-    //         engage(participantA->getId(), participantB->getId());
-    //         return;
-    //     }
-    // }
-
     // Same participant - irrelevant
     if(participantA->getId() == participantB->getId()) {
         return;
@@ -260,16 +233,6 @@ void ServerGameController::compareAndEngageParticipants(Participant* participant
             participantB->getEngagement()->getId()
         );
     }
-
-    // std::map<int, uint32_t> currentEngagements;
-    // for(auto const& [_, engagement] : getEngagements()) {
-    //     for(auto participant : engagement.participants) {
-    //         currentEngagements[participant]
-    //     }
-    //     // if(containsAll(engagement.participants, { participantA->getId(), participantB->getId() })) {
-    //     //     return;
-    //     // }
-    // }
 }
 
 bool ServerGameController::hasEntityEngagement(Entity* target, Participant* participant) {

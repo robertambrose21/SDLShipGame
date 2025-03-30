@@ -73,15 +73,6 @@ void EngagementController::addToEngagement(uint32_t engagementId, Participant* p
         return;
     }
 
-    // if(contains(engagements[engagementId]->getParticipants(), participant)) {
-    //     spdlog::warn(
-    //         "Cannot add participant {} to engagement {}, participant already part of this engagement",
-    //         participant->getId(),
-    //         engagementId
-    //     );
-    //     return;
-    // }
-
     spdlog::trace("Adding participant {} to engagement {}", participant->getId(), engagementId);
 
     engagements[engagementId]->addParticipant(participant);
