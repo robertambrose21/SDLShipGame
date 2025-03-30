@@ -2,15 +2,7 @@
 
 ServerGameController::ServerGameController() :
     GameController()
-{
-    // addOnNextTurnFunction([&](auto const& currentParticipantId, auto const& turnNumber) {
-    //     auto behaviourStrategy = participants[currentParticipantId]->getBehaviourStrategy();
-
-    //     if(behaviourStrategy != nullptr) {
-    //         behaviourStrategy->onNextTurn();
-    //     }
-    // });
-}
+{ }
 
 void ServerGameController::attachParticipantToClient(int participantId, int clientIndex, uint64_t clientId) {
     participantToClient[participantId] = { clientId, clientIndex };
@@ -69,16 +61,10 @@ std::map<int, int> ServerGameController::getAllAttachedClients(void) {
 
 void ServerGameController::additionalUpdate(int64_t timeSinceLastFrame, bool& quit) {
     for(auto& [participantId, participant] : participants) {
-        // TODO: This should be called when an entity moves, not every update tick
-        assignEngagements(participantId);
-
         if(participant->getBehaviourStrategy() != nullptr) {
             participant->getBehaviourStrategy()->onUpdate(participantId, timeSinceLastFrame, quit);
         }
     }
-
-    // TODO: This should be called when an entity moves, not every update tick
-    checkForItems();
 }
 
 bool ServerGameController::canProgressToNextTurn(Engagement* engagement) {
@@ -147,34 +133,38 @@ void ServerGameController::onParticipantTurnEnd(Engagement* engagement) {
     }
 }
 
-void ServerGameController::checkForItems(void) {
+void ServerGameController::checkForItems(int participantId) {
     auto itemController = context->getItemController();
 
-    for(auto& [_, participant] : participants) {
-        if(!participant->getIsPlayer()) {
-            continue;
+    if(!hasParticipant(participantId)) {
+        return;
+    }
+
+    auto participant = getParticipant(participantId);
+
+    if(!participant->getIsPlayer()) {
+        return;
+    }
+
+    for(auto entity : participant->getEntities()) {
+        auto items = itemController->getItemsAt(entity->getPosition());
+
+        if(items.empty()) {
+            return;
         }
-
-        for(auto entity : participant->getEntities()) {
-            auto items = itemController->getItemsAt(entity->getPosition());
-
-            if(items.empty()) {
-                continue;
-            }
-            
-            if(participant->hasAnyEngagement()) {
-                queueAction(
-                    std::make_unique<TakeItemAction>(
-                        participant.get(), 
-                        entity,
-                        participant->getEngagement()->getTurnNumber(),
-                        items
-                    )
-                );
-            }
-            else {
-                executeActionImmediately(std::make_unique<TakeItemAction>(participant.get(), entity, items));
-            }
+        
+        if(participant->hasAnyEngagement()) {
+            queueAction(
+                std::make_unique<TakeItemAction>(
+                    participant,
+                    entity,
+                    participant->getEngagement()->getTurnNumber(),
+                    items
+                )
+            );
+        }
+        else {
+            executeActionImmediately(std::make_unique<TakeItemAction>(participant, entity, items));
         }
     }
 }
@@ -247,4 +237,12 @@ bool ServerGameController::hasEntityEngagement(Entity* target, Participant* part
 
 void ServerGameController::setTransmitter(GameServerMessagesTransmitter* transmitter) {
     this->transmitter = transmitter;
+}
+
+void ServerGameController::onPublish(const Event<EntitySetPositionEventData>& event) {
+    for(auto& [participantId, participant] : participants) {
+        assignEngagements(participantId);
+    }
+
+    checkForItems(event.data.entity->getParticipantId());
 }

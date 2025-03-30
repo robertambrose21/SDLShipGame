@@ -90,6 +90,7 @@ void ServerApplication::initialise(void) {
     context.getVisibilityController()->subscribe<TilesRevealedEventData>(transmitter.get());
     context.getEntityPool()->subscribe<EntitySetPositionEventData>(context.getVisibilityController());
     context.getEntityPool()->subscribe<EntitySetPositionEventData>(transmitter.get());
+    context.getEntityPool()->subscribe<EntitySetPositionEventData>(dynamic_cast<ServerGameController*>(context.getGameController()));
     context.getVisibilityController()->subscribe<EntityVisibilityToParticipantData>(transmitter.get());
     context.getGameController()->getEngagementController()->subscribe<CreateEngagementEventData>(transmitter.get());
     context.getGameController()->getEngagementController()->subscribe<AddToEngagementEventData>(transmitter.get());
