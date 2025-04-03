@@ -55,6 +55,9 @@ void ClientApplication::initialise(void) {
     context.getGameController()->subscribe<TakeItemActionEventData>(&stdoutSubscriber);
     context.getGameController()->subscribe<EngagementEventData>(&stdoutSubscriber);
     context.getGameController()->subscribe<EquipItemActionEventData>(&stdoutSubscriber);
+    // TODO: Gross af - fix these subscriptions
+    context.getGameController()->getEngagementController()
+        ->subscribe<RemoveEngagementEventData>(dynamic_cast<ClientGameController*>(context.getGameController()));
 
     weaponDrawStrategy = std::make_unique<WeaponDrawStrategy>();
     entityDrawStrategy = std::make_unique<EntityDrawStrategy>(weaponDrawStrategy.get());

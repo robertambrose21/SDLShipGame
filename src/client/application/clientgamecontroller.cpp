@@ -32,3 +32,7 @@ void ClientGameController::onParticipantTurnEnd(Engagement* engagement) {
 void ClientGameController::receiveSetNextTurnFlag(int participantId, uint32_t engagementId, int receivedTurnNumber) {
     nextTurnFlags[engagementId].push(receivedTurnNumber);
 }
+
+void ClientGameController::onPublish(const Event<RemoveEngagementEventData>& event) {
+    nextTurnFlags.erase(event.data.engagementId);
+}
