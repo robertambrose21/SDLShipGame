@@ -21,7 +21,6 @@ enum class GameMessageType {
     NEXT_TURN,
     SPAWN_ITEMS,
     TAKE_ITEMS,
-    ENGAGEMENT,
     EQUIP_ITEM,
     EQUIP_WEAPON,
     APPLY_DAMAGE,
@@ -31,7 +30,6 @@ enum class GameMessageType {
     SET_ENTITY_POSITION,
     REMOVE_ENTITY_VISIBILITY,
     ADD_ENTITY_VISIBILITY,
-    SET_TURN, // remove?
     CREATE_ENGAGEMENT,
     ADD_TO_ENGAGEMENT,
     DISENGAGE,
@@ -425,32 +423,6 @@ public:
     YOJIMBO_VIRTUAL_SERIALIZE_FUNCTIONS();
 };
 
-class EngagementMessage : public yojimbo::Message {
-public:
-    int participantIdA;
-    int participantIdB;
-    int type;
-    int turnToEngageOn;
-
-    EngagementMessage() :
-        participantIdA(0),
-        participantIdB(0),
-        type(0),
-        turnToEngageOn(0)
-    { }
-
-    template <typename Stream>
-    bool Serialize(Stream& stream) {
-        serialize_int(stream, participantIdA, 0, 64);
-        serialize_int(stream, participantIdB, 0, 64);
-        serialize_int(stream, type, 0, 64);
-        serialize_int(stream, turnToEngageOn, 0, 512);
-        return true;
-    }
-
-    YOJIMBO_VIRTUAL_SERIALIZE_FUNCTIONS();
-};
-
 class EquipItemMessage : public yojimbo::Message {
 public:
     uint32_t itemId;
@@ -691,27 +663,6 @@ public:
     YOJIMBO_VIRTUAL_SERIALIZE_FUNCTIONS();
 };
 
-class SetTurnMessage : public yojimbo::Message {
-public:
-    uint32_t turnNumber;
-    uint8_t currentParticipantId;
-
-    SetTurnMessage() :
-        turnNumber(0),
-        currentParticipantId(0)
-    { }
-
-    template<typename Stream>
-    bool Serialize(Stream& stream) {
-        serialize_uint32(stream, turnNumber);
-        serialize_bits(stream, currentParticipantId, 8);
-
-        return true;
-    }
-
-    YOJIMBO_VIRTUAL_SERIALIZE_FUNCTIONS();
-};
-
 class CreateEngagementMessage : public yojimbo::Message {
 public:
     uint32_t engagementId;
@@ -845,7 +796,6 @@ YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::ACTIONS_ROLL_RESPONSE, Action
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::NEXT_TURN, NextTurnMessage);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::SPAWN_ITEMS, SpawnItemsMessage);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::TAKE_ITEMS, TakeItemsMessage);
-YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::ENGAGEMENT, EngagementMessage);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::EQUIP_ITEM, EquipItemMessage);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::EQUIP_WEAPON, EquipWeaponMessage);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::APPLY_DAMAGE, ApplyDamageMessage);
@@ -855,7 +805,6 @@ YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::TILES_REVEALED, TilesRevealed
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::SET_ENTITY_POSITION, SetEntityPositionMessage);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::REMOVE_ENTITY_VISIBILITY, RemoveEntityVisibilityMessage);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::ADD_ENTITY_VISIBILITY, AddEntityVisibilityMessage);
-YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::SET_TURN, SetTurnMessage);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::CREATE_ENGAGEMENT, CreateEngagementMessage);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::ADD_TO_ENGAGEMENT, AddToEngagementMessage);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::DISENGAGE, DisengageMessage);

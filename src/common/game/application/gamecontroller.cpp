@@ -1,6 +1,5 @@
 #include "gamecontroller.h"
 
-// This will effectively become a game controller
 GameController::GameController() :
     initialised(false)
 { }

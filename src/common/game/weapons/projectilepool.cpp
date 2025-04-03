@@ -61,7 +61,6 @@ std::function<void(int, const glm::ivec2&, bool)> ProjectilePool::buildOnHitCall
     
     return [&](auto ownerId, auto target, auto isAnimationOnly) {
         if(aoe != "") {
-            // context->getAreaOfEffectPool()->add(aoe, ownerId, turnNumber, target, isAnimationOnly);
             context->getAreaOfEffectPool()->add(aoe, ownerId, target, isAnimationOnly);
         }
     };

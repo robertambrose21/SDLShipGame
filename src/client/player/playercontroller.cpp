@@ -127,7 +127,6 @@ void PlayerController::handleKeyPress(const SDL_Event& event) {
         switch(event.key.keysym.sym) {
             case SDLK_p: {
                 clientMessagesTransmitter.sendPassParticipantTurnMessage(participant->getId());
-                // gameController->passParticipant(participant->getId()); // TODO
                 break;
             }
             

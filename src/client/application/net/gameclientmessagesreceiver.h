@@ -42,10 +42,8 @@ private:
     void receiveFindPath(FindPathMessage* message);
     void receiveAttackEntity(AttackMessage* message);
     void receiveNextTurn(NextTurnMessage* message);
-    void receiveSetTurn(SetTurnMessage* message);
     void receiveSpawnItems(SpawnItemsMessage* message);
     void receiveTakeItems(TakeItemsMessage* message);
-    void receiveEngagement(EngagementMessage* message);
     void receiveApplyDamageMessage(ApplyDamageMessage* message);
     void receiveApplyEntityEffectMessage(ApplyEntityEffectMessage* message);
     void receiveApplyGridEffectMessage(ApplyGridEffectMessage* message);
@@ -54,7 +52,7 @@ private:
     void receiveAddEntityVisibilityMessage(AddEntityVisibilityMessage* message);
     void receiveRemoveEntityVisibilityMessage(RemoveEntityVisibilityMessage* message);
 
-    // Engagemnets
+    // Engagements
     void receiveCreateEngagementMessage(CreateEngagementMessage* message);
     void receiveAddToEngagementMessage(AddToEngagementMessage* message);
     void receiveDisenageMessage(DisengageMessage* message);

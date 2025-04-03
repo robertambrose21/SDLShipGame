@@ -19,8 +19,6 @@ public:
         EventPublisher<AreaOfEffectEventData>& publisher,
         uint32_t textureId,
         int ownerId,
-        // int liveTurn,
-        // int turnsLeft,
         bool isAnimationOnly,
         const glm::ivec2& position,
         const DamageSource& damageSource,
@@ -54,7 +52,6 @@ private:
     std::vector<glm::ivec2> effectedTilePositions;
 
     int ownerId;
-    // int liveTurn;
     uint8_t turnsLeft;
     bool isAnimationOnly;
     glm::ivec2 position;

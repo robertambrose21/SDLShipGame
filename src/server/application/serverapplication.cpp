@@ -44,15 +44,12 @@ void ServerApplication::initialise(void) {
     context.getSpawnController()->initialise(application->getContext());
     context.getVisibilityController()->initialise(application->getContext());
     context.getEffectController()->initialise(application->getContext());
-
-    // context.getGameController()->subscribe<TurnEventData>(&stdoutSubscriber);
     context.getEntityPool()->subscribe<EntityEventData>(&stdoutSubscriber);
     context.getWeaponController()->subscribe<MeleeWeaponEventData>(&stdoutSubscriber);
     context.getProjectilePool()->subscribe<ProjectileEventData>(&stdoutSubscriber);
     context.getAreaOfEffectPool()->subscribe<AreaOfEffectEventData>(&stdoutSubscriber);
     context.getItemController()->subscribe<ItemEventData>(&stdoutSubscriber);
     context.getGameController()->subscribe<TakeItemActionEventData>(&stdoutSubscriber);
-    context.getGameController()->subscribe<EngagementEventData>(&stdoutSubscriber);
     context.getGameController()->subscribe<EquipItemActionEventData>(&stdoutSubscriber);
 
     server = std::make_unique<GameServer>(
@@ -81,7 +78,6 @@ void ServerApplication::initialise(void) {
     context.getGameController()->subscribe<MoveActionEventData>(transmitter.get());
     context.getGameController()->subscribe<AttackActionEventData>(transmitter.get());
     context.getGameController()->subscribe<TakeItemActionEventData>(transmitter.get());
-    context.getGameController()->subscribe<EngagementEventData>(transmitter.get());
     context.getAreaOfEffectPool()->subscribe<AreaOfEffectEventData>(transmitter.get());
     context.getProjectilePool()->subscribe<ProjectileEventData>(transmitter.get());
     context.getWeaponController()->subscribe<MeleeWeaponEventData>(transmitter.get());
@@ -106,15 +102,6 @@ void ServerApplication::initialise(void) {
         c.getAreaOfEffectPool()->update(timeSinceLastFrame);
         c.getEffectController()->update(timeSinceLastFrame);
     });
-
-    // TODO: This somehow makes the game state messages get received first rather than the set participant ones.
-    // On the client side we need to wait until participants are all set before we load the rest of the map
-    // context.getGameController()->addOnNextTurnFunction([&](auto const& currentParticipantId, auto const& turnNumber) {
-    //     // TODO: This has a synching issue currently particularly around entity movement not completing in time before
-    //     // an entities "moves left" is set by the update. Consider making updates just set positions/health?
-
-    //     // sendGameStateUpdatesToClients();
-    // });
 
     auto rooms = loadMap();
     loadGame(rooms);

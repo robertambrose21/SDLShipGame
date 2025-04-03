@@ -45,15 +45,12 @@ void ClientApplication::initialise(void) {
     context.getSpawnController()->initialise(application->getContext());
     context.getVisibilityController()->initialise(application->getContext());
     context.getEffectController()->initialise(application->getContext());
-
-    // context.getGameController()->subscribe<TurnEventData>(&stdoutSubscriber);
     context.getEntityPool()->subscribe<EntityEventData>(&stdoutSubscriber);
     context.getWeaponController()->subscribe<MeleeWeaponEventData>(&stdoutSubscriber);
     context.getProjectilePool()->subscribe<ProjectileEventData>(&stdoutSubscriber);
     context.getAreaOfEffectPool()->subscribe<AreaOfEffectEventData>(&stdoutSubscriber);
     context.getItemController()->subscribe<ItemEventData>(&stdoutSubscriber);
     context.getGameController()->subscribe<TakeItemActionEventData>(&stdoutSubscriber);
-    context.getGameController()->subscribe<EngagementEventData>(&stdoutSubscriber);
     context.getGameController()->subscribe<EquipItemActionEventData>(&stdoutSubscriber);
     // TODO: Gross af - fix these subscriptions
     context.getGameController()->getEngagementController()
@@ -170,14 +167,13 @@ void ClientApplication::drawGameLoop(GraphicsContext& graphicsContext) {
         itemDrawStrategy->draw(item, graphicsContext);
     }
 
-    // for(auto aoe : areaOfEffectPool->getAoeEffects()) {
-    //     areaOfEffectDrawStrategy->draw(aoe, graphicsContext);
-    // }
+
     for(auto const& [_, aoes] : areaOfEffectPool->getEngagementAoEs()) {
         for(auto const& aoe : aoes) {
             areaOfEffectDrawStrategy->draw(aoe.get(), graphicsContext);
         }
     }
+    
     for(auto const& aoe : areaOfEffectPool->getAdhocAoEs()) {
         areaOfEffectDrawStrategy->draw(aoe.get(), graphicsContext);
     }

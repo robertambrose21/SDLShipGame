@@ -9,30 +9,6 @@ void EffectController::initialise(ApplicationContext& context) {
     initialised = true;
 }
 
-// void EffectController::onNextTurn(void) {
-//     // // Entity effects
-//     // for(auto& [_, entityEffects] : effects) {
-//     //     std::erase_if(entityEffects, [&](const auto& effect) {
-//     //         return effect->getTicksLeft() <= 0;
-//     //     });
-
-//     //     for(auto& effect : entityEffects) {
-//     //         effect->apply();
-//     //         effect->nextTurn();
-//     //     }
-//     // }
-
-//     // // Grid effects
-//     // std::erase_if(gridEffects, [&](const auto& effect) {
-//     //     return effect->getDuration() <= 0;
-//     // });
-
-//     // for(auto& effect : gridEffects) {
-//     //     effect->apply();
-//     //     effect->nextTurn();
-//     // }
-// }
-
 void EffectController::update(int64_t timeSinceLastFrame) {
     game_assert(initialised);
 
@@ -163,7 +139,6 @@ Effect* EffectController::addEffect(std::unique_ptr<Effect> effect) {
         adhocEffects.push_back(std::move(effect));
     }
 
-    // effects[entityId].push_back(std::move(effect));
     effectPtr->apply();
 
     publish<EntityEffectEvent>({ 
@@ -178,7 +153,6 @@ Effect* EffectController::addEffect(std::unique_ptr<Effect> effect) {
 
 GridEffect* EffectController::addGridEffect(std::unique_ptr<GridEffect> effect) {
     auto effectPtr = effect.get();
-    // gridEffects.push_back(std::move(effect));
 
     auto participant = context->getGameController()->getParticipant(effect->getOwnerId());
 

@@ -50,7 +50,6 @@ add_library(
     net/gamemessagelogger.cpp
     participant/participant.cpp
     data/tiles.h
-    data/engagements.h
 )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX CXX_STANDARD 20)

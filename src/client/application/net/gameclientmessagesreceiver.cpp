@@ -27,10 +27,8 @@ void GameClientMessagesReceiver::receiveMessage(yojimbo::Message* message) {
         case (int) GameMessageType::FIND_PATH:                  { receiveFindPath((FindPathMessage*) message); break; }
         case (int) GameMessageType::ATTACK_ENTITY:              { receiveAttackEntity((AttackMessage*) message); break; }
         case (int) GameMessageType::NEXT_TURN:                  { receiveNextTurn((NextTurnMessage*) message); break; }
-        case (int) GameMessageType::SET_TURN:                   { receiveSetTurn((SetTurnMessage*) message); break; }
         case (int) GameMessageType::SPAWN_ITEMS:                { receiveSpawnItems((SpawnItemsMessage*) message); break; }
         case (int) GameMessageType::TAKE_ITEMS:                 { receiveTakeItems((TakeItemsMessage*) message); break; }
-        case (int) GameMessageType::ENGAGEMENT:                 { receiveEngagement((EngagementMessage*) message); break; }
         case (int) GameMessageType::APPLY_DAMAGE:               { receiveApplyDamageMessage((ApplyDamageMessage*) message); break; }
         case (int) GameMessageType::APPLY_ENTITY_EFFECT:        { receiveApplyEntityEffectMessage((ApplyEntityEffectMessage*) message); break; }
         case (int) GameMessageType::APPLY_GRID_EFFECT:          { receiveApplyGridEffectMessage((ApplyGridEffectMessage*) message); break; }
@@ -165,11 +163,6 @@ void GameClientMessagesReceiver::receiveNextTurn(NextTurnMessage* message) {
         ->receiveSetNextTurnFlag(message->participantId, message->engagementId, message->turnNumber);
 }
 
-void GameClientMessagesReceiver::receiveSetTurn(SetTurnMessage* message) {
-    // context.getGameController()->setCurrentParticipant(message->currentParticipantId);
-    // context.getGameController()->setTurnNumber(message->turnNumber);
-}
-
 void GameClientMessagesReceiver::receiveSpawnItems(SpawnItemsMessage* message) {
     for(int i = 0; i < message->numItems; i++) {
         context.getItemController()->addItem(
@@ -220,17 +213,6 @@ void GameClientMessagesReceiver::receiveTakeItems(TakeItemsMessage* message) {
             )
         );
     }
-}
-
-void GameClientMessagesReceiver::receiveEngagement(EngagementMessage* message) {
-    // context.getGameController()->queueEngagement(
-    //     message->turnToEngageOn, 
-    //     { 
-    //         message->participantIdA, 
-    //         message->participantIdB, 
-    //         message->type == EngagementType::DISENGAGED 
-    //     }
-    // );
 }
 
 void GameClientMessagesReceiver::receiveApplyDamageMessage(ApplyDamageMessage* message) {

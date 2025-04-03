@@ -10,7 +10,6 @@ class ActionPublisher :
         MoveActionEventData,
         AttackActionEventData,
         TakeItemActionEventData,
-        EngagementEventData,
         EquipItemActionEventData,
         EquipWeaponActionEventData
     >

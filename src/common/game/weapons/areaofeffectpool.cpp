@@ -144,19 +144,6 @@ void AreaOfEffectPool::update(int64_t timeSinceLastFrame) {
     }
 }
 
-// std::vector<AreaOfEffect*> AreaOfEffectPool::getAoeEffects(void) {
-//     game_assert(initialised);
-
-//     // TODO: just return the map
-//     std::vector<AreaOfEffect*> aoes;
-
-//     // for(auto&& [_, aoe] : aoeObjects) {
-//     //     aoes.push_back(aoe.get());
-//     // }
-
-//     return aoes;
-// }
-
 const std::map<uint32_t, std::vector<std::unique_ptr<AreaOfEffect>>>& AreaOfEffectPool::getEngagementAoEs(void) const {
     return engagementAoEs;
 }

@@ -22,7 +22,6 @@ public:
 
     void update(int64_t timeSinceLastFrame);
 
-    // std::vector<AreaOfEffect*> getAoeEffects(void);
     const std::map<uint32_t, std::vector<std::unique_ptr<AreaOfEffect>>>& getEngagementAoEs(void) const;
     const std::vector<std::unique_ptr<AreaOfEffect>>& getAdhocAoEs(void) const;
     Stats::AoEStats getStatsFor(const std::string& key);
@@ -40,7 +39,6 @@ private:
 
     std::map<std::string, AoeDefinition> aoeDefinitions;
 
-    // std::vector<std::pair<int, std::unique_ptr<AreaOfEffect>>> aoeObjects;
     std::map<uint32_t, std::vector<std::unique_ptr<AreaOfEffect>>> engagementAoEs;
     std::vector<std::unique_ptr<AreaOfEffect>> adhocAoEs;
     std::vector<int> aoeObjectsForDeletion;

@@ -15,8 +15,6 @@ public:
     EffectController();
 
     void initialise(ApplicationContext& context);
-
-    // void onNextTurn(void);
     void update(int64_t timeSinceLastFrame);
 
     Effect* addEffect(std::unique_ptr<Effect> effect);

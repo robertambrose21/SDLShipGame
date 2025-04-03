@@ -14,30 +14,13 @@ class Item;
 
 class Participant {
 public:
-    // typedef struct _enagement {
-    //     int otherParticipantId;
-    //     int turnEngaged;
-
-    //     // We don't care about the turn engaged
-    //     bool operator<(const _enagement& other) const {
-    //         return otherParticipantId < other.otherParticipantId;
-    //     }
-    // } Engagement;
-
     Participant(int id);
 
     float distanceToOtherParticipant(Participant* other);
 
-    // void engage(int otherParticipantId, int turnEngaged);
-    // void disengage(int otherParticipantId);
-    // bool hasEngagement(int otherParticipantId);
     bool hasEngagement(Participant* other);
     bool hasAnyEngagement(void);
-    // bool isEngaged(void);
-    // std::optional<uint32_t> getEngagementId(void) const;
-    // void setEngagementId(const std::optional<uint32_t>& engagementId);
     Engagement* getEngagement(void);
-    // void setEngagement(Engagement* engagement);
     void engage(Engagement* engagement);
     void disengage(void);
     float getAverageEntitySpeed(void);
@@ -67,8 +50,6 @@ public:
     BehaviourStrategy* getBehaviourStrategy(void);
     void setBehaviourStrategy(std::unique_ptr<BehaviourStrategy> behaviourStrategy);
 
-    // const std::set<Engagement>& getEngagements(void) const;
-
     void setVisibleEntities(const std::set<Entity*>& visibleEntities);
     const std::set<Entity*>& getVisibleEntities(void) const;
     
@@ -92,8 +73,6 @@ private:
     bool passNextTurn;
     std::unique_ptr<BehaviourStrategy> behaviourStrategy;
     
-    // std::set<Engagement> engagements;
-    // std::optional<uint32_t> engagementId;
     Engagement* engagement;
     std::set<std::string> hostileFactions;
 

@@ -17,7 +17,6 @@ class GameServerMessagesTransmitter :
     public EventSubscriber<MoveActionEventData>,
     public EventSubscriber<AttackActionEventData>,
     public EventSubscriber<TakeItemActionEventData>,
-    public EventSubscriber<EngagementEventData>,
     public EventSubscriber<AreaOfEffectEventData>,
     public EventSubscriber<ProjectileEventData>,
     public EventSubscriber<MeleeWeaponEventData>,
@@ -46,7 +45,6 @@ public:
     void onPublish(const Event<MoveActionEventData>& event);
     void onPublish(const Event<AttackActionEventData>& event);
     void onPublish(const Event<TakeItemActionEventData>& event);
-    void onPublish(const Event<EngagementEventData>& event);
     void onPublish(const Event<AreaOfEffectEventData>& event);
     void onPublish(const Event<ProjectileEventData>& event);
     void onPublish(const Event<MeleeWeaponEventData>& event);
@@ -68,7 +66,6 @@ public:
     void sendActionsRollResponse(int clientIndex, int participantId, const std::vector<DiceActionResult>& dice);
     void sendNextTurn(int clientIndex, int participantId, uint32_t engagementId, int turnNumber);
     void sendNextTurnToAllClients(int participantId, uint32_t engagementId, int turnNumber);
-    void sendSetTurn(int clientIndex, uint8_t currentParticipantId, uint32_t turnNumber);
     void sendItems(int clientIndex, const std::vector<Item*>& items);
 
     void sendLoadGameToClient(int clientIndex);
@@ -86,11 +83,4 @@ private:
     void onClientDisconnected(int clientIndex) override;
 
     void sendRevealedTiles(const std::vector<RevealedTile>& tiles, int participantId);
-    void sendEngagement(
-        int participantIdA, 
-        int participantIdB, 
-        int turnToEngageOn,
-        EngagementType type,
-        int clientIndex
-    );
 };

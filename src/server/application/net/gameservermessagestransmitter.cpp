@@ -100,19 +100,6 @@ void GameServerMessagesTransmitter::onPublish(const Event<TakeItemActionEventDat
     }
 }
 
-void GameServerMessagesTransmitter::onPublish(const Event<EngagementEventData>& event) {
-    for(auto [participantId, clientIndex] : gameController->getAllAttachedClients()) {
-        // TODO: This is wrong, need new messages
-        // sendEngagement(
-        //     event.data.participantIdA,
-        //     event.data.participantIdB,
-        //     gameController->getTurnNumber(),
-        //     event.data.type,
-        //     clientIndex
-        // );
-    }
-}
-
 void GameServerMessagesTransmitter::onPublish(const Event<AreaOfEffectEventData>& event) {
     for(auto [participantId, clientIndex] : gameController->getAllAttachedClients()) {
         ApplyDamageMessage* message = (ApplyDamageMessage*) server.createMessage(clientIndex, GameMessageType::APPLY_DAMAGE);
@@ -402,15 +389,6 @@ void GameServerMessagesTransmitter::sendNextTurnToAllClients(int participantId, 
     }
 }
 
-void GameServerMessagesTransmitter::sendSetTurn(int clientIndex, uint8_t currentParticipantId, uint32_t turnNumber) {
-    SetTurnMessage* message = (SetTurnMessage*) server.createMessage(clientIndex, GameMessageType::SET_TURN);
-
-    message->turnNumber = turnNumber;
-    message->currentParticipantId = currentParticipantId;
-
-    server.sendMessage(clientIndex, message);
-}
-
 void GameServerMessagesTransmitter::sendRevealedTiles(const std::vector<RevealedTile>& tiles, int participantId) {
     auto clientIndex = gameController->getAttachedClient(participantId);
 
@@ -485,23 +463,6 @@ void GameServerMessagesTransmitter::sendItems(int clientIndex, const std::vector
             spdlog::trace("Sending spawn item message {}:[{}] to client {}", items.size(), itemsList, clientIndex);
         #endif
     }
-}
-
-void GameServerMessagesTransmitter::sendEngagement(
-    int participantIdA, 
-    int participantIdB, 
-    int turnToEngageOn,
-    EngagementType type,
-    int clientIndex
-) {
-    EngagementMessage* message = (EngagementMessage*) server.createMessage(clientIndex, GameMessageType::ENGAGEMENT);
-
-    message->participantIdA = participantIdA;
-    message->participantIdB = participantIdB;
-    message->type = type;
-    message->turnToEngageOn = turnToEngageOn;
-
-    server.sendMessage(clientIndex, message);
 }
 
 // TODO: Move this elsewhere

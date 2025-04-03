@@ -47,10 +47,6 @@ Engagement* Participant::getEngagement(void) {
     return engagement;
 }
 
-// void Participant::setEngagement(Engagement* engagement) {
-//     this->engagement = engagement;
-// }
-
 void Participant::engage(Engagement* engagement) {
     if(this->engagement != nullptr && this->engagement != engagement) {
         spdlog::info(
@@ -92,50 +88,6 @@ float Participant::getAverageEntitySpeed(void) {
 
     return totalSpeed / (float) entities.size();
 }
-
-// void Participant::engage(int otherParticipantId, int turnEngaged) {
-//     for(auto engagement : engagements) {
-//         if(engagement.otherParticipantId == otherParticipantId) {
-//             spdlog::trace("Attempting to engage to already engaged participant {} -> {}", id, otherParticipantId);
-//             return;
-//         }
-//     }
-
-//     engagements.insert({ otherParticipantId, turnEngaged });
-
-//     if(engagements.size() == 1) {
-//         for(auto entity : entities) {
-//             entity->engage();
-//         }
-//     }
-// }
-
-// void Participant::disengage(int otherParticipantId) {
-//     std::erase_if(engagements, [&](const auto& engagement) {
-//         return otherParticipantId == engagement.otherParticipantId;
-//     });
-
-//     if(engagements.empty()) {
-//         for(auto entity : entities) {
-//             entity->disengage();
-//         }
-//     }
-// }
-
-// bool Participant::hasEngagement(int otherParticipantId) {
-//     for(auto const& engagement : engagements) {
-//         if(otherParticipantId == engagement.otherParticipantId) {
-//             return true;
-//         }
-//     }
-
-//     return false;
-// }
-
-// bool Participant::isEngaged(void) {
-//     // return !engagements.empty();
-//     return engagementId != 0;
-// }
 
 void Participant::endTurn(void) {
     for(auto const& entity : entities) {
@@ -242,10 +194,6 @@ BehaviourStrategy* Participant::getBehaviourStrategy(void) {
 void Participant::setBehaviourStrategy(std::unique_ptr<BehaviourStrategy> behaviourStrategy) {
     this->behaviourStrategy = std::move(behaviourStrategy);
 }
-
-// const std::set<Participant::Engagement>& Participant::getEngagements(void) const {
-//     return engagements;
-// }
 
 void Participant::setVisibleEntities(const std::set<Entity*>& visibleEntities) {
     this->visibleEntities = visibleEntities;

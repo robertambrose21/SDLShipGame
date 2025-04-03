@@ -14,7 +14,6 @@ void GameMessageLogger::logMessage(yojimbo::Message* message, bool isIncoming) {
         case (int) GameMessageType::NEXT_TURN:              { logNextTurn((NextTurnMessage*) message, isIncoming); break; }
         case (int) GameMessageType::SPAWN_ITEMS:            { logSpawnItems((SpawnItemsMessage*) message, isIncoming); break; }
         case (int) GameMessageType::TAKE_ITEMS:             { logTakeItems((TakeItemsMessage*) message, isIncoming); break; }
-        case (int) GameMessageType::ENGAGEMENT:             { logEngagement((EngagementMessage*) message, isIncoming); break; }
         case (int) GameMessageType::APPLY_DAMAGE:           { logApplyDamage((ApplyDamageMessage*) message, isIncoming); break; }
         case (int) GameMessageType::APPLY_ENTITY_EFFECT:    { logApplyEntityEffect((ApplyEntityEffectMessage*) message, isIncoming); break; }
         case (int) GameMessageType::APPLY_GRID_EFFECT:      { logApplyGridEffect((ApplyGridEffectMessage*) message, isIncoming); break; }
@@ -72,10 +71,6 @@ void GameMessageLogger::logSpawnItems(SpawnItemsMessage* message, bool isIncomin
 
 void GameMessageLogger::logTakeItems(TakeItemsMessage* message, bool isIncoming) {
     printToOutFile(isIncoming, message->GetId(), "TakeItemsMessage");
-}
-
-void GameMessageLogger::logEngagement(EngagementMessage* message, bool isIncoming) {
-    printToOutFile(isIncoming, message->GetId(), "EngagementMessage");
 }
 
 void GameMessageLogger::logEquipItem(EquipItemMessage* message, bool isIncoming) {

@@ -8,7 +8,6 @@
 #include "game/effects/effecttypes.h"
 #include "game/stats/stats.h"
 #include "game/data/tiles.h"
-#include "game/data/engagements.h"
 
 class Entity;
 class Item;
@@ -100,13 +99,6 @@ struct ApplyDamageEventData {
     Entity* target;
     DamageType source;
     int damage;
-};
-
-// TODO: Remove
-struct EngagementEventData {
-    int participantIdA;
-    int participantIdB;
-    EngagementType type;
 };
 
 // -- Engagements -------------------------------
