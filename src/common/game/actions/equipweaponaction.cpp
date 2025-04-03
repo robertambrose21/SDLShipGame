@@ -4,11 +4,13 @@ EquipWeaponAction::EquipWeaponAction(
     Participant* participant, 
     Entity* entity, 
     Item* item, 
-    const UUID& weaponId
+    const UUID& weaponId,
+    bool isUnequip
 ) :
     Action(participant, entity),
     item(item),
-    weaponId(weaponId)
+    weaponId(weaponId),
+    isUnequip(isUnequip)
 { }
 
 EquipWeaponAction::EquipWeaponAction(
@@ -16,11 +18,13 @@ EquipWeaponAction::EquipWeaponAction(
     Entity* entity,
     int turnNumber,
     Item* item, 
-    const UUID& weaponId
+    const UUID& weaponId,
+    bool isUnequip
 ) :
     Action(participant, entity, turnNumber),
     item(item),
-    weaponId(weaponId)
+    weaponId(weaponId),
+    isUnequip(isUnequip)
 { }
 
 void EquipWeaponAction::publish(ActionPublisher& publisher) {
@@ -42,30 +46,25 @@ bool EquipWeaponAction::onValidate(ApplicationContext* context) {
         return false;
     }
 
-    if(entity->hasWeapon(weaponId)) {
-        auto alreadyHasWeapon =  entity->getWeapon(weaponId)->getItem()->getId() == item->getId();
-
-        if(alreadyHasWeapon) {
-            spdlog::trace(
-                "[EquipWeaponItem]: Entity already has Weapon[{}#{}] item {}",
-                entity->getWeapon(weaponId)->getName(),
-                weaponId.getString(),
-                item->getId()
-            );
-        }
-        else {
-            spdlog::trace(
-                "[EquipWeaponItem]: Failed to validate action, Weapon[{}#{}] item id {} does not match supplied item id {}",
-                entity->getWeapon(weaponId)->getName(),
-                weaponId.getString(),
-                entity->getWeapon(weaponId)->getItem()->getId(),
-                item->getId()
-            );
-        }
-
-        return alreadyHasWeapon;
+    if(entity->getWeapon(weaponId)->getItem()->getId() != item->getId()) {
+        spdlog::trace(
+            "[EquipWeaponItem]: Failed to validate action, Weapon[{}#{}] item id {} does not match supplied item id {}",
+            entity->getWeapon(weaponId)->getName(),
+            weaponId.getString(),
+            entity->getWeapon(weaponId)->getItem()->getId(),
+            item->getId()
+        );
+        return false;
     }
 
+    if(isUnequip) {
+        return validateUnequip(context);
+    }
+
+    return validateEquip(context);
+}
+
+bool EquipWeaponAction::validateEquip(ApplicationContext* context) {
     auto participant = context->getGameController()->getParticipant(entity->getParticipantId());
 
     bool hasItem = false;   
@@ -78,26 +77,60 @@ bool EquipWeaponAction::onValidate(ApplicationContext* context) {
 
     if(!hasItem) {
         spdlog::trace(
-            "[EquipWeaponItem]: Failed to validate action, cannot find Item[{}] in inventory for participant {}",
+            "[EquipWeaponAction]: Failed to validate action, cannot find Item[{}] in inventory for participant {}",
             item->getId(),
             participant->getId()
         );
+        return false;
     }
 
-    return hasItem;
+    if(entity->hasWeapon(weaponId)) {
+        spdlog::trace(
+            "[EquipWeaponAction]: Entity already has Weapon[{}#{}] item {}",
+            entity->getWeapon(weaponId)->getName(),
+            weaponId.getString(),
+            item->getId()
+        );
+
+        return false;
+    }
+
+    return true;
+}
+
+bool EquipWeaponAction::validateUnequip(ApplicationContext* context) {
+    if(!entity->hasWeapon(weaponId)) {
+        spdlog::trace(
+            "[EquipWeaponAction(Unequip)]: Entity does not have Weapon[{}#{}] item {}",
+            entity->getWeapon(weaponId)->getName(),
+            weaponId.getString(),
+            item->getId()
+        );
+
+        return false;
+    }
+
+    return true;
 }
 
 void EquipWeaponAction::onExecute(ApplicationContext* context) {
     auto participant = context->getGameController()->getParticipant(entity->getParticipantId());
 
-    if(entity->hasWeapon(weaponId)) {
+    if(isUnequip) {
         participant->addItem(item);
         entity->removeWeapon(weaponId);
+        return;
+    }
+    
+    if(!entity->hasWeapon(weaponId)) {
+        spdlog::trace("Weapon {} doesn't exist, adding", weaponId.getString());
+        entity->addWeapon(context->getWeaponController()->createWeapon(weaponId, item->getName(), entity));
     }
     else {
-        entity->addWeapon(context->getWeaponController()->createWeapon(weaponId, item->getName(), entity));
-        participant->removeItem(item);
+        spdlog::trace("Entity {} already has weapon {}", entity->getId(), weaponId.getString());
     }
+
+    participant->removeItem(item);
 }
 
 bool EquipWeaponAction::hasFinished(void) {

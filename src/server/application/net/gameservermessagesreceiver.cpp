@@ -279,11 +279,19 @@ void GameServerMessagesReceiver::receiveEquipWeaponMessage(
     auto item = context.getItemController()->getItem(itemId);
     auto entity = context.getEntityPool()->getEntity(entityId);
 
+    spdlog::trace(
+        "Player {} weapon {} from entity {}", 
+        isUnequip ? "unequipping" : "equipping",
+        weaponId.getString(), 
+        entity->getId()
+    );
+
     gameController->executeActionImmediately(std::make_unique<EquipWeaponAction>(
         participant, 
         entity, 
         item,
-        weaponId
+        weaponId,
+        isUnequip
     ));
 }
 

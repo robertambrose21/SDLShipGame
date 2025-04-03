@@ -441,25 +441,31 @@ void PlayerController::equipWeapon(Item* item) {
             participant, 
             entity, 
             item, 
-            weaponId
+            weaponId,
+            false
         ))
     ) {
+        spdlog::trace("Player equipping weapon {} to entity {}", weaponId.getString(), entity->getId());
         clientMessagesTransmitter.sendEquipWeaponMessage(item->getId(), entity->getId(), weaponId, false);
     }
 }
 
 void PlayerController::unequipWeapon(Weapon* weapon) {
     auto entity = selectedEntities[0];
+    auto weaponId = weapon->getId();
+    auto itemId = weapon->getItem()->getId();
 
     if(doAction(
         std::make_unique<EquipWeaponAction>(
             participant,
             entity,
             weapon->getItem(),
-            weapon->getId()
+            weaponId,
+            true
         ))
     ) {
-        clientMessagesTransmitter.sendEquipWeaponMessage(weapon->getItem()->getId(), entity->getId(), weapon->getId(), true);
+        spdlog::trace("Player unequipping weapon {} from entity {}", weaponId.getString(), entity->getId());
+        clientMessagesTransmitter.sendEquipWeaponMessage(itemId, entity->getId(), weaponId, true);
     }
 }
 

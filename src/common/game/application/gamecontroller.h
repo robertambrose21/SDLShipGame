@@ -57,6 +57,7 @@ public:
 
     void reset(void);
 
+    // TODO: Move these and protected functions to an ActionsController class
     bool executeActionImmediately(std::unique_ptr<Action> action);
     bool queueAction(std::unique_ptr<Action> action);
 

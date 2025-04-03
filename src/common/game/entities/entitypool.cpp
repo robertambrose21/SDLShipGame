@@ -138,6 +138,7 @@ bool EntityPool::applyChunkedGameStateUpdate(const ChunkedGameStateUpdate& chunk
                 auto weaponId = UUID::fromBytes(weaponUpdate.idBytes);
                 
                 if(!existing->hasWeapon(weaponId)) {
+                    spdlog::trace("Syncing weapon {} to entity {}", weaponId.getString(), existing->getId());
                     auto weapon = context->getWeaponController()->createWeapon(weaponId, weaponUpdate.name, existing.get());
                     
                     if(weapon->getItem() != nullptr && weaponUpdate.hasItem) {

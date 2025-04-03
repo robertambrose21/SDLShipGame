@@ -209,7 +209,6 @@ bool GameController::executeActionImmediately(std::unique_ptr<Action> action) {
     }
     
     action->execute(context);
-
     action->publish(*this);
 
     return true;
