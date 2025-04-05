@@ -33,13 +33,6 @@ void PlayerPanel::draw(void) {
     ImGui::End();
 }
 
-void PlayerPanel::onPublish(const Event<TurnEventData>& event) {
-    lines.push_back({
-        { getTimestampString(event.timestamp), TimestampColour },
-        { std::format("Turn {}", event.data.turnNumber), StdTextColour }
-    });
-}
-
 void PlayerPanel::onPublish(const Event<EntityEventData>& event) {
     if(event.data.type == "Death") {
         lines.push_back({

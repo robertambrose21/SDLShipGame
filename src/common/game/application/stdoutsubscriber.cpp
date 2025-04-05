@@ -3,10 +3,6 @@
 StdOutSubscriber::StdOutSubscriber()
 { }
 
-void StdOutSubscriber::onPublish(const Event<TurnEventData>& event) {
-    spdlog::info("Turn {}", event.data.turnNumber);
-}
-
 void StdOutSubscriber::onPublish(const Event<EntityEventData>& event) {
     if(event.data.type == "Death") {
         spdlog::info("{} died.",getEntityIdentifier(event.data.entity));

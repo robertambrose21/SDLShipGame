@@ -16,11 +16,6 @@ class Weapon;
 class Projectile;
 class Grid;
 
-struct TurnEventData {
-    int turnNumber;
-    int currentParticipant;
-};
-
 struct ItemEventData {
     enum Type {
         SPAWN,
