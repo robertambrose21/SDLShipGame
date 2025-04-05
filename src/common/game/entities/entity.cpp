@@ -83,7 +83,6 @@ void Entity::update(int64_t timeSinceLastFrame, bool& quit) {
         path.pop_front();
         timeSinceLastMoved = 0;
 
-        // TODO: This can go away with new engagements work
         if(isEngaged()) {
             useMoves(1);
         }

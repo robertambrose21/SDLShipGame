@@ -70,7 +70,6 @@ void ServerGameController::additionalUpdate(int64_t timeSinceLastFrame, bool& qu
 bool ServerGameController::canProgressToNextTurn(Engagement* engagement) {
     game_assert(transmitter != nullptr);
 
-    // auto& participant = participants[participantId];
     auto participant = engagement->getCurrentParticipant();
     auto currentParticipantId = participant->getId();
     auto turnNumber = engagement->getTurnNumber();
