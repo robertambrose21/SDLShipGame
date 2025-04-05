@@ -1,5 +1,5 @@
 #include "gameservermessagesreceiver.h"
-#include "application/serverturncontroller.h"
+#include "application/servergamecontroller.h"
 
 GameServerMessagesReceiver::GameServerMessagesReceiver(ApplicationContext& context) :
     context(context)
@@ -17,7 +17,8 @@ void GameServerMessagesReceiver::receiveMessage(int clientIndex, yojimbo::Messag
                 clientIndex, 
                 findPathMessage->entityId, 
                 { findPathMessage->x, findPathMessage->y },
-                findPathMessage->shortStopSteps
+                findPathMessage->shortStopSteps,
+                findPathMessage->turnNumber
             );
             break;
         }
@@ -35,7 +36,8 @@ void GameServerMessagesReceiver::receiveMessage(int clientIndex, yojimbo::Messag
                 attackMessage->entityId, 
                 attackMessage->x, 
                 attackMessage->y,
-                attackMessage->weaponIdBytes
+                attackMessage->weaponIdBytes,
+                attackMessage->turnNumber
             );
             break;
         }
@@ -85,26 +87,36 @@ void GameServerMessagesReceiver::receiveFindPathMessage(
     int clientIndex,
     uint32_t entityId,
     const glm::ivec2& position,
-    int shortStopSteps
+    int shortStopSteps,
+    int turnNumber
 ) {
     if(!context.getEntityPool()->hasEntity(entityId)) {
         return;
     }
 
-    auto turnController = dynamic_cast<ServerTurnController*>(context.getTurnController());
-    auto participantId = turnController->getAttachedParticipantId(clientIndex);
+    auto gameController = dynamic_cast<ServerGameController*>(context.getGameController());
+    auto participantId = gameController->getAttachedParticipantId(clientIndex);
 
     if(participantId == -1) {
         std::cout << "Something went wrong: participant not found for client " << clientIndex << std::endl;
         return;
     }
 
-    auto const& entities = turnController->getParticipant(participantId)->getEntities();
+    auto participant = gameController->getParticipant(participantId);
+    auto const& entities = participant->getEntities();
 
     for(auto const& entity : entities) {
-        if(entity->getId() == entityId) {
-            turnController->queueAction(std::make_unique<MoveAction>(turnController->getTurnNumber(), entity, position));
+        if(entity->getId() != entityId) {
+            continue;
         }
+
+        if(turnNumber == -1) {
+            gameController->executeActionImmediately(std::make_unique<MoveAction>(participant, entity, position));
+        }
+        else {
+            gameController->queueAction(std::make_unique<MoveAction>(participant, entity, turnNumber, position));
+        }
+        
     }
 }
 
@@ -123,19 +135,50 @@ void GameServerMessagesReceiver::receieveAttackMessage(
     uint32_t entityId, 
     int x,
     int y,
-    uint8_t weaponIdBytes[16]
+    uint8_t weaponIdBytes[16],
+    int turnNumber
 ) {
     if(!context.getEntityPool()->hasEntity(entityId)) {
         return;
     }
 
+    auto gameController = dynamic_cast<ServerGameController*>(context.getGameController());
+    auto participantId = gameController->getAttachedParticipantId(clientIndex);
+
+    if(participantId == -1) {
+        std::cout << "Something went wrong: participant not found for client " << clientIndex << std::endl;
+        return;
+    }
+
     auto weaponId = UUID::fromBytes(weaponIdBytes);
     auto const& entity = context.getEntityPool()->getEntity(entityId);
+    auto participant = gameController->getParticipant(participantId);
 
     for(auto weapon : entity->getWeapons()) {
-        if(weapon->getId() == weaponId) {
-            context.getTurnController()->queueAction(std::make_unique<AttackAction>(
-                context.getTurnController()->getTurnNumber(), entity, weapon, glm::ivec2(x, y)));
+        if(weapon->getId() != weaponId) {
+            continue;
+        }
+        
+        if(turnNumber != -1) {
+            context.getGameController()->queueAction(
+                std::make_unique<AttackAction>(
+                    participant, 
+                    entity,
+                    turnNumber,
+                    weapon, 
+                    glm::ivec2(x, y)
+                )
+            );
+        }
+        else {
+            context.getGameController()->executeActionImmediately(
+                std::make_unique<AttackAction>(
+                    participant, 
+                    entity,
+                    weapon, 
+                    glm::ivec2(x, y)
+                )
+            );
         }
     }
 }
@@ -149,7 +192,14 @@ void GameServerMessagesReceiver::receivePassParticipantTurnMessage(
         return;
     }
 
-    context.getTurnController()->passParticipant(receivedParticipantId);
+    auto participant = context.getGameController()->getParticipant(receivedParticipantId);
+
+    if(!participant->getEngagement()) {
+        spdlog::warn("Participant {} does not have any engagement, cannot pass turn", receivedParticipantId);
+        return;
+    }
+
+    participant->passTurn();
 }
 
 void GameServerMessagesReceiver::receiveSetParticipantAckMessage(int clientIndex, int participantId) {
@@ -166,6 +216,14 @@ void GameServerMessagesReceiver::receiveEquipItemMessage(
     uint8_t slot, 
     bool isUnequip
 ) {
+    auto gameController = dynamic_cast<ServerGameController*>(context.getGameController());
+    auto participantId = gameController->getAttachedParticipantId(clientIndex);
+
+    if(participantId == -1) {
+        std::cout << "Something went wrong: participant not found for client " << clientIndex << std::endl;
+        return;
+    }
+
     if(!contains(Gear::VALID_SLOTS, (Equippable<Stats::GearStats>::Slot) slot)) {
         std::cout << std::format("Warning: received equip gear message with invalid slot {}", 
                 Equippable<Stats::GearStats>::SLOT_NAMES[slot]) << std::endl;
@@ -180,12 +238,12 @@ void GameServerMessagesReceiver::receiveEquipItemMessage(
         return;
     }
 
-    auto turnController = context.getTurnController();
+    auto participant = gameController->getParticipant(participantId);
     auto item = context.getItemController()->getItem(itemId);
     auto entity = context.getEntityPool()->getEntity(entityId);
 
-    turnController->queueAction(std::make_unique<EquipGearAction>(
-        turnController->getTurnNumber(), 
+    gameController->executeActionImmediately(std::make_unique<EquipGearAction>(
+        participant, 
         entity, 
         item,
         (Equippable<Stats::GearStats>::Slot) slot,
@@ -200,6 +258,14 @@ void GameServerMessagesReceiver::receiveEquipWeaponMessage(
     uint8_t weaponIdBytes[16],
     bool isUnequip
 ) {
+    auto gameController = dynamic_cast<ServerGameController*>(context.getGameController());
+    auto participantId = gameController->getAttachedParticipantId(clientIndex);
+
+    if(participantId == -1) {
+        std::cout << "Something went wrong: participant not found for client " << clientIndex << std::endl;
+        return;
+    }
+
     if(!context.getEntityPool()->hasEntity(entityId)) {
         return;
     }
@@ -208,16 +274,24 @@ void GameServerMessagesReceiver::receiveEquipWeaponMessage(
         return;
     }
 
+    auto participant = gameController->getParticipant(participantId);
     auto weaponId = UUID::fromBytes(weaponIdBytes);
-    auto turnController = context.getTurnController();
     auto item = context.getItemController()->getItem(itemId);
     auto entity = context.getEntityPool()->getEntity(entityId);
 
-    turnController->queueAction(std::make_unique<EquipWeaponAction>(
-        turnController->getTurnNumber(), 
+    spdlog::trace(
+        "Player {} weapon {} from entity {}", 
+        isUnequip ? "unequipping" : "equipping",
+        weaponId.getString(), 
+        entity->getId()
+    );
+
+    gameController->executeActionImmediately(std::make_unique<EquipWeaponAction>(
+        participant, 
         entity, 
         item,
-        weaponId
+        weaponId,
+        isUnequip
     ));
 }
 
@@ -226,7 +300,7 @@ bool GameServerMessagesReceiver::areParticipantsLoadedForClient(int clientIndex)
         return false;
     }
 
-    auto const& participants = context.getTurnController()->getParticipants();
+    auto const& participants = context.getGameController()->getParticipants();
     auto const& loaded = clientParticipantsLoaded[clientIndex];
 
     if(participants.size() != loaded.size()) {

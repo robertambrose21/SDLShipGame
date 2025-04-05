@@ -2,7 +2,7 @@
 
 #include "action.h"
 #include "game/items/equippable.h"
-#include "game/application/turncontroller.h"
+#include "game/application/gamecontroller.h"
 
 class EquipGearAction : public Action {
 private:
@@ -16,12 +16,22 @@ private:
 
 public:
     EquipGearAction(
-        int turnNumber, 
+        Participant* participant, 
         Entity* entity, 
         Item* item, 
         Equippable<Stats::GearStats>::Slot slot, 
         bool isUnequip = false
     );
+    EquipGearAction(
+        Participant* participant, 
+        Entity* entity,
+        int turnNumber,
+        Item* item, 
+        Equippable<Stats::GearStats>::Slot slot, 
+        bool isUnequip = false
+    );
+
+    void publish(ActionPublisher& publisher) override;
 
     bool passesPrecondition(void);
     Type getType(void);

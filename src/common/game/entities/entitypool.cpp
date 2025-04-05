@@ -95,14 +95,14 @@ void EntityPool::updateEntity(Entity* entity, int64_t timeSinceLastFrame, bool& 
 }
 
 void EntityPool::killEntity(uint32_t entityId) {
-    auto turnController = context->getTurnController();
+    auto gameController = context->getGameController();
     auto entity = getEntity(entityId);
 
     // Remove entity from participant
-    turnController->getParticipant(entity->getParticipantId())->removeEntity(entity);
+    gameController->getParticipant(entity->getParticipantId())->removeEntity(entity);
 
     // Remove visibility of entity from participants (and prevent a seg-fault)
-    for(auto participant : turnController->getParticipants()) {
+    for(auto participant : gameController->getParticipants()) {
         participant->removeVisibleEntity(entity);
     }
 
@@ -127,7 +127,7 @@ bool EntityPool::applyChunkedGameStateUpdate(const ChunkedGameStateUpdate& chunk
 
             if(!entities.contains(entityUpdate.id)) {
                 auto const& entity = addEntity(entityUpdate.name, entityUpdate.id);
-                context->getTurnController()->addEntityToParticipant(entityUpdate.participantId, entity);   
+                context->getGameController()->addEntityToParticipant(entityUpdate.participantId, entity);   
             }
 
             auto& existing = entities[entityUpdate.id];
@@ -138,6 +138,7 @@ bool EntityPool::applyChunkedGameStateUpdate(const ChunkedGameStateUpdate& chunk
                 auto weaponId = UUID::fromBytes(weaponUpdate.idBytes);
                 
                 if(!existing->hasWeapon(weaponId)) {
+                    spdlog::trace("Syncing weapon {} to entity {}", weaponId.getString(), existing->getId());
                     auto weapon = context->getWeaponController()->createWeapon(weaponId, weaponUpdate.name, existing.get());
                     
                     if(weapon->getItem() != nullptr && weaponUpdate.hasItem) {
@@ -292,7 +293,7 @@ Entity* EntityPool::addEntity(const std::string& name) {
 }
 
 void EntityPool::removeEntity(uint32_t id) {
-    auto participant = context->getTurnController()->getParticipant(entities[id]->getParticipantId());
+    auto participant = context->getGameController()->getParticipant(entities[id]->getParticipantId());
     
     participant->removeEntity(entities[id].get());
     entities.erase(id);

@@ -36,7 +36,8 @@ Weapon::Weapon(
 { }
 
 void Weapon::use(const glm::ivec2& position, const glm::ivec2& target, bool isAnimationOnly) {
-    if(usesLeft <= 0) {
+    if(owner->isEngaged() && usesLeft <= 0) {
+        spdlog::trace("Cannot use weapon {}#{}, no uses left", name, id.getString());
         return;
     }
 
@@ -44,7 +45,9 @@ void Weapon::use(const glm::ivec2& position, const glm::ivec2& target, bool isAn
         return;
     }
     
-    usesLeft--;
+    if(owner->isEngaged()) {
+        usesLeft--;
+    }
 }
 
 bool Weapon::hasFinished(void) {

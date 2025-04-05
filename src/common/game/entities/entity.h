@@ -13,6 +13,7 @@
 #include "game/effects/effect.h"
 #include "game/stats/stats.h"
 #include "game/items/gear.h"
+#include "game/actions/action.h"
 
 // TODO: Fix with modules?
 class Weapon;
@@ -47,43 +48,6 @@ public:
         { }
     } Colour;
 
-private: 
-    uint32_t id;
-    uint32_t textureId;
-    uint32_t selectedTextureId;
-    Colour colour;
-
-    bool selected;
-    bool engaged;
-
-    Grid* grid;
-    EventPublisher<EntityEventData, EntitySetPositionEventData, EntityUpdateStatsEventData>& publisher;
-
-    glm::ivec2 position;
-    std::deque<glm::ivec2> path;
-    uint32_t timeSinceLastMoved;
-
-    Stats::EntityStats baseStats;
-    Stats::EntityStats stats;
-    std::map<Equippable<Stats::GearStats>::Slot, std::unique_ptr<Gear>> equippedGear;
-
-    std::map<UUID, std::unique_ptr<Weapon>> weapons;
-    Weapon* currentWeapon;
-
-    std::map<int, std::deque<std::unique_ptr<Action>>> actionsChain;
-    std::map<int, std::deque<Action*>> externalActionsChain;
-    bool externalActionsChainNeedsRecalculating;
-
-    std::string name;
-
-    int participantId;
-
-    bool isFrozen;
-    bool isPoisoned;
-
-    void clearAllActions(void);
-
-public:
     const uint32_t MOVES_PER_SECOND = 5;
 
     Entity(
@@ -236,4 +200,40 @@ public:
 
     bool getIsPoisoned(void) const;
     void setIsPoisoned(bool isPoisoned);
+
+private: 
+    uint32_t id;
+    uint32_t textureId;
+    uint32_t selectedTextureId;
+    Colour colour;
+
+    bool selected;
+    bool engaged;
+
+    Grid* grid;
+    EventPublisher<EntityEventData, EntitySetPositionEventData, EntityUpdateStatsEventData>& publisher;
+
+    glm::ivec2 position;
+    std::deque<glm::ivec2> path;
+    uint32_t timeSinceLastMoved;
+
+    Stats::EntityStats baseStats;
+    Stats::EntityStats stats;
+    std::map<Equippable<Stats::GearStats>::Slot, std::unique_ptr<Gear>> equippedGear;
+
+    std::map<UUID, std::unique_ptr<Weapon>> weapons;
+    Weapon* currentWeapon;
+
+    std::map<int, std::deque<std::unique_ptr<Action>>> actionsChain;
+    std::map<int, std::deque<Action*>> externalActionsChain;
+    bool externalActionsChainNeedsRecalculating;
+
+    std::string name;
+
+    int participantId;
+
+    bool isFrozen;
+    bool isPoisoned;
+
+    void clearAllActions(void);
 };

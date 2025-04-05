@@ -1,28 +1,46 @@
 #include "equipgearaction.h"
+#include "game/participant/participant.h"
 
 EquipGearAction::EquipGearAction(
-    int turnNumber, 
+    Participant* participant,
     Entity* entity, 
     Item* item, 
     Equippable<Stats::GearStats>::Slot slot, 
     bool isUnequip
 ) :
-    Action(turnNumber, entity),
+    Action(participant, entity),
     item(item),
     slot(slot),
     isUnequip(isUnequip)
 { }
 
+EquipGearAction::EquipGearAction(
+    Participant* participant, 
+    Entity* entity,
+    int turnNumber,
+    Item* item, 
+    Equippable<Stats::GearStats>::Slot slot, 
+    bool isUnequip
+) :
+    Action(participant, entity, turnNumber),
+    item(item),
+    slot(slot),
+    isUnequip(isUnequip)
+{ }
+
+void EquipGearAction::publish(ActionPublisher& publisher) {
+    publisher.publish<EquipItemActionEventData>({ turnNumber, entity, item, slot, isUnequip });
+}
+
 bool EquipGearAction::onValidate(ApplicationContext* context) {
     if(item == nullptr) {
-        spdlog::trace("[{}, EquipItem]: Failed to validate action, item is null", turnNumber);
+        spdlog::trace("[EquipItem]: Failed to validate action, item is null");
         return false;
     }
 
     if(item->getParticipantId() != entity->getParticipantId()) {
         spdlog::trace(
-            "[{}, EquipItem]: Failed to validate action, item participant ({}) does not match entity participant ({})",
-            turnNumber,
+            "[EquipItem]: Failed to validate action, item participant ({}) does not match entity participant ({})",
             item->getParticipantId(),
             entity->getParticipantId()
         );
@@ -31,8 +49,7 @@ bool EquipGearAction::onValidate(ApplicationContext* context) {
 
     if(!contains(Gear::VALID_SLOTS, slot)) {
         spdlog::trace(
-            "[{}, EquipItem]: Failed to validate action, cannot equip invalid slot {}", 
-            turnNumber, 
+            "[EquipItem]: Failed to validate action, cannot equip invalid slot {}",
             Equippable<Stats::GearStats>::SLOT_NAMES[slot]
         );
         return false;
@@ -43,8 +60,7 @@ bool EquipGearAction::onValidate(ApplicationContext* context) {
 
         if(!hasEquippedGearSlot) {
             spdlog::trace(
-                "[{}, EquipItem]: Failed to validate action, cannot unequip, no item in slot {}", 
-                turnNumber,
+                "[EquipItem]: Failed to validate action, cannot unequip, no item in slot {}",
                 Equippable<Stats::GearStats>::SLOT_NAMES[slot]
             );
         }
@@ -52,7 +68,7 @@ bool EquipGearAction::onValidate(ApplicationContext* context) {
         return hasEquippedGearSlot;
     }
 
-    auto participant = context->getTurnController()->getParticipant(entity->getParticipantId());
+    auto participant = context->getGameController()->getParticipant(entity->getParticipantId());
 
     bool hasItem = false;   
 
@@ -64,8 +80,7 @@ bool EquipGearAction::onValidate(ApplicationContext* context) {
 
     if(!hasItem) {
         spdlog::trace(
-            "[{}, EquipItem]: Failed to validate action, cannot find Item[{}] in inventory for participant {}",
-            turnNumber,
+            "[EquipItem]: Failed to validate action, cannot find Item[{}] in inventory for participant {}",
             item->getId(),
             participant->getId()
         );
@@ -75,7 +90,7 @@ bool EquipGearAction::onValidate(ApplicationContext* context) {
 }
 
 void EquipGearAction::onExecute(ApplicationContext* context) {
-    auto participant = context->getTurnController()->getParticipant(entity->getParticipantId());
+    auto participant = context->getGameController()->getParticipant(entity->getParticipantId());
     auto existingGear = entity->getGear(slot);
 
     if(isUnequip) {
@@ -96,7 +111,7 @@ bool EquipGearAction::hasFinished(void) {
 }
 
 bool EquipGearAction::passesPrecondition(void) {
-    return true;
+    return !participant->hasAnyEngagement();
 }
 
 Action::Type EquipGearAction::getType(void) {

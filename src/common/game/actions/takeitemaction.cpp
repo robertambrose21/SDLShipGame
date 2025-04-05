@@ -1,24 +1,42 @@
 #include "takeitemaction.h"
 
-TakeItemAction::TakeItemAction(int turnNumber, Entity* entity, const std::vector<Item*>& items) :
-    Action(turnNumber, entity),
+TakeItemAction::TakeItemAction(Participant* participant, Entity* entity, const std::vector<Item*>& items) :
+    Action(participant, entity),
     items(items)
 { }
 
+TakeItemAction::TakeItemAction(
+    Participant* participant, 
+    Entity* entity,
+    int turnNumber,
+    const std::vector<Item*>& items
+) :
+    Action(participant, entity, turnNumber),
+    items(items)
+{ }
+
+void TakeItemAction::publish(ActionPublisher& publisher) {
+    publisher.publish<TakeItemActionEventData>({ turnNumber, entity, items });
+}
+
 bool TakeItemAction::onValidate(ApplicationContext* context) {
     if(items.empty()) {
-        spdlog::trace("[{}, TakeItem]: Failed to validate action, no items to take", turnNumber);
+        spdlog::trace("[TakeItem]: Failed to validate action, no items to take");
         return false;
     }
 
-    for(auto action : entity->getActionsChain(turnNumber)) {
+    if(participant->getEngagement() == nullptr || !turnNumber.has_value()) {
+        return true;
+    }
+
+    for(auto action : entity->getActionsChain(turnNumber.value())) {
         if(
             action->getType() == Action::Type::TakeItem && 
             containsAny(items, dynamic_cast<TakeItemAction*>(action)->getItems())
         ) {
             spdlog::trace(
                 "[{}, TakeItem]: Failed to validate action, there are already actions on the chain to take these items [{}]",
-                turnNumber,
+                turnNumber.value(),
                 getItemsAsStringList()
             );
             return false;
@@ -29,7 +47,7 @@ bool TakeItemAction::onValidate(ApplicationContext* context) {
 }
 
 void TakeItemAction::onExecute(ApplicationContext* context) {
-    auto participant = context->getTurnController()->getParticipant(entity->getParticipantId());
+    auto participant = context->getGameController()->getParticipant(entity->getParticipantId());
 
     if(!participant->getIsPlayer()) {
         return;

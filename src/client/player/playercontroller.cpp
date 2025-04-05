@@ -9,7 +9,7 @@ PlayerController::PlayerController(
     clientMessagesTransmitter(clientMessagesTransmitter),
     graphicsContext(graphicsContext),
     gridRenderer(graphicsContext.getGridRenderer()),
-    turnController(context.getTurnController()),
+    gameController(context.getGameController()),
     entityPool(context.getEntityPool()),
     grid(context.getGrid()),
     camera(graphicsContext.getGridRenderer().getCamera()),
@@ -34,13 +34,12 @@ PlayerController::PlayerController(
         }
     });
     
-    turnController->subscribe<TurnEventData>(playerPanel.get());
     entityPool->subscribe<EntityEventData>(playerPanel.get());
     context.getWeaponController()->subscribe<MeleeWeaponEventData>(playerPanel.get());
     context.getProjectilePool()->subscribe<ProjectileEventData>(playerPanel.get());
     context.getAreaOfEffectPool()->subscribe<AreaOfEffectEventData>(playerPanel.get());
     context.getItemController()->subscribe<ItemEventData>(playerPanel.get());
-    context.getTurnController()->subscribe<TakeItemActionEventData>(playerPanel.get());
+    context.getGameController()->subscribe<TakeItemActionEventData>(playerPanel.get());
 }
 
 void PlayerController::update(int64_t timeSinceLastFrame) {
@@ -102,9 +101,15 @@ void PlayerController::drawUI(GraphicsContext& graphicsContext) {
         return !examineItemPanel->getIsOpen();
     });
 
-    std::erase_if(entityPanels, [](const auto& item) {
+    std::erase_if(entityPanels, [&](const auto& item) {
         auto const& [_, entityPanel] = item;
-        return !entityPanel->getIsOpen();
+        bool isOpen = entityPanel->getIsOpen();
+
+        if(!isOpen) {
+            entityPool->unsubscribe<EntityUpdateStatsEventData>(entityPanel.get());
+        }
+
+        return !isOpen;
     });
 
     for(auto& [_, examineItemPanel] : examineItemPanels) {
@@ -121,7 +126,6 @@ void PlayerController::handleKeyPress(const SDL_Event& event) {
         switch(event.key.keysym.sym) {
             case SDLK_p: {
                 clientMessagesTransmitter.sendPassParticipantTurnMessage(participant->getId());
-                turnController->passParticipant(participant->getId());
                 break;
             }
             
@@ -319,23 +323,36 @@ void PlayerController::deselectAll(void) {
 }
 
 void PlayerController::move(const glm::ivec2& position) {
+    int turnNumber = participant->hasAnyEngagement() ? participant->getEngagement()->getTurnNumber() : -1;
+
     for(auto const& entity : selectedEntities) {
         if(!grid->findPath(entity->getPosition(), position).empty()) {
-            clientMessagesTransmitter.sendFindPathMessage(entity->getId(), position, 0);
+            clientMessagesTransmitter.sendFindPathMessage(entity->getId(), position, 0, turnNumber);
         }
     }
 }
 
 void PlayerController::attack(const glm::ivec2& target) {
+    int turnNumber = participant->hasAnyEngagement() ? participant->getEngagement()->getTurnNumber() : -1;
+
     for(auto const& entity : selectedEntities) {
         auto const& weapon = entity->getCurrentWeapon();
         
-        // TODO: ClientTurnController actions
-        if(turnController->queueAction(std::make_unique<AttackAction>(turnController->getTurnNumber(), entity, weapon, target, true))) {
+        // TODO: ClientGameController actions
+        if(doAction(
+            std::make_unique<AttackAction>(
+                participant, 
+                entity, 
+                weapon, 
+                target, 
+                true
+            ))
+        ) {
             clientMessagesTransmitter.sendAttackMessage(
                 entity->getId(), 
                 target, 
-                weapon->getId()
+                weapon->getId(),
+                turnNumber
             );
         }
     }
@@ -384,7 +401,15 @@ void PlayerController::setHoverTiles(void) {
 void PlayerController::equipItem(Item* item, Equippable<Stats::GearStats>::Slot slot) {
     auto entity = selectedEntities[0];
 
-    if(turnController->queueAction(std::make_unique<EquipGearAction>(turnController->getTurnNumber(), entity, item, slot, false))) {
+    if(doAction(
+        std::make_unique<EquipGearAction>(
+            participant, 
+            entity, 
+            item, 
+            slot, 
+            false
+        ))
+    ) {
         clientMessagesTransmitter.sendEquipItemMessage(item->getId(), entity->getId(), slot, false);
     }
 }
@@ -392,7 +417,15 @@ void PlayerController::equipItem(Item* item, Equippable<Stats::GearStats>::Slot 
 void PlayerController::unequipItem(Item* item, Equippable<Stats::GearStats>::Slot slot) {
     auto entity = selectedEntities[0];
 
-    if(turnController->queueAction(std::make_unique<EquipGearAction>(turnController->getTurnNumber(), entity, item, slot, true))) {
+    if(doAction(
+        std::make_unique<EquipGearAction>(
+            participant, 
+            entity, 
+            item, 
+            slot, 
+            true
+        ))
+    ) {
         clientMessagesTransmitter.sendEquipItemMessage(item->getId(), entity->getId(), slot, true);
     }
 }
@@ -401,22 +434,46 @@ void PlayerController::equipWeapon(Item* item) {
     auto entity = selectedEntities[0];
     auto weaponId = UUID::getNewUUID();
 
-    if(turnController->queueAction(std::make_unique<EquipWeaponAction>(turnController->getTurnNumber(), entity, item, weaponId))) {
+    if(doAction(
+        std::make_unique<EquipWeaponAction>(
+            participant, 
+            entity, 
+            item, 
+            weaponId,
+            false
+        ))
+    ) {
+        spdlog::trace("Player equipping weapon {} to entity {}", weaponId.getString(), entity->getId());
         clientMessagesTransmitter.sendEquipWeaponMessage(item->getId(), entity->getId(), weaponId, false);
     }
 }
 
 void PlayerController::unequipWeapon(Weapon* weapon) {
     auto entity = selectedEntities[0];
+    auto weaponId = weapon->getId();
+    auto itemId = weapon->getItem()->getId();
 
-    if(turnController->queueAction(std::make_unique<EquipWeaponAction>(
-        turnController->getTurnNumber(),
-        entity,
-        weapon->getItem(),
-        weapon->getId()))
+    if(doAction(
+        std::make_unique<EquipWeaponAction>(
+            participant,
+            entity,
+            weapon->getItem(),
+            weaponId,
+            true
+        ))
     ) {
-        clientMessagesTransmitter.sendEquipWeaponMessage(weapon->getItem()->getId(), entity->getId(), weapon->getId(), true);
+        spdlog::trace("Player unequipping weapon {} from entity {}", weaponId.getString(), entity->getId());
+        clientMessagesTransmitter.sendEquipWeaponMessage(itemId, entity->getId(), weaponId, true);
     }
+}
+
+bool PlayerController::doAction(std::unique_ptr<Action> action) {
+    if(participant->hasAnyEngagement()) {
+        return gameController->queueAction(std::move(action));
+    }
+
+
+    return gameController->executeActionImmediately(std::move(action));
 }
 
 const std::vector<Entity*>& PlayerController::getSelectedEntities(void) const {

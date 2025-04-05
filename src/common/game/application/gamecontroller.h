@@ -23,29 +23,17 @@
 #include "game/items/itemcontroller.h"
 #include "game/effects/effectcontroller.h"
 #include "game/participant/participant.h"
+#include "game/engagements/engagementcontroller.h"
+#include "game/actions/actionpublisher.h"
 
 class BehaviourStrategy;
 class Participant;
+class Engagement;
+class EngagementController;
 
-class TurnController : 
-    public EventPublisher<
-        TurnEventData, 
-        MoveActionEventData,
-        AttackActionEventData,
-        TakeItemActionEventData,
-        EngagementEventData,
-        EquipItemActionEventData,
-        EquipWeaponActionEventData
-    >
-{
+class GameController : public ActionPublisher {
 public:
-    typedef struct _engagement {
-        int participantIdA;
-        int participantIdB;
-        bool isDisengage;
-    } Engagement;
-
-    TurnController();
+    GameController();
 
     void initialise(ApplicationContext& context);
     void update(int64_t timeSinceLastFrame, bool& quit);
@@ -67,50 +55,33 @@ public:
     std::vector<Participant*> getParticipants(void);
     bool hasParticipant(int id);
 
-    void queueEngagement(int turnNumber, const Engagement& engagement);
-
-    void engage(int participantIdA, int participantIdB);
-    void disengage(int participantIdA, int participantIdB);
-
     void reset(void);
-    
-    void passParticipant(int id);
-    void setCurrentParticipant(int id);
-    int getCurrentParticipantId(void) const;
 
+    // TODO: Move these and protected functions to an ActionsController class
+    bool executeActionImmediately(std::unique_ptr<Action> action);
     bool queueAction(std::unique_ptr<Action> action);
-    void executeActions(int participantId);
 
-    void addOnNextTurnFunction(std::function<void(int, int)> onNextTurnFunc);
     void setOnAllParticipantsSetFunction(std::function<void()> onAllParticipantsSet);
 
     void allParticipantsSet(void);
 
-    int getTurnNumber(void) const;
-    void setTurnNumber(int turnNumber);
+    EngagementController* getEngagementController(void);
 
 protected:
     ApplicationContext* context;
+    std::unique_ptr<EngagementController> engagementController;
+
     bool initialised;
 
-    int turnNumber;
-    int currentParticipantId;
-
-    std::map<int, std::vector<Engagement>> engagementsQueue;
-
     std::map<int, std::unique_ptr<Participant>> participants;
-    std::vector<std::function<void(int, int)>> onNextTurnWorkers;
     std::function<void()> onAllParticipantsSet;
 
-    void endCurrentParticipantTurn(void);
-    void nextParticipantTurn(void);
-    void executeEntityActions(Entity* entity);
-    void incrementTurn(void);
-    void publishAction(Action& action);
-
-    void processEngagements();
-
-    virtual bool canProgressToNextTurn(int participantId) = 0;
+    void executeActions(uint32_t engagementId);
+    void executeEntityActions(Engagement* engagement, Entity* entity);
+    void endCurrentParticipantTurn(uint32_t engagementId);
+    void nextParticipantTurn(uint32_t engagementId);
+    
+    virtual bool canProgressToNextTurn(Engagement* engagement) = 0;
+    virtual void onParticipantTurnEnd(Engagement* engagement) = 0;
     virtual void additionalUpdate(int64_t timeSinceLastFrame, bool& quit) = 0;
-    virtual void onParticipantTurnEnd(int participantId) = 0;
 };

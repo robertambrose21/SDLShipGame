@@ -21,11 +21,20 @@ private:
 
 public:
     MoveAction(
-        int turnNumber,
+        Participant* participant,
         Entity* entity, 
         const glm::ivec2& position,
         int shortStopSteps = 0
     );
+    MoveAction(
+        Participant* participant,
+        Entity* entity,
+        int turnNumber,
+        const glm::ivec2& position,
+        int shortStopSteps = 0
+    );
+
+    void publish(ActionPublisher& publisher) override;
 
     bool passesPrecondition(void);
     Type getType(void);

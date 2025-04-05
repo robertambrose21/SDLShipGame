@@ -16,7 +16,6 @@ private:
     void logNextTurn(NextTurnMessage* message, bool isIncoming);
     void logSpawnItems(SpawnItemsMessage* message, bool isIncoming);
     void logTakeItems(TakeItemsMessage* message, bool isIncoming);
-    void logEngagement(EngagementMessage* message, bool isIncoming);
     void logEquipItem(EquipItemMessage* message, bool isIncoming);
     void logEquipWeapon(EquipWeaponMessage* message, bool isIncoming);
     void logApplyDamage(ApplyDamageMessage* message, bool isIncoming);

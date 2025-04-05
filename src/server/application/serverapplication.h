@@ -10,7 +10,7 @@
 #include "game/application/application.h"
 #include "game/application/stdoutsubscriber.h"
 #include "game/spawn/spawncontroller.h"
-#include "serverturncontroller.h"
+#include "servergamecontroller.h"
 #include "game/net/gamemessagelogger.h"
 #include "game/application/visibilitycontroller.h"
 #include "game/items/equippable.h"

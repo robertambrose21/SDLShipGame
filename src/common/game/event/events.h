@@ -1,12 +1,13 @@
 #pragma once
 
 #include <vector>
+#include <optional>
+
 #include "core/glmimport.h"
 #include "core/util/idgenerator.h"
 #include "game/effects/effecttypes.h"
 #include "game/stats/stats.h"
 #include "game/data/tiles.h"
-#include "game/data/engagements.h"
 
 class Entity;
 class Item;
@@ -14,11 +15,6 @@ class AreaOfEffect;
 class Weapon;
 class Projectile;
 class Grid;
-
-struct TurnEventData {
-    int turnNumber;
-    int currentParticipant;
-};
 
 struct ItemEventData {
     enum Type {
@@ -51,25 +47,41 @@ struct MeleeWeaponEventData {
     int damage;
 };
 
-struct MoveActionEventData {
-    int turnNumber;
+// -- Actions -----------------------------------
+struct ActionEventData {
+    std::optional<int> turnNumber;
+};
+
+struct MoveActionEventData : public ActionEventData {
     Entity* entity;
     glm::ivec2 position;
     int shortStopSteps;
 };
 
-struct AttackActionEventData {
-    int turnNumber;
+struct AttackActionEventData : public ActionEventData {
     Entity* owner;
     glm::ivec2 target;
     Weapon* weapon;
 };
 
-struct TakeItemActionEventData {
-    int turnNumber;
+struct TakeItemActionEventData : public ActionEventData {
     Entity* entity;
     std::vector<Item*> items;
 };
+
+struct EquipItemActionEventData : public ActionEventData {
+    Entity* entity;
+    Item* item;
+    int slot;
+    bool isUnequip;
+};
+
+struct EquipWeaponActionEventData : public ActionEventData {
+    Entity* entity;
+    Item* item;
+    UUID weaponId;
+};
+// ----------------------------------------------
 
 enum DamageType {
     AOE,
@@ -84,11 +96,33 @@ struct ApplyDamageEventData {
     int damage;
 };
 
-struct EngagementEventData {
-    int participantIdA;
-    int participantIdB;
-    EngagementType type;
+// -- Engagements -------------------------------
+struct CreateEngagementEventData {
+    uint32_t engagementId;
+    std::vector<int> participants;
 };
+
+struct AddToEngagementEventData {
+    uint32_t engagementId;
+    int participantId;
+};
+
+struct DisengageEventData {
+    uint32_t engagementId;
+    int participantId;
+};
+
+struct RemoveEngagementEventData {
+    uint32_t engagementId;
+};
+
+struct MergeEngagementEventData {
+    uint32_t newEngagementId;
+    uint32_t engagementIdA;
+    uint32_t engagementIdB;
+    std::vector<int> participants;
+};
+// ----------------------------------------------
 
 struct TileEventData {
     int x, y;
@@ -97,29 +131,16 @@ struct TileEventData {
     bool isFrozen;
 };
 
-struct EquipItemActionEventData {
-    int turnNumber;
-    Entity* entity;
-    Item* item;
-    int slot;
-    bool isUnequip;
-};
-
-struct EquipWeaponActionEventData {
-    int turnNumber;
-    Entity* entity;
-    Item* item;
-    UUID weaponId;
-};
-
 struct EntityEffectEvent {
     EffectType type;
     Entity* target;
+    int participantId;
     Stats::EffectStats stats;
 };
 
 struct GridEffectEvent {
     EffectType type;
+    int participantId;
     int x, y;
     int duration;
 };

@@ -32,10 +32,13 @@ add_library(
     weapons/areaofeffectpool.cpp
     weapons/weaponcontroller.cpp
     weapons/damagesource.cpp
-    application/turncontroller.cpp
+    application/gamecontroller.cpp
+    engagements/engagement.cpp
+    engagements/engagementcontroller.cpp
     application/stdoutsubscriber.cpp
     application/visibilitycontroller.cpp
     actions/action.cpp
+    actions/actionpublisher.h
     actions/moveaction.cpp
     actions/attackaction.cpp
     actions/takeitemaction.cpp
@@ -47,7 +50,6 @@ add_library(
     net/gamemessagelogger.cpp
     participant/participant.cpp
     data/tiles.h
-    data/engagements.h
 )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX CXX_STANDARD 20)

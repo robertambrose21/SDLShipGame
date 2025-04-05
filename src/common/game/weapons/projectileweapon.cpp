@@ -30,6 +30,7 @@ ProjectileWeapon::ProjectileWeapon(
 
 bool ProjectileWeapon::onUse(const glm::ivec2& position, const glm::ivec2& target, bool isAnimationOnly) {
     if(!isInRange(target)) {
+        spdlog::trace("Cannot use weapon {}#{}, out of range", name, id.getString());
         return false;
     }
 

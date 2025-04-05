@@ -87,7 +87,7 @@ void VisiblityController::assignVisibility(
     float distanceBetweenEntities,
     const std::unordered_set<glm::ivec2, glm::ivec2Hash>& visibleTiles
 ) {
-    auto participant = context->getTurnController()->getParticipant(entity->getParticipantId());
+    auto participant = context->getGameController()->getParticipant(entity->getParticipantId());
     
     bool isInRange = distanceBetweenEntities < entity->getAggroRange();
     bool isInLOS = contains(visibleTiles, other->getPosition());

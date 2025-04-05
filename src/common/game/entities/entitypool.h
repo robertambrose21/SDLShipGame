@@ -8,7 +8,7 @@
 
 #include "core/json.hpp"
 #include "entity.h"
-#include "game/application/turncontroller.h"
+#include "game/application/gamecontroller.h"
 #include "game/weapons/weaponcontroller.h"
 #include "game/items/itemcontroller.h"
 #include "game/net/messages.h"

@@ -13,7 +13,7 @@
 #include "graphics/drawstrategies/areaofeffectdrawstrategy.h"
 #include "graphics/drawstrategies/itemdrawstrategy.h"
 #include "game/application/stdoutsubscriber.h"
-#include "clientturncontroller.h"
+#include "clientgamecontroller.h"
 #include "core/grid/generation/wfctileset.h"
 #include "game/spawn/spawncontroller.h"
 #include "game/application/visibilitycontroller.h"

@@ -15,7 +15,8 @@ void GameClientMessagesTransmitter::sendActionsRollMessage(int participantId) {
 void GameClientMessagesTransmitter::sendFindPathMessage(
     uint32_t entityId,
     const glm::ivec2& position,
-    int shortStopSteps
+    int shortStopSteps,
+    int turnNumber
 ) {
     FindPathMessage* message = (FindPathMessage*) client.createMessage(GameMessageType::FIND_PATH);
 
@@ -23,6 +24,7 @@ void GameClientMessagesTransmitter::sendFindPathMessage(
     message->x = position.x;
     message->y = position.y;
     message->shortStopSteps = shortStopSteps;
+    message->turnNumber = turnNumber;
 
     client.sendMessage(message);
 }
@@ -38,7 +40,8 @@ void GameClientMessagesTransmitter::sendSelectEntityMessage(uint32_t entityId) {
 void GameClientMessagesTransmitter::sendAttackMessage(
     uint32_t entityId, 
     const glm::ivec2& target,
-    UUID weaponId
+    UUID weaponId,
+    int turnNumber
 ) {
     AttackMessage* message = (AttackMessage*) client.createMessage(GameMessageType::ATTACK_ENTITY);
     
@@ -46,6 +49,7 @@ void GameClientMessagesTransmitter::sendAttackMessage(
     message->x = target.x;
     message->y = target.y;
     memcpy(message->weaponIdBytes, &weaponId.getBytes()[0], 16);
+    message->turnNumber = turnNumber;
 
     client.sendMessage(message);
 }

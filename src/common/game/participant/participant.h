@@ -3,35 +3,27 @@
 #include <vector>
 #include <set>
 #include <limits>
+#include <optional>
 
-#include "core/grid/grid.h"
-#include "game/entities/entity.h"
-#include "game/entities/behaviour/behaviourstrategy.h"
-#include "game/items/item.h"
 #include "spdlog/spdlog.h"
 
+class Entity;
 class BehaviourStrategy;
+class Engagement;
+class Item;
 
 class Participant {
 public:
-    typedef struct _enagement {
-        int otherParticipantId;
-        int turnEngaged;
-
-        // We don't care about the turn engaged
-        bool operator<(const _enagement& other) const {
-            return otherParticipantId < other.otherParticipantId;
-        }
-    } Engagement;
-
     Participant(int id);
 
     float distanceToOtherParticipant(Participant* other);
 
-    void engage(int otherParticipantId, int turnEngaged);
-    void disengage(int otherParticipantId);
-    bool hasEngagement(int otherParticipantId);
-    bool isEngaged(void);
+    bool hasEngagement(Participant* other);
+    bool hasAnyEngagement(void);
+    Engagement* getEngagement(void);
+    void engage(Engagement* engagement);
+    void disengage(void);
+    float getAverageEntitySpeed(void);
 
     void endTurn(void);
     void passTurn(void);
@@ -58,8 +50,6 @@ public:
     BehaviourStrategy* getBehaviourStrategy(void);
     void setBehaviourStrategy(std::unique_ptr<BehaviourStrategy> behaviourStrategy);
 
-    const std::set<Engagement>& getEngagements(void) const;
-
     void setVisibleEntities(const std::set<Entity*>& visibleEntities);
     const std::set<Entity*>& getVisibleEntities(void) const;
     
@@ -83,7 +73,7 @@ private:
     bool passNextTurn;
     std::unique_ptr<BehaviourStrategy> behaviourStrategy;
     
-    std::set<Engagement> engagements;
+    Engagement* engagement;
     std::set<std::string> hostileFactions;
 
     std::set<Entity*> visibleEntities;

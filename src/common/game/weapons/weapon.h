@@ -4,6 +4,8 @@
 #include <functional>
 #include <memory>
 
+#include "spdlog/spdlog.h"
+
 #include "damagesource.h"
 #include "game/entities/entity.h"
 #include "core/event/eventpublisher.h"

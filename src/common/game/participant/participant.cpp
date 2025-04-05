@@ -1,9 +1,14 @@
 #include "participant.h"
+#include "core/grid/grid.h"
+#include "game/entities/entity.h"
+#include "game/entities/behaviour/behaviourstrategy.h"
+#include "game/items/item.h"
 
 Participant::Participant(int id) :
     id(id),
     passNextTurn(false),
-    faction("None")
+    faction("None"),
+    engagement(nullptr)
 { }
 
 // TODO: There's some efficiencies we can do here.
@@ -26,47 +31,62 @@ float Participant::distanceToOtherParticipant(Participant* other) {
     return shortestDistance;
 }
 
-void Participant::engage(int otherParticipantId, int turnEngaged) {
-    for(auto engagement : engagements) {
-        if(engagement.otherParticipantId == otherParticipantId) {
-            spdlog::trace("Attempting to engage to already engaged participant {} -> {}", id, otherParticipantId);
-            return;
-        }
+bool Participant::hasAnyEngagement(void) {
+    return engagement != nullptr;
+}
+
+bool Participant::hasEngagement(Participant* other) {
+    if(engagement == nullptr || other->getEngagement() == nullptr) {
+        return false;
     }
 
-    engagements.insert({ otherParticipantId, turnEngaged });
+    return engagement->getId() == other->getEngagement()->getId();
+}
 
-    if(engagements.size() == 1) {
-        for(auto entity : entities) {
-            entity->engage();
-        }
+Engagement* Participant::getEngagement(void) {
+    return engagement;
+}
+
+void Participant::engage(Engagement* engagement) {
+    if(this->engagement != nullptr && this->engagement != engagement) {
+        spdlog::info(
+            "Overriding participant {}'s existing engagement {} with new engagement {}",
+            id,
+            this->engagement->getId(),
+            engagement->getId()
+        );
+    }
+    if(this->engagement == engagement) {
+        spdlog::trace(
+            "Participant::engage: participant {} already has engagement {}",
+            id,
+            this->engagement->getId()
+        );
+    }
+
+    this->engagement = engagement;
+
+    for(auto entity : entities) {
+        entity->engage();
     }
 }
 
-void Participant::disengage(int otherParticipantId) {
-    std::erase_if(engagements, [&](const auto& engagement) {
-        return otherParticipantId == engagement.otherParticipantId;
-    });
+void Participant::disengage(void) {
+    engagement = nullptr;
 
-    if(engagements.empty()) {
-        for(auto entity : entities) {
-            entity->disengage();
-        }
+    for(auto entity : entities) {
+        entity->disengage();
     }
 }
 
-bool Participant::hasEngagement(int otherParticipantId) {
-    for(auto const& engagement : engagements) {
-        if(otherParticipantId == engagement.otherParticipantId) {
-            return true;
-        }
+float Participant::getAverageEntitySpeed(void) {
+    float totalSpeed = 0;
+
+    for(auto entity : entities) {
+        totalSpeed += entity->getSpeed();
     }
 
-    return false;
-}
-
-bool Participant::isEngaged(void) {
-    return !engagements.empty();
+    return totalSpeed / (float) entities.size();
 }
 
 void Participant::endTurn(void) {
@@ -97,6 +117,10 @@ void Participant::nextTurn(void) {
     }
     
     entitiesForDeletion.clear();
+
+    if(behaviourStrategy != nullptr) {
+        behaviourStrategy->onNextTurn();
+    }
 }
 
 int Participant::getId(void) const {
@@ -131,6 +155,10 @@ void Participant::addEntity(Entity* entity) {
     game_assert(!entity->hasParticipant());
 
     entity->setParticipantId(id);
+
+    if(hasAnyEngagement()) {
+        entity->engage();
+    }
     
     entities.push_back(entity);
     addVisibleEntity(entity);
@@ -167,10 +195,6 @@ void Participant::setBehaviourStrategy(std::unique_ptr<BehaviourStrategy> behavi
     this->behaviourStrategy = std::move(behaviourStrategy);
 }
 
-const std::set<Participant::Engagement>& Participant::getEngagements(void) const {
-    return engagements;
-}
-
 void Participant::setVisibleEntities(const std::set<Entity*>& visibleEntities) {
     this->visibleEntities = visibleEntities;
 }
@@ -200,7 +224,7 @@ void Participant::setFaction(const std::string& faction) {
 }
 
 bool Participant::isHostile(Participant* other) {
-    return hostileFactions.contains(other->getFaction());
+    return this != other && hostileFactions.contains(other->getFaction());
 }
 
 void Participant::addHostileFaction(const std::string& hostileFaction) {

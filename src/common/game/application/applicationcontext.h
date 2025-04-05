@@ -9,7 +9,7 @@ class EntityPool;
 class WeaponController;
 class ProjectilePool;
 class AreaOfEffectPool;
-class TurnController;
+class GameController;
 class ItemController;
 class EffectController;
 class SpawnController;
@@ -22,7 +22,7 @@ private:
     WeaponController* weaponController;
     ProjectilePool* projectilePool;
     AreaOfEffectPool* areaOfEffectPool;
-    TurnController* turnController;
+    GameController* gameController;
     ItemController* itemController;
     EffectController* effectController;
     SpawnController* spawnController;
@@ -36,7 +36,7 @@ public:
         WeaponController* weaponController,
         ProjectilePool* projectilePool,
         AreaOfEffectPool* areaOfEffectPool,
-        TurnController* turnController,
+        GameController* gameController,
         ItemController* itemController,
         EffectController* effectController,
         SpawnController* SpawnController,
@@ -48,7 +48,7 @@ public:
     WeaponController* getWeaponController(void);
     ProjectilePool* getProjectilePool(void);
     AreaOfEffectPool* getAreaOfEffectPool(void);
-    TurnController* getTurnController(void);
+    GameController* getGameController(void);
     ItemController* getItemController(void);
     EffectController* getEffectController(void);
     SpawnController* getSpawnController(void);

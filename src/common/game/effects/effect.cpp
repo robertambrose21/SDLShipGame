@@ -1,15 +1,21 @@
 #include "effect.h"
 
-Effect::Effect(Entity* target, const Stats::EffectStats& stats) :
+Effect::Effect(Entity* target, int ownerId, const Stats::EffectStats& stats) :
     target(target),
+    ownerId(ownerId),
     stats(stats),
-    ticksLeft(stats.duration)
+    ticksLeft(stats.duration),
+    timeSinceLastTick(0)
 { }
 
 void Effect::apply(void) {
     if(ticksLeft > 0) {
         doApply();
     }
+}
+
+void Effect::update(int64_t timeSinceLastFrame) {
+    timeSinceLastTick += timeSinceLastFrame;
 }
 
 Stats::EffectStats Effect::getStats(void) const {
@@ -21,17 +27,27 @@ uint8_t Effect::getTicksLeft(void) const {
 }
 
 void Effect::nextTurn(void) {
+    // spdlog::info("Effect tick ({}/{})", ticksLeft, stats.duration);
     ticksLeft--;
+    timeSinceLastTick = 0;
 }
 
 Entity* Effect::getTarget(void) {
     return target;
 }
 
+int Effect::getOwnerId(void) const {
+    return ownerId;
+}
+
+int64_t Effect::getTimeSinceLastTick(void) const {
+    return timeSinceLastTick;
+}
 
 
-FreezeEffect::FreezeEffect(Entity* target, const Stats::EffectStats& stats) :
-    Effect(target, stats)
+
+FreezeEffect::FreezeEffect(Entity* target, int ownerId, const Stats::EffectStats& stats) :
+    Effect(target, ownerId, stats)
 { }
 
 void FreezeEffect::doApply(void) {
@@ -42,10 +58,13 @@ EffectType FreezeEffect::getType(void) const {
     return EffectType::FREEZE;
 }
 
+void FreezeEffect::onEffectEnd(void) {
+    target->setFrozen(false);
+}
 
 
-PoisonEffect::PoisonEffect(Entity* target, const Stats::EffectStats& stats) :
-    Effect(target, stats)
+PoisonEffect::PoisonEffect(Entity* target, int ownerId, const Stats::EffectStats& stats) :
+    Effect(target, ownerId, stats)
 { }
 
 void PoisonEffect::doApply(void) {
@@ -56,4 +75,8 @@ void PoisonEffect::doApply(void) {
 
 EffectType PoisonEffect::getType(void) const {
     return EffectType::POISON;
+}
+
+void PoisonEffect::onEffectEnd(void) {
+    target->setIsPoisoned(false);
 }

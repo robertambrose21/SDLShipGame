@@ -30,7 +30,7 @@ private:
 
     void loadWeaponDefinitions(void);
     Item* getItem(const std::string& itemName, Entity* owner);
-
+    
     Stats::WeaponStats buildProjectileWeaponStats(
         const WeaponDefinition& definition, 
         const Projectile::Blueprint& projectileBlueprint,

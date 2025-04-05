@@ -19,14 +19,14 @@ public:
         Stats::ProjectileStats stats;
         std::string name;
         uint32_t textureId;
-        std::function<void(int, const glm::ivec2&, int, bool)> onHitCallback;
+        std::function<void(int, const glm::ivec2&, bool)> onHitCallback;
 
         _blueprint(
             const Stats::ProjectileStats& stats,
             const std::string& name,
             uint32_t textureId,
-            std::function<void(int, const glm::ivec2&, int, bool)> onHitCallback =
-                [](int, const glm::ivec2&, int, bool){ }
+            std::function<void(int, const glm::ivec2&, bool)> onHitCallback =
+                [](int, const glm::ivec2&, bool){ }
         ) :
             stats(stats),
             name(name),
@@ -55,7 +55,7 @@ private:
 
     DamageSource damageSource;
 
-    std::function<void(int, const glm::ivec2&, int, bool)> onHitCallback;
+    std::function<void(int, const glm::ivec2&, bool)> onHitCallback;
 
     float calculateStep(void) const;
     void doHit(const glm::ivec2& position);
@@ -72,8 +72,8 @@ public:
         const Stats::ProjectileStats& stats,
         const DamageSource& damageSource,
         bool isAnimationOnly,
-        std::function<void(int, const glm::ivec2&, int, bool)> onHitCallback =
-            [](int, const glm::ivec2&, int, bool) {});
+        std::function<void(int, const glm::ivec2&, bool)> onHitCallback =
+            [](int, const glm::ivec2&, bool) {});
 
     static std::unique_ptr<Projectile> create(
         ApplicationContext* context,

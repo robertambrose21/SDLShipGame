@@ -27,10 +27,8 @@ void GameClientMessagesReceiver::receiveMessage(yojimbo::Message* message) {
         case (int) GameMessageType::FIND_PATH:                  { receiveFindPath((FindPathMessage*) message); break; }
         case (int) GameMessageType::ATTACK_ENTITY:              { receiveAttackEntity((AttackMessage*) message); break; }
         case (int) GameMessageType::NEXT_TURN:                  { receiveNextTurn((NextTurnMessage*) message); break; }
-        case (int) GameMessageType::SET_TURN:                   { receiveSetTurn((SetTurnMessage*) message); break; }
         case (int) GameMessageType::SPAWN_ITEMS:                { receiveSpawnItems((SpawnItemsMessage*) message); break; }
         case (int) GameMessageType::TAKE_ITEMS:                 { receiveTakeItems((TakeItemsMessage*) message); break; }
-        case (int) GameMessageType::ENGAGEMENT:                 { receiveEngagement((EngagementMessage*) message); break; }
         case (int) GameMessageType::APPLY_DAMAGE:               { receiveApplyDamageMessage((ApplyDamageMessage*) message); break; }
         case (int) GameMessageType::APPLY_ENTITY_EFFECT:        { receiveApplyEntityEffectMessage((ApplyEntityEffectMessage*) message); break; }
         case (int) GameMessageType::APPLY_GRID_EFFECT:          { receiveApplyGridEffectMessage((ApplyGridEffectMessage*) message); break; }
@@ -38,6 +36,11 @@ void GameClientMessagesReceiver::receiveMessage(yojimbo::Message* message) {
         case (int) GameMessageType::SET_ENTITY_POSITION:        { receiveSetEntityPositionMessage((SetEntityPositionMessage*) message); break; }
         case (int) GameMessageType::ADD_ENTITY_VISIBILITY:      { receiveAddEntityVisibilityMessage((AddEntityVisibilityMessage*) message); break; }
         case (int) GameMessageType::REMOVE_ENTITY_VISIBILITY:   { receiveRemoveEntityVisibilityMessage((RemoveEntityVisibilityMessage*) message); break; }
+        case (int) GameMessageType::CREATE_ENGAGEMENT:          { receiveCreateEngagementMessage((CreateEngagementMessage*) message); break; }
+        case (int) GameMessageType::ADD_TO_ENGAGEMENT:          { receiveAddToEngagementMessage((AddToEngagementMessage*) message); break; }
+        case (int) GameMessageType::DISENGAGE:                  { receiveDisenageMessage((DisengageMessage*) message); break; }
+        case (int) GameMessageType::REMOVE_ENGAGEMENT:          { receiveRemoveEngagementMessage((RemoveEngagementMessage*) message); break; }
+        case (int) GameMessageType::MERGE_ENGAGEMENTS:          { receiveMergeEngagementsMessage((MergeEngagementsMessage*) message); break; }
 
         default:
             std::cout << "Received unhandled message: " << message->GetType() << std::endl;
@@ -55,14 +58,14 @@ void GameClientMessagesReceiver::receiveTestMessage(GameTestMessage* message) {
 }
 
 void GameClientMessagesReceiver::receiveSetParticipant(SetParticipantMessage* message) {
-    auto turnController = context.getTurnController();
+    auto gameController = context.getGameController();
 
-    if(turnController->hasParticipant(message->participantId)) {
+    if(gameController->hasParticipant(message->participantId)) {
         spdlog::info("Participant {} already attached to a client, nothing to do.", message->participantId);
         return;
     }
 
-    auto participant = turnController->addParticipant(message->participantId, message->clientId != 0, { }, nullptr, false);
+    auto participant = gameController->addParticipant(message->participantId, message->clientId != 0, { }, nullptr, false);
 
     if(participant->getIsPlayer()) {
         participant->setFaction("Based");
@@ -78,8 +81,8 @@ void GameClientMessagesReceiver::receiveSetParticipant(SetParticipantMessage* me
         playerController->setParticipant(participant);
     }
 
-    if(message->numParticipantsToSet == turnController->getParticipants().size()) {
-        turnController->allParticipantsSet();
+    if(message->numParticipantsToSet == gameController->getParticipants().size()) {
+        gameController->allParticipantsSet();
     }
 
     transmitter->sendSetParticipantAckMessage(message->participantId);
@@ -114,10 +117,12 @@ void GameClientMessagesReceiver::receiveFindPath(FindPathMessage* message) {
     }
 
     auto const& entity = context.getEntityPool()->getEntity(message->entityId);
+    auto participant = context.getGameController()->getParticipant(entity->getParticipantId());
     
-    context.getTurnController()->queueAction(std::make_unique<MoveAction>(
-        message->turnNumber, 
+    context.getGameController()->queueAction(std::make_unique<MoveAction>(
+        participant,
         entity, 
+        message->turnNumber, 
         glm::ivec2(message->x, message->y), 
         message->shortStopSteps
     ));
@@ -133,13 +138,15 @@ void GameClientMessagesReceiver::receiveAttackEntity(AttackMessage* message) {
 
     auto weaponId = UUID::fromBytes(message->weaponIdBytes);
     auto const& entity = entityPool->getEntity(message->entityId);
+    auto participant = context.getGameController()->getParticipant(entity->getParticipantId());
 
     for(auto weapon : entity->getWeapons()) {
         if(weapon->getId() == weaponId) {
-            auto isQueued = context.getTurnController()->queueAction(
+            auto isQueued = context.getGameController()->queueAction(
                 std::make_unique<AttackAction>(
-                    message->turnNumber, 
+                    participant,
                     entity, 
+                    message->turnNumber, 
                     weapon, 
                     glm::ivec2(message->x, message->y), 
                     true
@@ -152,13 +159,8 @@ void GameClientMessagesReceiver::receiveAttackEntity(AttackMessage* message) {
 }
 
 void GameClientMessagesReceiver::receiveNextTurn(NextTurnMessage* message) {
-    dynamic_cast<ClientTurnController*>(context.getTurnController())
-        ->receiveSetNextTurnFlag(message->participantId, message->turnNumber);
-}
-
-void GameClientMessagesReceiver::receiveSetTurn(SetTurnMessage* message) {
-    context.getTurnController()->setCurrentParticipant(message->currentParticipantId);
-    context.getTurnController()->setTurnNumber(message->turnNumber);
+    dynamic_cast<ClientGameController*>(context.getGameController())
+        ->receiveSetNextTurnFlag(message->participantId, message->engagementId, message->turnNumber);
 }
 
 void GameClientMessagesReceiver::receiveSpawnItems(SpawnItemsMessage* message) {
@@ -180,6 +182,7 @@ void GameClientMessagesReceiver::receiveTakeItems(TakeItemsMessage* message) {
     }
 
     auto const& entity = entityPool->getEntity(message->entityId);
+    auto participant = context.getGameController()->getParticipant(entity->getParticipantId());
 
     std::vector<Item*> itemsToTake;
 
@@ -191,18 +194,25 @@ void GameClientMessagesReceiver::receiveTakeItems(TakeItemsMessage* message) {
         }
     }
 
-    context.getTurnController()->queueAction(std::make_unique<TakeItemAction>(message->turnNumber, entity, itemsToTake));
-}
-
-void GameClientMessagesReceiver::receiveEngagement(EngagementMessage* message) {
-    context.getTurnController()->queueEngagement(
-        message->turnToEngageOn, 
-        { 
-            message->participantIdA, 
-            message->participantIdB, 
-            message->type == EngagementType::DISENGAGED 
-        }
-    );
+    if(message->turnNumber == -1) {
+        context.getGameController()->executeActionImmediately(
+            std::make_unique<TakeItemAction>(
+                participant,
+                entity,
+                itemsToTake
+            )
+        );
+    }
+    else {
+        context.getGameController()->queueAction(
+            std::make_unique<TakeItemAction>(
+                participant,
+                entity,
+                message->turnNumber,
+                itemsToTake
+            )
+        );
+    }
 }
 
 void GameClientMessagesReceiver::receiveApplyDamageMessage(ApplyDamageMessage* message) {
@@ -240,11 +250,13 @@ void GameClientMessagesReceiver::receiveApplyEntityEffectMessage(ApplyEntityEffe
 
     switch((EffectType) message->type) {
         case FREEZE:
-            context.getEffectController()->addEffect(std::make_unique<FreezeEffect>(target, stats));
+            context.getEffectController()->addEffect(
+                std::make_unique<FreezeEffect>(target, message->participantId, stats));
             break;
 
         case POISON:
-            context.getEffectController()->addEffect(std::make_unique<PoisonEffect>(target, stats));
+            context.getEffectController()->addEffect(
+                std::make_unique<PoisonEffect>(target, message->participantId, stats));
             break;
 
         default:
@@ -257,6 +269,7 @@ void GameClientMessagesReceiver::receiveApplyGridEffectMessage(ApplyGridEffectMe
         case FREEZE:
             context.getEffectController()->addGridEffect(std::make_unique<GridFreezeEffect>(
                 context.getGrid(),
+                message->participantId,
                 message->x, 
                 message->y, 
                 message->duration
@@ -359,7 +372,7 @@ void GameClientMessagesReceiver::receiveAddEntityVisibilityMessage(AddEntityVisi
 
     auto entity = context.getEntityPool()->addEntity(message->entity.name, message->entity.id);
 
-    if(!context.getTurnController()->hasParticipant(message->entity.participantId)) {
+    if(!context.getGameController()->hasParticipant(message->entity.participantId)) {
         spdlog::warn(
             "Cannot add entity {} which has a non-existant participant {}",
             entity->toString(),
@@ -368,7 +381,7 @@ void GameClientMessagesReceiver::receiveAddEntityVisibilityMessage(AddEntityVisi
         return;
     }
 
-    context.getTurnController()->getParticipant(message->entity.participantId)->addEntity(entity);
+    context.getGameController()->getParticipant(message->entity.participantId)->addEntity(entity);
 
     for(int j = 0; j < entityStateUpdate.numWeapons; j++) {
         auto const& weaponUpdate = entityStateUpdate.weaponUpdates[j];
@@ -393,3 +406,95 @@ void GameClientMessagesReceiver::receiveAddEntityVisibilityMessage(AddEntityVisi
     
     clientParticipant->addVisibleEntity(entity);
 }
+
+void GameClientMessagesReceiver::receiveCreateEngagementMessage(CreateEngagementMessage* message) {
+    auto gameController = context.getGameController();
+    auto engagementController = gameController->getEngagementController();
+
+    std::vector<Participant*> participants;
+
+    for(auto i = 0; i < message->numParticipants; i++) {
+        auto participant = gameController->getParticipant(message->participants[i]);
+        
+        if(participant == nullptr) {
+            spdlog::error(
+                "CreateEngagementMessage invalid: participant {} not found, engagementId: {}",
+                message->participants[i],
+                message->engagementId
+            );
+            return;
+        }
+
+        participants.push_back(participant);
+    }
+
+    engagementController->createEngagement(participants, message->engagementId);
+}
+
+void GameClientMessagesReceiver::receiveAddToEngagementMessage(AddToEngagementMessage* message) {
+    auto gameController = context.getGameController();
+    auto engagementController = gameController->getEngagementController();
+
+    auto participant = gameController->getParticipant(message->participantId);
+        
+    if(participant == nullptr) {
+        spdlog::error(
+            "AddToEngagementMessage invalid: participant {} not found, engagementId: {}",
+            message->participantId,
+            message->engagementId
+        );
+        return;
+    }
+
+    engagementController->addToEngagement(message->engagementId, participant);
+}
+
+void GameClientMessagesReceiver::receiveDisenageMessage(DisengageMessage* message) {
+    auto gameController = context.getGameController();
+    auto engagementController = gameController->getEngagementController();
+
+    auto participant = gameController->getParticipant(message->participantId);
+        
+    if(participant == nullptr) {
+        spdlog::error(
+            "DisengageMessage invalid: participant {} not found, engagementId: {}",
+            message->participantId,
+            message->engagementId
+        );
+        return;
+    }
+
+    engagementController->disengage(message->engagementId, participant);
+}
+
+void GameClientMessagesReceiver::receiveRemoveEngagementMessage(RemoveEngagementMessage* message) {
+    auto gameController = context.getGameController();
+    auto engagementController = gameController->getEngagementController();
+
+    engagementController->removeEngagement(message->engagementId);
+}
+
+void GameClientMessagesReceiver::receiveMergeEngagementsMessage(MergeEngagementsMessage* message) {
+    auto gameController = context.getGameController();
+    auto engagementController = gameController->getEngagementController();
+
+    std::vector<Participant*> participants;
+
+    for(auto i = 0; i < message->numParticipants; i++) {
+        auto participant = gameController->getParticipant(message->participants[i]);
+        
+        if(participant == nullptr) {
+            spdlog::error(
+                "MergeEngagementsMessage invalid: participant {} not found, engagementId: {}",
+                message->participants[i],
+                message->newEngagementId
+            );
+            return;
+        }
+
+        participants.push_back(participant);
+    }
+
+    engagementController->merge(message->engagementIdA, message->engagementIdB, message->newEngagementId);
+}
+

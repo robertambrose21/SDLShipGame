@@ -1,6 +1,7 @@
 #pragma once
 
 #include "action.h"
+#include "game/weapons/weapon.h"
 
 class AttackAction : public Action {
 private:
@@ -16,12 +17,22 @@ private:
 
 public:
     AttackAction(
-        int turnNumber,
+        Participant* participant,
         Entity* entity,
         Weapon* weapon,
         const glm::ivec2& target,
         bool isAnimationOnly = false
     );
+    AttackAction(
+        Participant* participant,
+        Entity* entity,
+        int turnNumber,
+        Weapon* weapon,
+        const glm::ivec2& target,
+        bool isAnimationOnly = false
+    );
+
+    void publish(ActionPublisher& publisher) override;
 
     bool passesPrecondition(void);
     Weapon* getWeapon(void);

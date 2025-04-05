@@ -1,16 +1,18 @@
 #pragma once
 
-#include "game/application/turncontroller.h"
+#include "game/application/gamecontroller.h"
 #include "net/gameservermessagestransmitter.h"
 
-class ServerTurnController : public TurnController {
+class ServerGameController :
+    public GameController,
+    public EventSubscriber<EntitySetPositionEventData> {
 public:
     typedef struct _client {
         uint64_t id;
         int index;
     } Client;
 
-    ServerTurnController();
+    ServerGameController();
     
     void setTransmitter(GameServerMessagesTransmitter* transmitter);
     void attachParticipantToClient(int participantId, int clientIndex, uint64_t clientId);
@@ -21,16 +23,18 @@ public:
     int getParticipantByClientId(uint64_t clientId) const;
     std::map<int, int> getAllAttachedClients(void);
 
+    void onPublish(const Event<EntitySetPositionEventData>& event);
+
 private:
     std::map<int, Client> participantToClient;
 
     GameServerMessagesTransmitter* transmitter;
 
-    bool canProgressToNextTurn(int participantId) override;
-    void onParticipantTurnEnd(int participantId) override;
+    bool canProgressToNextTurn(Engagement* engagement) override;
+    void onParticipantTurnEnd(Engagement* engagement) override;
     void additionalUpdate(int64_t timeSinceLastFrame, bool& quit) override;
     
-    void checkForItems(void);
+    void checkForItems(int participantId);
     void assignEngagements(int participantIdToCheck);
     void compareAndEngageParticipants(Participant* participantA, Participant* participantB);
     bool hasEntityEngagement(Entity* target, Participant* participant);

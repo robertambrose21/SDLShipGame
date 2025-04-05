@@ -3,10 +3,6 @@
 StdOutSubscriber::StdOutSubscriber()
 { }
 
-void StdOutSubscriber::onPublish(const Event<TurnEventData>& event) {
-    spdlog::info("Turn {}", event.data.turnNumber);
-}
-
 void StdOutSubscriber::onPublish(const Event<EntityEventData>& event) {
     if(event.data.type == "Death") {
         spdlog::info("{} died.",getEntityIdentifier(event.data.entity));
@@ -104,21 +100,6 @@ void StdOutSubscriber::onPublish(const Event<TakeItemActionEventData>& event) {
     }
 
     spdlog::info("{} picked up items: [{}]", getEntityIdentifier(event.data.entity), items);
-}
-
-void StdOutSubscriber::onPublish(const Event<EngagementEventData>& event) {
-    switch(event.data.type) {
-        case EngagementType::ENGAGED:
-            spdlog::info("participants [{}, {}] are now engaged in combat", event.data.participantIdA, event.data.participantIdB);
-            break;
-        
-        case EngagementType::DISENGAGED:
-            spdlog::info("participants [{}, {}] have disengaged from combat", event.data.participantIdA, event.data.participantIdB);
-            break;
-
-        default:
-            break;
-    }
 }
 
 void StdOutSubscriber::onPublish(const Event<EquipItemActionEventData>& event) {

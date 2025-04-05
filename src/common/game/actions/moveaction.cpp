@@ -1,16 +1,35 @@
 #include "moveaction.h"
+#include "game/participant/participant.h"
 
 MoveAction::MoveAction(
-    int turnNumber,
+    Participant* participant,
     Entity* entity, 
     const glm::ivec2& position,
     int shortStopSteps
 ) : 
-    Action(turnNumber, entity),
+    Action(participant, entity),
     position(position),
     shortStopSteps(shortStopSteps)
 {
     game_assert(shortStopSteps >= 0);
+}
+
+MoveAction::MoveAction(
+    Participant* participant,
+    Entity* entity,
+    int turnNumber,
+    const glm::ivec2& position,
+    int shortStopSteps
+) : 
+    Action(participant, entity, turnNumber),
+    position(position),
+    shortStopSteps(shortStopSteps)
+{
+    game_assert(shortStopSteps >= 0);
+}
+
+void MoveAction::publish(ActionPublisher& publisher) {
+    publisher.publish<MoveActionEventData>({ turnNumber, entity, position, shortStopSteps });
 }
 
 Action::Type MoveAction::getType(void) {
@@ -27,8 +46,7 @@ bool MoveAction::onValidate(ApplicationContext* context) {
 
         if(!hasPath) {
             spdlog::trace(
-                "[{}, Move]: Failed to validate action, Entity[{}#{}] not engaged but has no path",
-                turnNumber,
+                "[Move]: Failed to validate action, Entity[{}#{}] not engaged but has no path",
                 entity->getName(),
                 entity->getId()
             );
@@ -39,8 +57,7 @@ bool MoveAction::onValidate(ApplicationContext* context) {
 
     if(entity->getMovesLeft() <= 0) {
         spdlog::trace(
-            "[{}, Move]: Failed to validate action, Entity[{}#{}] has (0/{}) moves left",
-            turnNumber,
+            "[Move]: Failed to validate action, Entity[{}#{}] has (0/{}) moves left",
             entity->getName(),
             entity->getId(),
             entity->getStats().movesPerTurn
@@ -50,8 +67,7 @@ bool MoveAction::onValidate(ApplicationContext* context) {
 
     if(getPath().empty()) {
         spdlog::trace(
-            "[{}, Move]: Failed to validate action, Entity[{}#{}] has no path",
-            turnNumber,
+            "[Move]: Failed to validate action, Entity[{}#{}] has no path",
             entity->getName(),
             entity->getId()
         );
@@ -61,8 +77,7 @@ bool MoveAction::onValidate(ApplicationContext* context) {
 
     if(!hasAvailableMoves()) {
         spdlog::trace(
-            "[{}, Move]: Failed to validate action, Entity[{}#{}] has ({}/{}) moves left but not enough left in chain",
-            turnNumber,
+            "[Move]: Failed to validate action, Entity[{}#{}] has ({}/{}) moves left but not enough left in chain",
             entity->getName(),
             entity->getId(),
             entity->getMovesLeft(),
@@ -91,9 +106,13 @@ std::deque<glm::ivec2> MoveAction::getPath(bool recalculate) {
 }
 
 bool MoveAction::hasAvailableMoves(void) {
-    int numMoves = 0;
+    if(participant->getEngagement() == nullptr || !turnNumber.has_value()) {
+        return true;
+    }
 
-    for(auto& action : entity->getActionsChain(turnNumber)) {
+    int numMoves = 0;
+ 
+    for(auto& action : entity->getActionsChain(turnNumber.value())) {
         if(action->getType() == Action::Type::Move) {
             numMoves += dynamic_cast<MoveAction*>(action)->getPath().size();
         }

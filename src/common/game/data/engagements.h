@@ -1,4 +1,0 @@
-enum EngagementType {
-    ENGAGED,
-    DISENGAGED
-};

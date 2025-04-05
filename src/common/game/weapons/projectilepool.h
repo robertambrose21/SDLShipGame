@@ -40,7 +40,7 @@ private:
     bool initialised;
 
     void loadProjectileDefinitions(void);
-    std::function<void(int, const glm::ivec2&, int, bool)> buildOnHitCallback(const ProjectileDefinition& definition);
+    std::function<void(int, const glm::ivec2&, bool)> buildOnHitCallback(const ProjectileDefinition& definition);
     std::vector<Stats::EffectStats> buildEffectStats(const ProjectileDefinition& definition);
 
 public:

@@ -15,13 +15,15 @@ public:
     void sendFindPathMessage(
         uint32_t entityId, 
         const glm::ivec2& position,
-        int shortStopSteps
+        int shortStopSteps,
+        int turnNumber = -1
     );
     void sendSelectEntityMessage(uint32_t entityId);
     void sendAttackMessage(
         uint32_t entityId, 
         const glm::ivec2& target, 
-        UUID weaponId
+        UUID weaponId,
+        int turnNumber = -1
     );
     void sendPassParticipantTurnMessage(int participantId);
     void sendSetParticipantAckMessage(int participantId);

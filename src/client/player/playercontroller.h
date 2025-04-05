@@ -12,7 +12,7 @@
 #include "game/entities/entity.h"
 #include "game/entities/entitypool.h"
 #include "game/weapons/weapon.h"
-#include "game/application/turncontroller.h"
+#include "game/application/gamecontroller.h"
 #include "graphics/ui/dice.h"
 #include "graphics/ui/button.h"
 #include "graphics/ui/playerpanel.h"
@@ -26,6 +26,32 @@
 
 // Too large, split up
 class PlayerController {
+public:
+    PlayerController(
+        GameClientMessagesTransmitter& clientMessagesTransmitter,
+        ApplicationContext& context,
+        GraphicsContext& graphicsContext
+    );
+
+    void update(int64_t timeSinceLastFrame);
+    void draw(GraphicsContext& graphicsContext);
+    void drawUI(GraphicsContext& graphicsContext);
+
+    void handleKeyPress(const SDL_Event& event);
+    void handleMouseEvent(const SDL_Event& event);
+
+    const std::vector<Entity*>& getSelectedEntities(void) const;
+    void setParticipant(Participant* participant);
+    Participant* getParticipant(void);
+
+    void toggleSelection(const std::vector<Entity*>& entities);
+    void selectAll(void);
+    void deselectAll(void);
+
+    void addEntityPanel(Entity* entity);
+
+    PlayerPanel* getPlayerPanel(void);
+
 private:
     typedef struct _selection {
         glm::ivec2 start, end;
@@ -42,7 +68,7 @@ private:
 
     std::vector<Entity*> selectedEntities;
     GridRenderer& gridRenderer;
-    TurnController* turnController;
+    GameController* gameController;
     EntityPool* entityPool;
     Grid* grid;
     GraphicsContext& graphicsContext;
@@ -72,29 +98,5 @@ private:
     void equipWeapon(Item* item);
     void unequipWeapon(Weapon* weapon);
 
-public:
-    PlayerController(
-        GameClientMessagesTransmitter& clientMessagesTransmitter,
-        ApplicationContext& context,
-        GraphicsContext& graphicsContext
-    );
-
-    void update(int64_t timeSinceLastFrame);
-    void draw(GraphicsContext& graphicsContext);
-    void drawUI(GraphicsContext& graphicsContext);
-
-    void handleKeyPress(const SDL_Event& event);
-    void handleMouseEvent(const SDL_Event& event);
-
-    const std::vector<Entity*>& getSelectedEntities(void) const;
-    void setParticipant(Participant* participant);
-    Participant* getParticipant(void);
-
-    void toggleSelection(const std::vector<Entity*>& entities);
-    void selectAll(void);
-    void deselectAll(void);
-
-    void addEntityPanel(Entity* entity);
-
-    PlayerPanel* getPlayerPanel(void);
+    bool doAction(std::unique_ptr<Action> action);
 };

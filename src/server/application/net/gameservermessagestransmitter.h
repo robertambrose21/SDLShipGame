@@ -5,11 +5,11 @@
 #include "game/net/messages.h"
 #include "core/net/gameserver.h"
 #include "core/net/servermessagestransmitter.h"
-#include "game/application/turncontroller.h"
+#include "game/application/gamecontroller.h"
 #include "game/application/application.h"
 #include "game/application/visibilitycontroller.h"
 
-class ServerTurnController;
+class ServerGameController;
 
 class GameServerMessagesTransmitter : 
     public ServerMessagesTransmitter, 
@@ -17,7 +17,6 @@ class GameServerMessagesTransmitter :
     public EventSubscriber<MoveActionEventData>,
     public EventSubscriber<AttackActionEventData>,
     public EventSubscriber<TakeItemActionEventData>,
-    public EventSubscriber<EngagementEventData>,
     public EventSubscriber<AreaOfEffectEventData>,
     public EventSubscriber<ProjectileEventData>,
     public EventSubscriber<MeleeWeaponEventData>,
@@ -25,12 +24,17 @@ class GameServerMessagesTransmitter :
     public EventSubscriber<GridEffectEvent>,
     public EventSubscriber<TilesRevealedEventData>,
     public EventSubscriber<EntitySetPositionEventData>,
-    public EventSubscriber<EntityVisibilityToParticipantData>
+    public EventSubscriber<EntityVisibilityToParticipantData>,
+    public EventSubscriber<CreateEngagementEventData>,
+    public EventSubscriber<AddToEngagementEventData>,
+    public EventSubscriber<DisengageEventData>,
+    public EventSubscriber<RemoveEngagementEventData>,
+    public EventSubscriber<MergeEngagementEventData>
 {
 public:
     GameServerMessagesTransmitter(
         GameServer& server,
-        ServerTurnController* turnController,
+        ServerGameController* gameController,
         VisiblityController* visibilityController,
         ItemController* itemController,
         std::function<void(int)> onClientConnectFunc = [](int) { },
@@ -41,7 +45,6 @@ public:
     void onPublish(const Event<MoveActionEventData>& event);
     void onPublish(const Event<AttackActionEventData>& event);
     void onPublish(const Event<TakeItemActionEventData>& event);
-    void onPublish(const Event<EngagementEventData>& event);
     void onPublish(const Event<AreaOfEffectEventData>& event);
     void onPublish(const Event<ProjectileEventData>& event);
     void onPublish(const Event<MeleeWeaponEventData>& event);
@@ -50,22 +53,26 @@ public:
     void onPublish(const Event<TilesRevealedEventData>& event);
     void onPublish(const Event<EntitySetPositionEventData>& event);
     void onPublish(const Event<EntityVisibilityToParticipantData>& event);
+    void onPublish(const Event<CreateEngagementEventData>& event);
+    void onPublish(const Event<AddToEngagementEventData>& event);
+    void onPublish(const Event<DisengageEventData>& event);
+    void onPublish(const Event<RemoveEngagementEventData>& event);
+    void onPublish(const Event<MergeEngagementEventData>& event);
 
     void sendSetParticipant(int clientIndex, Participant* participant);
     void sendSetParticipantToAllClients(Participant* participant);
     void sendGameStateUpdate(int clientIndex, const GameStateUpdate& update);
     void sendLoadMap(int clientIndex, const MapBlock& block);
     void sendActionsRollResponse(int clientIndex, int participantId, const std::vector<DiceActionResult>& dice);
-    void sendNextTurn(int clientIndex, int participantId, int turnNumber);
-    void sendNextTurnToAllClients(int participantId, int turnNumber);
-    void sendSetTurn(int clientIndex, uint8_t currentParticipantId, uint32_t turnNumber);
+    void sendNextTurn(int clientIndex, int participantId, uint32_t engagementId, int turnNumber);
+    void sendNextTurnToAllClients(int participantId, uint32_t engagementId, int turnNumber);
     void sendItems(int clientIndex, const std::vector<Item*>& items);
 
     void sendLoadGameToClient(int clientIndex);
 
 private:
     GameServer& server;
-    ServerTurnController* turnController;
+    ServerGameController* gameController;
     VisiblityController* visibilityController;
     ItemController* itemController;
 
@@ -76,11 +83,4 @@ private:
     void onClientDisconnected(int clientIndex) override;
 
     void sendRevealedTiles(const std::vector<RevealedTile>& tiles, int participantId);
-    void sendEngagement(
-        int participantIdA, 
-        int participantIdB, 
-        int turnToEngageOn,
-        EngagementType type,
-        int clientIndex
-    );
 };

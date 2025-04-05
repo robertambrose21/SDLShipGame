@@ -6,7 +6,7 @@ ApplicationContext::ApplicationContext(
     WeaponController* weaponController,
     ProjectilePool* projectilePool,
     AreaOfEffectPool* areaOfEffectPool,
-    TurnController* turnController,
+    GameController* gameController,
     ItemController* itemController,
     EffectController* effectController,
     SpawnController* spawnController,
@@ -17,7 +17,7 @@ ApplicationContext::ApplicationContext(
     weaponController(weaponController),
     projectilePool(projectilePool),
     areaOfEffectPool(areaOfEffectPool),
-    turnController(turnController),
+    gameController(gameController),
     itemController(itemController),
     effectController(effectController),
     spawnController(spawnController),
@@ -40,8 +40,8 @@ AreaOfEffectPool* ApplicationContext::getAreaOfEffectPool(void) {
     return areaOfEffectPool;
 }
 
-TurnController* ApplicationContext::getTurnController(void) {
-    return turnController;
+GameController* ApplicationContext::getGameController(void) {
+    return gameController;
 }
 
 ItemController* ApplicationContext::getItemController(void) {

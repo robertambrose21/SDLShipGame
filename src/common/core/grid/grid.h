@@ -75,8 +75,6 @@ private:
 public:
     Grid(int width, int height, const std::vector<std::vector<Tile>>& data = { });
 
-    void nextTurn(void);
-
     int getWidth(void) const;
     int getHeight(void) const;
 

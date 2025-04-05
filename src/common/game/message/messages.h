@@ -21,7 +21,6 @@ enum class GameMessageType {
     NEXT_TURN,
     SPAWN_ITEMS,
     TAKE_ITEMS,
-    ENGAGEMENT,
     EQUIP_ITEM,
     EQUIP_WEAPON,
     APPLY_DAMAGE,
@@ -31,7 +30,11 @@ enum class GameMessageType {
     SET_ENTITY_POSITION,
     REMOVE_ENTITY_VISIBILITY,
     ADD_ENTITY_VISIBILITY,
-    SET_TURN,
+    CREATE_ENGAGEMENT,
+    ADD_TO_ENGAGEMENT,
+    DISENGAGE,
+    REMOVE_ENGAGEMENT,
+    MERGE_ENGAGEMENTS,
     COUNT
 };
 
@@ -74,7 +77,7 @@ public:
         serialize_int(stream, x, 0, 512);
         serialize_int(stream, y, 0, 512);
         serialize_int(stream, shortStopSteps, 0, 512);
-        serialize_int(stream, turnNumber, 0, 512);
+        serialize_int(stream, turnNumber, -1, INT16_MAX);
         return true;
     }
 
@@ -118,7 +121,7 @@ public:
         serialize_int(stream, x, 0, 512);
         serialize_int(stream, y, 0, 512);
         serialize_bytes(stream, weaponIdBytes, 16);
-        serialize_int(stream, turnNumber, 0, 512);
+        serialize_int(stream, turnNumber, -1, INT16_MAX);
         return true;
     }
 
@@ -338,16 +341,19 @@ public:
 class NextTurnMessage : public yojimbo::Message {
 public:
     int participantId;
+    uint32_t engagementId;
     int turnNumber;
 
     NextTurnMessage() :
         participantId(0),
+        engagementId(0),
         turnNumber(0) 
     { }
 
     template <typename Stream>
     bool Serialize(Stream& stream) {
         serialize_int(stream, participantId, 0, 64);
+        serialize_uint32(stream, engagementId);
         serialize_int(stream, turnNumber, 0, UINT16_MAX); // Max turn number??
 
         return true;
@@ -402,7 +408,7 @@ public:
 
     template <typename Stream>
     bool Serialize(Stream& stream) {
-        serialize_int(stream, turnNumber, 0, 512);
+        serialize_int(stream, turnNumber, -1, 512);
         serialize_uint32(stream, entityId);
         serialize_int(stream, numItems, 0, 64);
         
@@ -411,32 +417,6 @@ public:
             serialize_string(stream, items[i].name, sizeof(items[i].name));
         }
 
-        return true;
-    }
-
-    YOJIMBO_VIRTUAL_SERIALIZE_FUNCTIONS();
-};
-
-class EngagementMessage : public yojimbo::Message {
-public:
-    int participantIdA;
-    int participantIdB;
-    int type;
-    int turnToEngageOn;
-
-    EngagementMessage() :
-        participantIdA(0),
-        participantIdB(0),
-        type(0),
-        turnToEngageOn(0)
-    { }
-
-    template <typename Stream>
-    bool Serialize(Stream& stream) {
-        serialize_int(stream, participantIdA, 0, 64);
-        serialize_int(stream, participantIdB, 0, 64);
-        serialize_int(stream, type, 0, 64);
-        serialize_int(stream, turnToEngageOn, 0, 512);
         return true;
     }
 
@@ -524,17 +504,20 @@ class ApplyEntityEffectMessage : public yojimbo::Message {
 public:
     uint8_t type;
     uint32_t targetId;
+    uint8_t participantId;
     EffectStatsUpdate effectStats;
 
     ApplyEntityEffectMessage() :
         type(0),
-        targetId(0)
+        targetId(0),
+        participantId(0)
     { }
 
     template <typename Stream>
     bool Serialize(Stream& stream) {
         serialize_bits(stream, type, 8);
         serialize_uint32(stream, targetId);
+        serialize_bits(stream, participantId, 8);
         serialize_bits(stream, effectStats.effectType, 8);
         serialize_bits(stream, effectStats.duration, 8);
         serialize_bits(stream, effectStats.numDamageTicks, 8);
@@ -552,11 +535,13 @@ public:
 class ApplyGridEffectMessage : public yojimbo::Message {
 public:
     uint8_t type;
+    uint8_t participantId;
     int x, y;
     uint8_t duration;
 
     ApplyGridEffectMessage() :
         type(0),
+        participantId(0),
         x(0),
         y(0),
         duration(0)
@@ -565,6 +550,7 @@ public:
     template <typename Stream>
     bool Serialize(Stream& stream) {
         serialize_bits(stream, type, 8);
+        serialize_bits(stream, participantId, 8);
         serialize_int(stream, x, 0, 512);
         serialize_int(stream, y, 0, 512);
         serialize_bits(stream, duration, 8);
@@ -677,26 +663,122 @@ public:
     YOJIMBO_VIRTUAL_SERIALIZE_FUNCTIONS();
 };
 
-class SetTurnMessage : public yojimbo::Message {
+class CreateEngagementMessage : public yojimbo::Message {
 public:
-    uint32_t turnNumber;
-    uint8_t currentParticipantId;
+    uint32_t engagementId;
+    uint8_t numParticipants;
+    int participants[64];
 
-    SetTurnMessage() :
-        turnNumber(0),
-        currentParticipantId(0)
+    CreateEngagementMessage() :
+        engagementId(0),
+        numParticipants(0)
     { }
 
     template<typename Stream>
     bool Serialize(Stream& stream) {
-        serialize_uint32(stream, turnNumber);
-        serialize_bits(stream, currentParticipantId, 8);
+        serialize_uint32(stream, engagementId);
+        serialize_int(stream, numParticipants, 0, 64);
+        for(int i = 0; i < numParticipants; i++) {
+            serialize_int(stream, participants[i], 0, 64);
+        }
 
         return true;
     }
 
     YOJIMBO_VIRTUAL_SERIALIZE_FUNCTIONS();
 };
+
+class AddToEngagementMessage : public yojimbo::Message {
+public:
+    uint32_t engagementId;
+    int participantId;
+
+    AddToEngagementMessage() :
+        engagementId(0),
+        participantId(0)
+    { }
+
+    template<typename Stream>
+    bool Serialize(Stream& stream) {
+        serialize_uint32(stream, engagementId);
+        serialize_int(stream, participantId, 0, 64);
+
+        return true;
+    }
+
+    YOJIMBO_VIRTUAL_SERIALIZE_FUNCTIONS();
+};
+
+class DisengageMessage : public yojimbo::Message {
+public:
+    uint32_t engagementId;
+    int participantId;
+
+    DisengageMessage() :
+        engagementId(0),
+        participantId(0)
+    { }
+
+    template<typename Stream>
+    bool Serialize(Stream& stream) {
+        serialize_uint32(stream, engagementId);
+        serialize_int(stream, participantId, 0, 64);
+
+        return true;
+    }
+
+    YOJIMBO_VIRTUAL_SERIALIZE_FUNCTIONS();
+};
+
+class RemoveEngagementMessage : public yojimbo::Message {
+public:
+    uint32_t engagementId;
+
+    RemoveEngagementMessage() :
+        engagementId(0)
+    { }
+
+    template<typename Stream>
+    bool Serialize(Stream& stream) {
+        serialize_uint32(stream, engagementId);
+
+        return true;
+    }
+
+    YOJIMBO_VIRTUAL_SERIALIZE_FUNCTIONS();
+};
+
+class MergeEngagementsMessage : public yojimbo::Message {
+    public:
+        uint32_t newEngagementId;
+        uint32_t engagementIdA;
+        uint32_t engagementIdB;
+        uint8_t numParticipants;
+        int participants[64];
+    
+        MergeEngagementsMessage() :
+            newEngagementId(0),
+            engagementIdA(0),
+            engagementIdB(0),
+            numParticipants(0)
+        { }
+    
+        template<typename Stream>
+        bool Serialize(Stream& stream) {
+            serialize_uint32(stream, newEngagementId);
+            serialize_uint32(stream, engagementIdA);
+            serialize_uint32(stream, engagementIdB);
+
+            serialize_int(stream, numParticipants, 0, 64);
+            for(int i = 0; i < numParticipants; i++) {
+                serialize_int(stream, participants[i], 0, 64);
+            }
+    
+            return true;
+        }
+    
+        YOJIMBO_VIRTUAL_SERIALIZE_FUNCTIONS();
+    };
 
 YOJIMBO_MESSAGE_FACTORY_START(GameMessageFactory, (int)GameMessageType::COUNT);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::PING, PingMessage);
@@ -714,7 +796,6 @@ YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::ACTIONS_ROLL_RESPONSE, Action
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::NEXT_TURN, NextTurnMessage);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::SPAWN_ITEMS, SpawnItemsMessage);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::TAKE_ITEMS, TakeItemsMessage);
-YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::ENGAGEMENT, EngagementMessage);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::EQUIP_ITEM, EquipItemMessage);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::EQUIP_WEAPON, EquipWeaponMessage);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::APPLY_DAMAGE, ApplyDamageMessage);
@@ -724,5 +805,9 @@ YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::TILES_REVEALED, TilesRevealed
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::SET_ENTITY_POSITION, SetEntityPositionMessage);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::REMOVE_ENTITY_VISIBILITY, RemoveEntityVisibilityMessage);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::ADD_ENTITY_VISIBILITY, AddEntityVisibilityMessage);
-YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::SET_TURN, SetTurnMessage);
+YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::CREATE_ENGAGEMENT, CreateEngagementMessage);
+YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::ADD_TO_ENGAGEMENT, AddToEngagementMessage);
+YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::DISENGAGE, DisengageMessage);
+YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::REMOVE_ENGAGEMENT, RemoveEngagementMessage);
+YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::MERGE_ENGAGEMENTS, MergeEngagementsMessage);
 YOJIMBO_MESSAGE_FACTORY_FINISH();

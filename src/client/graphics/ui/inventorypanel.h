@@ -8,7 +8,7 @@
 #include "game/items/equippable.h"
 #include "game/weapons/weapon.h"
 #include "graphics/graphicscontext.h"
-#include "game/application/turncontroller.h"
+#include "game/application/gamecontroller.h"
 
 class InventoryPanel {
 private:

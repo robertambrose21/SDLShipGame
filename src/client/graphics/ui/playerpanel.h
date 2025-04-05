@@ -7,12 +7,11 @@
 #include "imgui.h"
 #include "itemraritycolours.h"
 
-#include "game/application/turncontroller.h"
+#include "game/application/gamecontroller.h"
 #include "game/entities/entitypool.h"
 #include "core/event/eventsubscriber.h"
 
 class PlayerPanel : 
-    public EventSubscriber<TurnEventData>,
     public EventSubscriber<EntityEventData>,
     public EventSubscriber<MeleeWeaponEventData>,
     public EventSubscriber<ProjectileEventData>,
@@ -47,7 +46,6 @@ public:
 
     void draw(void);
 
-    void onPublish(const Event<TurnEventData>& event);
     void onPublish(const Event<EntityEventData>& event);
     void onPublish(const Event<MeleeWeaponEventData>& event);
     void onPublish(const Event<ProjectileEventData>& event);

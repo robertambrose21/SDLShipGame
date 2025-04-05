@@ -15,7 +15,10 @@ private:
     std::vector<Item*> items;
 
 public:
-    TakeItemAction(int turnNumber, Entity* entity, const std::vector<Item*>& items);
+    TakeItemAction(Participant* participant, Entity* entity, const std::vector<Item*>& items);
+    TakeItemAction(Participant* participant, Entity* entity, int turnNumber, const std::vector<Item*>& items);
+
+    void publish(ActionPublisher& publisher) override;
 
     bool passesPrecondition(void);
     Type getType(void);

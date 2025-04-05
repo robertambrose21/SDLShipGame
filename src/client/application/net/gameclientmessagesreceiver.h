@@ -7,7 +7,7 @@
 #include "core/net/clientmessagesreceiver.h"
 #include "core/net/gameadapter.h"
 #include "player/playercontroller.h"
-#include "application/clientturncontroller.h"
+#include "application/clientgamecontroller.h"
 #include "game/actions/attackaction.h"
 #include "game/net/gamemessagelogger.h"
 
@@ -42,10 +42,8 @@ private:
     void receiveFindPath(FindPathMessage* message);
     void receiveAttackEntity(AttackMessage* message);
     void receiveNextTurn(NextTurnMessage* message);
-    void receiveSetTurn(SetTurnMessage* message);
     void receiveSpawnItems(SpawnItemsMessage* message);
     void receiveTakeItems(TakeItemsMessage* message);
-    void receiveEngagement(EngagementMessage* message);
     void receiveApplyDamageMessage(ApplyDamageMessage* message);
     void receiveApplyEntityEffectMessage(ApplyEntityEffectMessage* message);
     void receiveApplyGridEffectMessage(ApplyGridEffectMessage* message);
@@ -53,4 +51,11 @@ private:
     void receiveSetEntityPositionMessage(SetEntityPositionMessage* message);
     void receiveAddEntityVisibilityMessage(AddEntityVisibilityMessage* message);
     void receiveRemoveEntityVisibilityMessage(RemoveEntityVisibilityMessage* message);
+
+    // Engagements
+    void receiveCreateEngagementMessage(CreateEngagementMessage* message);
+    void receiveAddToEngagementMessage(AddToEngagementMessage* message);
+    void receiveDisenageMessage(DisengageMessage* message);
+    void receiveRemoveEngagementMessage(RemoveEngagementMessage* message);
+    void receiveMergeEngagementsMessage(MergeEngagementsMessage* message);
 };

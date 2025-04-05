@@ -13,7 +13,7 @@
 #include "../graphicscontext.h"
 #include "actionbutton.h"
 #include "game/application/application.h"
-#include "game/application/turncontroller.h"
+#include "game/application/gamecontroller.h"
 #include "application/net/gameclientmessagestransmitter.h"
 
 class Dice {
@@ -24,7 +24,7 @@ private:
 
     std::map<int, std::vector<std::unique_ptr<ActionButton>>> actions;
 
-    TurnController* turnController;
+    GameController* gameController;
     GameClientMessagesTransmitter& clientMessagesTransmitter;
 
     std::mutex mtx;
@@ -34,7 +34,7 @@ public:
     Dice(
         int face,
         GameClientMessagesTransmitter& clientMessagesTransmitter,
-        TurnController* turnController
+        GameController* gameController
     );
 
     void draw(GraphicsContext& graphicsContext);

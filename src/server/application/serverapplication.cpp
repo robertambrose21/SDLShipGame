@@ -26,7 +26,7 @@ void ServerApplication::initialise(void) {
         std::make_unique<WeaponController>(),
         std::make_unique<ProjectilePool>(),
         std::make_unique<AreaOfEffectPool>(),
-        std::make_unique<ServerTurnController>(),
+        std::make_unique<ServerGameController>(),
         std::make_unique<ItemController>(),
         std::make_unique<EffectController>(),
         std::make_unique<SpawnController>(),
@@ -35,7 +35,7 @@ void ServerApplication::initialise(void) {
 
     auto& context = application->getContext();
 
-    context.getTurnController()->initialise(application->getContext());
+    context.getGameController()->initialise(application->getContext());
     context.getAreaOfEffectPool()->initialise(application->getContext());
     context.getProjectilePool()->initialise(application->getContext());
     context.getWeaponController()->initialise(application->getContext());
@@ -43,26 +43,24 @@ void ServerApplication::initialise(void) {
     context.getItemController()->initialise(application->getContext());
     context.getSpawnController()->initialise(application->getContext());
     context.getVisibilityController()->initialise(application->getContext());
-
-    context.getTurnController()->subscribe<TurnEventData>(&stdoutSubscriber);
+    context.getEffectController()->initialise(application->getContext());
     context.getEntityPool()->subscribe<EntityEventData>(&stdoutSubscriber);
     context.getWeaponController()->subscribe<MeleeWeaponEventData>(&stdoutSubscriber);
     context.getProjectilePool()->subscribe<ProjectileEventData>(&stdoutSubscriber);
     context.getAreaOfEffectPool()->subscribe<AreaOfEffectEventData>(&stdoutSubscriber);
     context.getItemController()->subscribe<ItemEventData>(&stdoutSubscriber);
-    context.getTurnController()->subscribe<TakeItemActionEventData>(&stdoutSubscriber);
-    context.getTurnController()->subscribe<EngagementEventData>(&stdoutSubscriber);
-    context.getTurnController()->subscribe<EquipItemActionEventData>(&stdoutSubscriber);
+    context.getGameController()->subscribe<TakeItemActionEventData>(&stdoutSubscriber);
+    context.getGameController()->subscribe<EquipItemActionEventData>(&stdoutSubscriber);
 
     server = std::make_unique<GameServer>(
         std::make_unique<GameMessageLogger>("server_messages.log"),
-        yojimbo::Address("127.0.0.1", 8081)
+        yojimbo::Address("192.168.178.26", 8081)
     );
 
     receiver = std::make_unique<GameServerMessagesReceiver>(application->getContext());
     transmitter = std::make_unique<GameServerMessagesTransmitter>(
         *server, 
-        dynamic_cast<ServerTurnController*>(context.getTurnController()),
+        dynamic_cast<ServerGameController*>(context.getGameController()),
         context.getVisibilityController(),
         context.getItemController(),
         [&](int clientIndex) { onClientConnect(clientIndex); },
@@ -70,17 +68,16 @@ void ServerApplication::initialise(void) {
     );
     receiver->setTransmitter(transmitter.get());
 
-    dynamic_cast<ServerTurnController*>(context.getTurnController())->setTransmitter(transmitter.get());
+    dynamic_cast<ServerGameController*>(context.getGameController())->setTransmitter(transmitter.get());
 
     server->setReceiver(receiver.get());
     server->setTransmitter(transmitter.get());
     context.setServerMessagesTransmitter(transmitter.get());
     context.getItemController()->subscribe<ItemEventData>(transmitter.get());
     context.getEntityPool()->subscribe(context.getItemController());
-    context.getTurnController()->subscribe<MoveActionEventData>(transmitter.get());
-    context.getTurnController()->subscribe<AttackActionEventData>(transmitter.get());
-    context.getTurnController()->subscribe<TakeItemActionEventData>(transmitter.get());
-    context.getTurnController()->subscribe<EngagementEventData>(transmitter.get());
+    context.getGameController()->subscribe<MoveActionEventData>(transmitter.get());
+    context.getGameController()->subscribe<AttackActionEventData>(transmitter.get());
+    context.getGameController()->subscribe<TakeItemActionEventData>(transmitter.get());
     context.getAreaOfEffectPool()->subscribe<AreaOfEffectEventData>(transmitter.get());
     context.getProjectilePool()->subscribe<ProjectileEventData>(transmitter.get());
     context.getWeaponController()->subscribe<MeleeWeaponEventData>(transmitter.get());
@@ -89,23 +86,21 @@ void ServerApplication::initialise(void) {
     context.getVisibilityController()->subscribe<TilesRevealedEventData>(transmitter.get());
     context.getEntityPool()->subscribe<EntitySetPositionEventData>(context.getVisibilityController());
     context.getEntityPool()->subscribe<EntitySetPositionEventData>(transmitter.get());
+    context.getEntityPool()->subscribe<EntitySetPositionEventData>(dynamic_cast<ServerGameController*>(context.getGameController()));
     context.getVisibilityController()->subscribe<EntityVisibilityToParticipantData>(transmitter.get());
+    context.getGameController()->getEngagementController()->subscribe<CreateEngagementEventData>(transmitter.get());
+    context.getGameController()->getEngagementController()->subscribe<AddToEngagementEventData>(transmitter.get());
+    context.getGameController()->getEngagementController()->subscribe<DisengageEventData>(transmitter.get());
+    context.getGameController()->getEngagementController()->subscribe<RemoveEngagementEventData>(transmitter.get());
+    context.getGameController()->getEngagementController()->subscribe<MergeEngagementEventData>(transmitter.get());
 
     application->addLogicWorker([&](ApplicationContext& c, auto const& timeSinceLastFrame, auto& quit) {
         server->update(timeSinceLastFrame);
-        c.getTurnController()->update(timeSinceLastFrame, quit);
+        c.getGameController()->update(timeSinceLastFrame, quit);
         c.getEntityPool()->updateEntities(timeSinceLastFrame, quit);
         c.getProjectilePool()->update(timeSinceLastFrame);
         c.getAreaOfEffectPool()->update(timeSinceLastFrame);
-    });
-
-    // TODO: This somehow makes the game state messages get received first rather than the set participant ones.
-    // On the client side we need to wait until participants are all set before we load the rest of the map
-    context.getTurnController()->addOnNextTurnFunction([&](auto const& currentParticipantId, auto const& turnNumber) {
-        // TODO: This has a synching issue currently particularly around entity movement not completing in time before
-        // an entities "moves left" is set by the update. Consider making updates just set positions/health?
-
-        // sendGameStateUpdatesToClients();
+        c.getEffectController()->update(timeSinceLastFrame);
     });
 
     auto rooms = loadMap();
@@ -117,35 +112,35 @@ void ServerApplication::run(void) {
 }
 
 void ServerApplication::onClientConnect(int clientIndex) {
-    auto turnController = dynamic_cast<ServerTurnController*>(application->getContext().getTurnController());
+    auto gameController = dynamic_cast<ServerGameController*>(application->getContext().getGameController());
     uint64_t clientId = server->getClientId(clientIndex);
 
     Participant* participant = nullptr;
 
     if(server->hasReconnected(clientIndex)) {
-        auto participantId = turnController->getParticipantByClientId(clientId);
+        auto participantId = gameController->getParticipantByClientId(clientId);
 
         if(participantId == -1) {
             spdlog::warn("Detected reconnect for client {}:[{}] but cannot find participant", clientIndex, clientId);
             return;
         }
 
-        participant = turnController->getParticipant(participantId);
+        participant = gameController->getParticipant(participantId);
         spdlog::trace("Client {} reconnected and is attaching to participant {}", clientIndex, participant->getId());
     }
     else {
-        participant = turnController->addParticipant(true, { addPlayer(false) });
+        participant = gameController->addParticipant(true, { addPlayer(false) });
         participant->setFaction("Based");
         participant->addHostileFaction("Cringe");
-        turnController->reset(); // TODO: Probably shouldn't do this?
+        gameController->reset(); // TODO: Probably shouldn't do this?
         spdlog::trace("Client {} connected and is attaching to participant {}", clientIndex, participant->getId());
     }
 
-    turnController->attachParticipantToClient(participant->getId(), clientIndex, clientId);
+    gameController->attachParticipantToClient(participant->getId(), clientIndex, clientId);
     spdlog::trace("Attached client {}:[{}] to participant {}", clientIndex, clientId, participant->getId());
 
     // TOOD: Send just unready participants to all clients
-    for(auto& p : turnController->getParticipants()) {
+    for(auto& p : gameController->getParticipants()) {
         transmitter->sendSetParticipantToAllClients(p);
     }
 
@@ -166,7 +161,7 @@ void ServerApplication::onClientConnect(int clientIndex) {
 }
 
 void ServerApplication::onClientDisconnect(int clientIndex) {
-    dynamic_cast<ServerTurnController*>(application->getContext().getTurnController())
+    dynamic_cast<ServerGameController*>(application->getContext().getGameController())
         ->detachParticipantFromClient(clientIndex);
 }
 
@@ -174,7 +169,7 @@ void ServerApplication::onClientDisconnect(int clientIndex) {
 void ServerApplication::sendLoadMapToClient(int clientIndex) {
     auto& context = application->getContext();
     auto grid = context.getGrid();
-    auto turnController = dynamic_cast<ServerTurnController*>(context.getTurnController());
+    auto gameController = dynamic_cast<ServerGameController*>(context.getGameController());
 
     auto gridSize = grid->getWidth() * grid->getHeight();
     auto numSequences = gridSize / MaxMapBlockSize;
@@ -218,18 +213,18 @@ void ServerApplication::sendLoadMapToClient(int clientIndex) {
         // transmitter->sendLoadMap(clientIndex, block);
     }
 
-    sendGameStateUpdatesToParticipant(turnController->getAttachedParticipantId(clientIndex));
+    sendGameStateUpdatesToParticipant(gameController->getAttachedParticipantId(clientIndex));
 }
 
 // TODO: Move elsewhere
 void ServerApplication::sendGameStateUpdatesToParticipant(int clientIndex) {
     auto& context = application->getContext();
-    auto turnController = dynamic_cast<ServerTurnController*>(context.getTurnController());
-    auto participantId = turnController->getAttachedParticipantId(clientIndex);
+    auto gameController = dynamic_cast<ServerGameController*>(context.getGameController());
+    auto participantId = gameController->getAttachedParticipantId(clientIndex);
 
     auto chunkId = getNewId();
 
-    auto visibleEntities = context.getTurnController()->getParticipant(participantId)->getVisibleEntities();
+    auto visibleEntities = context.getGameController()->getParticipant(participantId)->getVisibleEntities();
     std::vector<Entity*> entitiesBlock;
 
     // TODO: Handle overflow?
@@ -321,7 +316,7 @@ void ServerApplication::loadGame(const std::vector<GenerationStrategy::Room>& ro
         }
     }
 
-    auto participant = context.getTurnController()->addParticipant(
+    auto participant = context.getGameController()->addParticipant(
         false, 
         enemies, 
         std::make_unique<ChaseAndAttackStrategy>(context)
@@ -329,21 +324,30 @@ void ServerApplication::loadGame(const std::vector<GenerationStrategy::Room>& ro
     participant->setFaction("Cringe");
     participant->addHostileFaction("Based");
 
-    context.getTurnController()->reset();
+    context.getGameController()->reset();
 }
 
 Entity* ServerApplication::addPlayer(bool hasFreezeGun) {
     auto& context = application->getContext();
 
+    static int i = 0;
+
     auto room = randomChoice(unfilledRooms);
+    SpawnController::SpawnBox spawnBoxA = { { 31, 91 }, { 31, 91 } };
+    SpawnController::SpawnBox spawnBoxB = { { 15, 91 }, { 15, 91 } };
+
     auto entities = context.getSpawnController()->spawnEntities(
         {
             {
                 { "Player", { "Grenade Launcher" } }
+                // { "Player FreezeGun", { "Freeze Gun" } }
             }
         },
-        { room.min, room.max }
+        // { room.min, room.max }
+        i == 0 ? spawnBoxA : spawnBoxB
     );
+
+    i++;
 
     return entities.front();
 
