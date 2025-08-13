@@ -54,7 +54,7 @@ void ServerApplication::initialise(void) {
 
     server = std::make_unique<GameServer>(
         std::make_unique<GameMessageLogger>("server_messages.log"),
-        yojimbo::Address("192.168.178.26", 8081)
+        yojimbo::Address("127.0.0.1", 8081)
     );
 
     receiver = std::make_unique<GameServerMessagesReceiver>(application->getContext());
@@ -131,7 +131,7 @@ void ServerApplication::onClientConnect(int clientIndex) {
     else {
         participant = gameController->addParticipant(true, { addPlayer(false) });
         participant->setFaction("Based");
-        participant->addHostileFaction("Cringe");
+        participant->addFaction("Cringe", Factioned::HOSTILE);
         gameController->reset(); // TODO: Probably shouldn't do this?
         spdlog::trace("Client {} connected and is attaching to participant {}", clientIndex, participant->getId());
     }
@@ -322,7 +322,8 @@ void ServerApplication::loadGame(const std::vector<GenerationStrategy::Room>& ro
         std::make_unique<ChaseAndAttackStrategy>(context)
     );
     participant->setFaction("Cringe");
-    participant->addHostileFaction("Based");
+    // participant->addHostileFaction("Based");
+    participant->addFaction("Based", Factioned::HOSTILE);
 
     context.getGameController()->reset();
 }
@@ -343,8 +344,8 @@ Entity* ServerApplication::addPlayer(bool hasFreezeGun) {
                 // { "Player FreezeGun", { "Freeze Gun" } }
             }
         },
-        // { room.min, room.max }
-        i == 0 ? spawnBoxA : spawnBoxB
+        { room.min, room.max }
+        // i == 0 ? spawnBoxA : spawnBoxB
     );
 
     i++;

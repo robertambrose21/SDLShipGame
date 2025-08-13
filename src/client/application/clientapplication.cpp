@@ -82,7 +82,7 @@ void ClientApplication::initialise(void) {
         std::make_unique<GameMessageLogger>("client_messages.log"),
         clientId,
         *clientMessagesReceiver,
-        yojimbo::Address("192.168.178.26", 8081)
+        yojimbo::Address("127.0.0.1", 8081)
     );
     clientMessagesTransmitter = std::make_unique<GameClientMessagesTransmitter>(*client);
 

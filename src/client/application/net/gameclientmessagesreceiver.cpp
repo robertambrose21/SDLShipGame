@@ -69,11 +69,11 @@ void GameClientMessagesReceiver::receiveSetParticipant(SetParticipantMessage* me
 
     if(participant->getIsPlayer()) {
         participant->setFaction("Based");
-        participant->addHostileFaction("Cringe");
+        participant->addFaction("Cringe", Factioned::HOSTILE);
     }
     else {
         participant->setFaction("Cringe");
-        participant->addHostileFaction("Based");
+        participant->addFaction("Based", Factioned::HOSTILE);
     }
 
     // Are we this participant

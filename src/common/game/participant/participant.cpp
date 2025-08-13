@@ -5,9 +5,9 @@
 #include "game/items/item.h"
 
 Participant::Participant(int id) :
+    Factioned("Unaligned"),
     id(id),
     passNextTurn(false),
-    faction("None"),
     engagement(nullptr)
 { }
 
@@ -215,22 +215,3 @@ bool Participant::hasVisibleEntity(Entity* entity) {
     return visibleEntities.contains(entity);
 }
 
-std::string Participant::getFaction(void) const {
-    return faction;
-}
-
-void Participant::setFaction(const std::string& faction) {
-    this->faction = faction;
-}
-
-bool Participant::isHostile(Participant* other) {
-    return this != other && hostileFactions.contains(other->getFaction());
-}
-
-void Participant::addHostileFaction(const std::string& hostileFaction) {
-    hostileFactions.insert(hostileFaction);
-}
-
-void Participant::removeHostileFaction(const std::string& hostileFaction) {
-    hostileFactions.erase(hostileFaction);
-}
