@@ -15,8 +15,8 @@ TakeItemAction::TakeItemAction(
     items(items)
 { }
 
-void TakeItemAction::publish(ActionPublisher& publisher) {
-    publisher.publish<TakeItemActionEventData>({ turnNumber, entity, items });
+ActionVariant TakeItemAction::getPublishData(void) {
+    return TakeItemActionEventData { turnNumber, entity, items };
 }
 
 bool TakeItemAction::onValidate(ApplicationContext* context) {

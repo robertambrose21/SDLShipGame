@@ -22,7 +22,7 @@ public:
         bool isUnequip = false
     );
 
-    void publish(ActionPublisher& publisher) override;
+    ActionVariant getPublishData(void) override;
 
     bool passesPrecondition(void);
     Type getType(void);

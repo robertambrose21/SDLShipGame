@@ -5,11 +5,19 @@
 
 #include "spdlog/spdlog.h"
 
-#include "actionpublisher.h"
 #include "game/application/applicationcontext.h"
 #include "game/participant/participant.h"
 #include "game/engagements/engagement.h"
 #include "game/entities/entity.h"
+
+
+using ActionVariant = std::variant<
+    MoveActionEventData,
+    AttackActionEventData,
+    TakeItemActionEventData,
+    EquipItemActionEventData,
+    EquipWeaponActionEventData
+>; 
 
 class Action {
 public:
@@ -27,7 +35,7 @@ public:
     Action(Participant* participant, Entity* entity, int turnNumber);
     virtual ~Action() = default;
 
-    virtual void publish(ActionPublisher& publisher) = 0;
+    virtual ActionVariant getPublishData(void) = 0;
 
     bool validate(ApplicationContext* context);
     bool isFinished(void);

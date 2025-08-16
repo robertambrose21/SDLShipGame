@@ -18,7 +18,7 @@ public:
     TakeItemAction(Participant* participant, Entity* entity, const std::vector<Item*>& items);
     TakeItemAction(Participant* participant, Entity* entity, int turnNumber, const std::vector<Item*>& items);
 
-    void publish(ActionPublisher& publisher) override;
+    ActionVariant getPublishData(void) override;
 
     bool passesPrecondition(void);
     Type getType(void);

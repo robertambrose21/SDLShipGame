@@ -27,8 +27,8 @@ EquipWeaponAction::EquipWeaponAction(
     isUnequip(isUnequip)
 { }
 
-void EquipWeaponAction::publish(ActionPublisher& publisher) {
-    publisher.publish<EquipWeaponActionEventData>({ turnNumber, entity, item, weaponId });
+ActionVariant EquipWeaponAction::getPublishData(void) {
+    return EquipWeaponActionEventData { turnNumber, entity, item, weaponId };
 }
 
 bool EquipWeaponAction::onValidate(ApplicationContext* context) {

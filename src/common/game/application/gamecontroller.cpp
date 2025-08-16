@@ -208,9 +208,17 @@ bool GameController::executeActionImmediately(std::unique_ptr<Action> action) {
     }
     
     action->execute(context);
-    action->publish(*this);
+    publishAction(action.get());
 
     return true;
+}
+
+void GameController::publishAction(Action* action) {
+    auto publishData = action->getPublishData();
+
+    std::visit([&](auto&& eventData) {
+        publish(eventData);
+    }, publishData);
 }
 
 bool GameController::queueAction(std::unique_ptr<Action> action) {
@@ -234,7 +242,7 @@ bool GameController::queueAction(std::unique_ptr<Action> action) {
     return action->getEntity()->queueAction(
         context,
         std::move(action),
-        [&](auto& action) { action.publish(*this); },
+        [&](auto& action) { publishAction(&action); },
         skipValidation
     );
 }

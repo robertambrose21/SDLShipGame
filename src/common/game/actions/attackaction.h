@@ -32,7 +32,7 @@ public:
         bool isAnimationOnly = false
     );
 
-    void publish(ActionPublisher& publisher) override;
+    ActionVariant getPublishData(void) override;
 
     bool passesPrecondition(void);
     Weapon* getWeapon(void);

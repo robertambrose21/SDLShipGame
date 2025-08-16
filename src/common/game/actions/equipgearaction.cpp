@@ -28,8 +28,8 @@ EquipGearAction::EquipGearAction(
     isUnequip(isUnequip)
 { }
 
-void EquipGearAction::publish(ActionPublisher& publisher) {
-    publisher.publish<EquipItemActionEventData>({ turnNumber, entity, item, slot, isUnequip });
+ActionVariant EquipGearAction::getPublishData(void) {
+    return EquipItemActionEventData { turnNumber, entity, item, slot, isUnequip };
 }
 
 bool EquipGearAction::onValidate(ApplicationContext* context) {

@@ -34,7 +34,7 @@ public:
         int shortStopSteps = 0
     );
 
-    void publish(ActionPublisher& publisher) override;
+    ActionVariant getPublishData(void) override;
 
     bool passesPrecondition(void);
     Type getType(void);

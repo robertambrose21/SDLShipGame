@@ -24,14 +24,19 @@
 #include "game/effects/effectcontroller.h"
 #include "game/participant/participant.h"
 #include "game/engagements/engagementcontroller.h"
-#include "game/actions/actionpublisher.h"
 
 class BehaviourStrategy;
 class Participant;
 class Engagement;
 class EngagementController;
 
-class GameController : public ActionPublisher {
+class GameController : public EventPublisher<
+    MoveActionEventData,
+    AttackActionEventData,
+    TakeItemActionEventData,
+    EquipItemActionEventData,
+    EquipWeaponActionEventData
+> {
 public:
     GameController();
 
@@ -80,8 +85,11 @@ protected:
     void executeEntityActions(Engagement* engagement, Entity* entity);
     void endCurrentParticipantTurn(uint32_t engagementId);
     void nextParticipantTurn(uint32_t engagementId);
-    
+
     virtual bool canProgressToNextTurn(Engagement* engagement) = 0;
     virtual void onParticipantTurnEnd(Engagement* engagement) = 0;
     virtual void additionalUpdate(int64_t timeSinceLastFrame, bool& quit) = 0;
+
+private:
+    void publishAction(Action* action);
 };
