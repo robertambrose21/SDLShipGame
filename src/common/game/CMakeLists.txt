@@ -38,7 +38,6 @@ add_library(
     application/stdoutsubscriber.cpp
     application/visibilitycontroller.cpp
     actions/action.cpp
-    actions/actionpublisher.h
     actions/moveaction.cpp
     actions/attackaction.cpp
     actions/takeitemaction.cpp
