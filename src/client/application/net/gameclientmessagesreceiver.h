@@ -11,6 +11,7 @@
 #include "game/actions/attackaction.h"
 #include "game/net/gamemessagelogger.h"
 
+// TODO: Break this up into multiple receivers
 class GameClientMessagesReceiver :
     public ClientMessagesReceiver,
     public EventPublisher<ApplyDamageEventData>
@@ -58,4 +59,11 @@ private:
     void receiveDisenageMessage(DisengageMessage* message);
     void receiveRemoveEngagementMessage(RemoveEngagementMessage* message);
     void receiveMergeEngagementsMessage(MergeEngagementsMessage* message);
+
+    // Factions
+    void receiveCreateFactionMessage(CreateFactionMessage* message);
+    void receiveUpdateFactionsMessage(UpdateFactionsMessage* message);
+    void receiveSetFactionMessage(SetFactionMessage* message);
+    void receiveAddFactionMessage(AddFactionMessage* message);
+    void receiveChangeFactionAlignmentMessage(ChangeFactionAlignmentMessage* message);
 };

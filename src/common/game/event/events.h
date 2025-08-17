@@ -5,6 +5,7 @@
 
 #include "core/glmimport.h"
 #include "core/util/idgenerator.h"
+#include "core/components/factioned.h"
 #include "game/effects/effecttypes.h"
 #include "game/stats/stats.h"
 #include "game/data/tiles.h"
@@ -121,6 +122,31 @@ struct MergeEngagementEventData {
     uint32_t engagementIdA;
     uint32_t engagementIdB;
     std::vector<int> participants;
+};
+// ----------------------------------------------
+
+// -- Factions ----------------------------------
+struct CreateFactionEventData {
+    uint32_t id;
+    std::string name;
+};
+
+struct SetFactionEventData {
+    int participantId;
+    uint32_t factionId;
+};
+
+struct AddFactionEventData {
+    int participantId;
+    uint32_t factionId;
+    Factioned::Faction::Alignment alignment;
+};
+
+struct ChangeFactionAlignmentEventData {
+    int participantId;
+    uint32_t factionId;
+    Factioned::Faction::Alignment existingAlignment;
+    Factioned::Faction::Alignment newAlignment;
 };
 // ----------------------------------------------
 

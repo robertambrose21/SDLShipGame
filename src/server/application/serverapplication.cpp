@@ -93,6 +93,10 @@ void ServerApplication::initialise(void) {
     context.getGameController()->getEngagementController()->subscribe<DisengageEventData>(transmitter.get());
     context.getGameController()->getEngagementController()->subscribe<RemoveEngagementEventData>(transmitter.get());
     context.getGameController()->getEngagementController()->subscribe<MergeEngagementEventData>(transmitter.get());
+    context.getGameController()->getFactionController()->subscribe<CreateFactionEventData>(transmitter.get());
+    context.getGameController()->getFactionController()->subscribe<SetFactionEventData>(transmitter.get());
+    context.getGameController()->getFactionController()->subscribe<AddFactionEventData>(transmitter.get());
+    context.getGameController()->getFactionController()->subscribe<ChangeFactionAlignmentEventData>(transmitter.get());
 
     application->addLogicWorker([&](ApplicationContext& c, auto const& timeSinceLastFrame, auto& quit) {
         server->update(timeSinceLastFrame);
@@ -113,6 +117,7 @@ void ServerApplication::run(void) {
 
 void ServerApplication::onClientConnect(int clientIndex) {
     auto gameController = dynamic_cast<ServerGameController*>(application->getContext().getGameController());
+    auto factionController = gameController->getFactionController();
     uint64_t clientId = server->getClientId(clientIndex);
 
     Participant* participant = nullptr;
@@ -130,8 +135,13 @@ void ServerApplication::onClientConnect(int clientIndex) {
     }
     else {
         participant = gameController->addParticipant(true, { addPlayer(false) });
-        participant->setFaction("Based");
-        participant->addFaction("Cringe", Factioned::HOSTILE);
+
+        transmitter->sendFactionUpdates(clientIndex, factionController->getAlignedFactions());
+        auto basedFaction = factionController->getFactionByName("Based");
+        auto cringeFaction = factionController->getFactionByName("Cringe");
+        factionController->setParticipantFaction(participant, basedFaction->id);
+        factionController->addFactionAlignment(participant, cringeFaction->id, Factioned::Faction::HOSTILE);
+
         gameController->reset(); // TODO: Probably shouldn't do this?
         spdlog::trace("Client {} connected and is attaching to participant {}", clientIndex, participant->getId());
     }
@@ -316,14 +326,21 @@ void ServerApplication::loadGame(const std::vector<GenerationStrategy::Room>& ro
         }
     }
 
+    auto factionController = context.getGameController()->getFactionController();
+
+    factionController->createFaction("Based");
+    factionController->createFaction("Cringe");
+    auto basedFaction = factionController->getFactionByName("Based");
+    auto cringeFaction = factionController->getFactionByName("Cringe");
+
     auto participant = context.getGameController()->addParticipant(
         false, 
         enemies, 
         std::make_unique<ChaseAndAttackStrategy>(context)
     );
-    participant->setFaction("Cringe");
-    // participant->addHostileFaction("Based");
-    participant->addFaction("Based", Factioned::HOSTILE);
+
+    factionController->setParticipantFaction(participant, cringeFaction->id);
+    factionController->addFactionAlignment(participant, basedFaction->id, Factioned::Faction::HOSTILE);
 
     context.getGameController()->reset();
 }

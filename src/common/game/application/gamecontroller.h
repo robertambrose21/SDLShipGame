@@ -24,6 +24,7 @@
 #include "game/effects/effectcontroller.h"
 #include "game/participant/participant.h"
 #include "game/engagements/engagementcontroller.h"
+#include "factioncontroller.h"
 
 class BehaviourStrategy;
 class Participant;
@@ -71,10 +72,12 @@ public:
     void allParticipantsSet(void);
 
     EngagementController* getEngagementController(void);
+    FactionController* getFactionController(void);
 
 protected:
     ApplicationContext* context;
     std::unique_ptr<EngagementController> engagementController;
+    std::unique_ptr<FactionController> factionController;
 
     bool initialised;
 

@@ -15,7 +15,7 @@ class Item;
 
 class Participant : public Factioned {
 public:
-    Participant(int id);
+    Participant(int id, uint32_t factionId);
 
     float distanceToOtherParticipant(Participant* other);
 

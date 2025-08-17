@@ -7,6 +7,7 @@ GameController::GameController() :
 void GameController::initialise(ApplicationContext& context) {
     this->context = &context;
     engagementController = std::make_unique<EngagementController>(&context);
+    factionController = std::make_unique<FactionController>();
     initialised = true;
 }
 
@@ -115,7 +116,7 @@ Participant* GameController::addParticipant(
 ) {
     game_assert(initialised);
 
-    Participant participant(id);
+    Participant participant(id, factionController->getUnalignedFactionId());
     participant.setIsReady(isReady);
     participant.setIsPlayer(isPlayer);
     participant.setBehaviourStrategy(std::move(behaviourStrategy));
@@ -260,4 +261,8 @@ void GameController::allParticipantsSet(void) {
 
 EngagementController* GameController::getEngagementController(void) {
     return engagementController.get();
+}
+
+FactionController* GameController::getFactionController(void) {
+    return factionController.get();
 }

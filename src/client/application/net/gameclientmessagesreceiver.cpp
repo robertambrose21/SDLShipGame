@@ -41,6 +41,11 @@ void GameClientMessagesReceiver::receiveMessage(yojimbo::Message* message) {
         case (int) GameMessageType::DISENGAGE:                  { receiveDisenageMessage((DisengageMessage*) message); break; }
         case (int) GameMessageType::REMOVE_ENGAGEMENT:          { receiveRemoveEngagementMessage((RemoveEngagementMessage*) message); break; }
         case (int) GameMessageType::MERGE_ENGAGEMENTS:          { receiveMergeEngagementsMessage((MergeEngagementsMessage*) message); break; }
+        case (int) GameMessageType::CREATE_FACTION:             { receiveCreateFactionMessage((CreateFactionMessage*) message); break; }
+        case (int) GameMessageType::UPDATE_FACTIONS:            { receiveUpdateFactionsMessage((UpdateFactionsMessage*) message); break; }
+        case (int) GameMessageType::SET_FACTION:                { receiveSetFactionMessage((SetFactionMessage*) message); break; }
+        case (int) GameMessageType::ADD_FACTION:                { receiveAddFactionMessage((AddFactionMessage*) message); break; }
+        case (int) GameMessageType::CHANGE_FACTION_ALIGNMENT:   { receiveChangeFactionAlignmentMessage((ChangeFactionAlignmentMessage*) message); break; }
 
         default:
             std::cout << "Received unhandled message: " << message->GetType() << std::endl;
@@ -66,15 +71,6 @@ void GameClientMessagesReceiver::receiveSetParticipant(SetParticipantMessage* me
     }
 
     auto participant = gameController->addParticipant(message->participantId, message->clientId != 0, { }, nullptr, false);
-
-    if(participant->getIsPlayer()) {
-        participant->setFaction("Based");
-        participant->addFaction("Cringe", Factioned::HOSTILE);
-    }
-    else {
-        participant->setFaction("Cringe");
-        participant->addFaction("Based", Factioned::HOSTILE);
-    }
 
     // Are we this participant
     if(message->clientId == clientId) {
@@ -497,4 +493,68 @@ void GameClientMessagesReceiver::receiveMergeEngagementsMessage(MergeEngagements
 
     engagementController->merge(message->engagementIdA, message->engagementIdB, message->newEngagementId);
 }
+
+void GameClientMessagesReceiver::receiveCreateFactionMessage(CreateFactionMessage* message) {
+    auto gameController = context.getGameController();
+    auto factionController = gameController->getFactionController();
+
+    factionController->createFaction(message->id, message->name);
+}
+
+void GameClientMessagesReceiver::receiveUpdateFactionsMessage(UpdateFactionsMessage* message) {
+    auto gameController = context.getGameController();
+    auto factionController = gameController->getFactionController();
+
+    for(int i = 0; i < message->numFactions; i++) {
+        factionController->createFaction(message->factions[i].id, message->factions[i].name);
+    }
+}
+
+void GameClientMessagesReceiver::receiveSetFactionMessage(SetFactionMessage* message) {
+    auto gameController = context.getGameController();
+    auto factionController = gameController->getFactionController();
+
+    auto participant = gameController->getParticipant(message->participantId);
+
+    if(participant == nullptr) {
+        spdlog::error("SetFactionMessage invalid: participant {} not found", message->participantId);
+        return;
+    }
+
+    factionController->setParticipantFaction(participant, message->factionId);
+}
+
+void GameClientMessagesReceiver::receiveAddFactionMessage(AddFactionMessage* message) {
+    auto gameController = context.getGameController();
+    auto factionController = gameController->getFactionController();
+
+    auto participant = gameController->getParticipant(message->participantId);
+
+    if(participant == nullptr) {
+        spdlog::error("AddFactionMessage invalid: participant {} not found", message->participantId);
+        return;
+    }
+
+    factionController->addFactionAlignment(participant, message->factionId, (Factioned::Faction::Alignment) message->alignment);
+}
+
+void GameClientMessagesReceiver::receiveChangeFactionAlignmentMessage(ChangeFactionAlignmentMessage* message) {
+     auto gameController = context.getGameController();
+    auto factionController = gameController->getFactionController();
+
+    auto participant = gameController->getParticipant(message->participantId);
+
+    if(participant == nullptr) {
+        spdlog::error("ChangeFactionAlignmentMessage invalid: participant {} not found", message->participantId);
+        return;
+    }
+
+    factionController->changeAlignmentToFaction(
+        participant, 
+        message->factionId, 
+        (Factioned::Faction::Alignment) message->existingAlignemnt,
+        (Factioned::Faction::Alignment) message->newAlignemnt
+    );
+}
+
 

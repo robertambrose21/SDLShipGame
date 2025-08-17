@@ -11,6 +11,7 @@
 
 class ServerGameController;
 
+// TODO: Break this up into multiple transmitters
 class GameServerMessagesTransmitter : 
     public ServerMessagesTransmitter, 
     public EventSubscriber<ItemEventData>,
@@ -29,7 +30,11 @@ class GameServerMessagesTransmitter :
     public EventSubscriber<AddToEngagementEventData>,
     public EventSubscriber<DisengageEventData>,
     public EventSubscriber<RemoveEngagementEventData>,
-    public EventSubscriber<MergeEngagementEventData>
+    public EventSubscriber<MergeEngagementEventData>,
+    public EventSubscriber<CreateFactionEventData>,
+    public EventSubscriber<SetFactionEventData>,
+    public EventSubscriber<AddFactionEventData>,
+    public EventSubscriber<ChangeFactionAlignmentEventData>
 {
 public:
     GameServerMessagesTransmitter(
@@ -58,7 +63,11 @@ public:
     void onPublish(const Event<DisengageEventData>& event);
     void onPublish(const Event<RemoveEngagementEventData>& event);
     void onPublish(const Event<MergeEngagementEventData>& event);
-
+    void onPublish(const Event<CreateFactionEventData>& event);
+    void onPublish(const Event<SetFactionEventData>& event);
+    void onPublish(const Event<AddFactionEventData>& event);
+    void onPublish(const Event<ChangeFactionAlignmentEventData>& event);
+    
     void sendSetParticipant(int clientIndex, Participant* participant);
     void sendSetParticipantToAllClients(Participant* participant);
     void sendGameStateUpdate(int clientIndex, const GameStateUpdate& update);
@@ -67,6 +76,7 @@ public:
     void sendNextTurn(int clientIndex, int participantId, uint32_t engagementId, int turnNumber);
     void sendNextTurnToAllClients(int participantId, uint32_t engagementId, int turnNumber);
     void sendItems(int clientIndex, const std::vector<Item*>& items);
+    void sendFactionUpdates(int clientIndex, const std::vector<Factioned::Faction>& factions);
 
     void sendLoadGameToClient(int clientIndex);
 

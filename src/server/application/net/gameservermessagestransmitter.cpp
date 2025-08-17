@@ -302,6 +302,54 @@ void GameServerMessagesTransmitter::onPublish(const Event<MergeEngagementEventDa
     }
 }
 
+void GameServerMessagesTransmitter::onPublish(const Event<CreateFactionEventData>& event) {
+    for(auto [participantId, clientIndex] : gameController->getAllAttachedClients()) {
+        CreateFactionMessage* message = (CreateFactionMessage*) server.createMessage(clientIndex, GameMessageType::CREATE_FACTION);
+
+        message->id = event.data.id;
+        strcpy(message->name, event.data.name.data());
+
+        server.sendMessage(clientIndex, message);
+    }
+}
+
+void GameServerMessagesTransmitter::onPublish(const Event<SetFactionEventData>& event) {
+    for(auto [participantId, clientIndex] : gameController->getAllAttachedClients()) {
+        SetFactionMessage* message = (SetFactionMessage*) server.createMessage(clientIndex, GameMessageType::SET_FACTION);
+
+        message->participantId = event.data.participantId;
+        message->factionId = event.data.factionId;
+
+        server.sendMessage(clientIndex, message);
+    }
+}
+
+void GameServerMessagesTransmitter::onPublish(const Event<AddFactionEventData>& event) {
+    for(auto [participantId, clientIndex] : gameController->getAllAttachedClients()) {
+        AddFactionMessage* message = (AddFactionMessage*) server.createMessage(clientIndex, GameMessageType::ADD_FACTION);
+
+        message->participantId = event.data.participantId;
+        message->factionId = event.data.factionId;
+        message->alignment = event.data.alignment;
+
+        server.sendMessage(clientIndex, message);
+    }
+}
+
+void GameServerMessagesTransmitter::onPublish(const Event<ChangeFactionAlignmentEventData>& event) {
+    for(auto [participantId, clientIndex] : gameController->getAllAttachedClients()) {
+        ChangeFactionAlignmentMessage* message = 
+            (ChangeFactionAlignmentMessage*) server.createMessage(clientIndex, GameMessageType::CHANGE_FACTION_ALIGNMENT);
+
+        message->participantId = event.data.participantId;
+        message->factionId = event.data.factionId;
+        message->existingAlignemnt = event.data.existingAlignment;
+        message->newAlignemnt = event.data.newAlignment;
+
+        server.sendMessage(clientIndex, message);
+    }
+}
+
 void GameServerMessagesTransmitter::sendSetParticipant(
     int clientIndex, 
     Participant* participant
@@ -463,6 +511,19 @@ void GameServerMessagesTransmitter::sendItems(int clientIndex, const std::vector
             spdlog::trace("Sending spawn item message {}:[{}] to client {}", items.size(), itemsList, clientIndex);
         #endif
     }
+}
+
+void GameServerMessagesTransmitter::sendFactionUpdates(int clientIndex, const std::vector<Factioned::Faction>& factions) {
+    UpdateFactionsMessage* message = (UpdateFactionsMessage*) server.createMessage(clientIndex, GameMessageType::UPDATE_FACTIONS);
+
+    message->numFactions = factions.size();
+
+    for(int i = 0; i < factions.size(); i++) {
+        message->factions[i].id = factions[i].id;
+        strcpy(message->factions[i].name, factions[i].name.data());
+    }
+
+    server.sendMessage(clientIndex, message);
 }
 
 // TODO: Move this elsewhere

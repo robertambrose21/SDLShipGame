@@ -8,25 +8,35 @@
 
 class Factioned {
 public:
-    enum Alignment: int {
-        FRIENDLY,
-        NEUTRAL,
-        HOSTILE
-    };
+    // TODO: Make this an "entity" - move to "entities" module
+    typedef struct _faction {
+         enum Alignment: int {
+            FRIENDLY,
+            NEUTRAL,
+            HOSTILE
+        };
+
+        uint32_t id;
+        std::string name;
+
+        bool operator<(const _faction& other) const {
+            return id < other.id;
+        }
+    } Faction;
 
     Factioned() = delete;
-    Factioned(const std::string& faction);
+    Factioned(uint32_t factionId);
 
-    std::string getFaction(void) const;
-    void setFaction(const std::string& faction);
+    uint32_t getFactionId(void) const;
+    void setFaction(uint32_t factionId);
 
     bool isHostile(Factioned* other);
-    void addFaction(const std::string& faction, Alignment alignment);
-    void changeAlignment(const std::string& faction, Alignment existingAlignment, Alignment newAlignment);
+    void addFaction(const uint32_t factionId, Faction::Alignment alignment);
+    void changeAlignment(uint32_t factionId, Faction::Alignment existingAlignment, Faction::Alignment newAlignment);
 
 private:
-    std::string faction;
-    std::map<Alignment, std::set<std::string>> factions;
+    uint32_t factionId;
+    std::map<Faction::Alignment, std::set<uint32_t>> alignments;
 
-    std::string alignmentToString(Alignment alignment);
+    std::string alignmentToString(Faction::Alignment alignment);
 };

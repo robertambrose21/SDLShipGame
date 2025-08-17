@@ -1,50 +1,50 @@
 #include "factioned.h"
 
-Factioned::Factioned(const std::string& faction) :
-    faction(faction)
+Factioned::Factioned(uint32_t factionId) :
+    factionId(factionId)
 { }
 
-std::string Factioned::getFaction(void) const {
-    return faction;
+uint32_t Factioned::getFactionId(void) const {
+    return factionId;
 }
 
-void Factioned::setFaction(const std::string& faction) {
-    this->faction = faction;
+void Factioned::setFaction(uint32_t factionId) {
+    this->factionId = factionId;
 }
 
 bool Factioned::isHostile(Factioned* other) {
-    return this != other && factions[HOSTILE].contains(other->getFaction());
+    return this != other && alignments[Faction::HOSTILE].contains(other->getFactionId());
 }
 
-void Factioned::addFaction(const std::string& faction, Alignment alignment) {
-    factions[alignment].insert(faction);
+void Factioned::addFaction(uint32_t factionId, Faction::Alignment alignment) {
+    alignments[alignment].insert(factionId);
 }
 
-void Factioned::changeAlignment(const std::string& faction, Alignment existingAlignment, Alignment newAlignment) {
-    auto factionToChange = factions[existingAlignment].find(faction);
+void Factioned::changeAlignment(uint32_t factionId, Faction::Alignment existingAlignment, Faction::Alignment newAlignment) {
+    auto factionToChange = alignments[existingAlignment].find(factionId);
 
-    if(factionToChange == factions[existingAlignment].end()) {
+    if(factionToChange == alignments[existingAlignment].end()) {
         spdlog::warn(
             "Cannot change alignment from '{}' to '{}' for faction {}, faction is not '{}'",
-            existingAlignment,
-            newAlignment,
-            faction,
-            existingAlignment
+            alignmentToString(existingAlignment),
+            alignmentToString(newAlignment),
+            factionId,
+            alignmentToString(existingAlignment)
         );
         return;
     }
     
-    factions[newAlignment].insert(*factionToChange);
-    factions[existingAlignment].erase(factionToChange);
+    alignments[newAlignment].insert(*factionToChange);
+    alignments[existingAlignment].erase(factionToChange);
 }
 
-std::string Factioned::alignmentToString(Alignment alignment) {
+std::string Factioned::alignmentToString(Faction::Alignment alignment) {
     switch(alignment) {
-        case FRIENDLY:
+        case Faction::FRIENDLY:
             return "Friendly";
-        case NEUTRAL:
+        case Faction::NEUTRAL:
             return "Neutral";
-        case HOSTILE:
+        case Faction::HOSTILE:
             return "Hostile";
     }
 }

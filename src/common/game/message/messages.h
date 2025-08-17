@@ -35,6 +35,11 @@ enum class GameMessageType {
     DISENGAGE,
     REMOVE_ENGAGEMENT,
     MERGE_ENGAGEMENTS,
+    CREATE_FACTION,
+    UPDATE_FACTIONS,
+    SET_FACTION,
+    ADD_FACTION,
+    CHANGE_FACTION_ALIGNMENT,
     COUNT
 };
 
@@ -749,36 +754,156 @@ public:
 };
 
 class MergeEngagementsMessage : public yojimbo::Message {
-    public:
-        uint32_t newEngagementId;
-        uint32_t engagementIdA;
-        uint32_t engagementIdB;
-        uint8_t numParticipants;
-        int participants[64];
-    
-        MergeEngagementsMessage() :
-            newEngagementId(0),
-            engagementIdA(0),
-            engagementIdB(0),
-            numParticipants(0)
-        { }
-    
-        template<typename Stream>
-        bool Serialize(Stream& stream) {
-            serialize_uint32(stream, newEngagementId);
-            serialize_uint32(stream, engagementIdA);
-            serialize_uint32(stream, engagementIdB);
+public:
+    uint32_t newEngagementId;
+    uint32_t engagementIdA;
+    uint32_t engagementIdB;
+    uint8_t numParticipants;
+    int participants[64];
 
-            serialize_int(stream, numParticipants, 0, 64);
-            for(int i = 0; i < numParticipants; i++) {
-                serialize_int(stream, participants[i], 0, 64);
-            }
-    
-            return true;
+    MergeEngagementsMessage() :
+        newEngagementId(0),
+        engagementIdA(0),
+        engagementIdB(0),
+        numParticipants(0)
+    { }
+
+    template<typename Stream>
+    bool Serialize(Stream& stream) {
+        serialize_uint32(stream, newEngagementId);
+        serialize_uint32(stream, engagementIdA);
+        serialize_uint32(stream, engagementIdB);
+
+        serialize_int(stream, numParticipants, 0, 64);
+        for(int i = 0; i < numParticipants; i++) {
+            serialize_int(stream, participants[i], 0, 64);
         }
-    
-        YOJIMBO_VIRTUAL_SERIALIZE_FUNCTIONS();
+
+        return true;
+    }
+
+    YOJIMBO_VIRTUAL_SERIALIZE_FUNCTIONS();
+};
+
+class CreateFactionMessage : public yojimbo::Message {
+public:
+    uint32_t id;
+    char name[256];
+
+    CreateFactionMessage() :
+        id(0)
+    { }
+
+    template<typename Stream>
+    bool Serialize(Stream& stream) {
+        serialize_uint32(stream, id);
+        serialize_string(stream, name, sizeof(name));
+        return true;
+    }
+
+    YOJIMBO_VIRTUAL_SERIALIZE_FUNCTIONS();
+};
+
+class UpdateFactionsMessage : public yojimbo::Message {
+public:
+    struct Faction {
+        uint32_t id;
+        char name[256];
+
+        Faction() {
+            memset(this, 0, sizeof(Faction));
+        }
     };
+
+    uint8_t numFactions;
+    Faction factions[64];
+
+    UpdateFactionsMessage() :
+        numFactions(0)
+    { }
+
+    template<typename Stream>
+    bool Serialize(Stream& stream) {
+        serialize_int(stream, numFactions, 0, 256);
+        for(int i = 0; i < numFactions; i++) {
+            serialize_uint32(stream, factions[i].id);
+            serialize_string(stream, factions[i].name, sizeof(factions[i].name));
+        }
+        return true;
+    }
+
+    YOJIMBO_VIRTUAL_SERIALIZE_FUNCTIONS();
+};
+
+class SetFactionMessage : public yojimbo::Message {
+public:
+    uint8_t participantId;
+    uint32_t factionId;
+
+    SetFactionMessage() :
+        participantId(0),
+        factionId(0)
+    { }
+
+    template<typename Stream>
+    bool Serialize(Stream& stream) {
+        serialize_int(stream, participantId, 0, 64);
+        serialize_uint32(stream, factionId);
+        return true;
+    }
+
+    YOJIMBO_VIRTUAL_SERIALIZE_FUNCTIONS();
+};
+
+class AddFactionMessage : public yojimbo::Message {
+public:
+    uint8_t participantId;
+    uint32_t factionId;
+    uint8_t alignment;
+
+    AddFactionMessage() :
+        participantId(0),
+        factionId(0),
+        alignment(0)
+    { }
+
+    template<typename Stream>
+    bool Serialize(Stream& stream) {
+        serialize_int(stream, participantId, 0, 64);
+        serialize_uint32(stream, factionId);
+        serialize_int(stream, alignment, 0, 64);
+        return true;
+    }
+
+    YOJIMBO_VIRTUAL_SERIALIZE_FUNCTIONS();
+};
+
+class ChangeFactionAlignmentMessage : public yojimbo::Message {
+public:
+    uint8_t participantId;
+    uint32_t factionId;
+    uint8_t existingAlignemnt;
+    uint8_t newAlignemnt;
+
+    ChangeFactionAlignmentMessage() :
+        participantId(0),
+        factionId(0),
+        existingAlignemnt(0),
+        newAlignemnt(0)
+    { }
+
+
+    template<typename Stream>
+    bool Serialize(Stream& stream) {
+        serialize_int(stream, participantId, 0, 64);
+        serialize_uint32(stream, factionId);
+        serialize_int(stream, existingAlignemnt, 0, 64);
+        serialize_int(stream, newAlignemnt, 0, 64);
+        return true;
+    }
+
+    YOJIMBO_VIRTUAL_SERIALIZE_FUNCTIONS();
+};
 
 YOJIMBO_MESSAGE_FACTORY_START(GameMessageFactory, (int)GameMessageType::COUNT);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::PING, PingMessage);
@@ -810,4 +935,9 @@ YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::ADD_TO_ENGAGEMENT, AddToEngag
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::DISENGAGE, DisengageMessage);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::REMOVE_ENGAGEMENT, RemoveEngagementMessage);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::MERGE_ENGAGEMENTS, MergeEngagementsMessage);
+YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::CREATE_FACTION, CreateFactionMessage);
+YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::UPDATE_FACTIONS, UpdateFactionsMessage);
+YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::SET_FACTION, SetFactionMessage);
+YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::ADD_FACTION, AddFactionMessage);
+YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::CHANGE_FACTION_ALIGNMENT, ChangeFactionAlignmentMessage);
 YOJIMBO_MESSAGE_FACTORY_FINISH();

@@ -4,8 +4,8 @@
 #include "game/entities/behaviour/behaviourstrategy.h"
 #include "game/items/item.h"
 
-Participant::Participant(int id) :
-    Factioned("Unaligned"),
+Participant::Participant(int id, uint32_t factionId) :
+    Factioned(factionId),
     id(id),
     passNextTurn(false),
     engagement(nullptr)
