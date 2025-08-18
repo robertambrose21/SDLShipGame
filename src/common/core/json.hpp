@@ -4522,7 +4522,7 @@ NLOHMANN_JSON_NAMESPACE_END
 
 // #include <nlohmann/detail/meta/cpp_future.hpp>
 
-// #include <nlohmann/detail/meta/idactor_tag.hpp>
+// #include <nlohmann/detail/meta/identity_tag.hpp>
 //     __ _____ _____ _____
 //  __|  |   __|     |   | |  JSON for Modern C++
 // |  |  |__   |  |  | | | |  version 3.11.2
@@ -4541,7 +4541,7 @@ namespace detail
 {
 
 // dispatching helper struct
-template <class T> struct idactor_tag {};
+template <class T> struct identity_tag {};
 
 }  // namespace detail
 NLOHMANN_JSON_NAMESPACE_END
@@ -4831,13 +4831,13 @@ void())
 
 template < typename BasicJsonType, typename T, std::size_t... Idx >
 std::array<T, sizeof...(Idx)> from_json_inplace_array_impl(BasicJsonType&& j,
-        idactor_tag<std::array<T, sizeof...(Idx)>> /*unused*/, index_sequence<Idx...> /*unused*/)
+        identity_tag<std::array<T, sizeof...(Idx)>> /*unused*/, index_sequence<Idx...> /*unused*/)
 {
     return { { std::forward<BasicJsonType>(j).at(Idx).template get<T>()... } };
 }
 
 template < typename BasicJsonType, typename T, std::size_t N >
-auto from_json(BasicJsonType&& j, idactor_tag<std::array<T, N>> tag)
+auto from_json(BasicJsonType&& j, identity_tag<std::array<T, N>> tag)
 -> decltype(from_json_inplace_array_impl(std::forward<BasicJsonType>(j), tag, make_index_sequence<N> {}))
 {
     if (JSON_HEDLEY_UNLIKELY(!j.is_array()))
@@ -4936,7 +4936,7 @@ std::tuple<Args...> from_json_tuple_impl_base(BasicJsonType&& j, index_sequence<
 }
 
 template < typename BasicJsonType, class A1, class A2 >
-std::pair<A1, A2> from_json_tuple_impl(BasicJsonType&& j, idactor_tag<std::pair<A1, A2>> /*unused*/, priority_tag<0> /*unused*/)
+std::pair<A1, A2> from_json_tuple_impl(BasicJsonType&& j, identity_tag<std::pair<A1, A2>> /*unused*/, priority_tag<0> /*unused*/)
 {
     return {std::forward<BasicJsonType>(j).at(0).template get<A1>(),
             std::forward<BasicJsonType>(j).at(1).template get<A2>()};
@@ -4945,11 +4945,11 @@ std::pair<A1, A2> from_json_tuple_impl(BasicJsonType&& j, idactor_tag<std::pair<
 template<typename BasicJsonType, typename A1, typename A2>
 inline void from_json_tuple_impl(BasicJsonType&& j, std::pair<A1, A2>& p, priority_tag<1> /*unused*/)
 {
-    p = from_json_tuple_impl(std::forward<BasicJsonType>(j), idactor_tag<std::pair<A1, A2>> {}, priority_tag<0> {});
+    p = from_json_tuple_impl(std::forward<BasicJsonType>(j), identity_tag<std::pair<A1, A2>> {}, priority_tag<0> {});
 }
 
 template<typename BasicJsonType, typename... Args>
-std::tuple<Args...> from_json_tuple_impl(BasicJsonType&& j, idactor_tag<std::tuple<Args...>> /*unused*/, priority_tag<2> /*unused*/)
+std::tuple<Args...> from_json_tuple_impl(BasicJsonType&& j, identity_tag<std::tuple<Args...>> /*unused*/, priority_tag<2> /*unused*/)
 {
     return from_json_tuple_impl_base<BasicJsonType, Args...>(std::forward<BasicJsonType>(j), index_sequence_for<Args...> {});
 }
@@ -5751,7 +5751,7 @@ JSON_INLINE_VARIABLE constexpr const auto& to_json = // NOLINT(misc-definitions-
 
 NLOHMANN_JSON_NAMESPACE_END
 
-// #include <nlohmann/detail/meta/idactor_tag.hpp>
+// #include <nlohmann/detail/meta/identity_tag.hpp>
 
 
 NLOHMANN_JSON_NAMESPACE_BEGIN
@@ -5774,10 +5774,10 @@ struct adl_serializer
     /// @sa https://json.nlohmann.me/api/adl_serializer/from_json/
     template<typename BasicJsonType, typename TargetType = ValueType>
     static auto from_json(BasicJsonType && j) noexcept(
-    noexcept(::nlohmann::from_json(std::forward<BasicJsonType>(j), detail::idactor_tag<TargetType> {})))
-    -> decltype(::nlohmann::from_json(std::forward<BasicJsonType>(j), detail::idactor_tag<TargetType> {}))
+    noexcept(::nlohmann::from_json(std::forward<BasicJsonType>(j), detail::identity_tag<TargetType> {})))
+    -> decltype(::nlohmann::from_json(std::forward<BasicJsonType>(j), detail::identity_tag<TargetType> {}))
     {
-        return ::nlohmann::from_json(std::forward<BasicJsonType>(j), detail::idactor_tag<TargetType> {});
+        return ::nlohmann::from_json(std::forward<BasicJsonType>(j), detail::identity_tag<TargetType> {});
     }
 
     /// @brief convert any value type to a JSON value
@@ -16121,7 +16121,7 @@ class binary_writer
     /*!
     @brief Serializes the JSON value @a j to BSON and associates it with the
            key @a name.
-    @param name The name to associate with the JSON actor @a j within the
+    @param name The name to associate with the JSON entity @a j within the
                 current BSON document
     */
     void write_bson_element(const string_t& name,
@@ -20844,7 +20844,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
     @brief get special-case overload
 
     This overloads avoids a lot of template boilerplate, it can be seen as the
-    idactor method
+    identity method
 
     @tparam BasicJsonType == @ref basic_json
 
