@@ -6,7 +6,7 @@
 #include "core/glmimport.h"
 #include "core/util/randomutils.h"
 #include "game/application/applicationcontext.h"
-#include "game/entities/entitypool.h"
+#include "game/actors/actorpool.h"
 #include "game/weapons/weaponcontroller.h"
 
 class SpawnController {
@@ -16,15 +16,15 @@ public:
         glm::ivec2 max;
     } SpawnBox;
 
-    typedef struct _spawnableEntity {
+    typedef struct _spawnableActor {
         std::string name;
         std::vector<std::string> weapons;
-    } SpawnableEntity;
+    } SpawnableActor;
 
-    typedef struct _spawnableEntities {
-        std::vector<SpawnableEntity> entities;
+    typedef struct _spawnableActors {
+        std::vector<SpawnableActor> actors;
         std::vector<int> weights;
-    } SpawnableEntities;
+    } SpawnableActors;
 
 private:
     ApplicationContext* context;
@@ -37,7 +37,7 @@ public:
 
     void initialise(ApplicationContext& context);
 
-    std::vector<Entity*> spawnEntities(const std::string& name, const SpawnBox& spawnBox, int count = 1);
-    std::vector<Entity*> spawnEntities(const SpawnableEntities& spawnables, const SpawnBox& spawnBox, int count = 1);
-    Entity* spawnEntity(const std::string& name, const glm::ivec2& position);
+    std::vector<Actor*> spawnActors(const std::string& name, const SpawnBox& spawnBox, int count = 1);
+    std::vector<Actor*> spawnActors(const SpawnableActors& spawnables, const SpawnBox& spawnBox, int count = 1);
+    Actor* spawnActor(const std::string& name, const glm::ivec2& position);
 };

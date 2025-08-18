@@ -46,5 +46,7 @@ std::string Factioned::alignmentToString(Faction::Alignment alignment) {
             return "Neutral";
         case Faction::HOSTILE:
             return "Hostile";
+        default:
+            return "Unknown";
     }
 }

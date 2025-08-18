@@ -3,7 +3,7 @@
 #include "core/net/gameserver.h"
 #include "application/net/gameservermessagesreceiver.h"
 #include "application/net/gameservermessagestransmitter.h"
-#include "game/entities/behaviour/chaseandattackstrategy.h"
+#include "game/actors/behaviour/chaseandattackstrategy.h"
 #include "core/grid/generation/emptystrategy.h"
 #include "core/grid/generation/hallstrategy.h"
 #include "core/grid/generation/wfcstrategy.h"
@@ -44,5 +44,5 @@ public:
     // Temp
     void loadGame(const std::vector<GenerationStrategy::Room>& rooms);
     // Temp
-    Entity* addPlayer(bool hasFreezeGun);
+    Actor* addPlayer(bool hasFreezeGun);
 };

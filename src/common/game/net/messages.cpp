@@ -36,32 +36,32 @@ Weapon* WeaponStateUpdate::deserialize(const WeaponStateUpdate& update, Weapon* 
     return existing;
 }
 
-EntityStateUpdate EntityStateUpdate::serialize(Entity* entity) {
-    game_assert(entity != nullptr);
+ActorStateUpdate ActorStateUpdate::serialize(Actor* actor) {
+    game_assert(actor != nullptr);
 
-    EntityStateUpdate entityStateUpdate;
+    ActorStateUpdate actorStateUpdate;
 
-    entityStateUpdate.id = entity->getId();
-    strcpy(entityStateUpdate.name, entity->getName().c_str());
-    entityStateUpdate.totalHP = entity->getStats().totalHp;
-    entityStateUpdate.currentHP = entity->getCurrentHP();
-    entityStateUpdate.x = entity->getPosition().x;
-    entityStateUpdate.y = entity->getPosition().y;
-    entityStateUpdate.participantId = entity->getParticipantId();
-    entityStateUpdate.isEngaged = entity->isEngaged();
-    memcpy(entityStateUpdate.currentWeaponIdBytes, &entity->getCurrentWeapon()->getId().getBytes()[0], 16);
-    entityStateUpdate.numWeapons = entity->getWeapons().size();
+    actorStateUpdate.id = actor->getId();
+    strcpy(actorStateUpdate.name, actor->getName().c_str());
+    actorStateUpdate.totalHP = actor->getStats().totalHp;
+    actorStateUpdate.currentHP = actor->getCurrentHP();
+    actorStateUpdate.x = actor->getPosition().x;
+    actorStateUpdate.y = actor->getPosition().y;
+    actorStateUpdate.participantId = actor->getParticipantId();
+    actorStateUpdate.isEngaged = actor->isEngaged();
+    memcpy(actorStateUpdate.currentWeaponIdBytes, &actor->getCurrentWeapon()->getId().getBytes()[0], 16);
+    actorStateUpdate.numWeapons = actor->getWeapons().size();
 
     int index = 0;
-    for(auto weapon : entity->getWeapons()) {
-        entityStateUpdate.weaponUpdates[index++] = WeaponStateUpdate::serialize(weapon);
+    for(auto weapon : actor->getWeapons()) {
+        actorStateUpdate.weaponUpdates[index++] = WeaponStateUpdate::serialize(weapon);
     }
 
-    return entityStateUpdate;
+    return actorStateUpdate;
 }
 
-// TODO: Return the entity
-void EntityStateUpdate::deserialize(const EntityStateUpdate& update, Entity* existing) {
+// TODO: Return the actor
+void ActorStateUpdate::deserialize(const ActorStateUpdate& update, Actor* existing) {
     game_assert(existing != nullptr);
     existing->setPosition(glm::ivec2(update.x, update.y));
     existing->setCurrentHP(update.currentHP);

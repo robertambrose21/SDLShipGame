@@ -3,12 +3,12 @@
 
 AttackAction::AttackAction(
     Participant* participant,
-    Entity* entity,
+    Actor* actor,
     Weapon* weapon,
     const glm::ivec2& target,
     bool isAnimationOnly
 ) :
-    Action(participant, entity),
+    Action(participant, actor),
     weapon(weapon),
     target(target),
     isAnimationOnly(isAnimationOnly)
@@ -16,20 +16,20 @@ AttackAction::AttackAction(
 
 AttackAction::AttackAction(
     Participant* participant,
-    Entity* entity,
+    Actor* actor,
     int turnNumber,
     Weapon* weapon,
     const glm::ivec2& target,
     bool isAnimationOnly
 ) : 
-    Action(participant, entity, turnNumber),
+    Action(participant, actor, turnNumber),
     weapon(weapon),
     target(target),
     isAnimationOnly(isAnimationOnly)
 { }
 
 ActionVariant AttackAction::getPublishData(void) {
-    return AttackActionEventData { turnNumber, entity, target, weapon };
+    return AttackActionEventData { turnNumber, actor, target, weapon };
 }
 
 Action::Type AttackAction::getType(void) {
@@ -60,7 +60,7 @@ bool AttackAction::onValidate(ApplicationContext* context) {
 
     if(!weapon->isInRange(target)) {
         spdlog::trace(
-            "[Attack]: Failed to validate action, weapon is out of range of entity. Weapon[{}#{}] range=({}) pos=({}, {}), targetPos=({}, {})", 
+            "[Attack]: Failed to validate action, weapon is out of range of actor. Weapon[{}#{}] range=({}) pos=({}, {}), targetPos=({}, {})", 
             weapon->getName(),
             weapon->getId().getString(),
             weapon->getStats().range,
@@ -86,7 +86,7 @@ bool AttackAction::onValidate(ApplicationContext* context) {
 }
 
 void AttackAction::onExecute(ApplicationContext* context) {
-    entity->attack(target, weapon->getId(), isAnimationOnly);
+    actor->attack(target, weapon->getId(), isAnimationOnly);
 }
 
 bool AttackAction::hasFinished(void) {
@@ -100,7 +100,7 @@ int AttackAction::numAttacksInChain(void) {
 
     int numAttacks = 0;
 
-    for(auto& action : entity->getActionsChain(turnNumber.value())) {
+    for(auto& action : actor->getActionsChain(turnNumber.value())) {
         if(action->getType() != Action::Type::Attack) {
             continue;
         }

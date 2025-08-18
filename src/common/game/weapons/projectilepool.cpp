@@ -77,7 +77,7 @@ std::vector<Stats::EffectStats> ProjectilePool::buildEffectStats(const Projectil
     return effects;
 }
 
-void ProjectilePool::add(std::unique_ptr<Projectile> projectile, Entity* owner) {
+void ProjectilePool::add(std::unique_ptr<Projectile> projectile, Actor* owner) {
     game_assert(initialised);
     game_assert(projectile != nullptr);
     game_assert(owner != nullptr);
@@ -131,7 +131,7 @@ void ProjectilePool::update(int64_t timeSinceLastFrame) {
     }
 }
 
-std::vector<Projectile*> ProjectilePool::getProjectilesForOwner(Entity* owner) {
+std::vector<Projectile*> ProjectilePool::getProjectilesForOwner(Actor* owner) {
     game_assert(initialised);
     game_assert(owner != nullptr);
 
@@ -164,7 +164,7 @@ std::vector<Projectile*> ProjectilePool::getAllProjectiles(void) {
     return vProjectiles;
 }
 
-int ProjectilePool::getNumProjectilesForOwner(Entity* owner) {
+int ProjectilePool::getNumProjectilesForOwner(Actor* owner) {
     game_assert(initialised);
 
     auto projectilesForOwner = projectiles.find(owner);

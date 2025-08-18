@@ -1,6 +1,6 @@
 #include "effect.h"
 
-Effect::Effect(Entity* target, int ownerId, const Stats::EffectStats& stats) :
+Effect::Effect(Actor* target, int ownerId, const Stats::EffectStats& stats) :
     target(target),
     ownerId(ownerId),
     stats(stats),
@@ -32,7 +32,7 @@ void Effect::nextTurn(void) {
     timeSinceLastTick = 0;
 }
 
-Entity* Effect::getTarget(void) {
+Actor* Effect::getTarget(void) {
     return target;
 }
 
@@ -46,7 +46,7 @@ int64_t Effect::getTimeSinceLastTick(void) const {
 
 
 
-FreezeEffect::FreezeEffect(Entity* target, int ownerId, const Stats::EffectStats& stats) :
+FreezeEffect::FreezeEffect(Actor* target, int ownerId, const Stats::EffectStats& stats) :
     Effect(target, ownerId, stats)
 { }
 
@@ -63,7 +63,7 @@ void FreezeEffect::onEffectEnd(void) {
 }
 
 
-PoisonEffect::PoisonEffect(Entity* target, int ownerId, const Stats::EffectStats& stats) :
+PoisonEffect::PoisonEffect(Actor* target, int ownerId, const Stats::EffectStats& stats) :
     Effect(target, ownerId, stats)
 { }
 

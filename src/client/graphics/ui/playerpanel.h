@@ -8,11 +8,11 @@
 #include "itemraritycolours.h"
 
 #include "game/application/gamecontroller.h"
-#include "game/entities/entitypool.h"
+#include "game/actors/actorpool.h"
 #include "core/event/eventsubscriber.h"
 
 class PlayerPanel : 
-    public EventSubscriber<EntityEventData>,
+    public EventSubscriber<ActorEventData>,
     public EventSubscriber<MeleeWeaponEventData>,
     public EventSubscriber<ProjectileEventData>,
     public EventSubscriber<AreaOfEffectEventData>,
@@ -36,7 +36,7 @@ private:
 
     std::vector<std::vector<TextSegment>> lines;
 
-    std::string getEntityIdentifier(Entity* entity);
+    std::string getActorIdentifier(Actor* actor);
     
     std::string getTimestampString(std::time_t timestamp);
     void appendItemsToLine(std::vector<TextSegment>& segment, const std::vector<Item*>& items);
@@ -46,7 +46,7 @@ public:
 
     void draw(void);
 
-    void onPublish(const Event<EntityEventData>& event);
+    void onPublish(const Event<ActorEventData>& event);
     void onPublish(const Event<MeleeWeaponEventData>& event);
     void onPublish(const Event<ProjectileEventData>& event);
     void onPublish(const Event<AreaOfEffectEventData>& event);

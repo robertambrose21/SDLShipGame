@@ -5,7 +5,7 @@
 #include "core/util/gameassert.h"
 
 class Grid;
-class EntityPool;
+class ActorPool;
 class WeaponController;
 class ProjectilePool;
 class AreaOfEffectPool;
@@ -18,7 +18,7 @@ class VisiblityController;
 class ApplicationContext {
 private:
     Grid* grid;
-    EntityPool* entityPool;
+    ActorPool* actorPool;
     WeaponController* weaponController;
     ProjectilePool* projectilePool;
     AreaOfEffectPool* areaOfEffectPool;
@@ -32,7 +32,7 @@ private:
 public:
     ApplicationContext(
         Grid* grid,
-        EntityPool* entityPool,
+        ActorPool* actorPool,
         WeaponController* weaponController,
         ProjectilePool* projectilePool,
         AreaOfEffectPool* areaOfEffectPool,
@@ -44,7 +44,7 @@ public:
     );
 
     Grid* getGrid(void);
-    EntityPool* getEntityPool(void);
+    ActorPool* getActorPool(void);
     WeaponController* getWeaponController(void);
     ProjectilePool* getProjectilePool(void);
     AreaOfEffectPool* getAreaOfEffectPool(void);

@@ -17,19 +17,19 @@
 
 // TODO: Fix with modules?
 class Weapon;
-class Entity;
+class Actor;
 class Action;
 class Effect;
 class ApplicationContext;
 
-struct EntityEventData {
-    Entity* entity;
+struct ActorEventData {
+    Actor* actor;
     std::string type;
 };
 
-class Entity {
+class Actor {
 public:
-    // TODO: Move this out of entity class
+    // TODO: Move this out of actor class
     typedef struct _colour {
         uint8_t r, g, b, a;
 
@@ -50,67 +50,67 @@ public:
 
     const uint32_t MOVES_PER_SECOND = 5;
 
-    Entity(
+    Actor(
         Grid* grid,
         uint32_t id,
-        EventPublisher<EntityEventData, EntitySetPositionEventData, EntityUpdateStatsEventData>& publisher,
+        EventPublisher<ActorEventData, ActorSetPositionEventData, ActorUpdateStatsEventData>& publisher,
         const std::string& name,
-        const Stats::EntityStats& stats
+        const Stats::ActorStats& stats
     );
 
-    Entity(
+    Actor(
         Grid* grid,
-        EventPublisher<EntityEventData, EntitySetPositionEventData, EntityUpdateStatsEventData>& publisher,
+        EventPublisher<ActorEventData, ActorSetPositionEventData, ActorUpdateStatsEventData>& publisher,
         const std::string& name,
-        const Stats::EntityStats& stats
+        const Stats::ActorStats& stats
     );
 
-    // TODO: Should these be in EntityPool?
-    static Entity* filterByTile(
+    // TODO: Should these be in ActorPool?
+    static Actor* filterByTile(
         int x, 
         int y, 
-        const std::set<Entity*>& entities
+        const std::set<Actor*>& actors
     ) {
-        for(auto const& entity : entities) {
-            if(entity->isOnTile(x, y)) {
-                return entity;
+        for(auto const& actor : actors) {
+            if(actor->isOnTile(x, y)) {
+                return actor;
             }
         }
 
         return nullptr;
     }
 
-    static Entity* filterByTile(
+    static Actor* filterByTile(
         int x, 
         int y, 
-        const std::vector<Entity*>& entities,
+        const std::vector<Actor*>& actors,
         int excludedParticipantId = -1
     ) {
-        for(auto entity : entities) {
-            if(entity->isOnTile(x, y) && entity->getParticipantId() != excludedParticipantId) {
-                return entity;
+        for(auto actor : actors) {
+            if(actor->isOnTile(x, y) && actor->getParticipantId() != excludedParticipantId) {
+                return actor;
             }
         }
 
         return nullptr;
     }
 
-    static std::vector<Entity*> filterByTiles(
+    static std::vector<Actor*> filterByTiles(
         const std::vector<glm::ivec2>& tiles,
-        const std::vector<Entity*>& entities,
+        const std::vector<Actor*>& actors,
         int excludedParticipantId = -1
     ) {
-        std::vector<Entity*> filteredEntities;
+        std::vector<Actor*> filteredActors;
 
-        for(auto entity : entities) {
+        for(auto actor : actors) {
             for(auto const& tile : tiles) {
-                if(entity->isOnTile(tile.x, tile.y) && entity->getParticipantId() != excludedParticipantId) {
-                    filteredEntities.push_back(entity);
+                if(actor->isOnTile(tile.x, tile.y) && actor->getParticipantId() != excludedParticipantId) {
+                    filteredActors.push_back(actor);
                 }
             }
         }
 
-        return filteredEntities;
+        return filteredActors;
     }
 
     void update(int64_t timeSinceLastFrame, bool& quit);
@@ -130,7 +130,7 @@ public:
     void disengage(void);
     bool isEngaged(void) const;
 
-    Stats::EntityStats getStats(void) const;
+    Stats::ActorStats getStats(void) const;
 
     void setGear(std::unique_ptr<Gear> gear);
     void removeGear(Equippable<Stats::GearStats>::Slot slot);
@@ -166,7 +166,7 @@ public:
     int findPath(const glm::ivec2& target, int stopShortSteps = 0);
     std::deque<glm::ivec2> calculatePath(const glm::ivec2& target, int stopShortSteps = 0);
     void setPath(const std::deque<glm::ivec2>& path);
-    bool isNeighbour(Entity* entity) const;
+    bool isNeighbour(Actor* actor) const;
     bool hasPath(void);
 
     int getMovesLeft(void) const;
@@ -211,14 +211,14 @@ private:
     bool engaged;
 
     Grid* grid;
-    EventPublisher<EntityEventData, EntitySetPositionEventData, EntityUpdateStatsEventData>& publisher;
+    EventPublisher<ActorEventData, ActorSetPositionEventData, ActorUpdateStatsEventData>& publisher;
 
     glm::ivec2 position;
     std::deque<glm::ivec2> path;
     uint32_t timeSinceLastMoved;
 
-    Stats::EntityStats baseStats;
-    Stats::EntityStats stats;
+    Stats::ActorStats baseStats;
+    Stats::ActorStats stats;
     std::map<Equippable<Stats::GearStats>::Slot, std::unique_ptr<Gear>> equippedGear;
 
     std::map<UUID, std::unique_ptr<Weapon>> weapons;

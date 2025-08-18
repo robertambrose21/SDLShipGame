@@ -1,12 +1,12 @@
 #pragma once
 
 #include "core/glmimport.h"
-#include "game/entities/entity.h"
+#include "game/actors/actor.h"
 #include "core/event/eventpublisher.h"
 #include "game/event/events.h"
 #include "damagesource.h"
 
-class EntityPool;
+class ActorPool;
 class AreaOfEffect;
 
 class AreaOfEffect {
@@ -15,7 +15,7 @@ public:
 
     AreaOfEffect(
         Grid* grid,
-        EntityPool* entityPool,
+        ActorPool* actorPool,
         EventPublisher<AreaOfEffectEventData>& publisher,
         uint32_t textureId,
         int ownerId,
@@ -44,7 +44,7 @@ public:
 
 private:
     Grid* grid;
-    EntityPool* entityPool;
+    ActorPool* actorPool;
     EventPublisher<AreaOfEffectEventData>& publisher;
 
     uint32_t textureId;

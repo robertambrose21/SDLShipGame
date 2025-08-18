@@ -1,16 +1,16 @@
 #pragma once
 
-#include "game/entities/entity.h"
+#include "game/actors/actor.h"
 #include "drawstrategy.h"
 #include "weapondrawstrategy.h"
 
-class EntityDrawStrategy : public DrawStrategy<Entity> {
+class ActorDrawStrategy : public DrawStrategy<Actor> {
 public:
     WeaponDrawStrategy* weaponDrawStrategy;
 
-    EntityDrawStrategy(WeaponDrawStrategy* weaponDrawStrategy);
+    ActorDrawStrategy(WeaponDrawStrategy* weaponDrawStrategy);
 
-    void draw(Entity* drawable, GraphicsContext& graphicsContext);
+    void draw(Actor* drawable, GraphicsContext& graphicsContext);
 
 private:
     void drawHealthBar(

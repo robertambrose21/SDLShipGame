@@ -3,12 +3,12 @@
 StdOutSubscriber::StdOutSubscriber()
 { }
 
-void StdOutSubscriber::onPublish(const Event<EntityEventData>& event) {
+void StdOutSubscriber::onPublish(const Event<ActorEventData>& event) {
     if(event.data.type == "Death") {
-        spdlog::info("{} died.",getEntityIdentifier(event.data.entity));
+        spdlog::info("{} died.",getActorIdentifier(event.data.actor));
     }
-    else if(event.data.type == "Freeze" && event.data.entity->getIsFrozen()) {
-        spdlog::info("{} unfreezes.", getEntityIdentifier(event.data.entity));
+    else if(event.data.type == "Freeze" && event.data.actor->getIsFrozen()) {
+        spdlog::info("{} unfreezes.", getActorIdentifier(event.data.actor));
     }
 }
 
@@ -19,10 +19,10 @@ void StdOutSubscriber::onPublish(const Event<MeleeWeaponEventData>& event) {
     
     spdlog::info(
         "{} was meleed by participant [{}] and took {} damage! {} now has {} HP.",
-        getEntityIdentifier(event.data.target),
+        getActorIdentifier(event.data.target),
         event.data.owner->getParticipantId(),
         event.data.damage,
-        getEntityIdentifier(event.data.target),
+        getActorIdentifier(event.data.target),
         event.data.target->getCurrentHP()
     );
 }
@@ -35,10 +35,10 @@ void StdOutSubscriber::onPublish(const Event<ProjectileEventData>& event) {
     if(event.data.damage > 0) {      
         spdlog::info(
             "{} was hit by a projectile from participant [{}] and took {} damage! {} now has {} HP.",
-            getEntityIdentifier(event.data.target),
+            getActorIdentifier(event.data.target),
             event.data.projectile->getOwnerId(),
             event.data.damage,
-            getEntityIdentifier(event.data.target),
+            getActorIdentifier(event.data.target),
             event.data.target->getCurrentHP()
         );
     }
@@ -46,10 +46,10 @@ void StdOutSubscriber::onPublish(const Event<ProjectileEventData>& event) {
     auto effects = event.data.projectile->getStats().effects;
     for(auto effect : effects) {
         if(effect.type == EffectType::FREEZE) {
-            spdlog::info("{} is frozen for {} turns.", getEntityIdentifier(event.data.target), effect.duration);
+            spdlog::info("{} is frozen for {} turns.", getActorIdentifier(event.data.target), effect.duration);
         }
         else if(effect.type == EffectType::POISON) {
-            spdlog::info("{} is poisoned for {} turns.", getEntityIdentifier(event.data.target), effect.duration);
+            spdlog::info("{} is poisoned for {} turns.", getActorIdentifier(event.data.target), effect.duration);
         }
     }
 }
@@ -57,10 +57,10 @@ void StdOutSubscriber::onPublish(const Event<ProjectileEventData>& event) {
 void StdOutSubscriber::onPublish(const Event<AreaOfEffectEventData>& event) {
     spdlog::info(
         "{} was hit by an area of effect from participant [{}] and took {} damage! {} now has {} HP.",
-        getEntityIdentifier(event.data.target),
+        getActorIdentifier(event.data.target),
         event.data.aoe->getOwnerId(),
         event.data.damage,
-        getEntityIdentifier(event.data.target),
+        getActorIdentifier(event.data.target),
         event.data.target->getCurrentHP()
     );
 }
@@ -99,21 +99,21 @@ void StdOutSubscriber::onPublish(const Event<TakeItemActionEventData>& event) {
         }
     }
 
-    spdlog::info("{} picked up items: [{}]", getEntityIdentifier(event.data.entity), items);
+    spdlog::info("{} picked up items: [{}]", getActorIdentifier(event.data.actor), items);
 }
 
 void StdOutSubscriber::onPublish(const Event<EquipItemActionEventData>& event) {
     if(event.data.isUnequip) {
         spdlog::info(
             "{} unequipped [{}]",
-            getEntityIdentifier(event.data.entity),
+            getActorIdentifier(event.data.actor),
             event.data.item->getName()
         );
     }
     else {
         spdlog::info(
             "{} equipped [{}]",
-            getEntityIdentifier(event.data.entity),
+            getActorIdentifier(event.data.actor),
             event.data.item->getName()
         );
     }
@@ -124,10 +124,10 @@ void StdOutSubscriber::onPublish(const Event<ApplyDamageEventData>& event) {
         case DamageType::AOE:
             spdlog::info(
                 "{} was hit by an area of effect from participant [{}] and took {} damage! {} now has {} HP.",
-                getEntityIdentifier(event.data.target),
+                getActorIdentifier(event.data.target),
                 event.data.participantId,
                 event.data.damage,
-                getEntityIdentifier(event.data.target),
+                getActorIdentifier(event.data.target),
                 event.data.target->getCurrentHP()
             );
             break;
@@ -135,10 +135,10 @@ void StdOutSubscriber::onPublish(const Event<ApplyDamageEventData>& event) {
         case DamageType::PROJECTILE:
             spdlog::info(
                 "{} was hit by a projectile from participant [{}] and took {} damage! {} now has {} HP.",
-                getEntityIdentifier(event.data.target),
+                getActorIdentifier(event.data.target),
                 event.data.participantId,
                 event.data.damage,
-                getEntityIdentifier(event.data.target),
+                getActorIdentifier(event.data.target),
                 event.data.target->getCurrentHP()
             );
             break;
@@ -146,10 +146,10 @@ void StdOutSubscriber::onPublish(const Event<ApplyDamageEventData>& event) {
         case DamageType::MELEE:
             spdlog::info(
                 "{} was meleed by participant [{}] and took {} damage! {} now has {} HP.",
-                getEntityIdentifier(event.data.target),
+                getActorIdentifier(event.data.target),
                 event.data.participantId,
                 event.data.damage,
-                getEntityIdentifier(event.data.target),
+                getActorIdentifier(event.data.target),
                 event.data.target->getCurrentHP()
             );
             break;
@@ -159,7 +159,7 @@ void StdOutSubscriber::onPublish(const Event<ApplyDamageEventData>& event) {
     }
 }
 
-std::string StdOutSubscriber::getEntityIdentifier(Entity* entity) {
-    game_assert(entity != nullptr);
-    return entity->getName() + "#" + std::to_string(entity->getId());
+std::string StdOutSubscriber::getActorIdentifier(Actor* actor) {
+    game_assert(actor != nullptr);
+    return actor->getName() + "#" + std::to_string(actor->getId());
 }

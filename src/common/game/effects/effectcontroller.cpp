@@ -111,7 +111,7 @@ void EffectController::updateAdhocEffects(int64_t timeSinceLastFrame) {
 }
 
 Effect* EffectController::addEffect(std::unique_ptr<Effect> effect) {
-    auto entityId = effect->getTarget()->getId();
+    auto actorId = effect->getTarget()->getId();
     auto effectPtr = effect.get();
 
     auto participant = context->getGameController()->getParticipant(effect->getOwnerId());
@@ -141,7 +141,7 @@ Effect* EffectController::addEffect(std::unique_ptr<Effect> effect) {
 
     effectPtr->apply();
 
-    publish<EntityEffectEvent>({ 
+    publish<ActorEffectEvent>({ 
         effectPtr->getType(), 
         effectPtr->getTarget(), 
         effectPtr->getOwnerId(),

@@ -8,7 +8,7 @@
 #include "spdlog/spdlog.h"
 #include "core/components/factioned.h"
 
-class Entity;
+class Actor;
 class BehaviourStrategy;
 class Engagement;
 class Item;
@@ -24,7 +24,7 @@ public:
     Engagement* getEngagement(void);
     void engage(Engagement* engagement);
     void disengage(void);
-    float getAverageEntitySpeed(void);
+    float getAverageActorSpeed(void);
 
     void endTurn(void);
     void passTurn(void);
@@ -39,10 +39,10 @@ public:
 
     bool isPassingNextTurn(void);
 
-    const std::vector<Entity*>& getEntities(void) const;
-    void addEntity(Entity* entity);
-    void addEntities(const std::vector<Entity*>& entities);
-    void removeEntity(Entity* entity);
+    const std::vector<Actor*>& getActors(void) const;
+    void addActor(Actor* actor);
+    void addActors(const std::vector<Actor*>& actors);
+    void removeActor(Actor* actor);
 
     const std::vector<Item*>& getItems(void) const;
     void addItem(Item* item);
@@ -51,23 +51,23 @@ public:
     BehaviourStrategy* getBehaviourStrategy(void);
     void setBehaviourStrategy(std::unique_ptr<BehaviourStrategy> behaviourStrategy);
 
-    void setVisibleEntities(const std::set<Entity*>& visibleEntities);
-    const std::set<Entity*>& getVisibleEntities(void) const;
+    void setVisibleActors(const std::set<Actor*>& visibleActors);
+    const std::set<Actor*>& getVisibleActors(void) const;
     
-    void addVisibleEntity(Entity* entity);
-    void removeVisibleEntity(Entity* entity);
-    bool hasVisibleEntity(Entity* entity);
+    void addVisibleActor(Actor* actor);
+    void removeVisibleActor(Actor* actor);
+    bool hasVisibleActor(Actor* actor);
 
 private:
     int id;
     bool isReady;
     bool isPlayer;
-    std::vector<Entity*> entities;
+    std::vector<Actor*> actors;
     std::vector<Item*> items;
     bool passNextTurn;
     std::unique_ptr<BehaviourStrategy> behaviourStrategy;
     
     Engagement* engagement;
 
-    std::set<Entity*> visibleEntities;
+    std::set<Actor*> visibleActors;
 };

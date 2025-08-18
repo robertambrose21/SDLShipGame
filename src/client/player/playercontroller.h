@@ -9,8 +9,8 @@
 #include "game/application/application.h"
 #include "graphics/gridrenderer.h"
 #include "graphics/textureloader.h"
-#include "game/entities/entity.h"
-#include "game/entities/entitypool.h"
+#include "game/actors/actor.h"
+#include "game/actors/actorpool.h"
 #include "game/weapons/weapon.h"
 #include "game/application/gamecontroller.h"
 #include "graphics/ui/dice.h"
@@ -18,7 +18,7 @@
 #include "graphics/ui/playerpanel.h"
 #include "graphics/ui/inventorypanel.h"
 #include "graphics/ui/examineitempanel.h"
-#include "graphics/ui/entitypanel.h"
+#include "graphics/ui/actorpanel.h"
 #include "graphics/ui/diagnosticspanel.h"
 #include "game/actions/attackaction.h"
 #include "game/actions/equipgearaction.h"
@@ -40,15 +40,15 @@ public:
     void handleKeyPress(const SDL_Event& event);
     void handleMouseEvent(const SDL_Event& event);
 
-    const std::vector<Entity*>& getSelectedEntities(void) const;
+    const std::vector<Actor*>& getSelectedActors(void) const;
     void setParticipant(Participant* participant);
     Participant* getParticipant(void);
 
-    void toggleSelection(const std::vector<Entity*>& entities);
+    void toggleSelection(const std::vector<Actor*>& actors);
     void selectAll(void);
     void deselectAll(void);
 
-    void addEntityPanel(Entity* entity);
+    void addActorPanel(Actor* actor);
 
     PlayerPanel* getPlayerPanel(void);
 
@@ -66,10 +66,10 @@ private:
 
     Participant* participant;
 
-    std::vector<Entity*> selectedEntities;
+    std::vector<Actor*> selectedActors;
     GridRenderer& gridRenderer;
     GameController* gameController;
-    EntityPool* entityPool;
+    ActorPool* actorPool;
     Grid* grid;
     GraphicsContext& graphicsContext;
 
@@ -86,7 +86,7 @@ private:
     std::unique_ptr<InventoryPanel> inventoryPanel;
     std::unique_ptr<DiagnosticsPanel> diagnosticsPanel;
     std::map<uint32_t, std::unique_ptr<ExamineItemPanel>> examineItemPanels;
-    std::map<uint32_t, std::unique_ptr<EntityPanel>> entityPanels;
+    std::map<uint32_t, std::unique_ptr<ActorPanel>> actorPanels;
 
     void move(const glm::ivec2& position);
     void attack(const glm::ivec2& target);

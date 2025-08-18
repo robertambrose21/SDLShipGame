@@ -8,7 +8,7 @@
 #include "core/util/randomutils.h"
 #include "game/stats/stats.h"
 
-class Entity;
+class Actor;
 
 class DamageSource {
 private:
@@ -24,7 +24,7 @@ public:
 
     static DamageSource parse(const std::string& value, uint8_t power);
 
-    int apply(Entity* entity);
+    int apply(Actor* actor);
 
     Stats::DamageStats getStats(void) const;
 };

@@ -14,7 +14,7 @@
 #include "core/util/timing.h"
 #include "core/event/eventpublisher.h"
 #include "game/event/events.h"
-#include "game/entities/entity.h"
+#include "game/actors/actor.h"
 
 class Grid : public EventPublisher<TileEventData, GridDirtyEventData>
 {

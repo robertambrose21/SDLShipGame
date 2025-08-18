@@ -10,7 +10,7 @@
 #include "game/stats/stats.h"
 #include "game/data/tiles.h"
 
-class Entity;
+class Actor;
 class Item;
 class AreaOfEffect;
 class Weapon;
@@ -30,20 +30,20 @@ struct ItemEventData {
 
 struct AreaOfEffectEventData {
     AreaOfEffect* aoe;
-    Entity* target;
+    Actor* target;
     int damage;
 };
 
 struct ProjectileEventData {
     Projectile* projectile;
-    Entity* target;
+    Actor* target;
     glm::ivec2 hitPosition;
     int damage;
 };
 
 struct MeleeWeaponEventData {
-    Entity* owner;
-    Entity* target;
+    Actor* owner;
+    Actor* target;
     Weapon* weapon;
     int damage;
 };
@@ -54,31 +54,31 @@ struct ActionEventData {
 };
 
 struct MoveActionEventData : public ActionEventData {
-    Entity* entity;
+    Actor* actor;
     glm::ivec2 position;
     int shortStopSteps;
 };
 
 struct AttackActionEventData : public ActionEventData {
-    Entity* owner;
+    Actor* owner;
     glm::ivec2 target;
     Weapon* weapon;
 };
 
 struct TakeItemActionEventData : public ActionEventData {
-    Entity* entity;
+    Actor* actor;
     std::vector<Item*> items;
 };
 
 struct EquipItemActionEventData : public ActionEventData {
-    Entity* entity;
+    Actor* actor;
     Item* item;
     int slot;
     bool isUnequip;
 };
 
 struct EquipWeaponActionEventData : public ActionEventData {
-    Entity* entity;
+    Actor* actor;
     Item* item;
     UUID weaponId;
 };
@@ -92,7 +92,7 @@ enum DamageType {
 
 struct ApplyDamageEventData {
     int participantId;
-    Entity* target;
+    Actor* target;
     DamageType source;
     int damage;
 };
@@ -157,9 +157,9 @@ struct TileEventData {
     bool isFrozen;
 };
 
-struct EntityEffectEvent {
+struct ActorEffectEvent {
     EffectType type;
-    Entity* target;
+    Actor* target;
     int participantId;
     Stats::EffectStats stats;
 };
@@ -180,17 +180,17 @@ struct TilesRevealedEventData {
     std::vector<RevealedTile> tiles;
 };
 
-struct EntitySetPositionEventData {
-    Entity* entity;
+struct ActorSetPositionEventData {
+    Actor* actor;
     glm::ivec2 position;
 };
 
-struct EntityVisibilityToParticipantData {
-    Entity* entity;
+struct ActorVisibilityToParticipantData {
+    Actor* actor;
     int visibleToParticipantId;
     bool isVisible;
 };
 
-struct EntityUpdateStatsEventData {
-    Entity* entity;
+struct ActorUpdateStatsEventData {
+    Actor* actor;
 };

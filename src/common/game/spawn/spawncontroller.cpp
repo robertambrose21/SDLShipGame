@@ -9,51 +9,51 @@ void SpawnController::initialise(ApplicationContext& context) {
     initialised = true;
 }
 
-std::vector<Entity*> SpawnController::spawnEntities(const std::string& name, const SpawnBox& spawnBox, int count) {
+std::vector<Actor*> SpawnController::spawnActors(const std::string& name, const SpawnBox& spawnBox, int count) {
     game_assert(count >= 1);
 
-    std::vector<Entity*> entities;
+    std::vector<Actor*> actors;
 
     for(auto i = 0; i < count; i++) {
-        auto entity = context->getEntityPool()->addEntity(name);
-        entity->setPosition(getRandomPositionFromSpawnBox(spawnBox));
-        entities.push_back(entity);
+        auto actor = context->getActorPool()->addActor(name);
+        actor->setPosition(getRandomPositionFromSpawnBox(spawnBox));
+        actors.push_back(actor);
     }
 
-    return entities;
+    return actors;
 }
 
-std::vector<Entity*> SpawnController::spawnEntities(const SpawnableEntities& spawnables, const SpawnBox& spawnBox, int count) {
+std::vector<Actor*> SpawnController::spawnActors(const SpawnableActors& spawnables, const SpawnBox& spawnBox, int count) {
     game_assert(count >= 1);
 
-    std::vector<Entity*> entities;
+    std::vector<Actor*> actors;
 
     for(auto i = 0; i < count; i++) {
-        SpawnableEntity spawnable;
+        SpawnableActor spawnable;
         if(spawnables.weights.empty()) {
-            spawnable = randomChoice(spawnables.entities);
+            spawnable = randomChoice(spawnables.actors);
         }
         else {
-            spawnable = randomChoice(spawnables.entities, spawnables.weights);
+            spawnable = randomChoice(spawnables.actors, spawnables.weights);
         }
 
-        auto entity = spawnEntity(spawnable.name, getRandomPositionFromSpawnBox(spawnBox));
+        auto actor = spawnActor(spawnable.name, getRandomPositionFromSpawnBox(spawnBox));
 
         for(auto weaponName : spawnable.weapons) {
-            auto weapon = context->getWeaponController()->createWeapon(weaponName, entity);
-            entity->addWeapon(std::move(weapon));
+            auto weapon = context->getWeaponController()->createWeapon(weaponName, actor);
+            actor->addWeapon(std::move(weapon));
         }
 
-        entities.push_back(entity);
+        actors.push_back(actor);
     }
 
-    return entities;
+    return actors;
 }
 
-Entity* SpawnController::spawnEntity(const std::string& name, const glm::ivec2& position) {
-    auto entity = context->getEntityPool()->addEntity(name);
-    entity->setPosition(position);
-    return entity;
+Actor* SpawnController::spawnActor(const std::string& name, const glm::ivec2& position) {
+    auto actor = context->getActorPool()->addActor(name);
+    actor->setPosition(position);
+    return actor;
 }
 
 glm::ivec2 SpawnController::getRandomPositionFromSpawnBox(const SpawnBox& spawnBox) {

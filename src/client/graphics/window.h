@@ -43,7 +43,7 @@ public:
         int height, 
         Grid* grid, 
         VisiblityController* visiblityController, 
-        EntityPool* entityPool
+        ActorPool* actorPool
     );
     ~Window();
  

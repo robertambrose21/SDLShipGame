@@ -3,7 +3,7 @@
 
 AreaOfEffect::AreaOfEffect(
     Grid* grid,
-    EntityPool* entityPool,
+    ActorPool* actorPool,
     EventPublisher<AreaOfEffectEventData>& publisher,
     uint32_t textureId,
     int ownerId,
@@ -13,7 +13,7 @@ AreaOfEffect::AreaOfEffect(
     const Stats::AoEStats& stats
 ) :
     grid(grid),
-    entityPool(entityPool),
+    actorPool(actorPool),
     publisher(publisher),
     textureId(textureId),
     ownerId(ownerId),
@@ -44,13 +44,13 @@ void AreaOfEffect::apply(void) {
         return;
     }
 
-    auto entities = entityPool->getEntities();
-    auto effectedEntities = Entity::filterByTiles(effectedTilePositions, entities, ownerId);
+    auto actors = actorPool->getActors();
+    auto effectedActors = Actor::filterByTiles(effectedTilePositions, actors, ownerId);
 
     spdlog::trace("AoE applied at ({}, {}), {} turns left", position.x, position.y, turnsLeft);
 
-    for(auto const& entity : effectedEntities) {
-        publisher.publish<AreaOfEffectEventData>({ this, entity, damageSource.apply(entity) });
+    for(auto const& actor : effectedActors) {
+        publisher.publish<AreaOfEffectEventData>({ this, actor, damageSource.apply(actor) });
     }
 }
 

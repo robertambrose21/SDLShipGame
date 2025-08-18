@@ -4,17 +4,17 @@
 
 #include "itemraritycolours.h"
 
-#include "game/entities/entity.h"
+#include "game/actors/actor.h"
 #include "graphics/graphicscontext.h"
 #include "core/event/eventsubscriber.h"
 
-class EntityPanel : public EventSubscriber<EntityUpdateStatsEventData>{
+class ActorPanel : public EventSubscriber<ActorUpdateStatsEventData>{
 private:
     int width;
     int height;
     bool isOpen;
 
-    Entity* entity;
+    Actor* actor;
     std::map<Stats::StatCategory, std::vector<Stats::StatsPair>> stats;
 
     std::function<void(Item* item, Equippable<Stats::GearStats>::Slot slot)> onUnequipClicked;
@@ -29,10 +29,10 @@ private:
     void drawEquippedWeapon(GraphicsContext& graphicsContext, Weapon* weapon);
 
 public:
-    EntityPanel(int width, int height, Entity* entity);
-    EntityPanel() = default;
-    EntityPanel(const EntityPanel&) = delete;
-    EntityPanel& operator=(const EntityPanel&) = delete;
+    ActorPanel(int width, int height, Actor* actor);
+    ActorPanel() = default;
+    ActorPanel(const ActorPanel&) = delete;
+    ActorPanel& operator=(const ActorPanel&) = delete;
 
     void draw(GraphicsContext& graphicsContext);
 
@@ -42,5 +42,5 @@ public:
 
     bool getIsOpen(void) const;
 
-    void onPublish(const Event<EntityUpdateStatsEventData>& event);
+    void onPublish(const Event<ActorUpdateStatsEventData>& event);
 };

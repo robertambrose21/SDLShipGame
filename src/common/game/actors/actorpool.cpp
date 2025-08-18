@@ -1,22 +1,23 @@
-#include "entitypool.h"
+#include "actorpool.h"
 
-EntityPool::EntityPool() {
-    loadEntityDefinitions();
+ActorPool::ActorPool() {
+    loadActorDefinitions();
 }
 
-void EntityPool::initialise(ApplicationContext& context) {
+void ActorPool::initialise(ApplicationContext& context) {
     this->context = &context;
     initialised = true;
 }
 
-void EntityPool::loadEntityDefinitions(void) {
+void ActorPool::loadActorDefinitions(void) {
+    // TODO: Change me to "actors"
     std::string directory = "../assets/data/entities";
 
     for(const auto& entry : std::filesystem::directory_iterator(directory)) {
         std::ifstream f(entry.path());
         json data = json::parse(f);
 
-        EntityDefinition definition;
+        ActorDefinition definition;
         definition.filename = entry.path();
         definition.name = data["name"].get<std::string>();
 
@@ -59,86 +60,86 @@ void EntityPool::loadEntityDefinitions(void) {
 
         definition.lootTable = LootTable(lootTableItems);
 
-        std::cout << "Loaded entity definition \"" << definition.name << "\"" << std::endl;
+        std::cout << "Loaded actor definition \"" << definition.name << "\"" << std::endl;
 
-        entityDefinitions[definition.name] = definition;
+        actorDefinitions[definition.name] = definition;
     }
 
-    game_assert(!entityDefinitions.empty());
+    game_assert(!actorDefinitions.empty());
 }
 
-void EntityPool::updateEntities(int64_t timeSinceLastFrame, bool& quit) {
+void ActorPool::updateActors(int64_t timeSinceLastFrame, bool& quit) {
     game_assert(initialised);
 
     synchronize();
 
-    for(auto const& entityId : entitiesForDeletion) {
-        killEntity(entityId);
+    for(auto const& actorId : actorsForDeletion) {
+        killActor(actorId);
     }
     
-    entitiesForDeletion.clear();
+    actorsForDeletion.clear();
 
-    for(auto& [entityId, entity] : entities) {
-        updateEntity(entity.get(), timeSinceLastFrame, quit);
+    for(auto& [actorId, actor] : actors) {
+        updateActor(actor.get(), timeSinceLastFrame, quit);
     }
 }
 
-void EntityPool::updateEntity(Entity* entity, int64_t timeSinceLastFrame, bool& quit) {
+void ActorPool::updateActor(Actor* actor, int64_t timeSinceLastFrame, bool& quit) {
     game_assert(initialised);
 
-    if(entity->getCurrentHP() <= 0) {
-        entitiesForDeletion.insert(entity->getId());
+    if(actor->getCurrentHP() <= 0) {
+        actorsForDeletion.insert(actor->getId());
         return;
     }
 
-    entity->update(timeSinceLastFrame, quit);
+    actor->update(timeSinceLastFrame, quit);
 }
 
-void EntityPool::killEntity(uint32_t entityId) {
+void ActorPool::killActor(uint32_t actorId) {
     auto gameController = context->getGameController();
-    auto entity = getEntity(entityId);
+    auto actor = getActor(actorId);
 
-    // Remove entity from participant
-    gameController->getParticipant(entity->getParticipantId())->removeEntity(entity);
+    // Remove actor from participant
+    gameController->getParticipant(actor->getParticipantId())->removeActor(actor);
 
-    // Remove visibility of entity from participants (and prevent a seg-fault)
+    // Remove visibility of actor from participants (and prevent a seg-fault)
     for(auto participant : gameController->getParticipants()) {
-        participant->removeVisibleEntity(entity);
+        participant->removeVisibleActor(actor);
     }
 
-    publish<EntityEventData>({ entity, "Death" });
+    publish<ActorEventData>({ actor, "Death" });
 
-    entities.erase(entityId);
+    actors.erase(actorId);
 }
 
 // TODO: Doing too much, break this up
-bool EntityPool::applyChunkedGameStateUpdate(const ChunkedGameStateUpdate& chunked) {
+bool ActorPool::applyChunkedGameStateUpdate(const ChunkedGameStateUpdate& chunked) {
     if(chunked.pendingUpdates.size() < chunked.numExpectedChunks) {
         return false; // Not ready
     }
 
-    std::map<int, Entity*> updatedEntities;
+    std::map<int, Actor*> updatedActors;
 
     for(auto const& update : chunked.pendingUpdates) {
         // std::cout << "Got game state update: " << std::endl;
 
-        for(int i = 0; i < update.numEntities; i++) {
-            auto const& entityUpdate = update.entities[i];
+        for(int i = 0; i < update.numActors; i++) {
+            auto const& actorUpdate = update.actors[i];
 
-            if(!entities.contains(entityUpdate.id)) {
-                auto const& entity = addEntity(entityUpdate.name, entityUpdate.id);
-                context->getGameController()->addEntityToParticipant(entityUpdate.participantId, entity);   
+            if(!actors.contains(actorUpdate.id)) {
+                auto const& actor = addActor(actorUpdate.name, actorUpdate.id);
+                context->getGameController()->addActorToParticipant(actorUpdate.participantId, actor);   
             }
 
-            auto& existing = entities[entityUpdate.id];
+            auto& existing = actors[actorUpdate.id];
 
             // Weapons
-            for(int j = 0; j < entityUpdate.numWeapons; j++) {
-                auto const& weaponUpdate = entityUpdate.weaponUpdates[j];
+            for(int j = 0; j < actorUpdate.numWeapons; j++) {
+                auto const& weaponUpdate = actorUpdate.weaponUpdates[j];
                 auto weaponId = UUID::fromBytes(weaponUpdate.idBytes);
                 
                 if(!existing->hasWeapon(weaponId)) {
-                    spdlog::trace("Syncing weapon {} to entity {}", weaponId.getString(), existing->getId());
+                    spdlog::trace("Syncing weapon {} to actor {}", weaponId.getString(), existing->getId());
                     auto weapon = context->getWeaponController()->createWeapon(weaponId, weaponUpdate.name, existing.get());
                     
                     if(weapon->getItem() != nullptr && weaponUpdate.hasItem) {
@@ -149,42 +150,42 @@ bool EntityPool::applyChunkedGameStateUpdate(const ChunkedGameStateUpdate& chunk
                 }
             }
 
-            EntityStateUpdate::deserialize(entityUpdate, existing.get());
+            ActorStateUpdate::deserialize(actorUpdate, existing.get());
 
-            if(entityUpdate.currentHP <= 0) {
-                entitiesForDeletion.insert(entityUpdate.id);
+            if(actorUpdate.currentHP <= 0) {
+                actorsForDeletion.insert(actorUpdate.id);
             } else {
-                updatedEntities[entityUpdate.id] = entities[entityUpdate.id].get();
+                updatedActors[actorUpdate.id] = actors[actorUpdate.id].get();
             }
 
-            // std::cout << "Entity [" << update.entities[i].participantId << "] " << update.entities[i].name << "#" 
-            //     << update.entities[i].id << "(" << update.entities[i].currentHP << "/" 
-            //     << update.entities[i].totalHP << "):" << std::endl;
-            // std::cout << "\tPosition: (" << update.entities[i].x << ", " <<  update.entities[i].y << ")" << std::endl;
-            // std::cout << "\tMoves per turn: " << update.entities[i].movesPerTurn << std::endl;
-            // std::cout << "\tMoves left: " << update.entities[i].movesLeft << std::endl;
+            // std::cout << "Actor [" << update.actors[i].participantId << "] " << update.actors[i].name << "#" 
+            //     << update.actors[i].id << "(" << update.actors[i].currentHP << "/" 
+            //     << update.actors[i].totalHP << "):" << std::endl;
+            // std::cout << "\tPosition: (" << update.actors[i].x << ", " <<  update.actors[i].y << ")" << std::endl;
+            // std::cout << "\tMoves per turn: " << update.actors[i].movesPerTurn << std::endl;
+            // std::cout << "\tMoves left: " << update.actors[i].movesLeft << std::endl;
         }
     }
 
-    // Remove any entities which weren't present in the updates
-    for(auto& [entityId, entity] : entities) {
-        if(!updatedEntities.contains(entityId)) {
-            entitiesForDeletion.insert(entityId);
+    // Remove any actors which weren't present in the updates
+    for(auto& [actorId, actor] : actors) {
+        if(!updatedActors.contains(actorId)) {
+            actorsForDeletion.insert(actorId);
         }
     }
 
     std::cout 
         << "Sync "
-        << updatedEntities.size() 
+        << updatedActors.size() 
         << " updated " 
-        << entitiesForDeletion.size() 
+        << actorsForDeletion.size() 
         << " removed" 
         << std::endl;
 
     return true;
 }
 
-void EntityPool::synchronize() {
+void ActorPool::synchronize() {
     game_assert(initialised);
 
     if(pendingChunkedUpdates.empty()) {
@@ -205,7 +206,7 @@ void EntityPool::synchronize() {
     });
 }
 
-void EntityPool::addGameStateUpdate(const GameStateUpdate& update) {
+void ActorPool::addGameStateUpdate(const GameStateUpdate& update) {
     game_assert(initialised);
 
     if(update.numExpectedChunks < 1) {
@@ -245,104 +246,104 @@ void EntityPool::addGameStateUpdate(const GameStateUpdate& update) {
     }
 }
 
-Entity* EntityPool::addEntity(std::unique_ptr<Entity> entity) {
+Actor* ActorPool::addActor(std::unique_ptr<Actor> actor) {
     game_assert(initialised);
-    game_assert(!entities.contains(entity->getId()));
+    game_assert(!actors.contains(actor->getId()));
 
-    auto id = entity->getId();
-    entities[id] = std::move(entity);
-    return entities[id].get();
+    auto id = actor->getId();
+    actors[id] = std::move(actor);
+    return actors[id].get();
 }
 
-Entity* EntityPool::addEntity(const std::string& name, uint32_t id) {
+Actor* ActorPool::addActor(const std::string& name, uint32_t id) {
     game_assert(initialised);
-    game_assert(entityDefinitions.contains(name));
+    game_assert(actorDefinitions.contains(name));
 
-    auto definition = entityDefinitions[name];
+    auto definition = actorDefinitions[name];
 
     // TODO: Move applying stats to another class
-    Stats::EntityStats stats;
+    Stats::ActorStats stats;
     stats.hp = definition.hp;
     stats.totalHp = definition.hp;
     stats.movesPerTurn = definition.movesPerTurn;
     stats.movesLeft = definition.movesPerTurn;
     stats.armour = definition.armour;
     
-    auto entity = std::make_unique<Entity>(
+    auto actor = std::make_unique<Actor>(
         context->getGrid(),
         id,
         *this,
         definition.name,
         stats
     );
-    entity->setTextureId(definition.textureId);
-    entity->setColour({
+    actor->setTextureId(definition.textureId);
+    actor->setColour({
         definition.r,
         definition.g,
         definition.b,
         definition.a
     });
-    entity->setSelectedTextureId(6);
+    actor->setSelectedTextureId(6);
 
-    return addEntity(std::move(entity));
+    return addActor(std::move(actor));
 }
 
-Entity* EntityPool::addEntity(const std::string& name) {
+Actor* ActorPool::addActor(const std::string& name) {
     game_assert(initialised);
-    return addEntity(name, getNewId());
+    return addActor(name, getNewId());
 }
 
-void EntityPool::removeEntity(uint32_t id) {
-    auto participant = context->getGameController()->getParticipant(entities[id]->getParticipantId());
+void ActorPool::removeActor(uint32_t id) {
+    auto participant = context->getGameController()->getParticipant(actors[id]->getParticipantId());
     
-    participant->removeEntity(entities[id].get());
-    entities.erase(id);
+    participant->removeActor(actors[id].get());
+    actors.erase(id);
 }
 
-std::vector<Entity*> EntityPool::getEntities(void) {
+std::vector<Actor*> ActorPool::getActors(void) {
     game_assert(initialised);
-    std::vector<Entity*> vEntities;
+    std::vector<Actor*> vActors;
     
-    for(auto& [_, entity] : entities) {
-        if(entity != nullptr) {
-            vEntities.push_back(entity.get());
+    for(auto& [_, actor] : actors) {
+        if(actor != nullptr) {
+            vActors.push_back(actor.get());
         }
     }
 
-    return vEntities;
+    return vActors;
 }
 
-Entity* EntityPool::getEntity(uint32_t id) {
+Actor* ActorPool::getActor(uint32_t id) {
     game_assert(initialised);
-    game_assert(entities.contains(id));
-    return entities[id].get();
+    game_assert(actors.contains(id));
+    return actors[id].get();
 }
 
-bool EntityPool::hasEntity(uint32_t id) {
+bool ActorPool::hasActor(uint32_t id) {
     game_assert(initialised);
-    return entities.contains(id);
+    return actors.contains(id);
 }
 
-Entity* EntityPool::findClosestTarget(Entity* attacker, int participantId) {
-    Entity* closestEntity = nullptr;
+Actor* ActorPool::findClosestTarget(Actor* attacker, int participantId) {
+    Actor* closestActor = nullptr;
     auto shortestDistance = attacker->getDisengagementRange();
     
-    for(auto& [_, entity] : entities) {
-        if(entity->getParticipantId() == participantId) {
+    for(auto& [_, actor] : actors) {
+        if(actor->getParticipantId() == participantId) {
             continue;
         }
 
-        auto distance = glm::distance(glm::vec2(attacker->getPosition()), glm::vec2(entity->getPosition()));
+        auto distance = glm::distance(glm::vec2(attacker->getPosition()), glm::vec2(actor->getPosition()));
 
         if(distance < shortestDistance) {
             shortestDistance = distance;
-            closestEntity = entity.get();
+            closestActor = actor.get();
         }
     }
 
-    return closestEntity;
+    return closestActor;
 }
 
-LootTable EntityPool::getLootTable(const std::string& entityName) {
-    return entityDefinitions[entityName].lootTable;
+LootTable ActorPool::getLootTable(const std::string& actorName) {
+    return actorDefinitions[actorName].lootTable;
 }

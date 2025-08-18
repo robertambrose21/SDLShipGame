@@ -1,7 +1,7 @@
 #include "projectileweapon.h"
 
 ProjectileWeapon::ProjectileWeapon(
-    Entity* owner,
+    Actor* owner,
     ApplicationContext* context,
     Item* item,
     EventPublisher<MeleeWeaponEventData>& publisher,
@@ -16,7 +16,7 @@ ProjectileWeapon::ProjectileWeapon(
 { }
 
 ProjectileWeapon::ProjectileWeapon(
-    Entity* owner,
+    Actor* owner,
     ApplicationContext* context,
     Item* item,
     EventPublisher<MeleeWeaponEventData>& publisher,

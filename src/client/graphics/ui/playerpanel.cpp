@@ -33,18 +33,18 @@ void PlayerPanel::draw(void) {
     ImGui::End();
 }
 
-void PlayerPanel::onPublish(const Event<EntityEventData>& event) {
+void PlayerPanel::onPublish(const Event<ActorEventData>& event) {
     if(event.data.type == "Death") {
         lines.push_back({
             { getTimestampString(event.timestamp), TimestampColour },
-            { getEntityIdentifier(event.data.entity), HighlightColour },
+            { getActorIdentifier(event.data.actor), HighlightColour },
             { " died", StdTextColour}
         });
     }
-    else if(event.data.type == "Freeze" && event.data.entity->getIsFrozen()) {
+    else if(event.data.type == "Freeze" && event.data.actor->getIsFrozen()) {
         lines.push_back({
             { getTimestampString(event.timestamp), TimestampColour },
-            { getEntityIdentifier(event.data.entity), HighlightColour },
+            { getActorIdentifier(event.data.actor), HighlightColour },
             { " unfreezes", StdTextColour }
         });
     }
@@ -57,13 +57,13 @@ void PlayerPanel::onPublish(const Event<MeleeWeaponEventData>& event) {
 
     lines.push_back({
         { getTimestampString(event.timestamp), TimestampColour },
-        { getEntityIdentifier(event.data.owner), HighlightColour },
+        { getActorIdentifier(event.data.owner), HighlightColour },
         { " meleed ", StdTextColour },
-        { getEntityIdentifier(event.data.target), HighlightColour },
+        { getActorIdentifier(event.data.target), HighlightColour },
         { " for ", StdTextColour },
         { std::to_string(event.data.damage), HighlightColour },
         { " damage! ", StdTextColour },
-        { getEntityIdentifier(event.data.target), HighlightColour },
+        { getActorIdentifier(event.data.target), HighlightColour },
         { " now has ", StdTextColour },
         { std::to_string(event.data.target->getCurrentHP()), HighlightColour },
         { " HP ", StdTextColour }
@@ -78,13 +78,13 @@ void PlayerPanel::onPublish(const Event<ProjectileEventData>& event) {
     if(event.data.damage > 0) {      
         lines.push_back({
             { getTimestampString(event.timestamp), TimestampColour },
-            { getEntityIdentifier(event.data.target), HighlightColour },
+            { getActorIdentifier(event.data.target), HighlightColour },
             { " was hit by a projectile from participant [", StdTextColour },
             { std::to_string(event.data.projectile->getOwnerId()), HighlightColour },
             { "] and took ", StdTextColour },
             { std::to_string(event.data.damage), HighlightColour },
             { " damage! ", StdTextColour },
-            { getEntityIdentifier(event.data.target), HighlightColour },
+            { getActorIdentifier(event.data.target), HighlightColour },
             { " now has ", StdTextColour },
             { std::to_string(event.data.target->getCurrentHP()), HighlightColour },
             { " HP ", StdTextColour }
@@ -96,7 +96,7 @@ void PlayerPanel::onPublish(const Event<ProjectileEventData>& event) {
         if(effect.type == EffectType::FREEZE) {
             lines.push_back({
                 { getTimestampString(event.timestamp), TimestampColour },
-                { getEntityIdentifier(event.data.target), HighlightColour },
+                { getActorIdentifier(event.data.target), HighlightColour },
                 { " is frozen for ", StdTextColour },
                 { std::to_string(effect.duration), HighlightColour },
                 { " turns", StdTextColour }
@@ -105,7 +105,7 @@ void PlayerPanel::onPublish(const Event<ProjectileEventData>& event) {
         else if(effect.type == EffectType::POISON) {
             lines.push_back({
                 { getTimestampString(event.timestamp), TimestampColour },
-                { getEntityIdentifier(event.data.target), HighlightColour },
+                { getActorIdentifier(event.data.target), HighlightColour },
                 { " is poisoned for ", StdTextColour },
                 { std::to_string(effect.duration), HighlightColour },
                 { " turns", StdTextColour }
@@ -117,13 +117,13 @@ void PlayerPanel::onPublish(const Event<ProjectileEventData>& event) {
 void PlayerPanel::onPublish(const Event<AreaOfEffectEventData>& event) {
     lines.push_back({
         { getTimestampString(event.timestamp), TimestampColour },
-        { getEntityIdentifier(event.data.target), HighlightColour },
+        { getActorIdentifier(event.data.target), HighlightColour },
         { " was hit by an area of effect from participant [", StdTextColour },
         { std::to_string(event.data.aoe->getOwnerId()), HighlightColour },
         { "] and took ", StdTextColour },
         { std::to_string(event.data.damage), HighlightColour },
         { " damage! ", StdTextColour },
-        { getEntityIdentifier(event.data.target), HighlightColour },
+        { getActorIdentifier(event.data.target), HighlightColour },
         { " now has ", StdTextColour },
         { std::to_string(event.data.target->getCurrentHP()), HighlightColour },
         { " HP ", StdTextColour }
@@ -160,7 +160,7 @@ void PlayerPanel::onPublish(const Event<TakeItemActionEventData>& event) {
 
     std::vector<TextSegment> line = {
         { getTimestampString(event.timestamp), TimestampColour },
-        { getEntityIdentifier(event.data.entity), HighlightColour },
+        { getActorIdentifier(event.data.actor), HighlightColour },
         { " picked up items: ", StdTextColour }
     };
 
@@ -172,7 +172,7 @@ void PlayerPanel::onPublish(const Event<TakeItemActionEventData>& event) {
 void PlayerPanel::onPublish(const Event<ApplyDamageEventData>& event) {
     std::vector<TextSegment> line = {
         { getTimestampString(event.timestamp), TimestampColour },
-        { getEntityIdentifier(event.data.target), HighlightColour }
+        { getActorIdentifier(event.data.target), HighlightColour }
     };
 
     switch(event.data.source) {
@@ -196,7 +196,7 @@ void PlayerPanel::onPublish(const Event<ApplyDamageEventData>& event) {
     line.push_back({ "] and took ", StdTextColour });
     line.push_back({ std::to_string(event.data.damage), HighlightColour });
     line.push_back({ " damage! ", StdTextColour });
-    line.push_back({ getEntityIdentifier(event.data.target), HighlightColour });
+    line.push_back({ getActorIdentifier(event.data.target), HighlightColour });
     line.push_back({ " now has ", StdTextColour });
     line.push_back({ std::to_string(event.data.target->getCurrentHP()), StdTextColour });
     line.push_back({ " HP.", StdTextColour });
@@ -204,9 +204,9 @@ void PlayerPanel::onPublish(const Event<ApplyDamageEventData>& event) {
     lines.push_back(line);
 }
 
-std::string PlayerPanel::getEntityIdentifier(Entity* entity) {
-    game_assert(entity != nullptr);
-    return entity->getName() + "#" + std::to_string(entity->getId());
+std::string PlayerPanel::getActorIdentifier(Actor* actor) {
+    game_assert(actor != nullptr);
+    return actor->getName() + "#" + std::to_string(actor->getId());
 }
 
 std::string PlayerPanel::getTimestampString(std::time_t timestamp) {

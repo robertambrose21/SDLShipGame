@@ -1,12 +1,12 @@
-#include "entity.h"
+#include "actor.h"
 #include "game/application/application.h"
 
-Entity::Entity(
+Actor::Actor(
     Grid* grid,
     uint32_t id,
-    EventPublisher<EntityEventData, EntitySetPositionEventData, EntityUpdateStatsEventData>& publisher,
+    EventPublisher<ActorEventData, ActorSetPositionEventData, ActorUpdateStatsEventData>& publisher,
     const std::string& name,
-    const Stats::EntityStats& stats
+    const Stats::ActorStats& stats
 ) :
     id(id),
     publisher(publisher),
@@ -25,41 +25,41 @@ Entity::Entity(
     participantId(-1)
 { }
 
-Entity::Entity(
+Actor::Actor(
     Grid* grid,
-    EventPublisher<EntityEventData, EntitySetPositionEventData, EntityUpdateStatsEventData>& publisher,
+    EventPublisher<ActorEventData, ActorSetPositionEventData, ActorUpdateStatsEventData>& publisher,
     const std::string& name,
-    const Stats::EntityStats& stats
+    const Stats::ActorStats& stats
 ) : 
-    Entity(grid, getNewId(), publisher, name, stats)
+    Actor(grid, getNewId(), publisher, name, stats)
 { }
 
-void Entity::setTextureId(uint32_t textureId) {
+void Actor::setTextureId(uint32_t textureId) {
     this->textureId = textureId;
 }
 
-uint32_t Entity::getTextureId(void) const {
+uint32_t Actor::getTextureId(void) const {
     return textureId;
 }
 
-uint32_t Entity::getSelectedTextureId(void) const {
+uint32_t Actor::getSelectedTextureId(void) const {
     return selectedTextureId;
 }
 
-void Entity::setSelectedTextureId(uint32_t selectedTextureId) {
+void Actor::setSelectedTextureId(uint32_t selectedTextureId) {
     game_assert(textureId != selectedTextureId);
     this->selectedTextureId = selectedTextureId;
 }
 
-void Entity::setColour(const Colour& colour) {
+void Actor::setColour(const Colour& colour) {
     this->colour = colour;
 }
 
-Entity::Colour Entity::getColour(void) const {
+Actor::Colour Actor::getColour(void) const {
     return colour;
 }
 
-void Entity::update(int64_t timeSinceLastFrame, bool& quit) {
+void Actor::update(int64_t timeSinceLastFrame, bool& quit) {
     for(auto& [_, weapon] : weapons) {
         weapon->update(timeSinceLastFrame);
     }
@@ -91,15 +91,15 @@ void Entity::update(int64_t timeSinceLastFrame, bool& quit) {
     }
 }
 
-void Entity::setSelected(bool selected) {
+void Actor::setSelected(bool selected) {
     this->selected = selected;
 }
 
-bool Entity::isSelected(void) const {
+bool Actor::isSelected(void) const {
     return selected;
 }
 
-void Entity::engage(void) {
+void Actor::engage(void) {
     if(engaged) {
         return;
     }
@@ -109,7 +109,7 @@ void Entity::engage(void) {
     reset();
 }
 
-void Entity::disengage(void) {
+void Actor::disengage(void) {
     if(!engaged) {
         return;
     }
@@ -119,15 +119,15 @@ void Entity::disengage(void) {
     reset();
 }
 
-bool Entity::isEngaged(void) const {
+bool Actor::isEngaged(void) const {
     return engaged;
 }
 
-Stats::EntityStats Entity::getStats(void) const {
+Stats::ActorStats Actor::getStats(void) const {
     return stats;
 }
 
-void Entity::setGear(std::unique_ptr<Gear> gear) {
+void Actor::setGear(std::unique_ptr<Gear> gear) {
     if(!gear->isValid()) {
         std::cout << std::format("Warning: invalid gear for slot {}", 
                 Equippable<Stats::GearStats>::SLOT_NAMES[gear->getSlot()]) << std::endl;
@@ -138,16 +138,16 @@ void Entity::setGear(std::unique_ptr<Gear> gear) {
     applyStats();
 }
 
-void Entity::removeGear(Equippable<Stats::GearStats>::Slot slot) {
+void Actor::removeGear(Equippable<Stats::GearStats>::Slot slot) {
     equippedGear[slot] = nullptr;
     applyStats();
 }
 
-Gear* Entity::getGear(Equippable<Stats::GearStats>::Slot slot) {
+Gear* Actor::getGear(Equippable<Stats::GearStats>::Slot slot) {
     return equippedGear[slot].get();
 }
 
-void Entity::applyStats() {
+void Actor::applyStats() {
     uint32_t currentHp = stats.hp;
     stats = baseStats;
     stats.hp = currentHp;
@@ -164,34 +164,34 @@ void Entity::applyStats() {
         }
     }
 
-    publisher.publish<EntityUpdateStatsEventData>({ this });
+    publisher.publish<ActorUpdateStatsEventData>({ this });
 }
 
-const float Entity::getSpeed(void) {
+const float Actor::getSpeed(void) {
     return 2000.0f / (MOVES_PER_SECOND * stats.movesPerTurn);
 }
 
-int Entity::getCurrentHP(void) const {
+int Actor::getCurrentHP(void) const {
     return stats.hp;
 }
 
-void Entity::setCurrentHP(uint32_t hp) {
+void Actor::setCurrentHP(uint32_t hp) {
     stats.hp = hp;
-    publisher.publish<EntityUpdateStatsEventData>({ this });
+    publisher.publish<ActorUpdateStatsEventData>({ this });
 }
 
-void Entity::takeDamage(uint32_t amount) {
+void Actor::takeDamage(uint32_t amount) {
     stats.hp -= amount;
-    publisher.publish<EntityUpdateStatsEventData>({ this });
+    publisher.publish<ActorUpdateStatsEventData>({ this });
 }
 
-void Entity::attack(const glm::ivec2& target, const UUID& weaponId, bool isAnimationOnly) {
+void Actor::attack(const glm::ivec2& target, const UUID& weaponId, bool isAnimationOnly) {
     // TODO: free use when not engaged
     weapons[weaponId]->use(position, target, isAnimationOnly);
-    publisher.publish<EntityUpdateStatsEventData>({ this });
+    publisher.publish<ActorUpdateStatsEventData>({ this });
 }
 
-std::vector<Weapon*> Entity::getWeapons(void) const {
+std::vector<Weapon*> Actor::getWeapons(void) const {
     std::vector<Weapon*> vWeapons;
     
     for(auto& [_, weapon] : weapons) {
@@ -203,15 +203,15 @@ std::vector<Weapon*> Entity::getWeapons(void) const {
     return vWeapons;
 }
 
-Weapon* Entity::getWeapon(const UUID& weaponId) {
+Weapon* Actor::getWeapon(const UUID& weaponId) {
     return weapons[weaponId].get();
 }
 
-bool Entity::hasWeapon(const UUID& weaponId) {
+bool Actor::hasWeapon(const UUID& weaponId) {
     return weapons.contains(weaponId);
 }
 
-Weapon* Entity::addWeapon(std::unique_ptr<Weapon> weapon) {
+Weapon* Actor::addWeapon(std::unique_ptr<Weapon> weapon) {
     auto id = weapon->getId();
     weapons[id] = std::move(weapon);
 
@@ -224,7 +224,7 @@ Weapon* Entity::addWeapon(std::unique_ptr<Weapon> weapon) {
     return weapons[id].get();
 }
 
-void Entity::removeWeapon(const UUID& weaponId) {
+void Actor::removeWeapon(const UUID& weaponId) {
     if(weaponId == currentWeapon->getId()) {
         currentWeapon = nullptr;
     }
@@ -233,12 +233,12 @@ void Entity::removeWeapon(const UUID& weaponId) {
     applyStats();
 }
 
-void Entity::removeAllWeapons(void) {
+void Actor::removeAllWeapons(void) {
     weapons.clear();
     applyStats();
 }
 
-void Entity::setCurrentWeapon(const UUID& weaponId) {
+void Actor::setCurrentWeapon(const UUID& weaponId) {
     if(!hasWeapon(weaponId)) {
         return;
     }
@@ -246,7 +246,7 @@ void Entity::setCurrentWeapon(const UUID& weaponId) {
     currentWeapon = weapons[weaponId].get();
 }
 
-Weapon* Entity::getCurrentWeapon(void) {
+Weapon* Actor::getCurrentWeapon(void) {
     if(weapons.empty()) {
         return nullptr;
     }
@@ -258,48 +258,48 @@ Weapon* Entity::getCurrentWeapon(void) {
     return currentWeapon;
 }
 
-uint32_t Entity::getId(void) const {
+uint32_t Actor::getId(void) const {
     return id;
 }
 
-void Entity::setId(uint32_t id) {
+void Actor::setId(uint32_t id) {
     this->id = id;
 }
 
-std::string Entity::getName(void) const {
+std::string Actor::getName(void) const {
     return name;
 }
 
-std::string Entity::toString(void) const {
+std::string Actor::toString(void) const {
     return name + "#" + std::to_string(id);
 }
 
-void Entity::setName(const std::string& name) {
+void Actor::setName(const std::string& name) {
     this->name = name;
 }
 
-glm::ivec2 Entity::getPosition(void) const {
+glm::ivec2 Actor::getPosition(void) const {
     return position;
 }
 
-bool Entity::isOnTile(int x, int y) {
+bool Actor::isOnTile(int x, int y) {
     return position == glm::ivec2(x, y);
 }
 
-void Entity::setPosition(const glm::ivec2& position) {
+void Actor::setPosition(const glm::ivec2& position) {
     this->position = position;
-    publisher.publish<EntitySetPositionEventData>({ this, position });
+    publisher.publish<ActorSetPositionEventData>({ this, position });
 }
 
 // TODO: use calculatePath
-int Entity::findPath(const glm::ivec2& target, int stopShortSteps) {
+int Actor::findPath(const glm::ivec2& target, int stopShortSteps) {
     auto path = grid->findPath(getPosition(), target);
 
     if(path.empty()) {
         return 0;
     }
 
-    // Remove the initial path node which is just the entities current position
+    // Remove the initial path node which is just the actors current position
     path.pop_front(); 
 
     if(path.size() >= stopShortSteps) {
@@ -313,14 +313,14 @@ int Entity::findPath(const glm::ivec2& target, int stopShortSteps) {
     return path.size();
 }
 
-std::deque<glm::ivec2> Entity::calculatePath(const glm::ivec2& target, int stopShortSteps) {
+std::deque<glm::ivec2> Actor::calculatePath(const glm::ivec2& target, int stopShortSteps) {
     auto path = grid->findPath(getPosition(), target);
 
     if(path.empty()) {
         return path;
     }
 
-    // Remove the initial path node which is just the entities current position
+    // Remove the initial path node which is just the actors current position
     path.pop_front(); 
 
     if(path.size() >= stopShortSteps) {
@@ -332,45 +332,45 @@ std::deque<glm::ivec2> Entity::calculatePath(const glm::ivec2& target, int stopS
     return path;
 }
 
-void Entity::setPath(const std::deque<glm::ivec2>& path) {
+void Actor::setPath(const std::deque<glm::ivec2>& path) {
     this->path = path;
 }
 
-bool Entity::hasPath(void) {
+bool Actor::hasPath(void) {
     return !path.empty();
 }
 
-bool Entity::isNeighbour(Entity* entity) const {
+bool Actor::isNeighbour(Actor* actor) const {
     // TODO: This could be more efficient
-    return glm::distance(glm::vec2(getPosition()), glm::vec2(entity->getPosition())) < 2;
+    return glm::distance(glm::vec2(getPosition()), glm::vec2(actor->getPosition())) < 2;
 }
 
-int Entity::getMovesLeft(void) const {
+int Actor::getMovesLeft(void) const {
     return stats.movesLeft;
 }
 
-void Entity::setMovesLeft(int movesLeft) {
+void Actor::setMovesLeft(int movesLeft) {
     stats.movesLeft = movesLeft;
-    publisher.publish<EntityUpdateStatsEventData>({ this });
+    publisher.publish<ActorUpdateStatsEventData>({ this });
 }
 
-int Entity::getAggroRange(void) const {
+int Actor::getAggroRange(void) const {
     return 10; // temp hardcoded for now
 }
 
-int Entity::getDisengagementRange(void) const {
+int Actor::getDisengagementRange(void) const {
     return 15; // temp hardcoded for now
 }
 
-bool Entity::isTurnInProgress(void) {
+bool Actor::isTurnInProgress(void) {
     return (getCurrentWeapon() != nullptr && !getCurrentWeapon()->hasFinished()) || getMovesLeft() > 0;
 }
 
-bool Entity::hasAnimationsInProgress(void) {
+bool Actor::hasAnimationsInProgress(void) {
     return getCurrentWeapon() != nullptr && getCurrentWeapon()->isAnimationInProgress();
 }
 
-void Entity::useMoves(int numMoves) {
+void Actor::useMoves(int numMoves) {
     stats.movesLeft -= numMoves;
     
     if(stats.movesLeft <= 0) {
@@ -378,14 +378,14 @@ void Entity::useMoves(int numMoves) {
         path.clear();
     }
 
-    publisher.publish<EntityUpdateStatsEventData>({ this });
+    publisher.publish<ActorUpdateStatsEventData>({ this });
 }
 
-void Entity::nextTurn(void) {
+void Actor::nextTurn(void) {
     reset();
 }
 
-void Entity::reset(void) {
+void Actor::reset(void) {
     stats.movesLeft = stats.movesPerTurn;
     path.clear();
 
@@ -398,10 +398,10 @@ void Entity::reset(void) {
         }
     }
 
-    publisher.publish<EntityUpdateStatsEventData>({ this });
+    publisher.publish<ActorUpdateStatsEventData>({ this });
 }
 
-void Entity::endTurn(void) {
+void Actor::endTurn(void) {
     stats.movesLeft = 0;
     path.clear();
 
@@ -409,15 +409,15 @@ void Entity::endTurn(void) {
         weapon->setUsesLeft(0);
     }
 
-    publisher.publish<EntityUpdateStatsEventData>({ this });
+    publisher.publish<ActorUpdateStatsEventData>({ this });
 }
 
-void Entity::clearAllActions(void) {
+void Actor::clearAllActions(void) {
     actionsChain.clear();
     externalActionsChain.clear();
 }
 
-bool Entity::queueAction(
+bool Actor::queueAction(
     ApplicationContext* context,
     std::unique_ptr<Action> action,
     std::function<void(Action&)> onSuccessfulQueue,
@@ -440,7 +440,7 @@ bool Entity::queueAction(
     return true;
 }
 
-std::deque<Action*>& Entity::getActionsChain(int turnNumber) {
+std::deque<Action*>& Actor::getActionsChain(int turnNumber) {
     if(externalActionsChainNeedsRecalculating) {
         recalculateActionsChain();
     }
@@ -448,7 +448,7 @@ std::deque<Action*>& Entity::getActionsChain(int turnNumber) {
     return externalActionsChain[turnNumber];
 }
 
-void Entity::recalculateActionsChain() {
+void Actor::recalculateActionsChain() {
     externalActionsChain.clear();
 
     for (auto& [turnNumber, actionChain] : actionsChain) {
@@ -460,12 +460,12 @@ void Entity::recalculateActionsChain() {
     externalActionsChainNeedsRecalculating = false;
 }
 
-void Entity::popAction(int currentTurnNumber) {
+void Actor::popAction(int currentTurnNumber) {
     actionsChain[currentTurnNumber].pop_front();
     externalActionsChainNeedsRecalculating = true;
 }
 
-void Entity::setParticipantId(int participantId) {
+void Actor::setParticipantId(int participantId) {
     this->participantId = participantId;
 
     for(auto& [id, weapon] : weapons) {
@@ -475,26 +475,26 @@ void Entity::setParticipantId(int participantId) {
     }
  }
 
-int Entity::getParticipantId(void) const {
+int Actor::getParticipantId(void) const {
     return participantId;
 }
 
-bool Entity::hasParticipant(void) const {
+bool Actor::hasParticipant(void) const {
     return participantId != -1;
 }
 
-bool Entity::getIsFrozen(void) const {
+bool Actor::getIsFrozen(void) const {
     return isFrozen;
 }
 
-void Entity::setFrozen(bool isFrozen) {
+void Actor::setFrozen(bool isFrozen) {
     this->isFrozen = isFrozen;
 }
 
-bool Entity::getIsPoisoned(void) const {
+bool Actor::getIsPoisoned(void) const {
     return isPoisoned;
 }
 
-void Entity::setIsPoisoned(bool isPoisoned) {
+void Actor::setIsPoisoned(bool isPoisoned) {
     this->isPoisoned = isPoisoned;
 }

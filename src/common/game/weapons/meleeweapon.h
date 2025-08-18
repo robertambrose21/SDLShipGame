@@ -10,7 +10,7 @@ private:
 
 public:
     MeleeWeapon(
-        Entity* owner, 
+        Actor* owner, 
         ApplicationContext* context,
         Item* item,
         EventPublisher<MeleeWeaponEventData>& publisher,
@@ -21,7 +21,7 @@ public:
     );
 
     MeleeWeapon(
-        Entity* owner, 
+        Actor* owner, 
         ApplicationContext* context,
         Item* item,
         EventPublisher<MeleeWeaponEventData>& publisher,

@@ -2,7 +2,7 @@
 
 #include <deque>
 
-#include "game/entities/entity.h"
+#include "game/actors/actor.h"
 #include "action.h"
 
 class MoveAction : public Action {
@@ -22,13 +22,13 @@ private:
 public:
     MoveAction(
         Participant* participant,
-        Entity* entity, 
+        Actor* actor, 
         const glm::ivec2& position,
         int shortStopSteps = 0
     );
     MoveAction(
         Participant* participant,
-        Entity* entity,
+        Actor* actor,
         int turnNumber,
         const glm::ivec2& position,
         int shortStopSteps = 0

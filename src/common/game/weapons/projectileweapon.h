@@ -15,7 +15,7 @@ private:
 
 public:
     ProjectileWeapon(
-        Entity* owner,
+        Actor* owner,
         ApplicationContext* context,
         Item* item,
         EventPublisher<MeleeWeaponEventData>& publisher,
@@ -27,7 +27,7 @@ public:
     );
 
     ProjectileWeapon(
-        Entity* owner,
+        Actor* owner,
         ApplicationContext* context,
         Item* item,
         EventPublisher<MeleeWeaponEventData>& publisher,

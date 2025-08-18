@@ -10,10 +10,10 @@ add_library(
     effects/effect.cpp
     effects/grideffect.cpp
     effects/effectcontroller.cpp
-    entities/entity.cpp 
-    entities/entitypool.cpp 
-    entities/behaviour/behaviourstrategy.cpp
-    entities/behaviour/chaseandattackstrategy.cpp
+    actors/actor.cpp 
+    actors/actorpool.cpp 
+    actors/behaviour/behaviourstrategy.cpp
+    actors/behaviour/chaseandattackstrategy.cpp
     items/item.cpp
     items/loottable.cpp
     items/itemcontroller.cpp

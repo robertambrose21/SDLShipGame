@@ -62,14 +62,14 @@ public:
 
 class FindPathMessage : public yojimbo::Message {
 public:
-    uint32_t entityId;
+    uint32_t actorId;
     
     int x, y;
     int shortStopSteps;
     int turnNumber;
 
     FindPathMessage() :
-        entityId(0),
+        actorId(0),
         x(0),
         y(0),
         shortStopSteps(0),
@@ -78,7 +78,7 @@ public:
 
     template <typename Stream>
     bool Serialize(Stream& stream) {
-        serialize_uint32(stream, entityId);
+        serialize_uint32(stream, actorId);
         serialize_int(stream, x, 0, 512);
         serialize_int(stream, y, 0, 512);
         serialize_int(stream, shortStopSteps, 0, 512);
@@ -89,11 +89,11 @@ public:
     YOJIMBO_VIRTUAL_SERIALIZE_FUNCTIONS();
 };
 
-class SelectEntityMessage : public yojimbo::Message {
+class SelectActorMessage : public yojimbo::Message {
 public:
     uint32_t id;
 
-    SelectEntityMessage() :
+    SelectActorMessage() :
         id(0)
     { }
 
@@ -108,13 +108,13 @@ public:
 
 class AttackMessage : public yojimbo::Message {
 public:
-    uint32_t entityId;
+    uint32_t actorId;
     int x, y;
     uint8_t weaponIdBytes[16];
     int turnNumber;
 
     AttackMessage() :
-        entityId(0),
+        actorId(0),
         x(0),
         y(0),
         turnNumber(0)
@@ -122,7 +122,7 @@ public:
 
     template <typename Stream>
     bool Serialize(Stream& stream) {
-        serialize_uint32(stream, entityId);
+        serialize_uint32(stream, actorId);
         serialize_int(stream, x, 0, 512);
         serialize_int(stream, y, 0, 512);
         serialize_bytes(stream, weaponIdBytes, 16);
@@ -150,22 +150,22 @@ bool serialize_weapon_state_update(Stream& stream, WeaponStateUpdate& weaponStat
 }
 
 template <typename Stream>
-bool serialize_entity_state_update(Stream& stream, EntityStateUpdate& entityStateUpdate) {
-    serialize_uint32(stream, entityStateUpdate.id);
-    serialize_string(stream, entityStateUpdate.name, sizeof(entityStateUpdate.name));
-    serialize_bits(stream, entityStateUpdate.participantId, 16);
-    serialize_bool(stream, entityStateUpdate.isEngaged);
-    serialize_bits(stream, entityStateUpdate.totalHP, 16);
+bool serialize_actor_state_update(Stream& stream, ActorStateUpdate& actorStateUpdate) {
+    serialize_uint32(stream, actorStateUpdate.id);
+    serialize_string(stream, actorStateUpdate.name, sizeof(actorStateUpdate.name));
+    serialize_bits(stream, actorStateUpdate.participantId, 16);
+    serialize_bool(stream, actorStateUpdate.isEngaged);
+    serialize_bits(stream, actorStateUpdate.totalHP, 16);
     // TODO: This screws up if currentHP goes negative
-    serialize_int(stream, entityStateUpdate.currentHP, -256, 256);
-    serialize_bits(stream, entityStateUpdate.x, 16);
-    serialize_bits(stream, entityStateUpdate.y, 16);
+    serialize_int(stream, actorStateUpdate.currentHP, -256, 256);
+    serialize_bits(stream, actorStateUpdate.x, 16);
+    serialize_bits(stream, actorStateUpdate.y, 16);
 
     // Weapons
-    serialize_bytes(stream, entityStateUpdate.currentWeaponIdBytes, 16);
-    serialize_int(stream, entityStateUpdate.numWeapons, 0, MaxWeapons);
-    for(int j = 0; j < entityStateUpdate.numWeapons; j++) {
-        serialize_weapon_state_update(stream, entityStateUpdate.weaponUpdates[j]);
+    serialize_bytes(stream, actorStateUpdate.currentWeaponIdBytes, 16);
+    serialize_int(stream, actorStateUpdate.numWeapons, 0, MaxWeapons);
+    for(int j = 0; j < actorStateUpdate.numWeapons; j++) {
+        serialize_weapon_state_update(stream, actorStateUpdate.weaponUpdates[j]);
     }
     
     return true;
@@ -180,9 +180,9 @@ public:
 
     template <typename Stream>
     bool Serialize(Stream& stream) {
-        serialize_int(stream, gameStateUpdate.numEntities, 0, MaxEntities);
-        for(int i = 0; i < gameStateUpdate.numEntities; i++) {
-            serialize_entity_state_update(stream, gameStateUpdate.entities[i]);
+        serialize_int(stream, gameStateUpdate.numActors, 0, MaxActors);
+        for(int i = 0; i < gameStateUpdate.numActors; i++) {
+            serialize_actor_state_update(stream, gameStateUpdate.actors[i]);
         }
         
         serialize_int(stream, gameStateUpdate.currentParticipantId, 0, 64);
@@ -401,20 +401,20 @@ public:
 class TakeItemsMessage : public yojimbo::Message {
 public:
     int turnNumber;
-    uint32_t entityId;
+    uint32_t actorId;
     int numItems;
     ItemUpdate items[64];
 
     TakeItemsMessage() :
         turnNumber(0),
-        entityId(0),
+        actorId(0),
         numItems(0)
     { }
 
     template <typename Stream>
     bool Serialize(Stream& stream) {
         serialize_int(stream, turnNumber, -1, 512);
-        serialize_uint32(stream, entityId);
+        serialize_uint32(stream, actorId);
         serialize_int(stream, numItems, 0, 64);
         
         for(int i = 0; i < numItems; i++) {
@@ -431,13 +431,13 @@ public:
 class EquipItemMessage : public yojimbo::Message {
 public:
     uint32_t itemId;
-    uint32_t entityId;
+    uint32_t actorId;
     uint8_t slot;
     bool isUnequip;
 
     EquipItemMessage() :
         itemId(0),
-        entityId(0),
+        actorId(0),
         slot(0),
         isUnequip(false)
     { }
@@ -445,7 +445,7 @@ public:
     template <typename Stream>
     bool Serialize(Stream& stream) {
         serialize_uint32(stream, itemId);
-        serialize_uint32(stream, entityId);
+        serialize_uint32(stream, actorId);
         serialize_bits(stream, slot, 8);
         serialize_bool(stream, isUnequip);
         return true;
@@ -457,20 +457,20 @@ public:
 class EquipWeaponMessage : public yojimbo::Message {
 public:
     uint32_t itemId;
-    uint32_t entityId;
+    uint32_t actorId;
     uint8_t weaponIdBytes[16];
     bool isUnequip;
 
     EquipWeaponMessage() :
         itemId(0),
-        entityId(0),
+        actorId(0),
         isUnequip(false)
     { }
 
     template <typename Stream>
     bool Serialize(Stream& stream) {
         serialize_uint32(stream, itemId);
-        serialize_uint32(stream, entityId);
+        serialize_uint32(stream, actorId);
         serialize_bytes(stream, weaponIdBytes, 16);
         serialize_bool(stream, isUnequip);
         return true;
@@ -505,14 +505,14 @@ public:
     YOJIMBO_VIRTUAL_SERIALIZE_FUNCTIONS();
 };
 
-class ApplyEntityEffectMessage : public yojimbo::Message {
+class ApplyActorEffectMessage : public yojimbo::Message {
 public:
     uint8_t type;
     uint32_t targetId;
     uint8_t participantId;
     EffectStatsUpdate effectStats;
 
-    ApplyEntityEffectMessage() :
+    ApplyActorEffectMessage() :
         type(0),
         targetId(0),
         participantId(0)
@@ -602,21 +602,21 @@ public:
     YOJIMBO_VIRTUAL_SERIALIZE_FUNCTIONS();
 };
 
-class SetEntityPositionMessage : public yojimbo::Message {
+class SetActorPositionMessage : public yojimbo::Message {
 public:
-    uint32_t entityId;
+    uint32_t actorId;
     uint8_t movesLeft;
     uint16_t x, y;
 
-    SetEntityPositionMessage() :
-        entityId(0),
+    SetActorPositionMessage() :
+        actorId(0),
         x(0),
         y(0)
     { }
 
     template <typename Stream>
     bool Serialize(Stream& stream) {
-        serialize_uint32(stream, entityId);
+        serialize_uint32(stream, actorId);
         serialize_bits(stream, movesLeft, 8);
         serialize_bits(stream, x, 16);
         serialize_bits(stream, y, 16);
@@ -627,19 +627,19 @@ public:
     YOJIMBO_VIRTUAL_SERIALIZE_FUNCTIONS();
 };
 
-class RemoveEntityVisibilityMessage : public yojimbo::Message {
+class RemoveActorVisibilityMessage : public yojimbo::Message {
 public:
-    uint32_t entityId;
+    uint32_t actorId;
     uint8_t visibleToParticipantId;
 
-    RemoveEntityVisibilityMessage() :
-        entityId(0),
+    RemoveActorVisibilityMessage() :
+        actorId(0),
         visibleToParticipantId(0)
     { }
 
     template<typename Stream>
     bool Serialize(Stream& stream) {
-        serialize_uint32(stream, entityId);
+        serialize_uint32(stream, actorId);
         serialize_bits(stream, visibleToParticipantId, 8);
 
         return true;
@@ -648,18 +648,18 @@ public:
     YOJIMBO_VIRTUAL_SERIALIZE_FUNCTIONS();
 };
 
-class AddEntityVisibilityMessage : public yojimbo::Message {
+class AddActorVisibilityMessage : public yojimbo::Message {
 public:
-    EntityStateUpdate entity;
+    ActorStateUpdate actor;
     uint8_t visibleToParticipantId;
 
-    AddEntityVisibilityMessage() :
+    AddActorVisibilityMessage() :
         visibleToParticipantId(0)
     { }
 
     template<typename Stream>
     bool Serialize(Stream& stream) {
-        serialize_entity_state_update(stream, entity);
+        serialize_actor_state_update(stream, actor);
         serialize_bits(stream, visibleToParticipantId, 8);
 
         return true;
@@ -908,7 +908,7 @@ public:
 YOJIMBO_MESSAGE_FACTORY_START(GameMessageFactory, (int)GameMessageType::COUNT);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::PING, PingMessage);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::FIND_PATH, FindPathMessage);
-YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::SELECT_ENTITY, SelectEntityMessage);
+YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::SELECT_ENTITY, SelectActorMessage);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::ATTACK_ENTITY, AttackMessage);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::GAME_STATE_UPDATE, GameStateUpdateMessage);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::TEST_MESSAGE, GameTestMessage);
@@ -924,12 +924,12 @@ YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::TAKE_ITEMS, TakeItemsMessage)
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::EQUIP_ITEM, EquipItemMessage);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::EQUIP_WEAPON, EquipWeaponMessage);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::APPLY_DAMAGE, ApplyDamageMessage);
-YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::APPLY_ENTITY_EFFECT, ApplyEntityEffectMessage);
+YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::APPLY_ENTITY_EFFECT, ApplyActorEffectMessage);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::APPLY_GRID_EFFECT, ApplyGridEffectMessage);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::TILES_REVEALED, TilesRevealedMessage);
-YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::SET_ENTITY_POSITION, SetEntityPositionMessage);
-YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::REMOVE_ENTITY_VISIBILITY, RemoveEntityVisibilityMessage);
-YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::ADD_ENTITY_VISIBILITY, AddEntityVisibilityMessage);
+YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::SET_ENTITY_POSITION, SetActorPositionMessage);
+YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::REMOVE_ENTITY_VISIBILITY, RemoveActorVisibilityMessage);
+YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::ADD_ENTITY_VISIBILITY, AddActorVisibilityMessage);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::CREATE_ENGAGEMENT, CreateEngagementMessage);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::ADD_TO_ENGAGEMENT, AddToEngagementMessage);
 YOJIMBO_DECLARE_MESSAGE_TYPE((int)GameMessageType::DISENGAGE, DisengageMessage);

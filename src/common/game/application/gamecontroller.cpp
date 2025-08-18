@@ -57,7 +57,7 @@ void GameController::nextParticipantTurn(uint32_t engagementId) {
 
 void GameController::executeActions(uint32_t engagementId) {
     if(!engagementController->hasEngagement(engagementId)) {
-        spdlog::warn("Engagement {} no longer exists, cannot execute entity actions", engagementId);
+        spdlog::warn("Engagement {} no longer exists, cannot execute actor actions", engagementId);
         return;
     }
 
@@ -68,20 +68,20 @@ void GameController::executeActions(uint32_t engagementId) {
         return;
     }
 
-    for(auto entity : engagement->getCurrentParticipant()->getEntities()) {
-        executeEntityActions(engagement, entity);
+    for(auto actor : engagement->getCurrentParticipant()->getActors()) {
+        executeActorActions(engagement, actor);
     }
 }
 
-void GameController::executeEntityActions(Engagement* engagement, Entity* entity) {
-    bool moreActionsToProcess = !entity->getActionsChain(engagement->getTurnNumber()).empty();
+void GameController::executeActorActions(Engagement* engagement, Actor* actor) {
+    bool moreActionsToProcess = !actor->getActionsChain(engagement->getTurnNumber()).empty();
 
     while(moreActionsToProcess) {
-        auto action = entity->getActionsChain(engagement->getTurnNumber()).front();
+        auto action = actor->getActionsChain(engagement->getTurnNumber()).front();
 
         if(action->isFinished()) {
-            entity->popAction(engagement->getTurnNumber());
-            moreActionsToProcess = !entity->getActionsChain(engagement->getTurnNumber()).empty();
+            actor->popAction(engagement->getTurnNumber());
+            moreActionsToProcess = !actor->getActionsChain(engagement->getTurnNumber()).empty();
         }
         // TODO: If precondition fails - just drop?
         else if(action->passesPrecondition() && !action->isExecuted()) {
@@ -96,7 +96,7 @@ void GameController::executeEntityActions(Engagement* engagement, Entity* entity
 
 Participant* GameController::addParticipant(
     bool isPlayer,
-    const std::vector<Entity*>& entities, 
+    const std::vector<Actor*>& actors, 
     std::unique_ptr<BehaviourStrategy> behaviourStrategy,
     bool isReady
 ) {
@@ -104,13 +104,13 @@ Participant* GameController::addParticipant(
 
     static int id = 0;
 
-    return addParticipant(id++, isPlayer, entities, std::move(behaviourStrategy), isReady);
+    return addParticipant(id++, isPlayer, actors, std::move(behaviourStrategy), isReady);
 }
 
 Participant* GameController::addParticipant(
     int id,
     bool isPlayer,
-    const std::vector<Entity*>& entities, 
+    const std::vector<Actor*>& actors, 
     std::unique_ptr<BehaviourStrategy> behaviourStrategy,
     bool isReady
 ) {
@@ -120,27 +120,27 @@ Participant* GameController::addParticipant(
     participant.setIsReady(isReady);
     participant.setIsPlayer(isPlayer);
     participant.setBehaviourStrategy(std::move(behaviourStrategy));
-    participant.addEntities(entities);
+    participant.addActors(actors);
 
     participants[id] = std::make_unique<Participant>(std::move(participant));
 
     return participants[id].get();
 }
 
-void GameController::addEntityToParticipant(int participantId, Entity* entity) {
+void GameController::addActorToParticipant(int participantId, Actor* actor) {
     game_assert(initialised);
-    game_assert(entity != nullptr);
+    game_assert(actor != nullptr);
 
     if(!participants.contains(participantId)) {
         spdlog::error(
-            "Could not add entity {} to participant with id {} participant does not exist", 
-            entity->toString(),
+            "Could not add actor {} to participant with id {} participant does not exist", 
+            actor->toString(),
             participantId
         );
         return;
     }
 
-    participants[participantId]->addEntity(entity);
+    participants[participantId]->addActor(actor);
 }
 
 Participant* GameController::getParticipant(int id) {
@@ -172,8 +172,8 @@ void GameController::reset(void) {
     game_assert(initialised);
 
     for(auto& [participantId, participant] : participants) {
-        for(auto entity : participant->getEntities()) {
-            entity->nextTurn();
+        for(auto actor : participant->getActors()) {
+            actor->nextTurn();
         }
     }
 }
@@ -240,7 +240,7 @@ bool GameController::queueAction(std::unique_ptr<Action> action) {
         );
     }
 
-    return action->getEntity()->queueAction(
+    return action->getActor()->queueAction(
         context,
         std::move(action),
         [&](auto& action) { publishAction(&action); },

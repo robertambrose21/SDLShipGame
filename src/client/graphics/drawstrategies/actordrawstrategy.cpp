@@ -1,10 +1,10 @@
-#include "entitydrawstrategy.h"
+#include "actordrawstrategy.h"
 
-EntityDrawStrategy::EntityDrawStrategy(WeaponDrawStrategy* weaponDrawStrategy) :
+ActorDrawStrategy::ActorDrawStrategy(WeaponDrawStrategy* weaponDrawStrategy) :
     weaponDrawStrategy(weaponDrawStrategy)
 { }
 
-void EntityDrawStrategy::draw(Entity* drawable, GraphicsContext& graphicsContext) {
+void ActorDrawStrategy::draw(Actor* drawable, GraphicsContext& graphicsContext) {
     auto& gridRenderer = graphicsContext.getGridRenderer();
     auto colour = drawable->getColour();
     auto position = drawable->getPosition();
@@ -40,7 +40,7 @@ void EntityDrawStrategy::draw(Entity* drawable, GraphicsContext& graphicsContext
     drawHealthBar(graphicsContext, position, drawable->getStats().totalHp, drawable->getCurrentHP());
 }
 
-void EntityDrawStrategy::drawHealthBar(
+void ActorDrawStrategy::drawHealthBar(
     GraphicsContext& graphicsContext, 
     const glm::ivec2& position,
     int totalHP,

@@ -17,14 +17,14 @@ private:
 public:
     EquipGearAction(
         Participant* participant, 
-        Entity* entity, 
+        Actor* actor, 
         Item* item, 
         Equippable<Stats::GearStats>::Slot slot, 
         bool isUnequip = false
     );
     EquipGearAction(
         Participant* participant, 
-        Entity* entity,
+        Actor* actor,
         int turnNumber,
         Item* item, 
         Equippable<Stats::GearStats>::Slot slot, 
