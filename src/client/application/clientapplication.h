@@ -7,7 +7,7 @@
 #include "clientstatemachine.h"
 #include "clientstates.h"
 #include "graphics/window.h"
-#include "graphics/drawstrategies/entitydrawstrategy.h"
+#include "graphics/drawstrategies/actordrawstrategy.h"
 #include "graphics/drawstrategies/weapondrawstrategy.h"
 #include "graphics/drawstrategies/projectiledrawstrategy.h"
 #include "graphics/drawstrategies/areaofeffectdrawstrategy.h"
@@ -31,7 +31,7 @@ private:
 
     std::unique_ptr<ClientStateMachine> clientStateMachine;
 
-    std::unique_ptr<EntityDrawStrategy> entityDrawStrategy;
+    std::unique_ptr<ActorDrawStrategy> actorDrawStrategy;
     std::unique_ptr<WeaponDrawStrategy> weaponDrawStrategy;
     std::unique_ptr<ProjectileDrawStrategy> projectileDrawStrategy;
     std::unique_ptr<AreaOfEffectDrawStrategy> areaOfEffectDrawStrategy;
@@ -39,7 +39,7 @@ private:
 
     void drawGameLoop(GraphicsContext& graphicsContext);
 
-    void selectEntityOnStartupHack(void);
+    void selectActorOnStartupHack(void);
 
 public:
     ClientApplication();

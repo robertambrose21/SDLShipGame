@@ -41,17 +41,17 @@ private:
     void receiveSetParticipant(SetParticipantMessage* message);
     void receiveLoadMap(LoadMapMessage* message);
     void receiveFindPath(FindPathMessage* message);
-    void receiveAttackEntity(AttackMessage* message);
+    void receiveAttackActor(AttackMessage* message);
     void receiveNextTurn(NextTurnMessage* message);
     void receiveSpawnItems(SpawnItemsMessage* message);
     void receiveTakeItems(TakeItemsMessage* message);
     void receiveApplyDamageMessage(ApplyDamageMessage* message);
-    void receiveApplyEntityEffectMessage(ApplyEntityEffectMessage* message);
+    void receiveApplyActorEffectMessage(ApplyActorEffectMessage* message);
     void receiveApplyGridEffectMessage(ApplyGridEffectMessage* message);
     void receiveTilesRevealedMessage(TilesRevealedMessage* message);
-    void receiveSetEntityPositionMessage(SetEntityPositionMessage* message);
-    void receiveAddEntityVisibilityMessage(AddEntityVisibilityMessage* message);
-    void receiveRemoveEntityVisibilityMessage(RemoveEntityVisibilityMessage* message);
+    void receiveSetActorPositionMessage(SetActorPositionMessage* message);
+    void receiveAddActorVisibilityMessage(AddActorVisibilityMessage* message);
+    void receiveRemoveActorVisibilityMessage(RemoveActorVisibilityMessage* message);
 
     // Engagements
     void receiveCreateEngagementMessage(CreateEngagementMessage* message);

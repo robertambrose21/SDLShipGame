@@ -18,14 +18,14 @@ private:
 public:
     AttackAction(
         Participant* participant,
-        Entity* entity,
+        Actor* actor,
         Weapon* weapon,
         const glm::ivec2& target,
         bool isAnimationOnly = false
     );
     AttackAction(
         Participant* participant,
-        Entity* entity,
+        Actor* actor,
         int turnNumber,
         Weapon* weapon,
         const glm::ivec2& target,

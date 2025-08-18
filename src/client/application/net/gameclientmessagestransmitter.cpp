@@ -13,14 +13,14 @@ void GameClientMessagesTransmitter::sendActionsRollMessage(int participantId) {
 }
 
 void GameClientMessagesTransmitter::sendFindPathMessage(
-    uint32_t entityId,
+    uint32_t actorId,
     const glm::ivec2& position,
     int shortStopSteps,
     int turnNumber
 ) {
     FindPathMessage* message = (FindPathMessage*) client.createMessage(GameMessageType::FIND_PATH);
 
-    message->entityId = entityId;
+    message->actorId = actorId;
     message->x = position.x;
     message->y = position.y;
     message->shortStopSteps = shortStopSteps;
@@ -29,23 +29,23 @@ void GameClientMessagesTransmitter::sendFindPathMessage(
     client.sendMessage(message);
 }
 
-void GameClientMessagesTransmitter::sendSelectEntityMessage(uint32_t entityId) {
-    SelectEntityMessage* message = (SelectEntityMessage*) client.createMessage(GameMessageType::SELECT_ENTITY);
+void GameClientMessagesTransmitter::sendSelectActorMessage(uint32_t actorId) {
+    SelectActorMessage* message = (SelectActorMessage*) client.createMessage(GameMessageType::SELECT_ENTITY);
 
-    message->id = entityId;
+    message->id = actorId;
 
     client.sendMessage(message);
 }
 
 void GameClientMessagesTransmitter::sendAttackMessage(
-    uint32_t entityId, 
+    uint32_t actorId, 
     const glm::ivec2& target,
     UUID weaponId,
     int turnNumber
 ) {
     AttackMessage* message = (AttackMessage*) client.createMessage(GameMessageType::ATTACK_ENTITY);
     
-    message->entityId = entityId;
+    message->actorId = actorId;
     message->x = target.x;
     message->y = target.y;
     memcpy(message->weaponIdBytes, &weaponId.getBytes()[0], 16);
@@ -70,22 +70,22 @@ void GameClientMessagesTransmitter::sendSetParticipantAckMessage(int participant
     client.sendMessage(message);
 }
 
-void GameClientMessagesTransmitter::sendEquipItemMessage(uint32_t itemId, uint32_t entityId, Equippable<Stats::GearStats>::Slot slot, bool isUnequip) {
+void GameClientMessagesTransmitter::sendEquipItemMessage(uint32_t itemId, uint32_t actorId, Equippable<Stats::GearStats>::Slot slot, bool isUnequip) {
     EquipItemMessage* message = (EquipItemMessage*) client.createMessage(GameMessageType::EQUIP_ITEM);
 
     message->itemId = itemId;
-    message->entityId = entityId;
+    message->actorId = actorId;
     message->slot = slot;
     message->isUnequip = isUnequip;
 
     client.sendMessage(message);
 }
 
-void GameClientMessagesTransmitter::sendEquipWeaponMessage(uint32_t itemId, uint32_t entityId, UUID weaponId, bool isUnequip) {
+void GameClientMessagesTransmitter::sendEquipWeaponMessage(uint32_t itemId, uint32_t actorId, UUID weaponId, bool isUnequip) {
     EquipWeaponMessage* message = (EquipWeaponMessage*) client.createMessage(GameMessageType::EQUIP_WEAPON);
 
     message->itemId = itemId;
-    message->entityId = entityId;
+    message->actorId = actorId;
     memcpy(message->weaponIdBytes, &weaponId.getBytes()[0], 16);
     message->isUnequip = isUnequip;
 

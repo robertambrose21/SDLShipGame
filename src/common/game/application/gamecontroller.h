@@ -7,11 +7,11 @@
 #include <functional>
 #include <ranges>
 
-#include "game/entities/entity.h"
+#include "game/actors/actor.h"
 #include "core/util/gameassert.h"
 #include "core/util/randomutils.h"
 #include "core/event/eventpublisher.h"
-#include "game/entities/behaviour/behaviourstrategy.h"
+#include "game/actors/behaviour/behaviourstrategy.h"
 #include "game/application/applicationcontext.h"
 #include "game/actions/action.h"
 #include "game/event/events.h"
@@ -46,17 +46,17 @@ public:
 
     Participant* addParticipant(
         bool isPlayer,
-        const std::vector<Entity*>& entities,
+        const std::vector<Actor*>& actors,
         std::unique_ptr<BehaviourStrategy> behaviourStrategy = nullptr,
         bool isReady = true);
     Participant* addParticipant(
         int id,
         bool isPlayer,
-        const std::vector<Entity*>& entities, 
+        const std::vector<Actor*>& actors, 
         std::unique_ptr<BehaviourStrategy> behaviourStrategy = nullptr,
         bool isReady = true
     );
-    void addEntityToParticipant(int participantId, Entity* entity);
+    void addActorToParticipant(int participantId, Actor* actor);
     Participant* getParticipant(int id);
     std::vector<Participant*> getParticipants(void);
     bool hasParticipant(int id);
@@ -85,7 +85,7 @@ protected:
     std::function<void()> onAllParticipantsSet;
 
     void executeActions(uint32_t engagementId);
-    void executeEntityActions(Engagement* engagement, Entity* entity);
+    void executeActorActions(Engagement* engagement, Actor* actor);
     void endCurrentParticipantTurn(uint32_t engagementId);
     void nextParticipantTurn(uint32_t engagementId);
 

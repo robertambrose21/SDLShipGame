@@ -25,17 +25,17 @@ void GameClientMessagesReceiver::receiveMessage(yojimbo::Message* message) {
         case (int) GameMessageType::SET_PARTICIPANT:            { receiveSetParticipant((SetParticipantMessage*) message); break; }
         case (int) GameMessageType::LOAD_MAP:                   { receiveLoadMap((LoadMapMessage*) message); break; }
         case (int) GameMessageType::FIND_PATH:                  { receiveFindPath((FindPathMessage*) message); break; }
-        case (int) GameMessageType::ATTACK_ENTITY:              { receiveAttackEntity((AttackMessage*) message); break; }
+        case (int) GameMessageType::ATTACK_ENTITY:              { receiveAttackActor((AttackMessage*) message); break; }
         case (int) GameMessageType::NEXT_TURN:                  { receiveNextTurn((NextTurnMessage*) message); break; }
         case (int) GameMessageType::SPAWN_ITEMS:                { receiveSpawnItems((SpawnItemsMessage*) message); break; }
         case (int) GameMessageType::TAKE_ITEMS:                 { receiveTakeItems((TakeItemsMessage*) message); break; }
         case (int) GameMessageType::APPLY_DAMAGE:               { receiveApplyDamageMessage((ApplyDamageMessage*) message); break; }
-        case (int) GameMessageType::APPLY_ENTITY_EFFECT:        { receiveApplyEntityEffectMessage((ApplyEntityEffectMessage*) message); break; }
+        case (int) GameMessageType::APPLY_ENTITY_EFFECT:        { receiveApplyActorEffectMessage((ApplyActorEffectMessage*) message); break; }
         case (int) GameMessageType::APPLY_GRID_EFFECT:          { receiveApplyGridEffectMessage((ApplyGridEffectMessage*) message); break; }
         case (int) GameMessageType::TILES_REVEALED:             { receiveTilesRevealedMessage((TilesRevealedMessage*) message); break; }
-        case (int) GameMessageType::SET_ENTITY_POSITION:        { receiveSetEntityPositionMessage((SetEntityPositionMessage*) message); break; }
-        case (int) GameMessageType::ADD_ENTITY_VISIBILITY:      { receiveAddEntityVisibilityMessage((AddEntityVisibilityMessage*) message); break; }
-        case (int) GameMessageType::REMOVE_ENTITY_VISIBILITY:   { receiveRemoveEntityVisibilityMessage((RemoveEntityVisibilityMessage*) message); break; }
+        case (int) GameMessageType::SET_ENTITY_POSITION:        { receiveSetActorPositionMessage((SetActorPositionMessage*) message); break; }
+        case (int) GameMessageType::ADD_ENTITY_VISIBILITY:      { receiveAddActorVisibilityMessage((AddActorVisibilityMessage*) message); break; }
+        case (int) GameMessageType::REMOVE_ENTITY_VISIBILITY:   { receiveRemoveActorVisibilityMessage((RemoveActorVisibilityMessage*) message); break; }
         case (int) GameMessageType::CREATE_ENGAGEMENT:          { receiveCreateEngagementMessage((CreateEngagementMessage*) message); break; }
         case (int) GameMessageType::ADD_TO_ENGAGEMENT:          { receiveAddToEngagementMessage((AddToEngagementMessage*) message); break; }
         case (int) GameMessageType::DISENGAGE:                  { receiveDisenageMessage((DisengageMessage*) message); break; }
@@ -54,8 +54,8 @@ void GameClientMessagesReceiver::receiveMessage(yojimbo::Message* message) {
 }
 
 void GameClientMessagesReceiver::receiveGameStateUpdate(GameStateUpdateMessage* message) {
-    spdlog::trace("Got game state update, num entities: [{}]", message->gameStateUpdate.numEntities);
-    context.getEntityPool()->addGameStateUpdate(message->gameStateUpdate);
+    spdlog::trace("Got game state update, num actors: [{}]", message->gameStateUpdate.numActors);
+    context.getActorPool()->addGameStateUpdate(message->gameStateUpdate);
 }
 
 void GameClientMessagesReceiver::receiveTestMessage(GameTestMessage* message) {
@@ -108,40 +108,40 @@ void GameClientMessagesReceiver::receiveLoadMap(LoadMapMessage* message) {
 }
 
 void GameClientMessagesReceiver::receiveFindPath(FindPathMessage* message) {
-    if(!context.getEntityPool()->hasEntity(message->entityId)) {
+    if(!context.getActorPool()->hasActor(message->actorId)) {
         return;
     }
 
-    auto const& entity = context.getEntityPool()->getEntity(message->entityId);
-    auto participant = context.getGameController()->getParticipant(entity->getParticipantId());
+    auto const& actor = context.getActorPool()->getActor(message->actorId);
+    auto participant = context.getGameController()->getParticipant(actor->getParticipantId());
     
     context.getGameController()->queueAction(std::make_unique<MoveAction>(
         participant,
-        entity, 
+        actor, 
         message->turnNumber, 
         glm::ivec2(message->x, message->y), 
         message->shortStopSteps
     ));
 }
 
-void GameClientMessagesReceiver::receiveAttackEntity(AttackMessage* message) {
-    spdlog::trace("Received attack entity message {} -> ({}, {})", message->entityId, message->x, message->y);
-    auto entityPool = context.getEntityPool();
+void GameClientMessagesReceiver::receiveAttackActor(AttackMessage* message) {
+    spdlog::trace("Received attack actor message {} -> ({}, {})", message->actorId, message->x, message->y);
+    auto actorPool = context.getActorPool();
 
-    if(!entityPool->hasEntity(message->entityId)) {
+    if(!actorPool->hasActor(message->actorId)) {
         return;
     }
 
     auto weaponId = UUID::fromBytes(message->weaponIdBytes);
-    auto const& entity = entityPool->getEntity(message->entityId);
-    auto participant = context.getGameController()->getParticipant(entity->getParticipantId());
+    auto const& actor = actorPool->getActor(message->actorId);
+    auto participant = context.getGameController()->getParticipant(actor->getParticipantId());
 
-    for(auto weapon : entity->getWeapons()) {
+    for(auto weapon : actor->getWeapons()) {
         if(weapon->getId() == weaponId) {
             auto isQueued = context.getGameController()->queueAction(
                 std::make_unique<AttackAction>(
                     participant,
-                    entity, 
+                    actor, 
                     message->turnNumber, 
                     weapon, 
                     glm::ivec2(message->x, message->y), 
@@ -171,14 +171,14 @@ void GameClientMessagesReceiver::receiveSpawnItems(SpawnItemsMessage* message) {
 }
 
 void GameClientMessagesReceiver::receiveTakeItems(TakeItemsMessage* message) {
-    auto entityPool = context.getEntityPool();
+    auto actorPool = context.getActorPool();
 
-    if(!entityPool->hasEntity(message->entityId)) {
+    if(!actorPool->hasActor(message->actorId)) {
         return;
     }
 
-    auto const& entity = entityPool->getEntity(message->entityId);
-    auto participant = context.getGameController()->getParticipant(entity->getParticipantId());
+    auto const& actor = actorPool->getActor(message->actorId);
+    auto participant = context.getGameController()->getParticipant(actor->getParticipantId());
 
     std::vector<Item*> itemsToTake;
 
@@ -194,7 +194,7 @@ void GameClientMessagesReceiver::receiveTakeItems(TakeItemsMessage* message) {
         context.getGameController()->executeActionImmediately(
             std::make_unique<TakeItemAction>(
                 participant,
-                entity,
+                actor,
                 itemsToTake
             )
         );
@@ -203,7 +203,7 @@ void GameClientMessagesReceiver::receiveTakeItems(TakeItemsMessage* message) {
         context.getGameController()->queueAction(
             std::make_unique<TakeItemAction>(
                 participant,
-                entity,
+                actor,
                 message->turnNumber,
                 itemsToTake
             )
@@ -212,27 +212,27 @@ void GameClientMessagesReceiver::receiveTakeItems(TakeItemsMessage* message) {
 }
 
 void GameClientMessagesReceiver::receiveApplyDamageMessage(ApplyDamageMessage* message) {
-    auto entityPool = context.getEntityPool();
+    auto actorPool = context.getActorPool();
 
-    if(!entityPool->hasEntity(message->targetId)) {
+    if(!actorPool->hasActor(message->targetId)) {
         return;
     }
 
-    auto const& entity = entityPool->getEntity(message->targetId);
+    auto const& actor = actorPool->getActor(message->targetId);
 
-    entity->takeDamage(message->damage);
+    actor->takeDamage(message->damage);
 
-    publish<ApplyDamageEventData>({ message->fromId, entity, (DamageType) message->source, message->damage });
+    publish<ApplyDamageEventData>({ message->fromId, actor, (DamageType) message->source, message->damage });
 }
 
-void GameClientMessagesReceiver::receiveApplyEntityEffectMessage(ApplyEntityEffectMessage* message) {
-    auto entityPool = context.getEntityPool();
+void GameClientMessagesReceiver::receiveApplyActorEffectMessage(ApplyActorEffectMessage* message) {
+    auto actorPool = context.getActorPool();
 
-    if(!entityPool->hasEntity(message->targetId)) {
+    if(!actorPool->hasActor(message->targetId)) {
         return;
     }
 
-    auto const& target = entityPool->getEntity(message->targetId);
+    auto const& target = actorPool->getActor(message->targetId);
 
     std::vector<uint32_t> damageTicks;
     for(int i = 0; i < message->effectStats.numDamageTicks; i++) {
@@ -292,32 +292,32 @@ void GameClientMessagesReceiver::receiveTilesRevealedMessage(TilesRevealedMessag
     context.getVisibilityController()->revealTiles(message->participantId, tiles);
 }
 
-void GameClientMessagesReceiver::receiveSetEntityPositionMessage(SetEntityPositionMessage* message) {
-    if(!context.getEntityPool()->hasEntity(message->entityId)) {
-        spdlog::debug("Cannot set position for unrecognized entity with id {}", message->entityId);
+void GameClientMessagesReceiver::receiveSetActorPositionMessage(SetActorPositionMessage* message) {
+    if(!context.getActorPool()->hasActor(message->actorId)) {
+        spdlog::debug("Cannot set position for unrecognized actor with id {}", message->actorId);
         return;
     }
 
-    auto entity = context.getEntityPool()->getEntity(message->entityId);
+    auto actor = context.getActorPool()->getActor(message->actorId);
 
-    entity->setPosition(glm::ivec2(message->x, message->y));
-    entity->setMovesLeft(message->movesLeft);
+    actor->setPosition(glm::ivec2(message->x, message->y));
+    actor->setMovesLeft(message->movesLeft);
 }
 
 
-void GameClientMessagesReceiver::receiveRemoveEntityVisibilityMessage(RemoveEntityVisibilityMessage* message) {
+void GameClientMessagesReceiver::receiveRemoveActorVisibilityMessage(RemoveActorVisibilityMessage* message) {
     auto clientParticipant = playerController->getParticipant();
 
     spdlog::trace(
-        "Received RemoveEntityVisibilityMessage for entity id {} and participant {}", 
-        message->entityId,
+        "Received RemoveActorVisibilityMessage for actor id {} and participant {}", 
+        message->actorId,
         clientParticipant->getId()
     );
     
     if(message->visibleToParticipantId != clientParticipant->getId()) {
         std::cout 
-            << "Cannot set visibility for entity with id "
-            << message->entityId
+            << "Cannot set visibility for actor with id "
+            << message->actorId
             << " message is for participant "
             << message->visibleToParticipantId
             << " and this is participant "
@@ -327,30 +327,30 @@ void GameClientMessagesReceiver::receiveRemoveEntityVisibilityMessage(RemoveEnti
     }
 
 
-    if(context.getEntityPool()->hasEntity(message->entityId)) {
-        auto entityToRemove = context.getEntityPool()->getEntity(message->entityId);
-        clientParticipant->removeVisibleEntity(entityToRemove);
+    if(context.getActorPool()->hasActor(message->actorId)) {
+        auto actorToRemove = context.getActorPool()->getActor(message->actorId);
+        clientParticipant->removeVisibleActor(actorToRemove);
 
-        context.getEntityPool()->removeEntity(message->entityId);
+        context.getActorPool()->removeActor(message->actorId);
     }
     else {
-        std::cout << std::format("Warning: removing entity which doesn't exist {}", message->entityId) << std::endl;
+        std::cout << std::format("Warning: removing actor which doesn't exist {}", message->actorId) << std::endl;
     }
 }
 
-void GameClientMessagesReceiver::receiveAddEntityVisibilityMessage(AddEntityVisibilityMessage* message) {
+void GameClientMessagesReceiver::receiveAddActorVisibilityMessage(AddActorVisibilityMessage* message) {
     auto clientParticipant = playerController->getParticipant();
 
     spdlog::trace(
-        "Received AddEntityVisibilityMessage for entity id {} and participant {}", 
-        message->entity.id,
+        "Received AddActorVisibilityMessage for actor id {} and participant {}", 
+        message->actor.id,
         clientParticipant->getId()
     );
 
     if(message->visibleToParticipantId != clientParticipant->getId()) {
         std::cout 
-            << "Cannot set visibility for entity with id "
-            << message->entity.id
+            << "Cannot set visibility for actor with id "
+            << message->actor.id
             << " message is for participant "
             << message->visibleToParticipantId
             << " and this is participant "
@@ -359,48 +359,48 @@ void GameClientMessagesReceiver::receiveAddEntityVisibilityMessage(AddEntityVisi
         return;
     }
 
-    auto entityStateUpdate = message->entity;
+    auto actorStateUpdate = message->actor;
 
-    if(context.getEntityPool()->hasEntity(entityStateUpdate.id)) {
-        std::cout << "Entity with id " << entityStateUpdate.id << " already exists and is visible" << std::endl;
+    if(context.getActorPool()->hasActor(actorStateUpdate.id)) {
+        std::cout << "Actor with id " << actorStateUpdate.id << " already exists and is visible" << std::endl;
         return;
     }
 
-    auto entity = context.getEntityPool()->addEntity(message->entity.name, message->entity.id);
+    auto actor = context.getActorPool()->addActor(message->actor.name, message->actor.id);
 
-    if(!context.getGameController()->hasParticipant(message->entity.participantId)) {
+    if(!context.getGameController()->hasParticipant(message->actor.participantId)) {
         spdlog::warn(
-            "Cannot add entity {} which has a non-existant participant {}",
-            entity->toString(),
-            message->entity.participantId
+            "Cannot add actor {} which has a non-existant participant {}",
+            actor->toString(),
+            message->actor.participantId
         );
         return;
     }
 
-    context.getGameController()->getParticipant(message->entity.participantId)->addEntity(entity);
+    context.getGameController()->getParticipant(message->actor.participantId)->addActor(actor);
 
-    for(int j = 0; j < entityStateUpdate.numWeapons; j++) {
-        auto const& weaponUpdate = entityStateUpdate.weaponUpdates[j];
+    for(int j = 0; j < actorStateUpdate.numWeapons; j++) {
+        auto const& weaponUpdate = actorStateUpdate.weaponUpdates[j];
         auto weaponId = UUID::fromBytes(weaponUpdate.idBytes);
         
-        if(!entity->hasWeapon(weaponId)) {
-            auto weapon = context.getWeaponController()->createWeapon(weaponId, weaponUpdate.name, entity);
+        if(!actor->hasWeapon(weaponId)) {
+            auto weapon = context.getWeaponController()->createWeapon(weaponId, weaponUpdate.name, actor);
             
             if(weapon->getItem() != nullptr && weaponUpdate.hasItem) {
                 weapon->getItem()->setId(weaponUpdate.itemId);
             }
 
-            entity->addWeapon(std::move(weapon));
+            actor->addWeapon(std::move(weapon));
         }
     }
 
-    EntityStateUpdate::deserialize(message->entity, entity);
+    ActorStateUpdate::deserialize(message->actor, actor);
 
-    if(clientParticipant->hasVisibleEntity(entity)) {
-        std::cout << std::format("Warning: received already visible entity {}", entity->getId()) << std::endl;
+    if(clientParticipant->hasVisibleActor(actor)) {
+        std::cout << std::format("Warning: received already visible actor {}", actor->getId()) << std::endl;
     }
     
-    clientParticipant->addVisibleEntity(entity);
+    clientParticipant->addVisibleActor(actor);
 }
 
 void GameClientMessagesReceiver::receiveCreateEngagementMessage(CreateEngagementMessage* message) {

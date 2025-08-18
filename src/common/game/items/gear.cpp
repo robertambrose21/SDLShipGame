@@ -25,6 +25,6 @@ Stats::GearStats Gear::getStats(void) {
     return item->getStats().gear;
 }
 
-void Gear::addTo(Stats::EntityStats& entityStats) {
-    Stats::addEquipmentStatsToEntity(entityStats, getStats());
+void Gear::addTo(Stats::ActorStats& actorStats) {
+    Stats::addEquipmentStatsToActor(actorStats, getStats());
 }

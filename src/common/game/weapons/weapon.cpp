@@ -1,7 +1,7 @@
 #include "weapon.h"
 
 Weapon::Weapon(
-    Entity* owner,
+    Actor* owner,
     ApplicationContext* context,
     Item* item,
     EventPublisher<MeleeWeaponEventData>& publisher,
@@ -24,7 +24,7 @@ Weapon::Weapon(
 }
 
 Weapon::Weapon(
-    Entity* owner,
+    Actor* owner,
     ApplicationContext* context,
     Item* item,
     EventPublisher<MeleeWeaponEventData>& publisher,
@@ -90,7 +90,7 @@ std::string Weapon::getName(void) const {
     return name;
 }
 
-Entity* Weapon::getOwner(void) {
+Actor* Weapon::getOwner(void) {
     return owner;
 }
 
@@ -102,6 +102,6 @@ Item* Weapon::getItem(void) {
     return item;
 }
 
-void Weapon::addTo(Stats::EntityStats& entityStats) {
-    Stats::addEquipmentStatsToEntity(entityStats, getStats());
+void Weapon::addTo(Stats::ActorStats& actorStats) {
+    Stats::addEquipmentStatsToActor(actorStats, getStats());
 }

@@ -16,14 +16,14 @@
 
 class GraphicsContext;
 
-// TODO: This is potentially overloaded - entities/projectiles and everything else call the 'draw' function
+// TODO: This is potentially overloaded - actors/projectiles and everything else call the 'draw' function
 // This is currently the 'GameRenderer' not the grid renderer. Split up at some point
 class GridRenderer : 
     public EventSubscriber<TileEventData>, 
     public EventSubscriber<GridEffectEvent>,
     public EventSubscriber<GridDirtyEventData>,
     public EventSubscriber<TilesRevealedEventData>,
-    public EventSubscriber<EntitySetPositionEventData>
+    public EventSubscriber<ActorSetPositionEventData>
 {
 private:
     typedef struct _chunk {
@@ -48,7 +48,7 @@ private:
     std::vector<std::unique_ptr<Chunk>> chunks;
     Grid* grid;
     VisiblityController* visiblityController;
-    EntityPool* entityPool;
+    ActorPool* actorPool;
 
     std::vector<std::unique_ptr<Chunk>> createChunks(void);
     void buildChunkTexture(GraphicsContext& graphicsContext, Chunk* chunk);
@@ -57,7 +57,7 @@ private:
     void buildFogBorders(GraphicsContext& graphicsContext, int xMin, int xMax, int yMin, int yMax);
     void buildFogTiles(
         GraphicsContext& graphicsContext, 
-        Entity* entity, 
+        Actor* actor, 
         int xMin, 
         int xMax, 
         int yMin, 
@@ -75,7 +75,7 @@ public:
     GridRenderer(
         Grid* grid, 
         VisiblityController* visiblityController,
-        EntityPool* entityPool,
+        ActorPool* actorPool,
         int windowHeight
     );
 
@@ -94,7 +94,7 @@ public:
     void onPublish(const Event<GridEffectEvent>& event);
     void onPublish(const Event<GridDirtyEventData>& event);
     void onPublish(const Event<TilesRevealedEventData>& event);
-    void onPublish(const Event<EntitySetPositionEventData>& event);
+    void onPublish(const Event<ActorSetPositionEventData>& event);
 
     Grid* getGrid(void);
     Camera& getCamera(void);

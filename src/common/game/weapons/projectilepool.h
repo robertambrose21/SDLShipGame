@@ -5,7 +5,7 @@
 
 #include "core/json.hpp"
 #include "projectile.h"
-#include "game/entities/entity.h"
+#include "game/actors/actor.h"
 #include "areaofeffectpool.h"
 #include "game/effects/effect.h"
 #include "core/event/eventpublisher.h"
@@ -33,8 +33,8 @@ private:
 
     std::map<std::string, ProjectileDefinition> projectileDefinitions;
 
-    std::map<Entity*, std::vector<std::unique_ptr<Projectile>>> projectiles;
-    std::map<Entity*, std::vector<int>> projectilesForDeletion;
+    std::map<Actor*, std::vector<std::unique_ptr<Projectile>>> projectiles;
+    std::map<Actor*, std::vector<int>> projectilesForDeletion;
 
     ApplicationContext* context;
     bool initialised;
@@ -47,12 +47,12 @@ public:
     ProjectilePool();
 
     void initialise(ApplicationContext& context);
-    void add(std::unique_ptr<Projectile> projectile, Entity* owner);
+    void add(std::unique_ptr<Projectile> projectile, Actor* owner);
     Projectile::Blueprint create(const std::string& name);
 
     void update(int64_t timeSinceLastFrame);
 
-    std::vector<Projectile*> getProjectilesForOwner(Entity* owner);
+    std::vector<Projectile*> getProjectilesForOwner(Actor* owner);
     std::vector<Projectile*> getAllProjectiles(void);
-    int getNumProjectilesForOwner(Entity* owner);
+    int getNumProjectilesForOwner(Actor* owner);
 };

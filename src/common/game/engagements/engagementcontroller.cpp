@@ -118,10 +118,10 @@ uint32_t EngagementController::merge(
         float engagementBAverageSpeed = 0.0f;
 
         for(auto participant : engagementA->getParticipants()) {
-            engagementAAverageSpeed += participant->getAverageEntitySpeed();
+            engagementAAverageSpeed += participant->getAverageActorSpeed();
         }
         for(auto participant : engagementB->getParticipants()) {
-            engagementBAverageSpeed += participant->getAverageEntitySpeed();
+            engagementBAverageSpeed += participant->getAverageActorSpeed();
         }
 
         // TODO: If the same, consider another heuristic - probably just random and have some kind of announcement on screen

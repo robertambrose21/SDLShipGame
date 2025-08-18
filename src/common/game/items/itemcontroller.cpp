@@ -261,13 +261,13 @@ std::vector<Item*> ItemController::getWorldItems(void) {
     return worldItems;
 }
 
-void ItemController::onPublish(const Event<EntityEventData>& event) {
-    auto entity = event.data.entity;
-    auto itemsDropped = context->getEntityPool()->getLootTable(entity->getName()).generateItems();
+void ItemController::onPublish(const Event<ActorEventData>& event) {
+    auto actor = event.data.actor;
+    auto itemsDropped = context->getActorPool()->getLootTable(actor->getName()).generateItems();
 
     if(itemsDropped.empty()) {
         return;
     }    
 
-    addItems(itemsDropped, entity->getPosition(), entity == nullptr ? Item::UnknownOwner : entity->toString());
+    addItems(itemsDropped, actor->getPosition(), actor == nullptr ? Item::UnknownOwner : actor->toString());
 }

@@ -7,7 +7,7 @@
 #include <string>
 
 #include "core/json.hpp"
-#include "entity.h"
+#include "actor.h"
 #include "game/application/gamecontroller.h"
 #include "game/weapons/weaponcontroller.h"
 #include "game/items/itemcontroller.h"
@@ -20,9 +20,9 @@ using json = nlohmann::json;
 
 struct GameStateUpdate;
 
-class EntityPool : public EventPublisher<EntityEventData, EntitySetPositionEventData, EntityUpdateStatsEventData> {
+class ActorPool : public EventPublisher<ActorEventData, ActorSetPositionEventData, ActorUpdateStatsEventData> {
 private:
-    typedef struct _entityDefinition {
+    typedef struct _actorDefinition {
         std::string filename;
         std::string name;
         uint32_t textureId;
@@ -31,47 +31,47 @@ private:
         int hp;
         int armour;
         LootTable lootTable;
-    } EntityDefinition;
+    } ActorDefinition;
 
     typedef struct _chunkedGameStateUpdate {
         std::vector<GameStateUpdate> pendingUpdates;
         int numExpectedChunks;        
     } ChunkedGameStateUpdate;
 
-    std::map<std::string, EntityDefinition> entityDefinitions;
+    std::map<std::string, ActorDefinition> actorDefinitions;
 
-    std::set<uint32_t> entitiesForDeletion;
-    std::map<uint32_t, std::unique_ptr<Entity>> entities;
+    std::set<uint32_t> actorsForDeletion;
+    std::map<uint32_t, std::unique_ptr<Actor>> actors;
 
     std::map<uint8_t, ChunkedGameStateUpdate> pendingChunkedUpdates;
 
     ApplicationContext* context;
     bool initialised;
 
-    void updateEntity(Entity* entity, int64_t timeSinceLastFrame, bool& quit);
-    void loadEntityDefinitions(void);
+    void updateActor(Actor* actor, int64_t timeSinceLastFrame, bool& quit);
+    void loadActorDefinitions(void);
     void synchronize(void);
     bool applyChunkedGameStateUpdate(const ChunkedGameStateUpdate& chunked);
-    void killEntity(uint32_t entityId);
+    void killActor(uint32_t actorId);
 
 public:
-    EntityPool();
+    ActorPool();
 
     void initialise(ApplicationContext& context);
 
-    void updateEntities(int64_t timeSinceLastFrame, bool& quit);
+    void updateActors(int64_t timeSinceLastFrame, bool& quit);
 
     void addGameStateUpdate(const GameStateUpdate& update);
 
-    Entity* addEntity(std::unique_ptr<Entity> entity);
-    Entity* addEntity(const std::string& name);
-    Entity* addEntity(const std::string& name, uint32_t id);
-    void removeEntity(uint32_t id);
-    std::vector<Entity*> getEntities(void);
-    Entity* getEntity(uint32_t id);
-    bool hasEntity(uint32_t id);
+    Actor* addActor(std::unique_ptr<Actor> actor);
+    Actor* addActor(const std::string& name);
+    Actor* addActor(const std::string& name, uint32_t id);
+    void removeActor(uint32_t id);
+    std::vector<Actor*> getActors(void);
+    Actor* getActor(uint32_t id);
+    bool hasActor(uint32_t id);
 
-    Entity* findClosestTarget(Entity* attacker, int participantId);
+    Actor* findClosestTarget(Actor* attacker, int participantId);
 
-    LootTable getLootTable(const std::string& entityName);
+    LootTable getLootTable(const std::string& actorName);
 };

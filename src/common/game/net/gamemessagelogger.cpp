@@ -10,18 +10,18 @@ void GameMessageLogger::logMessage(yojimbo::Message* message, bool isIncoming) {
         case (int) GameMessageType::SET_PARTICIPANT:        { logSetParticipant((SetParticipantMessage*) message, isIncoming); break; }
         case (int) GameMessageType::LOAD_MAP:               { logLoadMap((LoadMapMessage*) message, isIncoming); break; }
         case (int) GameMessageType::FIND_PATH:              { logFindPath((FindPathMessage*) message, isIncoming); break; }
-        case (int) GameMessageType::ATTACK_ENTITY:          { logAttackEntity((AttackMessage*) message, isIncoming); break; }
+        case (int) GameMessageType::ATTACK_ENTITY:          { logAttackActor((AttackMessage*) message, isIncoming); break; }
         case (int) GameMessageType::NEXT_TURN:              { logNextTurn((NextTurnMessage*) message, isIncoming); break; }
         case (int) GameMessageType::SPAWN_ITEMS:            { logSpawnItems((SpawnItemsMessage*) message, isIncoming); break; }
         case (int) GameMessageType::TAKE_ITEMS:             { logTakeItems((TakeItemsMessage*) message, isIncoming); break; }
         case (int) GameMessageType::APPLY_DAMAGE:           { logApplyDamage((ApplyDamageMessage*) message, isIncoming); break; }
-        case (int) GameMessageType::APPLY_ENTITY_EFFECT:    { logApplyEntityEffect((ApplyEntityEffectMessage*) message, isIncoming); break; }
+        case (int) GameMessageType::APPLY_ENTITY_EFFECT:    { logApplyActorEffect((ApplyActorEffectMessage*) message, isIncoming); break; }
         case (int) GameMessageType::APPLY_GRID_EFFECT:      { logApplyGridEffect((ApplyGridEffectMessage*) message, isIncoming); break; }
         case (int) GameMessageType::SET_PARTICIPANT_ACK:    { logSetParticipantAck((SetParticipantAckMessage*) message, isIncoming); break; }
         case (int) GameMessageType::PASS_PARTICIPANT_TURN:  { logPassParticipantTurn((PassParticipantTurnMessage*) message, isIncoming); break; }
         case (int) GameMessageType::EQUIP_ITEM:             { logEquipItem((EquipItemMessage*) message, isIncoming); break; }
         case (int) GameMessageType::EQUIP_WEAPON:           { logEquipWeapon((EquipWeaponMessage*) message, isIncoming); break; }
-        case (int) GameMessageType::SELECT_ENTITY:          { logSelectEntity((SelectEntityMessage*) message, isIncoming); break; }
+        case (int) GameMessageType::SELECT_ENTITY:          { logSelectActor((SelectActorMessage*) message, isIncoming); break; }
 
         default:
             printToOutFile(isIncoming, message->GetId(), "Processed unknown message");
@@ -33,11 +33,11 @@ void GameMessageLogger::logFindPath(FindPathMessage* message, bool isIncoming) {
     printToOutFile(isIncoming, message->GetId(), "FindPathMessage");
 }
 
-void GameMessageLogger::logSelectEntity(SelectEntityMessage* message, bool isIncoming) {
-    printToOutFile(isIncoming, message->GetId(), "SelectEntityMessage");
+void GameMessageLogger::logSelectActor(SelectActorMessage* message, bool isIncoming) {
+    printToOutFile(isIncoming, message->GetId(), "SelectActorMessage");
 }
 
-void GameMessageLogger::logAttackEntity(AttackMessage* message, bool isIncoming) {
+void GameMessageLogger::logAttackActor(AttackMessage* message, bool isIncoming) {
     printToOutFile(isIncoming, message->GetId(), "AttackMessage");
 }
 
@@ -85,8 +85,8 @@ void GameMessageLogger::logApplyDamage(ApplyDamageMessage* message, bool isIncom
     printToOutFile(isIncoming, message->GetId(), "ApplyDamageMessage");
 }
 
-void GameMessageLogger::logApplyEntityEffect(ApplyEntityEffectMessage* message, bool isIncoming) {
-    printToOutFile(isIncoming, message->GetId(), "ApplyEntityEffectMessage");
+void GameMessageLogger::logApplyActorEffect(ApplyActorEffectMessage* message, bool isIncoming) {
+    printToOutFile(isIncoming, message->GetId(), "ApplyActorEffectMessage");
 }
 
 void GameMessageLogger::logApplyGridEffect(ApplyGridEffectMessage* message, bool isIncoming) {

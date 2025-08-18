@@ -1,8 +1,8 @@
 #include "action.h"
 
-Action::Action(Participant* participant, Entity* entity) :
+Action::Action(Participant* participant, Actor* actor) :
     participant(participant),
-    entity(entity),
+    actor(actor),
     _isExecuted(false), 
     turnNumber(participant->getEngagement() != nullptr ? 
         std::optional<int>(participant->getEngagement()->getTurnNumber()) : 
@@ -10,9 +10,9 @@ Action::Action(Participant* participant, Entity* entity) :
     )
 { }
 
-Action::Action(Participant* participant, Entity* entity, int turnNumber) :
+Action::Action(Participant* participant, Actor* actor, int turnNumber) :
     participant(participant),
-    entity(entity),
+    actor(actor),
     _isExecuted(false),
     turnNumber(std::optional<int>(turnNumber))
 {
@@ -27,18 +27,18 @@ Action::Action(Participant* participant, Entity* entity, int turnNumber) :
 }
 
 bool Action::validate(ApplicationContext* context) {
-    if(entity == nullptr) {
-        spdlog::trace("[{}]: Failed to validate action, entity is null", typeToString());
+    if(actor == nullptr) {
+        spdlog::trace("[{}]: Failed to validate action, actor is null", typeToString());
         return false;
     }
 
-    if(entity->getCurrentHP() <= 0) {
+    if(actor->getCurrentHP() <= 0) {
         spdlog::trace(
-            "[{}]: Failed to validate action, Entity[{}#{}] hp is {}", 
+            "[{}]: Failed to validate action, Actor[{}#{}] hp is {}", 
             typeToString(),
-            entity->getName(),
-            entity->getId(), 
-            entity->getCurrentHP()
+            actor->getName(),
+            actor->getId(), 
+            actor->getCurrentHP()
         );
         return false;
     }
@@ -72,8 +72,8 @@ Participant* Action::getParticipant(void) {
     return participant;
 }
 
-Entity* Action::getEntity(void) {
-    return entity;
+Actor* Action::getActor(void) {
+    return actor;
 }
 
 bool Action::isExecuted(void) const {

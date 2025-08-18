@@ -3,12 +3,12 @@
 GridRenderer::GridRenderer(
     Grid* grid, 
     VisiblityController* visiblityController,
-    EntityPool* entityPool,
+    ActorPool* actorPool,
     int windowHeight
 ) :
     grid(grid),
     visiblityController(visiblityController),
-    entityPool(entityPool),
+    actorPool(actorPool),
     windowHeight(windowHeight),
     tileSize(32),
     participant(nullptr),
@@ -17,7 +17,7 @@ GridRenderer::GridRenderer(
     grid->subscribe<TileEventData>(this);
     grid->subscribe<GridDirtyEventData>(this);
     visiblityController->subscribe<TilesRevealedEventData>(this);
-    entityPool->subscribe<EntitySetPositionEventData>(this);
+    actorPool->subscribe<ActorSetPositionEventData>(this);
 
     camera = std::make_unique<Camera>(glm::ivec2(0, 0));
     chunks = createChunks();
@@ -145,7 +145,7 @@ void GridRenderer::buildFogBorders(GraphicsContext& graphicsContext, int xMin, i
 
 void GridRenderer::buildFogTiles(
     GraphicsContext& graphicsContext, 
-    Entity* entity, 
+    Actor* actor, 
     int xMin, 
     int xMax, 
     int yMin, 
@@ -154,8 +154,8 @@ void GridRenderer::buildFogTiles(
     auto renderer = graphicsContext.getRenderer();
 
     auto tiles = grid->getVisibleTiles(
-        glm::vec2(entity->getPosition().x, entity->getPosition().y),
-        entity->getAggroRange()
+        glm::vec2(actor->getPosition().x, actor->getPosition().y),
+        actor->getAggroRange()
     );
 
     std::unordered_set<glm::ivec2, glm::ivec2Hash> visibleTiles(tiles.begin(), tiles.end());
@@ -197,14 +197,14 @@ void GridRenderer::buildFogTexture(GraphicsContext& graphicsContext) {
     SDL_RenderClear(renderer);
 
     if(participant != nullptr) {
-        for(auto const& entity : participant->getEntities()) {
-            int xMin = std::max(entity->getPosition().x - entity->getAggroRange(), 0);
-            int xMax = std::min(entity->getPosition().x + entity->getAggroRange() + 1, grid->getWidth());
-            int yMin = std::max(entity->getPosition().y - entity->getAggroRange(), 0);
-            int yMax = std::min(entity->getPosition().y + entity->getAggroRange() + 1, grid->getHeight());
+        for(auto const& actor : participant->getActors()) {
+            int xMin = std::max(actor->getPosition().x - actor->getAggroRange(), 0);
+            int xMax = std::min(actor->getPosition().x + actor->getAggroRange() + 1, grid->getWidth());
+            int yMin = std::max(actor->getPosition().y - actor->getAggroRange(), 0);
+            int yMax = std::min(actor->getPosition().y + actor->getAggroRange() + 1, grid->getHeight());
 
             buildFogBorders(graphicsContext, xMin, xMax, yMin, yMax);
-            buildFogTiles(graphicsContext, entity, xMin, xMax, yMin, yMax);
+            buildFogTiles(graphicsContext, actor, xMin, xMax, yMin, yMax);
         }
     }
 
@@ -386,7 +386,7 @@ void GridRenderer::onPublish(const Event<TilesRevealedEventData>& event) {
     fogTextureNeedsRebuilding = true;
 }
 
-void GridRenderer::onPublish(const Event<EntitySetPositionEventData>& event) {
+void GridRenderer::onPublish(const Event<ActorSetPositionEventData>& event) {
     fogTextureNeedsRebuilding = true;
 }
 

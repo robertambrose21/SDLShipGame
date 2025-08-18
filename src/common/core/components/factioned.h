@@ -8,7 +8,7 @@
 
 class Factioned {
 public:
-    // TODO: Make this an "entity" - move to "entities" module
+    // TODO: Make this an "actor" - move to "actors" module
     typedef struct _faction {
          enum Alignment: int {
             FRIENDLY,

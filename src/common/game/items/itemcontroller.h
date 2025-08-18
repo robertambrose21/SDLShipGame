@@ -8,14 +8,14 @@
 #include "core/event/eventpublisher.h"
 #include "core/event/eventsubscriber.h"
 #include "game/application/applicationcontext.h"
-#include "game/entities/entitypool.h"
+#include "game/actors/actorpool.h"
 #include "item.h"
 
 using json = nlohmann::json;
 
 class ItemController : 
     public EventPublisher<ItemEventData>,
-    public EventSubscriber<EntityEventData>
+    public EventSubscriber<ActorEventData>
 {
 public:
     ItemController();
@@ -57,7 +57,7 @@ public:
     std::map<uint32_t, std::unique_ptr<Item>> const& getItems(void) const;
     std::vector<Item*> getWorldItems(void);
 
-    void onPublish(const Event<EntityEventData>& event);
+    void onPublish(const Event<ActorEventData>& event);
 
 private:
     typedef struct itemDefinition {

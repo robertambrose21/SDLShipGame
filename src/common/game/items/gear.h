@@ -20,5 +20,5 @@ public:
     Item* getItem(void);
     bool isValid(void);
     Stats::GearStats getStats(void);
-    void addTo(Stats::EntityStats& entityStats);
+    void addTo(Stats::ActorStats& actorStats);
 };

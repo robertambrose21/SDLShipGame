@@ -17,13 +17,13 @@ add_library(
     ui/text.cpp
     ui/actionbutton.cpp
     ui/inventorypanel.cpp
-    ui/entitypanel.cpp
+    ui/actorpanel.cpp
     ui/itemraritycolours.h
     ui/examineitempanel.cpp
     ui/diagnosticspanel.cpp
     camera.cpp
     drawstrategies/drawstrategy.h
-    drawstrategies/entitydrawstrategy.cpp
+    drawstrategies/actordrawstrategy.cpp
     drawstrategies/weapondrawstrategy.cpp
     drawstrategies/projectiledrawstrategy.cpp
     drawstrategies/areaofeffectdrawstrategy.cpp

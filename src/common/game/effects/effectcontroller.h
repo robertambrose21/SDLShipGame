@@ -10,7 +10,7 @@
 #include "game/application/applicationcontext.h"
 #include "game/application/gamecontroller.h"
 
-class EffectController : public EventPublisher<EntityEffectEvent, GridEffectEvent> {
+class EffectController : public EventPublisher<ActorEffectEvent, GridEffectEvent> {
 public:
     EffectController();
 

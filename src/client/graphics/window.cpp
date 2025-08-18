@@ -5,12 +5,12 @@ Window::Window(
     int height, 
     Grid* grid, 
     VisiblityController* visiblityController, 
-    EntityPool* entityPool
+    ActorPool* actorPool
 ) :
     width(width),
     height(height)
 {
-    gridRenderer = std::make_unique<GridRenderer>(grid, visiblityController, entityPool, height);
+    gridRenderer = std::make_unique<GridRenderer>(grid, visiblityController, actorPool, height);
 }
 
 Window::~Window() {

@@ -1,8 +1,8 @@
 #pragma once
 
 #include <cstdint>
-#include "game/entities/entity.h"
-#include "game/entities/entitypool.h"
+#include "game/actors/actor.h"
+#include "game/actors/actorpool.h"
 #include "game/application/applicationcontext.h"
 
 class BehaviourStrategy {

@@ -1,22 +1,22 @@
 #include "takeitemaction.h"
 
-TakeItemAction::TakeItemAction(Participant* participant, Entity* entity, const std::vector<Item*>& items) :
-    Action(participant, entity),
+TakeItemAction::TakeItemAction(Participant* participant, Actor* actor, const std::vector<Item*>& items) :
+    Action(participant, actor),
     items(items)
 { }
 
 TakeItemAction::TakeItemAction(
     Participant* participant, 
-    Entity* entity,
+    Actor* actor,
     int turnNumber,
     const std::vector<Item*>& items
 ) :
-    Action(participant, entity, turnNumber),
+    Action(participant, actor, turnNumber),
     items(items)
 { }
 
 ActionVariant TakeItemAction::getPublishData(void) {
-    return TakeItemActionEventData { turnNumber, entity, items };
+    return TakeItemActionEventData { turnNumber, actor, items };
 }
 
 bool TakeItemAction::onValidate(ApplicationContext* context) {
@@ -29,7 +29,7 @@ bool TakeItemAction::onValidate(ApplicationContext* context) {
         return true;
     }
 
-    for(auto action : entity->getActionsChain(turnNumber.value())) {
+    for(auto action : actor->getActionsChain(turnNumber.value())) {
         if(
             action->getType() == Action::Type::TakeItem && 
             containsAny(items, dynamic_cast<TakeItemAction*>(action)->getItems())
@@ -47,7 +47,7 @@ bool TakeItemAction::onValidate(ApplicationContext* context) {
 }
 
 void TakeItemAction::onExecute(ApplicationContext* context) {
-    auto participant = context->getGameController()->getParticipant(entity->getParticipantId());
+    auto participant = context->getGameController()->getParticipant(actor->getParticipantId());
 
     if(!participant->getIsPlayer()) {
         return;

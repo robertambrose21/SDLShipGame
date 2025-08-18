@@ -15,7 +15,7 @@
 #include "game/weapons/projectile.h"
 
 class StdOutSubscriber : 
-    public EventSubscriber<EntityEventData>,
+    public EventSubscriber<ActorEventData>,
     public EventSubscriber<MeleeWeaponEventData>,
     public EventSubscriber<ProjectileEventData>,
     public EventSubscriber<AreaOfEffectEventData>,
@@ -25,12 +25,12 @@ class StdOutSubscriber :
     public EventSubscriber<ApplyDamageEventData>
 {
 private:
-    std::string getEntityIdentifier(Entity* entity);
+    std::string getActorIdentifier(Actor* actor);
 
 public:
     StdOutSubscriber();
 
-    void onPublish(const Event<EntityEventData>& event);
+    void onPublish(const Event<ActorEventData>& event);
     void onPublish(const Event<MeleeWeaponEventData>& event);
     void onPublish(const Event<ProjectileEventData>& event);
     void onPublish(const Event<AreaOfEffectEventData>& event);

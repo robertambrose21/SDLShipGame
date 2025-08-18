@@ -23,7 +23,7 @@ void ClientApplication::initialise(void) {
 
     application = std::make_unique<Application>(
         std::make_unique<Grid>(128, 128), // TODO: This should be defined by the server
-        std::make_unique<EntityPool>(),
+        std::make_unique<ActorPool>(),
         std::make_unique<WeaponController>(),
         std::make_unique<ProjectilePool>(),
         std::make_unique<AreaOfEffectPool>(),
@@ -40,12 +40,12 @@ void ClientApplication::initialise(void) {
     context.getAreaOfEffectPool()->initialise(application->getContext());
     context.getProjectilePool()->initialise(application->getContext());
     context.getWeaponController()->initialise(application->getContext());
-    context.getEntityPool()->initialise(application->getContext());
+    context.getActorPool()->initialise(application->getContext());
     context.getItemController()->initialise(application->getContext());
     context.getSpawnController()->initialise(application->getContext());
     context.getVisibilityController()->initialise(application->getContext());
     context.getEffectController()->initialise(application->getContext());
-    context.getEntityPool()->subscribe<EntityEventData>(&stdoutSubscriber);
+    context.getActorPool()->subscribe<ActorEventData>(&stdoutSubscriber);
     context.getWeaponController()->subscribe<MeleeWeaponEventData>(&stdoutSubscriber);
     context.getProjectilePool()->subscribe<ProjectileEventData>(&stdoutSubscriber);
     context.getAreaOfEffectPool()->subscribe<AreaOfEffectEventData>(&stdoutSubscriber);
@@ -57,7 +57,7 @@ void ClientApplication::initialise(void) {
         ->subscribe<RemoveEngagementEventData>(dynamic_cast<ClientGameController*>(context.getGameController()));
 
     weaponDrawStrategy = std::make_unique<WeaponDrawStrategy>();
-    entityDrawStrategy = std::make_unique<EntityDrawStrategy>(weaponDrawStrategy.get());
+    actorDrawStrategy = std::make_unique<ActorDrawStrategy>(weaponDrawStrategy.get());
     projectileDrawStrategy = std::make_unique<ProjectileDrawStrategy>();
     areaOfEffectDrawStrategy = std::make_unique<AreaOfEffectDrawStrategy>();
     itemDrawStrategy = std::make_unique<ItemDrawStrategy>();
@@ -100,7 +100,7 @@ void ClientApplication::initialise(void) {
         1080, 
         grid, 
         context.getVisibilityController(),
-        context.getEntityPool()
+        context.getActorPool()
     );
     window->initialiseWindow();
 
@@ -158,7 +158,7 @@ void ClientApplication::draw(GraphicsContext& graphicsContext, bool& quit) {
 
 void ClientApplication::drawGameLoop(GraphicsContext& graphicsContext) {
     auto& context = application->getContext();
-    auto entityPool = context.getEntityPool();
+    auto actorPool = context.getActorPool();
     auto projectilePool = context.getProjectilePool();
     auto areaOfEffectPool = context.getAreaOfEffectPool();
     auto itemController = context.getItemController();
@@ -178,8 +178,8 @@ void ClientApplication::drawGameLoop(GraphicsContext& graphicsContext) {
         areaOfEffectDrawStrategy->draw(aoe.get(), graphicsContext);
     }
 
-    for(auto entity : entityPool->getEntities()) {
-        entityDrawStrategy->draw(entity, graphicsContext);
+    for(auto actor : actorPool->getActors()) {
+        actorDrawStrategy->draw(actor, graphicsContext);
     }
 
     for(auto projectile : projectilePool->getAllProjectiles()) {
@@ -189,7 +189,7 @@ void ClientApplication::drawGameLoop(GraphicsContext& graphicsContext) {
     playerController->draw(graphicsContext);
 }
 
-void ClientApplication::selectEntityOnStartupHack(void) {
+void ClientApplication::selectActorOnStartupHack(void) {
     static bool isSelected = false;
 
     if(isSelected) {
@@ -198,7 +198,7 @@ void ClientApplication::selectEntityOnStartupHack(void) {
 
     if(
         playerController->getParticipant() != nullptr && 
-        !playerController->getParticipant()->getEntities().empty()
+        !playerController->getParticipant()->getActors().empty()
     ) {
         playerController->selectAll();
         isSelected = true;
@@ -208,14 +208,14 @@ void ClientApplication::selectEntityOnStartupHack(void) {
 void ClientApplication::update(int64_t timeSinceLastFrame, bool& quit) {
     auto& context = application->getContext();
     auto grid = context.getGrid();
-    auto entityPool = context.getEntityPool();
+    auto actorPool = context.getActorPool();
     auto projectilePool = context.getProjectilePool();
     auto areaOfEffectPool = context.getAreaOfEffectPool();
     auto gameController = context.getGameController();
     auto effectController = context.getEffectController();
 
     client->update(timeSinceLastFrame);
-    selectEntityOnStartupHack();
+    selectActorOnStartupHack();
     
     switch(clientStateMachine->getCurrentState()->GetType()) {
         case ClientStateMachine::Loading:
@@ -223,7 +223,7 @@ void ClientApplication::update(int64_t timeSinceLastFrame, bool& quit) {
 
         case ClientStateMachine::GameLoop:
             gameController->update(timeSinceLastFrame, quit);
-            entityPool->updateEntities(timeSinceLastFrame, quit);
+            actorPool->updateActors(timeSinceLastFrame, quit);
             playerController->update(timeSinceLastFrame);
             projectilePool->update(timeSinceLastFrame);
             areaOfEffectPool->update(timeSinceLastFrame);

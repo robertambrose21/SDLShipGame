@@ -61,26 +61,26 @@ void Projectile::doHit(const glm::ivec2& position) {
 }
 
 void Projectile::apply(const glm::ivec2& position) {
-    auto entity = Entity::filterByTile(
+    auto actor = Actor::filterByTile(
         position.x,
         position.y,
-        context->getEntityPool()->getEntities(),
+        context->getActorPool()->getActors(),
         ownerId
     );
 
     int damage = 0;
 
-    if (entity != nullptr) {
-        damage = damageSource.apply(entity);
+    if (actor != nullptr) {
+        damage = damageSource.apply(actor);
 
         for (auto& effect : stats.effects) {
             switch(effect.type) {
             case FREEZE:
-                context->getEffectController()->addEffect(std::make_unique<FreezeEffect>(entity, ownerId, effect));
+                context->getEffectController()->addEffect(std::make_unique<FreezeEffect>(actor, ownerId, effect));
                 break;
 
             case POISON: {
-                context->getEffectController()->addEffect(std::make_unique<PoisonEffect>(entity, ownerId, effect));
+                context->getEffectController()->addEffect(std::make_unique<PoisonEffect>(actor, ownerId, effect));
                 break;
             }
 
@@ -117,7 +117,7 @@ void Projectile::apply(const glm::ivec2& position) {
 
     }
 
-    publisher.publish<ProjectileEventData>({ this, entity, position, damage });
+    publisher.publish<ProjectileEventData>({ this, actor, position, damage });
 }
 
 float Projectile::calculateStep(void) const {

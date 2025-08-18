@@ -78,20 +78,20 @@ bool ServerGameController::canProgressToNextTurn(Engagement* engagement) {
         return false;
     }
 
-    if(participant->getEntities().empty()) {
+    if(participant->getActors().empty()) {
         transmitter->sendNextTurnToAllClients(currentParticipantId, engagement->getId(), turnNumber);
         return true;
     }
 
-    bool haveEntitiesTurnsFinished = true;
-    bool haveEntitiesActionsFinished = true;
-    for(auto entity : participant->getEntities()) {
-        haveEntitiesTurnsFinished = haveEntitiesTurnsFinished && !entity->isTurnInProgress();
-        haveEntitiesActionsFinished = haveEntitiesActionsFinished && !entity->hasAnimationsInProgress() 
-            && entity->getActionsChain(turnNumber).empty();
+    bool haveActorsTurnsFinished = true;
+    bool haveActorsActionsFinished = true;
+    for(auto actor : participant->getActors()) {
+        haveActorsTurnsFinished = haveActorsTurnsFinished && !actor->isTurnInProgress();
+        haveActorsActionsFinished = haveActorsActionsFinished && !actor->hasAnimationsInProgress() 
+            && actor->getActionsChain(turnNumber).empty();
     }
 
-    if(!haveEntitiesActionsFinished) {
+    if(!haveActorsActionsFinished) {
         return false;
     }
 
@@ -100,7 +100,7 @@ bool ServerGameController::canProgressToNextTurn(Engagement* engagement) {
         return true;
     }
 
-    auto nextTurn = haveEntitiesTurnsFinished || participant->isPassingNextTurn();
+    auto nextTurn = haveActorsTurnsFinished || participant->isPassingNextTurn();
 
     if(nextTurn) {
         transmitter->sendNextTurnToAllClients(currentParticipantId, engagement->getId(), turnNumber);
@@ -145,8 +145,8 @@ void ServerGameController::checkForItems(int participantId) {
         return;
     }
 
-    for(auto entity : participant->getEntities()) {
-        auto items = itemController->getItemsAt(entity->getPosition());
+    for(auto actor : participant->getActors()) {
+        auto items = itemController->getItemsAt(actor->getPosition());
 
         if(items.empty()) {
             return;
@@ -156,14 +156,14 @@ void ServerGameController::checkForItems(int participantId) {
             queueAction(
                 std::make_unique<TakeItemAction>(
                     participant,
-                    entity,
+                    actor,
                     participant->getEngagement()->getTurnNumber(),
                     items
                 )
             );
         }
         else {
-            executeActionImmediately(std::make_unique<TakeItemAction>(participant, entity, items));
+            executeActionImmediately(std::make_unique<TakeItemAction>(participant, actor, items));
         }
     }
 }
@@ -191,8 +191,8 @@ void ServerGameController::compareAndEngageParticipants(Participant* participant
     }
 
     bool canEngage = false;
-    for(auto entityToCheck : participantA->getEntities()) {
-        if(hasEntityEngagement(entityToCheck, participantB)) {
+    for(auto actorToCheck : participantA->getActors()) {
+        if(hasActorEngagement(actorToCheck, participantB)) {
             canEngage = true;
             break;
         }
@@ -203,7 +203,7 @@ void ServerGameController::compareAndEngageParticipants(Participant* participant
     }
 
     if(participantA->getEngagement() == nullptr && participantB->getEngagement() == nullptr) {
-        if(participantA->getAverageEntitySpeed() > participantB->getAverageEntitySpeed()) {
+        if(participantA->getAverageActorSpeed() > participantB->getAverageActorSpeed()) {
             engagementController->createEngagement({ participantA, participantB });
         }
         else {
@@ -224,9 +224,9 @@ void ServerGameController::compareAndEngageParticipants(Participant* participant
     }
 }
 
-bool ServerGameController::hasEntityEngagement(Entity* target, Participant* participant) {
-    for(auto entity : participant->getEntities()) {
-        if(context->getVisibilityController()->isVisible(entity, target)) {
+bool ServerGameController::hasActorEngagement(Actor* target, Participant* participant) {
+    for(auto actor : participant->getActors()) {
+        if(context->getVisibilityController()->isVisible(actor, target)) {
             return true;
         }
     }
@@ -238,10 +238,10 @@ void ServerGameController::setTransmitter(GameServerMessagesTransmitter* transmi
     this->transmitter = transmitter;
 }
 
-void ServerGameController::onPublish(const Event<EntitySetPositionEventData>& event) {
+void ServerGameController::onPublish(const Event<ActorSetPositionEventData>& event) {
     for(auto& [participantId, participant] : participants) {
         assignEngagements(participantId);
     }
 
-    checkForItems(event.data.entity->getParticipantId());
+    checkForItems(event.data.actor->getParticipantId());
 }

@@ -3,14 +3,14 @@
 
 #include <cstdint>
 #include <cstring>
-#include "game/entities/entity.h"
+#include "game/actors/actor.h"
 
-const int MaxEntities = 8;
-const int MaxEntityNameLength = 64;
+const int MaxActors = 8;
+const int MaxActorNameLength = 64;
 const int MaxWeapons = 8;
 const int MaxWeaponNameLength = 64;
 
-class Entity;
+class Actor;
 class Enemy;
 class Player;
 class Weapon;
@@ -35,11 +35,11 @@ struct WeaponStateUpdate {
     static Weapon* deserialize(const WeaponStateUpdate& update, Weapon* existing);
 };
 
-// TODO: Send weapon state updates separately if entity has more than the max number of weapons
-// TODO: Serialise EntityStats
-struct EntityStateUpdate {
+// TODO: Send weapon state updates separately if actor has more than the max number of weapons
+// TODO: Serialise ActorStats
+struct ActorStateUpdate {
     uint32_t id;
-    char name[MaxEntityNameLength];
+    char name[MaxActorNameLength];
     int totalHP;
     int currentHP;
     int x, y;
@@ -49,17 +49,17 @@ struct EntityStateUpdate {
     int numWeapons;
     WeaponStateUpdate weaponUpdates[MaxWeapons];
 
-    EntityStateUpdate() {
-        memset(this, 0, sizeof(EntityStateUpdate));
+    ActorStateUpdate() {
+        memset(this, 0, sizeof(ActorStateUpdate));
     }
 
-    static EntityStateUpdate serialize(Entity* entity);
-    static void deserialize(const EntityStateUpdate& update, Entity* existing);
+    static ActorStateUpdate serialize(Actor* actor);
+    static void deserialize(const ActorStateUpdate& update, Actor* existing);
 };
 
 struct GameStateUpdate {
-    int numEntities;
-    EntityStateUpdate entities[MaxEntities];
+    int numActors;
+    ActorStateUpdate actors[MaxActors];
     int currentParticipantId;
     uint8_t numExpectedChunks;
     uint32_t chunkId;
@@ -70,16 +70,16 @@ struct GameStateUpdate {
 
     static GameStateUpdate serialize(
         int currentParticipantId, 
-        const std::vector<Entity*>& entities,
+        const std::vector<Actor*>& actors,
         uint32_t chunkId,
         uint8_t numExpectedChunks = 1
     ) {
         GameStateUpdate update;
-        update.numEntities = entities.size();
+        update.numActors = actors.size();
 
         int index = 0;
-        for(auto entity : entities) {
-            update.entities[index++] = EntityStateUpdate::serialize(entity);
+        for(auto actor : actors) {
+            update.actors[index++] = ActorStateUpdate::serialize(actor);
         }
 
         update.currentParticipantId = currentParticipantId;

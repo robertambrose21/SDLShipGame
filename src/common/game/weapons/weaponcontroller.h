@@ -1,7 +1,7 @@
 #pragma once
 
 #include "weapon.h"
-#include "game/entities/entity.h"
+#include "game/actors/actor.h"
 #include "core/json.hpp"
 #include "projectilepool.h"
 #include "core/event/eventpublisher.h"
@@ -29,7 +29,7 @@ private:
     bool initialised;
 
     void loadWeaponDefinitions(void);
-    Item* getItem(const std::string& itemName, Entity* owner);
+    Item* getItem(const std::string& itemName, Actor* owner);
     
     Stats::WeaponStats buildProjectileWeaponStats(
         const WeaponDefinition& definition, 
@@ -51,6 +51,6 @@ public:
     void initialise(ApplicationContext& context);
 
     // TODO: Rename to add weapon
-    std::unique_ptr<Weapon> createWeapon(const std::string& name, Entity* owner);
-    std::unique_ptr<Weapon> createWeapon(const UUID& id, const std::string& name, Entity* owner);
+    std::unique_ptr<Weapon> createWeapon(const std::string& name, Actor* owner);
+    std::unique_ptr<Weapon> createWeapon(const UUID& id, const std::string& name, Actor* owner);
 };

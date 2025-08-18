@@ -51,7 +51,7 @@ void WeaponController::loadWeaponDefinitions(void) {
 std::unique_ptr<Weapon> WeaponController::createWeapon(
     const UUID& id,
     const std::string& name, 
-    Entity* owner
+    Actor* owner
 ) {
     game_assert(initialised);
     game_assert(weaponDefinitions.contains(name));
@@ -133,12 +133,12 @@ void WeaponController::synchronizeWithItemStats(Item* item, Stats::WeaponStats& 
     item->setWeaponStats(weaponStats);
 }
 
-std::unique_ptr<Weapon> WeaponController::createWeapon(const std::string& name, Entity* owner) {
+std::unique_ptr<Weapon> WeaponController::createWeapon(const std::string& name, Actor* owner) {
     game_assert(initialised);
     return createWeapon(UUID::getNewUUID(), name, owner);
 }
 
-Item* WeaponController::getItem(const std::string& itemName, Entity* owner) {
+Item* WeaponController::getItem(const std::string& itemName, Actor* owner) {
     if(itemName == "") {
         return nullptr;
     }

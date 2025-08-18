@@ -21,15 +21,15 @@ private:
 
     void receiveFindPathMessage(
         int clientIndex, 
-        uint32_t entityId, 
+        uint32_t actorId, 
         const glm::ivec2& position,
         int shortStopSteps,
         int turnNumber
     );
-    void receiveSelectEntityMessage(int clientIndex, uint32_t entityId);
+    void receiveSelectActorMessage(int clientIndex, uint32_t actorId);
     void receieveAttackMessage(
         int clientIndex, 
-        uint32_t entityId, 
+        uint32_t actorId, 
         int x,
         int y,
         uint8_t weaponIdBytes[16],
@@ -37,11 +37,11 @@ private:
     );
     void receivePassParticipantTurnMessage(int clientIndex, int participantId);
     void receiveSetParticipantAckMessage(int clientIndex, int participantId);
-    void receiveEquipItemMessage(int clientIndex, uint32_t itemId, uint32_t entityId, uint8_t slot, bool isUnequip);
+    void receiveEquipItemMessage(int clientIndex, uint32_t itemId, uint32_t actorId, uint8_t slot, bool isUnequip);
     void receiveEquipWeaponMessage(
         int clientIndex, 
         uint32_t itemId, 
-        uint32_t entityId, 
+        uint32_t actorId, 
         uint8_t weaponIdBytes[16], 
         bool isUnequip
     );

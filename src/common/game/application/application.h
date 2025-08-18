@@ -5,7 +5,7 @@
 #include "game/weapons/projectilepool.h"
 #include "game/weapons/areaofeffectpool.h"
 #include "gamecontroller.h"
-#include "game/entities/behaviour/chaseandattackstrategy.h"
+#include "game/actors/behaviour/chaseandattackstrategy.h"
 #include "game/weapons/projectileweapon.h"
 #include "game/weapons/meleeweapon.h"
 #include "game/weapons/weaponcontroller.h"
@@ -19,7 +19,7 @@ class WeaponController;
 class Application {
 private:
     std::unique_ptr<Grid> grid;
-    std::unique_ptr<EntityPool> entityPool;
+    std::unique_ptr<ActorPool> actorPool;
     std::unique_ptr<WeaponController> weaponController;
     std::unique_ptr<ProjectilePool> projectilePool;
     std::unique_ptr<AreaOfEffectPool> areaOfEffectPool;
@@ -36,7 +36,7 @@ private:
 public:
     Application(
         std::unique_ptr<Grid> grid,
-        std::unique_ptr<EntityPool> entityPool,
+        std::unique_ptr<ActorPool> actorPool,
         std::unique_ptr<WeaponController> weaponController,
         std::unique_ptr<ProjectilePool> projectilePool,
         std::unique_ptr<AreaOfEffectPool> areaOfEffectPool,

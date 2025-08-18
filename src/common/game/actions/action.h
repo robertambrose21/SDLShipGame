@@ -8,7 +8,7 @@
 #include "game/application/applicationcontext.h"
 #include "game/participant/participant.h"
 #include "game/engagements/engagement.h"
-#include "game/entities/entity.h"
+#include "game/actors/actor.h"
 
 
 using ActionVariant = std::variant<
@@ -31,8 +31,8 @@ public:
         Count
     };
 
-    Action(Participant* participant, Entity* entity);
-    Action(Participant* participant, Entity* entity, int turnNumber);
+    Action(Participant* participant, Actor* actor);
+    Action(Participant* participant, Actor* actor, int turnNumber);
     virtual ~Action() = default;
 
     virtual ActionVariant getPublishData(void) = 0;
@@ -45,7 +45,7 @@ public:
     virtual Type getType(void) = 0;
 
     Participant* getParticipant(void);
-    Entity* getEntity(void);
+    Actor* getActor(void);
     bool isExecuted(void) const;
     std::string typeToString(void);
 
@@ -53,7 +53,7 @@ public:
 
 protected:
     Participant* participant;
-    Entity* entity;
+    Actor* actor;
     bool _isExecuted;
     std::optional<int> turnNumber;
 

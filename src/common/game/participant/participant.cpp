@@ -1,7 +1,7 @@
 #include "participant.h"
 #include "core/grid/grid.h"
-#include "game/entities/entity.h"
-#include "game/entities/behaviour/behaviourstrategy.h"
+#include "game/actors/actor.h"
+#include "game/actors/behaviour/behaviourstrategy.h"
 #include "game/items/item.h"
 
 Participant::Participant(int id, uint32_t factionId) :
@@ -18,9 +18,9 @@ float Participant::distanceToOtherParticipant(Participant* other) {
     game_assert(other != nullptr);
     float shortestDistance = std::numeric_limits<float>::infinity();
 
-    for(auto entity : entities) {
-        for(auto otherEntity : other->getEntities()) {
-            float distance = glm::distance(glm::vec2(entity->getPosition()), glm::vec2(otherEntity->getPosition()));
+    for(auto actor : actors) {
+        for(auto otherActor : other->getActors()) {
+            float distance = glm::distance(glm::vec2(actor->getPosition()), glm::vec2(otherActor->getPosition()));
 
             if(distance < shortestDistance) {
                 shortestDistance = distance;
@@ -66,32 +66,32 @@ void Participant::engage(Engagement* engagement) {
 
     this->engagement = engagement;
 
-    for(auto entity : entities) {
-        entity->engage();
+    for(auto actor : actors) {
+        actor->engage();
     }
 }
 
 void Participant::disengage(void) {
     engagement = nullptr;
 
-    for(auto entity : entities) {
-        entity->disengage();
+    for(auto actor : actors) {
+        actor->disengage();
     }
 }
 
-float Participant::getAverageEntitySpeed(void) {
+float Participant::getAverageActorSpeed(void) {
     float totalSpeed = 0;
 
-    for(auto entity : entities) {
-        totalSpeed += entity->getSpeed();
+    for(auto actor : actors) {
+        totalSpeed += actor->getSpeed();
     }
 
-    return totalSpeed / (float) entities.size();
+    return totalSpeed / (float) actors.size();
 }
 
 void Participant::endTurn(void) {
-    for(auto const& entity : entities) {
-        entity->endTurn();
+    for(auto const& actor : actors) {
+        actor->endTurn();
     }
 
     passNextTurn = false;
@@ -102,21 +102,21 @@ void Participant::passTurn(void) {
 }
 
 void Participant::nextTurn(void) {
-    std::set<Entity*> entitiesForDeletion;
+    std::set<Actor*> actorsForDeletion;
 
-    for(auto const& entity : entities) {
-        entity->nextTurn();
+    for(auto const& actor : actors) {
+        actor->nextTurn();
 
-        if(entity->getCurrentHP() <= 0) {
-            entitiesForDeletion.insert(entity);
+        if(actor->getCurrentHP() <= 0) {
+            actorsForDeletion.insert(actor);
         }
     }
 
-    for(auto const& entity : entitiesForDeletion) {
-        entities.erase(std::find(entities.begin(), entities.end(), entity));
+    for(auto const& actor : actorsForDeletion) {
+        actors.erase(std::find(actors.begin(), actors.end(), actor));
     }
     
-    entitiesForDeletion.clear();
+    actorsForDeletion.clear();
 
     if(behaviourStrategy != nullptr) {
         behaviourStrategy->onNextTurn();
@@ -147,32 +147,32 @@ bool Participant::isPassingNextTurn(void) {
     return passNextTurn;
 }
 
-const std::vector<Entity*>& Participant::getEntities(void) const {
-    return entities;
+const std::vector<Actor*>& Participant::getActors(void) const {
+    return actors;
 }
 
-void Participant::addEntity(Entity* entity) {
-    game_assert(!entity->hasParticipant());
+void Participant::addActor(Actor* actor) {
+    game_assert(!actor->hasParticipant());
 
-    entity->setParticipantId(id);
+    actor->setParticipantId(id);
 
     if(hasAnyEngagement()) {
-        entity->engage();
+        actor->engage();
     }
     
-    entities.push_back(entity);
-    addVisibleEntity(entity);
+    actors.push_back(actor);
+    addVisibleActor(actor);
 }
 
-void Participant::addEntities(const std::vector<Entity*>& entities) {
-    for(auto entity : entities) {
-        addEntity(entity);
+void Participant::addActors(const std::vector<Actor*>& actors) {
+    for(auto actor : actors) {
+        addActor(actor);
     }
 }
 
-void Participant::removeEntity(Entity* entity) {
-    entities.erase(std::remove(entities.begin(), entities.end(), entity), entities.end());
-    entity->setParticipantId(-1);
+void Participant::removeActor(Actor* actor) {
+    actors.erase(std::remove(actors.begin(), actors.end(), actor), actors.end());
+    actor->setParticipantId(-1);
 }
 
 const std::vector<Item*>& Participant::getItems(void) const {
@@ -195,23 +195,23 @@ void Participant::setBehaviourStrategy(std::unique_ptr<BehaviourStrategy> behavi
     this->behaviourStrategy = std::move(behaviourStrategy);
 }
 
-void Participant::setVisibleEntities(const std::set<Entity*>& visibleEntities) {
-    this->visibleEntities = visibleEntities;
+void Participant::setVisibleActors(const std::set<Actor*>& visibleActors) {
+    this->visibleActors = visibleActors;
 }
 
-const std::set<Entity*>& Participant::getVisibleEntities(void) const {
-    return visibleEntities;
+const std::set<Actor*>& Participant::getVisibleActors(void) const {
+    return visibleActors;
 }
 
-void Participant::addVisibleEntity(Entity* entity) {
-    visibleEntities.insert(entity);
+void Participant::addVisibleActor(Actor* actor) {
+    visibleActors.insert(actor);
 }
 
-void Participant::removeVisibleEntity(Entity* entity) {
-    visibleEntities.erase(entity);
+void Participant::removeVisibleActor(Actor* actor) {
+    visibleActors.erase(actor);
 }
 
-bool Participant::hasVisibleEntity(Entity* entity) {
-    return visibleEntities.contains(entity);
+bool Participant::hasVisibleActor(Actor* actor) {
+    return visibleActors.contains(actor);
 }
 

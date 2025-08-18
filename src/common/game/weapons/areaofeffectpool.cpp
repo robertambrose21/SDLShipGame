@@ -44,7 +44,7 @@ void AreaOfEffectPool::add(const std::string& name, int ownerId, const glm::ivec
 
     auto areaOfEffect = std::make_unique<AreaOfEffect>(
         context->getGrid(),
-        context->getEntityPool(),
+        context->getActorPool(),
         *this,
         definition.textureId,
         ownerId,

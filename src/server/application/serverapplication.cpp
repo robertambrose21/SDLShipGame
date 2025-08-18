@@ -22,7 +22,7 @@ void ServerApplication::initialise(void) {
 
     application = std::make_unique<Application>(
         std::make_unique<Grid>(128, 128),
-        std::make_unique<EntityPool>(),
+        std::make_unique<ActorPool>(),
         std::make_unique<WeaponController>(),
         std::make_unique<ProjectilePool>(),
         std::make_unique<AreaOfEffectPool>(),
@@ -39,12 +39,12 @@ void ServerApplication::initialise(void) {
     context.getAreaOfEffectPool()->initialise(application->getContext());
     context.getProjectilePool()->initialise(application->getContext());
     context.getWeaponController()->initialise(application->getContext());
-    context.getEntityPool()->initialise(application->getContext());
+    context.getActorPool()->initialise(application->getContext());
     context.getItemController()->initialise(application->getContext());
     context.getSpawnController()->initialise(application->getContext());
     context.getVisibilityController()->initialise(application->getContext());
     context.getEffectController()->initialise(application->getContext());
-    context.getEntityPool()->subscribe<EntityEventData>(&stdoutSubscriber);
+    context.getActorPool()->subscribe<ActorEventData>(&stdoutSubscriber);
     context.getWeaponController()->subscribe<MeleeWeaponEventData>(&stdoutSubscriber);
     context.getProjectilePool()->subscribe<ProjectileEventData>(&stdoutSubscriber);
     context.getAreaOfEffectPool()->subscribe<AreaOfEffectEventData>(&stdoutSubscriber);
@@ -74,20 +74,20 @@ void ServerApplication::initialise(void) {
     server->setTransmitter(transmitter.get());
     context.setServerMessagesTransmitter(transmitter.get());
     context.getItemController()->subscribe<ItemEventData>(transmitter.get());
-    context.getEntityPool()->subscribe(context.getItemController());
+    context.getActorPool()->subscribe(context.getItemController());
     context.getGameController()->subscribe<MoveActionEventData>(transmitter.get());
     context.getGameController()->subscribe<AttackActionEventData>(transmitter.get());
     context.getGameController()->subscribe<TakeItemActionEventData>(transmitter.get());
     context.getAreaOfEffectPool()->subscribe<AreaOfEffectEventData>(transmitter.get());
     context.getProjectilePool()->subscribe<ProjectileEventData>(transmitter.get());
     context.getWeaponController()->subscribe<MeleeWeaponEventData>(transmitter.get());
-    context.getEffectController()->subscribe<EntityEffectEvent>(transmitter.get());
+    context.getEffectController()->subscribe<ActorEffectEvent>(transmitter.get());
     context.getEffectController()->subscribe<GridEffectEvent>(transmitter.get());
     context.getVisibilityController()->subscribe<TilesRevealedEventData>(transmitter.get());
-    context.getEntityPool()->subscribe<EntitySetPositionEventData>(context.getVisibilityController());
-    context.getEntityPool()->subscribe<EntitySetPositionEventData>(transmitter.get());
-    context.getEntityPool()->subscribe<EntitySetPositionEventData>(dynamic_cast<ServerGameController*>(context.getGameController()));
-    context.getVisibilityController()->subscribe<EntityVisibilityToParticipantData>(transmitter.get());
+    context.getActorPool()->subscribe<ActorSetPositionEventData>(context.getVisibilityController());
+    context.getActorPool()->subscribe<ActorSetPositionEventData>(transmitter.get());
+    context.getActorPool()->subscribe<ActorSetPositionEventData>(dynamic_cast<ServerGameController*>(context.getGameController()));
+    context.getVisibilityController()->subscribe<ActorVisibilityToParticipantData>(transmitter.get());
     context.getGameController()->getEngagementController()->subscribe<CreateEngagementEventData>(transmitter.get());
     context.getGameController()->getEngagementController()->subscribe<AddToEngagementEventData>(transmitter.get());
     context.getGameController()->getEngagementController()->subscribe<DisengageEventData>(transmitter.get());
@@ -101,7 +101,7 @@ void ServerApplication::initialise(void) {
     application->addLogicWorker([&](ApplicationContext& c, auto const& timeSinceLastFrame, auto& quit) {
         server->update(timeSinceLastFrame);
         c.getGameController()->update(timeSinceLastFrame, quit);
-        c.getEntityPool()->updateEntities(timeSinceLastFrame, quit);
+        c.getActorPool()->updateActors(timeSinceLastFrame, quit);
         c.getProjectilePool()->update(timeSinceLastFrame);
         c.getAreaOfEffectPool()->update(timeSinceLastFrame);
         c.getEffectController()->update(timeSinceLastFrame);
@@ -155,13 +155,13 @@ void ServerApplication::onClientConnect(int clientIndex) {
     }
 
     // Temp hack to trigger a grid tile reveal
-    for(auto entity : participant->getEntities()) {
-        entity->setPosition(entity->getPosition());
+    for(auto actor : participant->getActors()) {
+        actor->setPosition(actor->getPosition());
         spdlog::trace(
-            "Entity {} spawned at position ({}, {}) for participant {}", 
-            entity->toString(), 
-            entity->getPosition().x,
-            entity->getPosition().y,
+            "Actor {} spawned at position ({}, {}) for participant {}", 
+            actor->toString(), 
+            actor->getPosition().x,
+            actor->getPosition().y,
             participant->getId()
         );
     }
@@ -234,41 +234,41 @@ void ServerApplication::sendGameStateUpdatesToParticipant(int clientIndex) {
 
     auto chunkId = getNewId();
 
-    auto visibleEntities = context.getGameController()->getParticipant(participantId)->getVisibleEntities();
-    std::vector<Entity*> entitiesBlock;
+    auto visibleActors = context.getGameController()->getParticipant(participantId)->getVisibleActors();
+    std::vector<Actor*> actorsBlock;
 
     // TODO: Handle overflow?
-    uint8_t expectedNumChunks = visibleEntities.size() / MaxEntities;
-    if(visibleEntities.size() % MaxEntities > 0) {
+    uint8_t expectedNumChunks = visibleActors.size() / MaxActors;
+    if(visibleActors.size() % MaxActors > 0) {
         expectedNumChunks++;
     }
 
-    for(auto entity : visibleEntities) {
-        if(entity->getStats().hp <= 0) {
-            std::cout << "Entity with 0 hp, should not happen" << std::endl;
+    for(auto actor : visibleActors) {
+        if(actor->getStats().hp <= 0) {
+            std::cout << "Actor with 0 hp, should not happen" << std::endl;
         }
 
-        entitiesBlock.push_back(entity);
+        actorsBlock.push_back(actor);
 
-        if(entitiesBlock.size() == MaxEntities) {
+        if(actorsBlock.size() == MaxActors) {
             transmitter->sendGameStateUpdate(
                 clientIndex, 
-                GameStateUpdate::serialize(participantId, entitiesBlock, chunkId, expectedNumChunks)
+                GameStateUpdate::serialize(participantId, actorsBlock, chunkId, expectedNumChunks)
             );
-            spdlog::trace("Sent GameStateUpdate [{}] to participant {}", entitiesBlock.size(), participantId);
-            entitiesBlock.clear();
+            spdlog::trace("Sent GameStateUpdate [{}] to participant {}", actorsBlock.size(), participantId);
+            actorsBlock.clear();
         }
     }
 
-    if(!entitiesBlock.empty()) {
+    if(!actorsBlock.empty()) {
         transmitter->sendGameStateUpdate(
             clientIndex, 
-            GameStateUpdate::serialize(participantId, entitiesBlock, chunkId, expectedNumChunks)
+            GameStateUpdate::serialize(participantId, actorsBlock, chunkId, expectedNumChunks)
         );
-        spdlog::trace("Sent GameStateUpdate [{}] to participant {}", entitiesBlock.size(), participantId);
+        spdlog::trace("Sent GameStateUpdate [{}] to participant {}", actorsBlock.size(), participantId);
     }
 
-    spdlog::trace("Total visible entities [{}] to participant {}", visibleEntities.size(), participantId);
+    spdlog::trace("Total visible actors [{}] to participant {}", visibleActors.size(), participantId);
 }
 
 std::vector<GenerationStrategy::Room> ServerApplication::loadMap(void) {
@@ -301,7 +301,7 @@ std::vector<GenerationStrategy::Room> ServerApplication::loadMap(void) {
 // TODO: Eventually move to some kind of map generator class
 void ServerApplication::loadGame(const std::vector<GenerationStrategy::Room>& rooms) {
     auto& context = application->getContext();
-    std::vector<Entity*> enemies;
+    std::vector<Actor*> enemies;
 
     for(auto& room : rooms) {
         if(randomD6() > 3) {
@@ -309,7 +309,7 @@ void ServerApplication::loadGame(const std::vector<GenerationStrategy::Room>& ro
             continue;
         }
 
-        auto entities = context.getSpawnController()->spawnEntities(
+        auto actors = context.getSpawnController()->spawnActors(
             {
                 {
                     { "Space Worm", { "Space Worm Teeth", "Poison Spit" } },
@@ -321,8 +321,8 @@ void ServerApplication::loadGame(const std::vector<GenerationStrategy::Room>& ro
             randomRange(8, 12)
         );
 
-        for(auto entity : entities) {
-            enemies.push_back(entity);
+        for(auto actor : actors) {
+            enemies.push_back(actor);
         }
     }
 
@@ -345,7 +345,7 @@ void ServerApplication::loadGame(const std::vector<GenerationStrategy::Room>& ro
     context.getGameController()->reset();
 }
 
-Entity* ServerApplication::addPlayer(bool hasFreezeGun) {
+Actor* ServerApplication::addPlayer(bool hasFreezeGun) {
     auto& context = application->getContext();
 
     static int i = 0;
@@ -354,7 +354,7 @@ Entity* ServerApplication::addPlayer(bool hasFreezeGun) {
     SpawnController::SpawnBox spawnBoxA = { { 31, 91 }, { 31, 91 } };
     SpawnController::SpawnBox spawnBoxB = { { 15, 91 }, { 15, 91 } };
 
-    auto entities = context.getSpawnController()->spawnEntities(
+    auto actors = context.getSpawnController()->spawnActors(
         {
             {
                 { "Player", { "Grenade Launcher" } }
@@ -367,9 +367,9 @@ Entity* ServerApplication::addPlayer(bool hasFreezeGun) {
 
     i++;
 
-    return entities.front();
+    return actors.front();
 
-    // Entity* player;
+    // Actor* player;
 
     // auto isWalkable = 1000;
     // int x = 0;
@@ -385,13 +385,13 @@ Entity* ServerApplication::addPlayer(bool hasFreezeGun) {
     // }
 
     // if(hasFreezeGun) {
-    //     player = context.getEntityPool()->addEntity("Player FreezeGun");
+    //     player = context.getActorPool()->addActor("Player FreezeGun");
     //     player->setPosition(glm::ivec2(x, y));
     //     auto freezeGun = player->addWeapon(context.getWeaponController()->createWeapon("Freeze Gun", player));
     //     player->setCurrentWeapon(freezeGun->getId());
     // }
     // else {
-    //     player = context.getEntityPool()->addEntity("Player");
+    //     player = context.getActorPool()->addActor("Player");
     //     player->setPosition(glm::ivec2(x, y));
     //     auto grenadeLauncher = player->addWeapon(context.getWeaponController()->createWeapon("Grenade Launcher", player));
     //     player->setCurrentWeapon(grenadeLauncher->getId());

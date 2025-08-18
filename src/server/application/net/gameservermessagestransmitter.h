@@ -21,11 +21,11 @@ class GameServerMessagesTransmitter :
     public EventSubscriber<AreaOfEffectEventData>,
     public EventSubscriber<ProjectileEventData>,
     public EventSubscriber<MeleeWeaponEventData>,
-    public EventSubscriber<EntityEffectEvent>,
+    public EventSubscriber<ActorEffectEvent>,
     public EventSubscriber<GridEffectEvent>,
     public EventSubscriber<TilesRevealedEventData>,
-    public EventSubscriber<EntitySetPositionEventData>,
-    public EventSubscriber<EntityVisibilityToParticipantData>,
+    public EventSubscriber<ActorSetPositionEventData>,
+    public EventSubscriber<ActorVisibilityToParticipantData>,
     public EventSubscriber<CreateEngagementEventData>,
     public EventSubscriber<AddToEngagementEventData>,
     public EventSubscriber<DisengageEventData>,
@@ -53,11 +53,11 @@ public:
     void onPublish(const Event<AreaOfEffectEventData>& event);
     void onPublish(const Event<ProjectileEventData>& event);
     void onPublish(const Event<MeleeWeaponEventData>& event);
-    void onPublish(const Event<EntityEffectEvent>& event);
+    void onPublish(const Event<ActorEffectEvent>& event);
     void onPublish(const Event<GridEffectEvent>& event);
     void onPublish(const Event<TilesRevealedEventData>& event);
-    void onPublish(const Event<EntitySetPositionEventData>& event);
-    void onPublish(const Event<EntityVisibilityToParticipantData>& event);
+    void onPublish(const Event<ActorSetPositionEventData>& event);
+    void onPublish(const Event<ActorVisibilityToParticipantData>& event);
     void onPublish(const Event<CreateEngagementEventData>& event);
     void onPublish(const Event<AddToEngagementEventData>& event);
     void onPublish(const Event<DisengageEventData>& event);

@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include "game/entities/entity.h"
+#include "game/actors/actor.h"
 #include "effecttypes.h"
 #include "game/stats/stats.h"
 
@@ -10,7 +10,7 @@ class Effect {
 public:
     static const int64_t RealTimeTick = 1000;
 
-    Effect(Entity* target, int ownerId, const Stats::EffectStats& stats);
+    Effect(Actor* target, int ownerId, const Stats::EffectStats& stats);
 
     virtual EffectType getType(void) const = 0;
 
@@ -21,7 +21,7 @@ public:
     uint8_t getTicksLeft(void) const;
     void nextTurn(void);
 
-    Entity* getTarget(void);
+    Actor* getTarget(void);
     int getOwnerId(void) const;
 
     int64_t getTimeSinceLastTick(void) const;
@@ -29,7 +29,7 @@ public:
     virtual void onEffectEnd(void) = 0;
 
 protected:
-    Entity* target;
+    Actor* target;
     uint8_t ticksLeft;
     Stats::EffectStats stats;
     int ownerId;
@@ -41,7 +41,7 @@ protected:
 
 class FreezeEffect : public Effect {
 public:
-    FreezeEffect(Entity* target, int ownerId, const Stats::EffectStats& stats);
+    FreezeEffect(Actor* target, int ownerId, const Stats::EffectStats& stats);
 
     void doApply(void);
     void onEffectEnd(void);
@@ -50,7 +50,7 @@ public:
 
 class PoisonEffect : public Effect {
 public:
-    PoisonEffect(Entity* target, int ownerId, const Stats::EffectStats& stats);
+    PoisonEffect(Actor* target, int ownerId, const Stats::EffectStats& stats);
 
     void doApply(void);
     void onEffectEnd(void);

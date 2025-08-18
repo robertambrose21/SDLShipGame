@@ -7,21 +7,21 @@
 #include "spdlog/spdlog.h"
 
 #include "damagesource.h"
-#include "game/entities/entity.h"
+#include "game/actors/actor.h"
 #include "core/event/eventpublisher.h"
 #include "core/grid/grid.h"
 #include "game/event/events.h"
 #include "game/stats/stats.h"
 #include "game/application/applicationcontext.h"
 
-class Entity;
+class Actor;
 class ApplicationContext;
 
 class Weapon {
 protected:
     UUID id;
     std::string name;
-    Entity* owner;
+    Actor* owner;
     DamageSource damageSource;
     Stats::WeaponStats stats;
 
@@ -37,7 +37,7 @@ protected:
 
 public:
     Weapon(
-        Entity* owner,
+        Actor* owner,
         ApplicationContext* context,
         Item* item,
         EventPublisher<MeleeWeaponEventData>& publisher,
@@ -48,7 +48,7 @@ public:
     );
 
     Weapon(
-        Entity* owner, 
+        Actor* owner, 
         ApplicationContext* context,
         Item* item,
         EventPublisher<MeleeWeaponEventData>& publisher,
@@ -74,9 +74,9 @@ public:
 
     UUID getId(void) const;
     std::string getName(void) const;
-    Entity* getOwner(void);
+    Actor* getOwner(void);
     DamageSource getDamageSource(void) const;
 
     Item* getItem(void);
-    void addTo(Stats::EntityStats& entityStats);
+    void addTo(Stats::ActorStats& actorStats);
 };

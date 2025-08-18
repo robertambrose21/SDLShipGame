@@ -1,8 +1,8 @@
 #pragma once
 
 #include "behaviourstrategy.h"
-#include "game/entities/entity.h"
-#include "game/entities/entitypool.h"
+#include "game/actors/actor.h"
+#include "game/actors/actorpool.h"
 #include "game/application/application.h"
 #include "application/net/gameservermessagestransmitter.h"
 #include "game/actions/action.h"
@@ -15,17 +15,17 @@ class GameServerMessagesTransmitter;
 
 class ChaseAndAttackStrategy : public BehaviourStrategy {
 private:
-    typedef struct _entityTurnResult {
+    typedef struct _actorTurnResult {
         bool canPass, canDisengage;
-    } EntityTurnResult;
+    } ActorTurnResult;
 
     GameServerMessagesTransmitter* transmitter;
 
     bool canPassTurn;
     bool canDisengage;
 
-    Weapon* getBestInRangeWeapon(Entity* attacker, const glm::ivec2& target);
-    EntityTurnResult doTurnForEntity(Entity* entity, Participant* participant);
+    Weapon* getBestInRangeWeapon(Actor* attacker, const glm::ivec2& target);
+    ActorTurnResult doTurnForActor(Actor* actor, Participant* participant);
 
 public:
     ChaseAndAttackStrategy(ApplicationContext& context);

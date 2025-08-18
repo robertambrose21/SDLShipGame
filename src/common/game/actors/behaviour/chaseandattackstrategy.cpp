@@ -20,22 +20,22 @@ void ChaseAndAttackStrategy::onUpdate(int participantId, int64_t timeSinceLastFr
         return;
     }
 
-    auto entitiesPassed = 0;
-    auto entitiesDisengaged = 0;
+    auto actorsPassed = 0;
+    auto actorsDisengaged = 0;
 
-    for(auto entity : participant->getEntities()) {
-        auto [canEntityPass, canEntityDisengage] = doTurnForEntity(entity, participant);
+    for(auto actor : participant->getActors()) {
+        auto [canActorPass, canActorDisengage] = doTurnForActor(actor, participant);
         
-        if(canEntityPass) {
-            entitiesPassed++;
+        if(canActorPass) {
+            actorsPassed++;
         }
-        if(canEntityDisengage) {
-            entitiesDisengaged++;
+        if(canActorDisengage) {
+            actorsDisengaged++;
         }
     }
 
-    canPassTurn = entitiesPassed == participant->getEntities().size();
-    canDisengage = entitiesDisengaged == participant->getEntities().size();
+    canPassTurn = actorsPassed == participant->getActors().size();
+    canDisengage = actorsDisengaged == participant->getActors().size();
 
     if(canDisengage) {
         auto participants = gameController->getParticipants();
@@ -48,43 +48,43 @@ void ChaseAndAttackStrategy::onUpdate(int participantId, int64_t timeSinceLastFr
     }
 }
 
-ChaseAndAttackStrategy::EntityTurnResult ChaseAndAttackStrategy::doTurnForEntity(Entity* entity, Participant* participant) {
-    if(!entity->isTurnInProgress()) {
+ChaseAndAttackStrategy::ActorTurnResult ChaseAndAttackStrategy::doTurnForActor(Actor* actor, Participant* participant) {
+    if(!actor->isTurnInProgress()) {
         return { true, false };
     }
 
-    if(entity->getIsFrozen()) {
+    if(actor->getIsFrozen()) {
         return { true, true };
     }
 
-    auto target = getContext().getEntityPool()->findClosestTarget(entity, participant->getId());
+    auto target = getContext().getActorPool()->findClosestTarget(actor, participant->getId());
 
     if(target == nullptr) {
         return { true, true };
     }
 
-    auto bWeapon = getBestInRangeWeapon(entity, target->getPosition());
+    auto bWeapon = getBestInRangeWeapon(actor, target->getPosition());
     auto gameController = getContext().getGameController();
     auto turnNumber = participant->getEngagement()->getTurnNumber();
 
     // TODO: Change 'current weapon' to best melee weapon
-    if(entity->isNeighbour(target)) {
+    if(actor->isNeighbour(target)) {
         auto action = std::make_unique<AttackAction>(
             participant, 
-            entity, 
+            actor, 
             turnNumber, 
-            entity->getCurrentWeapon(), 
+            actor->getCurrentWeapon(), 
             target->getPosition()
         );
         
-        if(entity->getCurrentWeapon()->getUsesLeft() <= 0 || !gameController->queueAction(std::move(action))) {
+        if(actor->getCurrentWeapon()->getUsesLeft() <= 0 || !gameController->queueAction(std::move(action))) {
             return { true, false };
         }
     }
     else if(bWeapon != nullptr) {
         auto action = std::make_unique<AttackAction>(
             participant, 
-            entity, 
+            actor, 
             turnNumber,
             bWeapon, 
             target->getPosition()
@@ -94,11 +94,11 @@ ChaseAndAttackStrategy::EntityTurnResult ChaseAndAttackStrategy::doTurnForEntity
             return { true, false };
         }
     }
-    else if(!entity->hasPath()) {
-        auto distanceToTarget = glm::distance(glm::vec2(entity->getPosition()), glm::vec2(target->getPosition()));
-        auto action = std::make_unique<MoveAction>(participant, entity, turnNumber, target->getPosition(), 1);
+    else if(!actor->hasPath()) {
+        auto distanceToTarget = glm::distance(glm::vec2(actor->getPosition()), glm::vec2(target->getPosition()));
+        auto action = std::make_unique<MoveAction>(participant, actor, turnNumber, target->getPosition(), 1);
         
-        if(!distanceToTarget <= entity->getAggroRange() && !gameController->queueAction(std::move(action))) {
+        if(!distanceToTarget <= actor->getAggroRange() && !gameController->queueAction(std::move(action))) {
             return { true, false };
         }
     }
@@ -107,7 +107,7 @@ ChaseAndAttackStrategy::EntityTurnResult ChaseAndAttackStrategy::doTurnForEntity
 }
 
 Weapon* ChaseAndAttackStrategy::getBestInRangeWeapon(
-    Entity* attacker, 
+    Actor* attacker, 
     const glm::ivec2& target
 ) {
     for(auto weapon : attacker->getWeapons()) {

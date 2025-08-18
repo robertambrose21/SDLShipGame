@@ -5,7 +5,7 @@
 
 class ServerGameController :
     public GameController,
-    public EventSubscriber<EntitySetPositionEventData> {
+    public EventSubscriber<ActorSetPositionEventData> {
 public:
     typedef struct _client {
         uint64_t id;
@@ -23,7 +23,7 @@ public:
     int getParticipantByClientId(uint64_t clientId) const;
     std::map<int, int> getAllAttachedClients(void);
 
-    void onPublish(const Event<EntitySetPositionEventData>& event);
+    void onPublish(const Event<ActorSetPositionEventData>& event);
 
 private:
     std::map<int, Client> participantToClient;
@@ -37,5 +37,5 @@ private:
     void checkForItems(int participantId);
     void assignEngagements(int participantIdToCheck);
     void compareAndEngageParticipants(Participant* participantA, Participant* participantB);
-    bool hasEntityEngagement(Entity* target, Participant* participant);
+    bool hasActorEngagement(Actor* target, Participant* participant);
 };

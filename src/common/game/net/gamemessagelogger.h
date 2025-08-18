@@ -6,8 +6,8 @@
 class GameMessageLogger : public MessageLogger {
 private:
     void logFindPath(FindPathMessage* message, bool isIncoming);
-    void logSelectEntity(SelectEntityMessage* message, bool isIncoming);
-    void logAttackEntity(AttackMessage* message, bool isIncoming);
+    void logSelectActor(SelectActorMessage* message, bool isIncoming);
+    void logAttackActor(AttackMessage* message, bool isIncoming);
     void logGameStateUpdate(GameStateUpdateMessage* message, bool isIncoming);
     void logSetParticipant(SetParticipantMessage* message, bool isIncoming);
     void logSetParticipantAck(SetParticipantAckMessage* message, bool isIncoming);
@@ -19,7 +19,7 @@ private:
     void logEquipItem(EquipItemMessage* message, bool isIncoming);
     void logEquipWeapon(EquipWeaponMessage* message, bool isIncoming);
     void logApplyDamage(ApplyDamageMessage* message, bool isIncoming);
-    void logApplyEntityEffect(ApplyEntityEffectMessage* message, bool isIncoming);
+    void logApplyActorEffect(ApplyActorEffectMessage* message, bool isIncoming);
     void logApplyGridEffect(ApplyGridEffectMessage* message, bool isIncoming);
 
 public:

@@ -72,11 +72,11 @@ namespace Stats {
         uint8_t range = 0;
     } WeaponStats;
 
-    typedef struct _entityStats : public EquipmentStats {
+    typedef struct _actorStats : public EquipmentStats {
         uint32_t totalHp = 0;
         uint8_t movesPerTurn = 0;
         uint8_t movesLeft = 0;
-    } EntityStats;
+    } ActorStats;
 
     typedef struct _itemStats { 
         GearStats gear;
@@ -202,7 +202,7 @@ namespace Stats {
         return categories;
     }
 
-    static std::map<StatCategory, std::vector<StatsPair>> calculateEntityStatCategories(const EntityStats& stats) {
+    static std::map<StatCategory, std::vector<StatsPair>> calculateActorStatCategories(const ActorStats& stats) {
         std::map<StatCategory, std::vector<StatsPair>> categories;
 
         categories[ENTITY].push_back({ "HP", std::format("{}/{}", stats.hp, stats.totalHp) });
@@ -217,17 +217,17 @@ namespace Stats {
         return categories;
     }
 
-    static void addEquipmentStatsToEntity(EntityStats& entityStats, const EquipmentStats& equipment) {
-        entityStats.hp += equipment.hp;
-        entityStats.totalHp += equipment.hp;
+    static void addEquipmentStatsToActor(ActorStats& actorStats, const EquipmentStats& equipment) {
+        actorStats.hp += equipment.hp;
+        actorStats.totalHp += equipment.hp;
 
-        entityStats.armour += equipment.armour;
-        entityStats.power += equipment.power;
-        entityStats.speed += equipment.speed;
-        entityStats.wisdom += equipment.wisdom;
+        actorStats.armour += equipment.armour;
+        actorStats.power += equipment.power;
+        actorStats.speed += equipment.speed;
+        actorStats.wisdom += equipment.wisdom;
 
         // Temp calculation, needs balancing
-        entityStats.movesPerTurn += equipment.speed / 5;
-        entityStats.movesLeft += equipment.speed / 5;
+        actorStats.movesPerTurn += equipment.speed / 5;
+        actorStats.movesLeft += equipment.speed / 5;
     }
 }

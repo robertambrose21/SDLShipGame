@@ -2,7 +2,7 @@
 
 ApplicationContext::ApplicationContext(
     Grid* grid,
-    EntityPool* entityPool,
+    ActorPool* actorPool,
     WeaponController* weaponController,
     ProjectilePool* projectilePool,
     AreaOfEffectPool* areaOfEffectPool,
@@ -13,7 +13,7 @@ ApplicationContext::ApplicationContext(
     VisiblityController* visiblityController
 ) :
     grid(grid),
-    entityPool(entityPool),
+    actorPool(actorPool),
     weaponController(weaponController),
     projectilePool(projectilePool),
     areaOfEffectPool(areaOfEffectPool),
@@ -24,8 +24,8 @@ ApplicationContext::ApplicationContext(
     visiblityController(visiblityController)
 { }
 
-EntityPool* ApplicationContext::getEntityPool(void) {
-    return entityPool;
+ActorPool* ApplicationContext::getActorPool(void) {
+    return actorPool;
 }
 
 WeaponController* ApplicationContext::getWeaponController(void) {

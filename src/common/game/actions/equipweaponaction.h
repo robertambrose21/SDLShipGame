@@ -8,14 +8,14 @@ class EquipWeaponAction : public Action{
 public:
     EquipWeaponAction(
         Participant* participant, 
-        Entity* entity, 
+        Actor* actor, 
         Item* item, 
         const UUID& weaponId,
         bool isUnequip = false
     );
     EquipWeaponAction(
         Participant* participant, 
-        Entity* entity, 
+        Actor* actor, 
         int turnNumber, 
         Item* item, 
         const UUID& weaponId,
