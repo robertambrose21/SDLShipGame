@@ -21,7 +21,8 @@ ApplicationContext::ApplicationContext(
     itemController(itemController),
     effectController(effectController),
     spawnController(spawnController),
-    visiblityController(visiblityController)
+    visiblityController(visiblityController),
+    systemRegistry(std::make_unique<SystemRegistry>(registry))
 { }
 
 ActorPool* ApplicationContext::getActorPool(void) {
@@ -76,4 +77,8 @@ ServerMessagesTransmitter* ApplicationContext::getServerMessagesTransmitter(void
 
 entt::registry& ApplicationContext::getEntityRegistry(void) {
     return registry;
+}
+
+SystemRegistry* ApplicationContext::getSystemRegistry(void) {
+    return systemRegistry.get();
 }

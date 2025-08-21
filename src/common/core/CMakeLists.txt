@@ -27,6 +27,7 @@ add_library(
     event/eventpublisher.h
     event/eventsubscriber.h
     ecs/components/factioned.cpp
+    ecs/systemregistry.cpp
 )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX CXX_STANDARD 20)

@@ -5,6 +5,7 @@
 #include "game/net/messages.h"
 #include "core/net/servermessagestransmitter.h"
 #include "core/util/gameassert.h"
+#include "core/ecs/systemregistry.h"
 
 class Grid;
 class ActorPool;
@@ -47,6 +48,7 @@ public:
     ServerMessagesTransmitter* getServerMessagesTransmitter(void);
 
     entt::registry& getEntityRegistry(void);
+    SystemRegistry* getSystemRegistry(void);
 
 private:
     Grid* grid;
@@ -62,4 +64,5 @@ private:
     ServerMessagesTransmitter* transmitter;
 
     entt::registry registry;
+    std::unique_ptr<SystemRegistry> systemRegistry;
 };
