@@ -73,3 +73,7 @@ ServerMessagesTransmitter* ApplicationContext::getServerMessagesTransmitter(void
     game_assert(transmitter != NULL);
     return transmitter;
 }
+
+entt::registry& ApplicationContext::getEntityRegistry(void) {
+    return registry;
+}

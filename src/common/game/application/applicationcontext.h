@@ -1,5 +1,7 @@
 #pragma once
 
+#include <entt/entt.hpp>
+
 #include "game/net/messages.h"
 #include "core/net/servermessagestransmitter.h"
 #include "core/util/gameassert.h"
@@ -16,19 +18,6 @@ class SpawnController;
 class VisiblityController;
 
 class ApplicationContext {
-private:
-    Grid* grid;
-    ActorPool* actorPool;
-    WeaponController* weaponController;
-    ProjectilePool* projectilePool;
-    AreaOfEffectPool* areaOfEffectPool;
-    GameController* gameController;
-    ItemController* itemController;
-    EffectController* effectController;
-    SpawnController* spawnController;
-    VisiblityController* visiblityController;
-    ServerMessagesTransmitter* transmitter;
-
 public:
     ApplicationContext(
         Grid* grid,
@@ -56,4 +45,21 @@ public:
 
     void setServerMessagesTransmitter(ServerMessagesTransmitter* transmitter);
     ServerMessagesTransmitter* getServerMessagesTransmitter(void);
+
+    entt::registry& getEntityRegistry(void);
+
+private:
+    Grid* grid;
+    ActorPool* actorPool;
+    WeaponController* weaponController;
+    ProjectilePool* projectilePool;
+    AreaOfEffectPool* areaOfEffectPool;
+    GameController* gameController;
+    ItemController* itemController;
+    EffectController* effectController;
+    SpawnController* spawnController;
+    VisiblityController* visiblityController;
+    ServerMessagesTransmitter* transmitter;
+
+    entt::registry registry;
 };

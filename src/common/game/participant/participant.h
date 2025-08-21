@@ -6,7 +6,7 @@
 #include <optional>
 
 #include "spdlog/spdlog.h"
-#include "core/components/factioned.h"
+#include "core/ecs/components/factioned.h"
 
 class Actor;
 class BehaviourStrategy;

@@ -11,7 +11,7 @@ Actor::Actor(
     id(id),
     publisher(publisher),
     name(name),
-    stats(stats),
+    stats(std::move(stats)),
     baseStats(stats),
     grid(grid),
     currentWeapon(nullptr),

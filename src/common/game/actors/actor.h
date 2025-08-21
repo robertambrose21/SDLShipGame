@@ -50,6 +50,9 @@ public:
 
     const uint32_t MOVES_PER_SECOND = 5;
 
+    Actor(Actor&&) = default;
+    Actor& operator=(Actor&&) = default; 
+
     Actor(
         Grid* grid,
         uint32_t id,
