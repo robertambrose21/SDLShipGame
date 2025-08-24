@@ -264,17 +264,18 @@ Actor* ActorPool::addActor(const std::string& name, uint32_t id) {
 
     auto entity = registry.create();
     registry.emplace<uint32_t>(entity, id);
+    registry.emplace<Drawable>(entity, definition.textureId, UINT32_C(6), Colour { definition.r, definition.g, definition.b, definition.a});
     auto actor = &registry.emplace<Actor>(entity, context->getGrid(), id, *this, definition.name, stats);
     actorIdsToEntities[id] = entity;
 
-    actor->setTextureId(definition.textureId);
-    actor->setColour({
-        definition.r,
-        definition.g,
-        definition.b,
-        definition.a
-    });
-    actor->setSelectedTextureId(6);
+    // actor->setTextureId(definition.textureId);
+    // actor->setColour({
+    //     definition.r,
+    //     definition.g,
+    //     definition.b,
+    //     definition.a
+    // });
+    // actor->setSelectedTextureId(6);
 
     return actor;
 }
@@ -299,7 +300,7 @@ std::vector<Actor*> ActorPool::getActors(void) {
     game_assert(initialised);
     std::vector<Actor*> vActors;
     
-    for(auto [_, actor]: context->getEntityRegistry().view<Actor>().each()) {
+    for(auto [_, actor] : context->getEntityRegistry().view<Actor>().each()) {
         vActors.push_back(&actor);
     }
 

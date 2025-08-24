@@ -50,6 +50,9 @@ add_library(
     net/gamemessagelogger.cpp
     participant/participant.cpp
     data/tiles.h
+    ecs/components/drawable.h
+    ecs/logicsystemregistry.cpp
+    ecs/drawsystemregistry.cpp
 )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX CXX_STANDARD 20)

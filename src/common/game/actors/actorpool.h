@@ -15,6 +15,7 @@
 #include "core/event/eventpublisher.h"
 #include "game/application/applicationcontext.h"
 #include "game/items/loottable.h"
+#include "game/ecs/components/drawable.h"
 
 using json = nlohmann::json;
 

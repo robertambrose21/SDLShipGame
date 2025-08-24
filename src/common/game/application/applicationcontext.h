@@ -5,7 +5,8 @@
 #include "game/net/messages.h"
 #include "core/net/servermessagestransmitter.h"
 #include "core/util/gameassert.h"
-#include "core/ecs/systemregistry.h"
+#include "game/ecs/logicsystemregistry.h"
+// #include "game/ecs/drawsystemregistry.h"
 
 class Grid;
 class ActorPool;
@@ -17,6 +18,8 @@ class ItemController;
 class EffectController;
 class SpawnController;
 class VisiblityController;
+class LogicSystemRegistry;
+// class DrawSystemRegistry;
 
 class ApplicationContext {
 public:
@@ -48,7 +51,8 @@ public:
     ServerMessagesTransmitter* getServerMessagesTransmitter(void);
 
     entt::registry& getEntityRegistry(void);
-    SystemRegistry* getSystemRegistry(void);
+    LogicSystemRegistry* getLogicSystemRegistry(void);
+    // DrawSystemRegistry* getDrawSystemRegistry(void);
 
 private:
     Grid* grid;
@@ -64,5 +68,6 @@ private:
     ServerMessagesTransmitter* transmitter;
 
     entt::registry registry;
-    std::unique_ptr<SystemRegistry> systemRegistry;
+    std::unique_ptr<LogicSystemRegistry> logicSystemRegistry;
+    // std::unique_ptr<DrawSystemRegistry> drawSystemRegistry;
 };

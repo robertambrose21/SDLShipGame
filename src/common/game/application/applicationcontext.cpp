@@ -22,7 +22,7 @@ ApplicationContext::ApplicationContext(
     effectController(effectController),
     spawnController(spawnController),
     visiblityController(visiblityController),
-    systemRegistry(std::make_unique<SystemRegistry>(registry))
+    logicSystemRegistry(std::make_unique<LogicSystemRegistry>(registry))
 { }
 
 ActorPool* ApplicationContext::getActorPool(void) {
@@ -79,6 +79,10 @@ entt::registry& ApplicationContext::getEntityRegistry(void) {
     return registry;
 }
 
-SystemRegistry* ApplicationContext::getSystemRegistry(void) {
-    return systemRegistry.get();
+LogicSystemRegistry* ApplicationContext::getLogicSystemRegistry(void) {
+    return logicSystemRegistry.get();
 }
+
+// DrawSystemRegistry* ApplicationContext::getDrawSystemRegistry(void) {
+//     return drawSystemRegistry.get();
+// }

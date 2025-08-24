@@ -56,6 +56,9 @@ void ClientApplication::initialise(void) {
     context.getGameController()->getEngagementController()
         ->subscribe<RemoveEngagementEventData>(dynamic_cast<ClientGameController*>(context.getGameController()));
 
+    drawSystemRegistry = std::make_unique<DrawSystemRegistry>(context.getEntityRegistry());
+    drawSystemRegistry->addSystem(std::make_unique<ActorDrawSystem>("ActorDrawSystem"));
+
     weaponDrawStrategy = std::make_unique<WeaponDrawStrategy>();
     actorDrawStrategy = std::make_unique<ActorDrawStrategy>(weaponDrawStrategy.get());
     projectileDrawStrategy = std::make_unique<ProjectileDrawStrategy>();
@@ -163,10 +166,11 @@ void ClientApplication::drawGameLoop(GraphicsContext& graphicsContext) {
     auto areaOfEffectPool = context.getAreaOfEffectPool();
     auto itemController = context.getItemController();
 
+    drawSystemRegistry->draw(graphicsContext);
+
     for(auto& item : itemController->getWorldItems()) {
         itemDrawStrategy->draw(item, graphicsContext);
     }
-
 
     for(auto const& [_, aoes] : areaOfEffectPool->getEngagementAoEs()) {
         for(auto const& aoe : aoes) {
