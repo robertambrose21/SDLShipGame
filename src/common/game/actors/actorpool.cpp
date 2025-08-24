@@ -79,8 +79,8 @@ void ActorPool::updateActors(int64_t timeSinceLastFrame, bool& quit) {
     
     actorsForDeletion.clear();
 
-    for(auto& [actorId, actor] : actors) {
-        updateActor(actor.get(), timeSinceLastFrame, quit);
+    for(auto [_, actor]: context->getEntityRegistry().view<Actor>().each()) {
+        updateActor(&actor, timeSinceLastFrame, quit);
     }
 }
 
@@ -108,8 +108,8 @@ void ActorPool::killActor(uint32_t actorId) {
     }
 
     publish<ActorEventData>({ actor, "Death" });
-
-    actors.erase(actorId);
+    context->getEntityRegistry().destroy(actorIdsToEntities[actorId]);
+    actorIdsToEntities.erase(actorId);
 }
 
 // TODO: Doing too much, break this up
@@ -126,12 +126,12 @@ bool ActorPool::applyChunkedGameStateUpdate(const ChunkedGameStateUpdate& chunke
         for(int i = 0; i < update.numActors; i++) {
             auto const& actorUpdate = update.actors[i];
 
-            if(!actors.contains(actorUpdate.id)) {
+            if(!actorIdsToEntities.contains(actorUpdate.id)) {
                 auto const& actor = addActor(actorUpdate.name, actorUpdate.id);
                 context->getGameController()->addActorToParticipant(actorUpdate.participantId, actor);   
             }
 
-            auto& existing = actors[actorUpdate.id];
+            auto existing = getActor(actorUpdate.id);
 
             // Weapons
             for(int j = 0; j < actorUpdate.numWeapons; j++) {
@@ -140,7 +140,7 @@ bool ActorPool::applyChunkedGameStateUpdate(const ChunkedGameStateUpdate& chunke
                 
                 if(!existing->hasWeapon(weaponId)) {
                     spdlog::trace("Syncing weapon {} to actor {}", weaponId.getString(), existing->getId());
-                    auto weapon = context->getWeaponController()->createWeapon(weaponId, weaponUpdate.name, existing.get());
+                    auto weapon = context->getWeaponController()->createWeapon(weaponId, weaponUpdate.name, existing);
                     
                     if(weapon->getItem() != nullptr && weaponUpdate.hasItem) {
                         weapon->getItem()->setId(weaponUpdate.itemId);
@@ -150,12 +150,12 @@ bool ActorPool::applyChunkedGameStateUpdate(const ChunkedGameStateUpdate& chunke
                 }
             }
 
-            ActorStateUpdate::deserialize(actorUpdate, existing.get());
+            ActorStateUpdate::deserialize(actorUpdate, existing);
 
             if(actorUpdate.currentHP <= 0) {
                 actorsForDeletion.insert(actorUpdate.id);
             } else {
-                updatedActors[actorUpdate.id] = actors[actorUpdate.id].get();
+                updatedActors[actorUpdate.id] = getActor(actorUpdate.id);
             }
 
             // std::cout << "Actor [" << update.actors[i].participantId << "] " << update.actors[i].name << "#" 
@@ -168,9 +168,9 @@ bool ActorPool::applyChunkedGameStateUpdate(const ChunkedGameStateUpdate& chunke
     }
 
     // Remove any actors which weren't present in the updates
-    for(auto& [actorId, actor] : actors) {
-        if(!updatedActors.contains(actorId)) {
-            actorsForDeletion.insert(actorId);
+    for(auto [_, actor]: context->getEntityRegistry().view<Actor>().each()) {
+         if(!updatedActors.contains(actor.getId())) {
+            actorsForDeletion.insert(actor.getId());
         }
     }
 
@@ -246,15 +246,6 @@ void ActorPool::addGameStateUpdate(const GameStateUpdate& update) {
     }
 }
 
-Actor* ActorPool::addActor(std::unique_ptr<Actor> actor) {
-    game_assert(initialised);
-    game_assert(!actors.contains(actor->getId()));
-
-    auto id = actor->getId();
-    actors[id] = std::move(actor);
-    return actors[id].get();
-}
-
 Actor* ActorPool::addActor(const std::string& name, uint32_t id) {
     game_assert(initialised);
     game_assert(actorDefinitions.contains(name));
@@ -268,24 +259,25 @@ Actor* ActorPool::addActor(const std::string& name, uint32_t id) {
     stats.movesPerTurn = definition.movesPerTurn;
     stats.movesLeft = definition.movesPerTurn;
     stats.armour = definition.armour;
-    
-    auto actor = std::make_unique<Actor>(
-        context->getGrid(),
-        id,
-        *this,
-        definition.name,
-        stats
-    );
-    actor->setTextureId(definition.textureId);
-    actor->setColour({
-        definition.r,
-        definition.g,
-        definition.b,
-        definition.a
-    });
-    actor->setSelectedTextureId(6);
 
-    return addActor(std::move(actor));
+    auto& registry = context->getEntityRegistry();
+
+    auto entity = registry.create();
+    registry.emplace<uint32_t>(entity, id);
+    registry.emplace<Drawable>(entity, definition.textureId, UINT32_C(6), Colour { definition.r, definition.g, definition.b, definition.a});
+    auto actor = &registry.emplace<Actor>(entity, context->getGrid(), id, *this, definition.name, stats);
+    actorIdsToEntities[id] = entity;
+
+    // actor->setTextureId(definition.textureId);
+    // actor->setColour({
+    //     definition.r,
+    //     definition.g,
+    //     definition.b,
+    //     definition.a
+    // });
+    // actor->setSelectedTextureId(6);
+
+    return actor;
 }
 
 Actor* ActorPool::addActor(const std::string& name) {
@@ -294,20 +286,22 @@ Actor* ActorPool::addActor(const std::string& name) {
 }
 
 void ActorPool::removeActor(uint32_t id) {
-    auto participant = context->getGameController()->getParticipant(actors[id]->getParticipantId());
+    auto actor = getActor(id);
+
+    auto participant = context->getGameController()->getParticipant(actor->getParticipantId());
     
-    participant->removeActor(actors[id].get());
-    actors.erase(id);
+    participant->removeActor(actor);
+    context->getEntityRegistry().destroy(actorIdsToEntities[id]);
+    actorIdsToEntities.erase(id);
 }
 
+// TODO: Dumb - delete me
 std::vector<Actor*> ActorPool::getActors(void) {
     game_assert(initialised);
     std::vector<Actor*> vActors;
     
-    for(auto& [_, actor] : actors) {
-        if(actor != nullptr) {
-            vActors.push_back(actor.get());
-        }
+    for(auto [_, actor] : context->getEntityRegistry().view<Actor>().each()) {
+        vActors.push_back(&actor);
     }
 
     return vActors;
@@ -315,29 +309,33 @@ std::vector<Actor*> ActorPool::getActors(void) {
 
 Actor* ActorPool::getActor(uint32_t id) {
     game_assert(initialised);
-    game_assert(actors.contains(id));
-    return actors[id].get();
+    game_assert(actorIdsToEntities.contains(id));
+    return getActorByEntityId(actorIdsToEntities[id]);
+}
+
+Actor* ActorPool::getActorByEntityId(entt::entity entityId) const {
+    return &context->getEntityRegistry().get<Actor>(entityId);
 }
 
 bool ActorPool::hasActor(uint32_t id) {
     game_assert(initialised);
-    return actors.contains(id);
+    return actorIdsToEntities.contains(id);
 }
 
 Actor* ActorPool::findClosestTarget(Actor* attacker, int participantId) {
     Actor* closestActor = nullptr;
     auto shortestDistance = attacker->getDisengagementRange();
     
-    for(auto& [_, actor] : actors) {
-        if(actor->getParticipantId() == participantId) {
+    for(auto [_, actor]: context->getEntityRegistry().view<Actor>().each()) {
+        if(actor.getParticipantId() == participantId) {
             continue;
         }
 
-        auto distance = glm::distance(glm::vec2(attacker->getPosition()), glm::vec2(actor->getPosition()));
+        auto distance = glm::distance(glm::vec2(attacker->getPosition()), glm::vec2(actor.getPosition()));
 
         if(distance < shortestDistance) {
             shortestDistance = distance;
-            closestActor = actor.get();
+            closestActor = &actor;
         }
     }
 

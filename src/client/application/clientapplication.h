@@ -17,6 +17,8 @@
 #include "core/grid/generation/wfctileset.h"
 #include "game/spawn/spawncontroller.h"
 #include "game/application/visibilitycontroller.h"
+#include "game/ecs/drawsystemregistry.h"
+#include "graphics/ecs/systems/actordrawsytem.h"
 
 class ClientApplication {
 private:
@@ -30,6 +32,8 @@ private:
     StdOutSubscriber stdoutSubscriber;
 
     std::unique_ptr<ClientStateMachine> clientStateMachine;
+
+    std::unique_ptr<DrawSystemRegistry> drawSystemRegistry;
 
     std::unique_ptr<ActorDrawStrategy> actorDrawStrategy;
     std::unique_ptr<WeaponDrawStrategy> weaponDrawStrategy;

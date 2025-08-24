@@ -21,7 +21,8 @@ ApplicationContext::ApplicationContext(
     itemController(itemController),
     effectController(effectController),
     spawnController(spawnController),
-    visiblityController(visiblityController)
+    visiblityController(visiblityController),
+    logicSystemRegistry(std::make_unique<LogicSystemRegistry>(registry))
 { }
 
 ActorPool* ApplicationContext::getActorPool(void) {
@@ -73,3 +74,15 @@ ServerMessagesTransmitter* ApplicationContext::getServerMessagesTransmitter(void
     game_assert(transmitter != NULL);
     return transmitter;
 }
+
+entt::registry& ApplicationContext::getEntityRegistry(void) {
+    return registry;
+}
+
+LogicSystemRegistry* ApplicationContext::getLogicSystemRegistry(void) {
+    return logicSystemRegistry.get();
+}
+
+// DrawSystemRegistry* ApplicationContext::getDrawSystemRegistry(void) {
+//     return drawSystemRegistry.get();
+// }

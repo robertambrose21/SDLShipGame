@@ -22,10 +22,19 @@ find_package(SDL2TTF REQUIRED)
 find_package(glm REQUIRED)
 find_package(spdlog REQUIRED)
 
+include(FetchContent)
+FetchContent_Declare(
+    entt
+    GIT_REPOSITORY https://github.com/skypjack/entt.git
+    GIT_TAG v3.15.0
+)
+FetchContent_MakeAvailable(entt)
+
 include_directories(
      ${SDL2_INCLUDE_DIRS} 
      ${SDL2_IMAGE_DIRS} 
      ${SDL2TTF_DIRS} 
+     ${entt_SOURCE_DIR}/src
      . 
      ./yojimbo/include
      ./yojimbo/serialize
@@ -54,6 +63,7 @@ target_link_libraries(
      stduuid 
      fastwfc 
      spdlog::spdlog
+     EnTT::EnTT
 )
 
 add_executable(ShipGameClient src/client/main.cpp)
@@ -66,4 +76,5 @@ target_link_libraries(
      Threads::Threads 
      stduuid 
      spdlog::spdlog
+     EnTT::EnTT
 )

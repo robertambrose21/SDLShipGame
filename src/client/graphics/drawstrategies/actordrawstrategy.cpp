@@ -9,17 +9,17 @@ void ActorDrawStrategy::draw(Actor* drawable, GraphicsContext& graphicsContext) 
     auto colour = drawable->getColour();
     auto position = drawable->getPosition();
 
-    gridRenderer.draw(
-        graphicsContext,
-        drawable->getTextureId(),
-        { colour.r, colour.g, colour.b },
-        colour.a,
-        position
-    );
+    // gridRenderer.draw(
+    //     graphicsContext,
+    //     drawable->getTextureId(),
+    //     { colour.r, colour.g, colour.b },
+    //     colour.a,
+    //     position
+    // );
 
-    if(drawable->isSelected()) {
-        gridRenderer.draw(graphicsContext, drawable->getSelectedTextureId(), position);
-    }
+    // if(drawable->isSelected()) {
+    //     gridRenderer.draw(graphicsContext, drawable->getSelectedTextureId(), position);
+    // }
 
     for(auto& weapon : drawable->getWeapons()) {
         weaponDrawStrategy->draw(weapon, graphicsContext);

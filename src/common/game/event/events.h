@@ -5,7 +5,7 @@
 
 #include "core/glmimport.h"
 #include "core/util/idgenerator.h"
-#include "core/components/factioned.h"
+#include "core/ecs/components/factioned.h"
 #include "game/effects/effecttypes.h"
 #include "game/stats/stats.h"
 #include "game/data/tiles.h"

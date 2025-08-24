@@ -1,8 +1,12 @@
 #pragma once
 
+#include <entt/entt.hpp>
+
 #include "game/net/messages.h"
 #include "core/net/servermessagestransmitter.h"
 #include "core/util/gameassert.h"
+#include "game/ecs/logicsystemregistry.h"
+// #include "game/ecs/drawsystemregistry.h"
 
 class Grid;
 class ActorPool;
@@ -14,21 +18,10 @@ class ItemController;
 class EffectController;
 class SpawnController;
 class VisiblityController;
+class LogicSystemRegistry;
+// class DrawSystemRegistry;
 
 class ApplicationContext {
-private:
-    Grid* grid;
-    ActorPool* actorPool;
-    WeaponController* weaponController;
-    ProjectilePool* projectilePool;
-    AreaOfEffectPool* areaOfEffectPool;
-    GameController* gameController;
-    ItemController* itemController;
-    EffectController* effectController;
-    SpawnController* spawnController;
-    VisiblityController* visiblityController;
-    ServerMessagesTransmitter* transmitter;
-
 public:
     ApplicationContext(
         Grid* grid,
@@ -56,4 +49,25 @@ public:
 
     void setServerMessagesTransmitter(ServerMessagesTransmitter* transmitter);
     ServerMessagesTransmitter* getServerMessagesTransmitter(void);
+
+    entt::registry& getEntityRegistry(void);
+    LogicSystemRegistry* getLogicSystemRegistry(void);
+    // DrawSystemRegistry* getDrawSystemRegistry(void);
+
+private:
+    Grid* grid;
+    ActorPool* actorPool;
+    WeaponController* weaponController;
+    ProjectilePool* projectilePool;
+    AreaOfEffectPool* areaOfEffectPool;
+    GameController* gameController;
+    ItemController* itemController;
+    EffectController* effectController;
+    SpawnController* spawnController;
+    VisiblityController* visiblityController;
+    ServerMessagesTransmitter* transmitter;
+
+    entt::registry registry;
+    std::unique_ptr<LogicSystemRegistry> logicSystemRegistry;
+    // std::unique_ptr<DrawSystemRegistry> drawSystemRegistry;
 };
