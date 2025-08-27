@@ -9,4 +9,12 @@ public:
     ActorDrawSystem(const std::string& name);
 
     void draw(entt::registry& registry, GraphicsContext& graphicsContext);
+
+private:
+    void drawHealthBar(
+        GraphicsContext& graphicsContext, 
+        const glm::ivec2& position,
+        int totalHP,
+        int currentHP
+    );
 };

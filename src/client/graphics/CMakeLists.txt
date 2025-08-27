@@ -23,7 +23,6 @@ add_library(
     ui/diagnosticspanel.cpp
     camera.cpp
     drawstrategies/drawstrategy.h
-    drawstrategies/actordrawstrategy.cpp
     drawstrategies/weapondrawstrategy.cpp
     drawstrategies/projectiledrawstrategy.cpp
     drawstrategies/areaofeffectdrawstrategy.cpp

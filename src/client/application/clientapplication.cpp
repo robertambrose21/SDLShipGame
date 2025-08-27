@@ -60,7 +60,6 @@ void ClientApplication::initialise(void) {
     drawSystemRegistry->addSystem(std::make_unique<ActorDrawSystem>("ActorDrawSystem"));
 
     weaponDrawStrategy = std::make_unique<WeaponDrawStrategy>();
-    actorDrawStrategy = std::make_unique<ActorDrawStrategy>(weaponDrawStrategy.get());
     projectileDrawStrategy = std::make_unique<ProjectileDrawStrategy>();
     areaOfEffectDrawStrategy = std::make_unique<AreaOfEffectDrawStrategy>();
     itemDrawStrategy = std::make_unique<ItemDrawStrategy>();
@@ -180,10 +179,6 @@ void ClientApplication::drawGameLoop(GraphicsContext& graphicsContext) {
     
     for(auto const& aoe : areaOfEffectPool->getAdhocAoEs()) {
         areaOfEffectDrawStrategy->draw(aoe.get(), graphicsContext);
-    }
-
-    for(auto actor : actorPool->getActors()) {
-        actorDrawStrategy->draw(actor, graphicsContext);
     }
 
     for(auto projectile : projectilePool->getAllProjectiles()) {
