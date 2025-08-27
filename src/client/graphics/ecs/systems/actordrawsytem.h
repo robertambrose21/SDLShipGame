@@ -8,5 +8,5 @@ public:
     ActorDrawSystem() = delete;
     ActorDrawSystem(const std::string& name);
 
-    void update(entt::registry& registry, GraphicsContext& graphicsContext, int64_t timeSinceLastFrame);
+    void draw(entt::registry& registry, GraphicsContext& graphicsContext);
 };

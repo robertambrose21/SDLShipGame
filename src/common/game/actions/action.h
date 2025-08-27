@@ -2,6 +2,7 @@
 
 #include <optional>
 #include <any>
+#include <variant>
 
 #include "spdlog/spdlog.h"
 

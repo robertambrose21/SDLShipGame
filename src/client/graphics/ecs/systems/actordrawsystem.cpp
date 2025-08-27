@@ -5,7 +5,7 @@ ActorDrawSystem::ActorDrawSystem(const std::string& name) :
 { }
 
 // TODO: get rid of Actor view
-void ActorDrawSystem::update(entt::registry& registry, GraphicsContext& graphicsContext, int64_t timeSinceLastFrame) {
+void ActorDrawSystem::draw(entt::registry& registry, GraphicsContext& graphicsContext) {
     for(auto [_, drawable, actor]: registry.view<Drawable, Actor>().each()) {
         auto& gridRenderer = graphicsContext.getGridRenderer();
 
