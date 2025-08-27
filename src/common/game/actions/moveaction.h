@@ -1,6 +1,7 @@
 #pragma once
 
 #include <deque>
+#include <algorithm>
 
 #include "game/actors/actor.h"
 #include "action.h"

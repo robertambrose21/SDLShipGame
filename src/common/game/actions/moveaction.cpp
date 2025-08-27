@@ -94,7 +94,15 @@ void MoveAction::onExecute(ApplicationContext* context) {
 }
 
 bool MoveAction::hasFinished(void) {
-    return actor->getMovesLeft() <= 0 || actor->getPosition() == path[path.size() - shortStopSteps - 1];
+    if(actor->getMovesLeft() <= 0) {
+        return true;
+    }
+
+    if(path.empty()) {
+        return true;
+    }
+
+    return actor->getPosition() == path[std::min(path.size() - shortStopSteps - 1, 0UL)];
 }
 
 std::deque<glm::ivec2> MoveAction::getPath(bool recalculate) {
