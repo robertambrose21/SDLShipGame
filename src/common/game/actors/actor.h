@@ -29,7 +29,7 @@ struct ActorEventData {
 
 class Actor {
 public:
-    // TODO: Move this out of actor class
+    // TODO: Remove me
     typedef struct _colour {
         uint8_t r, g, b, a;
 
@@ -116,8 +116,7 @@ public:
         return filteredActors;
     }
 
-    void update(int64_t timeSinceLastFrame, bool& quit);
-
+    // TODO: Remove all this drawable stuff
     void setTextureId(uint32_t textureId);
     void setSelectedTextureId(uint32_t selectedTexture);
     uint32_t getTextureId(void) const;
@@ -171,6 +170,11 @@ public:
     void setPath(const std::deque<glm::ivec2>& path);
     bool isNeighbour(Actor* actor) const;
     bool hasPath(void);
+    glm::ivec2 popPath(void);
+
+    void setTimeSinceLastMoved(int64_t timeSinceLastMoved);
+    void incrementTimeSinceLastMoved(int64_t amount);
+    int64_t getTimeSinceLastMoved(void) const;
 
     int getMovesLeft(void) const;
     void setMovesLeft(int movesLeft);
@@ -218,7 +222,7 @@ private:
 
     glm::ivec2 position;
     std::deque<glm::ivec2> path;
-    uint32_t timeSinceLastMoved;
+    int64_t timeSinceLastMoved;
 
     Stats::ActorStats baseStats;
     Stats::ActorStats stats;

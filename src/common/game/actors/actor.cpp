@@ -59,38 +59,6 @@ Actor::Colour Actor::getColour(void) const {
     return colour;
 }
 
-void Actor::update(int64_t timeSinceLastFrame, bool& quit) {
-    for(auto& [_, weapon] : weapons) {
-        weapon->update(timeSinceLastFrame);
-    }
-
-    if(isFrozen) {
-        return;
-    }
-    
-    if(isEngaged() && getMovesLeft() == 0) {
-        return;
-    }
-
-    if(path.empty()) {
-        return;
-    }
-
-    timeSinceLastMoved += timeSinceLastFrame;
-
-    if(timeSinceLastMoved > getSpeed()) {
-        auto position = path.front();
-        path.pop_front();
-        timeSinceLastMoved = 0;
-
-        if(isEngaged()) {
-            useMoves(1);
-        }
-
-        setPosition(position);
-    }
-}
-
 void Actor::setSelected(bool selected) {
     this->selected = selected;
 }
@@ -191,6 +159,7 @@ void Actor::attack(const glm::ivec2& target, const UUID& weaponId, bool isAnimat
     publisher.publish<ActorUpdateStatsEventData>({ this });
 }
 
+// TODO: Remove me
 std::vector<Weapon*> Actor::getWeapons(void) const {
     std::vector<Weapon*> vWeapons;
     
@@ -338,6 +307,24 @@ void Actor::setPath(const std::deque<glm::ivec2>& path) {
 
 bool Actor::hasPath(void) {
     return !path.empty();
+}
+
+glm::ivec2 Actor::popPath(void) {
+    auto pathFront = path.front();
+    path.pop_front();
+    return pathFront;
+}
+
+void Actor::setTimeSinceLastMoved(int64_t timeSinceLastMoved) {
+    this->timeSinceLastMoved = timeSinceLastMoved;
+}
+
+void Actor::incrementTimeSinceLastMoved(int64_t amount) {
+    timeSinceLastMoved += amount;
+}
+
+int64_t Actor::getTimeSinceLastMoved(void) const {
+    return timeSinceLastMoved;
 }
 
 bool Actor::isNeighbour(Actor* actor) const {
