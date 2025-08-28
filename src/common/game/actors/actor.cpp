@@ -34,31 +34,6 @@ Actor::Actor(
     Actor(grid, getNewId(), publisher, name, stats)
 { }
 
-void Actor::setTextureId(uint32_t textureId) {
-    this->textureId = textureId;
-}
-
-uint32_t Actor::getTextureId(void) const {
-    return textureId;
-}
-
-uint32_t Actor::getSelectedTextureId(void) const {
-    return selectedTextureId;
-}
-
-void Actor::setSelectedTextureId(uint32_t selectedTextureId) {
-    game_assert(textureId != selectedTextureId);
-    this->selectedTextureId = selectedTextureId;
-}
-
-void Actor::setColour(const Colour& colour) {
-    this->colour = colour;
-}
-
-Actor::Colour Actor::getColour(void) const {
-    return colour;
-}
-
 void Actor::setSelected(bool selected) {
     this->selected = selected;
 }

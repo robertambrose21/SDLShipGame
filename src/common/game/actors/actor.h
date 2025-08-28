@@ -29,25 +29,6 @@ struct ActorEventData {
 
 class Actor {
 public:
-    // TODO: Remove me
-    typedef struct _colour {
-        uint8_t r, g, b, a;
-
-        _colour() :
-            r(0xFF),
-            g(0xFF),
-            b(0xFF),
-            a(0xFF)
-        { }
-
-        _colour(uint8_t r, uint8_t g, uint8_t b, uint8_t a) :
-            r(r),
-            g(g),
-            b(b),
-            a(a)
-        { }
-    } Colour;
-
     const uint32_t MOVES_PER_SECOND = 5;
 
     Actor(Actor&&) = default;
@@ -115,15 +96,6 @@ public:
 
         return filteredActors;
     }
-
-    // TODO: Remove all this drawable stuff
-    void setTextureId(uint32_t textureId);
-    void setSelectedTextureId(uint32_t selectedTexture);
-    uint32_t getTextureId(void) const;
-    uint32_t getSelectedTextureId(void) const;
-
-    void setColour(const Colour& colour);
-    Colour getColour(void) const;
 
     void setSelected(bool selected);
     bool isSelected(void) const;
@@ -210,9 +182,6 @@ public:
 
 private: 
     uint32_t id;
-    uint32_t textureId;
-    uint32_t selectedTextureId;
-    Colour colour;
 
     bool selected;
     bool engaged;
