@@ -150,6 +150,10 @@ bool ActorPool::applyChunkedGameStateUpdate(const ChunkedGameStateUpdate& chunke
 void ActorPool::synchronize() {
     game_assert(initialised);
 
+    for(auto const& actorId : actorsForDeletion) {
+        removeActor(actorId);
+    }
+
     if(pendingChunkedUpdates.empty()) {
         return;
     }
@@ -166,10 +170,6 @@ void ActorPool::synchronize() {
         auto const& [chunkId, _] = item;
         return appliedChunks.contains(chunkId);
     });
-    
-    for(auto const& actorId : actorsForDeletion) {
-        removeActor(actorId);
-    }
 }
 
 void ActorPool::addGameStateUpdate(const GameStateUpdate& update) {
