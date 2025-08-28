@@ -1,4 +1,4 @@
-#include "actordrawsytem.h"
+#include "actordrawsystem.h"
 
 ActorDrawSystem::ActorDrawSystem(const std::string& name) :
     DrawSystem(name)

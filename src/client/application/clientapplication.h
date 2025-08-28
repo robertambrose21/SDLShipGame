@@ -17,7 +17,7 @@
 #include "game/spawn/spawncontroller.h"
 #include "game/application/visibilitycontroller.h"
 #include "game/ecs/drawsystemregistry.h"
-#include "graphics/ecs/systems/actordrawsytem.h"
+#include "graphics/ecs/systems/actordrawsystem.h"
 
 class ClientApplication {
 private:
