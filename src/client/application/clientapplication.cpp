@@ -57,7 +57,13 @@ void ClientApplication::initialise(void) {
         ->subscribe<RemoveEngagementEventData>(dynamic_cast<ClientGameController*>(context.getGameController()));
 
     drawSystemRegistry = std::make_unique<DrawSystemRegistry>(context.getEntityRegistry());
+    logicSystemRegistry = std::make_unique<LogicSystemRegistry>(context.getEntityRegistry());
+
     drawSystemRegistry->addSystem(std::make_unique<ActorDrawSystem>("ActorDrawSystem"));
+    
+    auto actorUpdateSystem = std::make_unique<ActorUpdateSystem>("ActorUpdateSystem");
+    actorUpdateSystem->subscribe<ActorEventData>(&stdoutSubscriber);
+    logicSystemRegistry->addSystem(std::move(actorUpdateSystem));
 
     weaponDrawStrategy = std::make_unique<WeaponDrawStrategy>();
     projectileDrawStrategy = std::make_unique<ProjectileDrawStrategy>();
@@ -221,8 +227,10 @@ void ClientApplication::update(int64_t timeSinceLastFrame, bool& quit) {
             break;
 
         case ClientStateMachine::GameLoop:
+            logicSystemRegistry->update(context, timeSinceLastFrame, quit);
+
             gameController->update(timeSinceLastFrame, quit);
-            actorPool->updateActors(timeSinceLastFrame, quit);
+            actorPool->update(timeSinceLastFrame, quit);
             playerController->update(timeSinceLastFrame);
             projectilePool->update(timeSinceLastFrame);
             areaOfEffectPool->update(timeSinceLastFrame);

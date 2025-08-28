@@ -68,48 +68,10 @@ void ActorPool::loadActorDefinitions(void) {
     game_assert(!actorDefinitions.empty());
 }
 
-void ActorPool::updateActors(int64_t timeSinceLastFrame, bool& quit) {
+void ActorPool::update(int64_t timeSinceLastFrame, bool& quit) {
     game_assert(initialised);
 
     synchronize();
-
-    for(auto const& actorId : actorsForDeletion) {
-        killActor(actorId);
-    }
-    
-    actorsForDeletion.clear();
-
-    for(auto [_, actor]: context->getEntityRegistry().view<Actor>().each()) {
-        updateActor(&actor, timeSinceLastFrame, quit);
-    }
-}
-
-void ActorPool::updateActor(Actor* actor, int64_t timeSinceLastFrame, bool& quit) {
-    game_assert(initialised);
-
-    if(actor->getCurrentHP() <= 0) {
-        actorsForDeletion.insert(actor->getId());
-        return;
-    }
-
-    actor->update(timeSinceLastFrame, quit);
-}
-
-void ActorPool::killActor(uint32_t actorId) {
-    auto gameController = context->getGameController();
-    auto actor = getActor(actorId);
-
-    // Remove actor from participant
-    gameController->getParticipant(actor->getParticipantId())->removeActor(actor);
-
-    // Remove visibility of actor from participants (and prevent a seg-fault)
-    for(auto participant : gameController->getParticipants()) {
-        participant->removeVisibleActor(actor);
-    }
-
-    publish<ActorEventData>({ actor, "Death" });
-    context->getEntityRegistry().destroy(actorIdsToEntities[actorId]);
-    actorIdsToEntities.erase(actorId);
 }
 
 // TODO: Doing too much, break this up
@@ -204,6 +166,10 @@ void ActorPool::synchronize() {
         auto const& [chunkId, _] = item;
         return appliedChunks.contains(chunkId);
     });
+    
+    for(auto const& actorId : actorsForDeletion) {
+        removeActor(actorId);
+    }
 }
 
 void ActorPool::addGameStateUpdate(const GameStateUpdate& update) {
@@ -286,11 +252,18 @@ Actor* ActorPool::addActor(const std::string& name) {
 }
 
 void ActorPool::removeActor(uint32_t id) {
+    auto gameController = context->getGameController();
     auto actor = getActor(id);
 
     auto participant = context->getGameController()->getParticipant(actor->getParticipantId());
-    
+
+    // Remove visibility of actor from participants (and prevent a seg-fault)
+    for(auto participant : gameController->getParticipants()) {
+        participant->removeVisibleActor(actor);
+    }
+
     participant->removeActor(actor);
+
     context->getEntityRegistry().destroy(actorIdsToEntities[id]);
     actorIdsToEntities.erase(id);
 }

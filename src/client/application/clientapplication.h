@@ -18,6 +18,7 @@
 #include "game/application/visibilitycontroller.h"
 #include "game/ecs/drawsystemregistry.h"
 #include "graphics/ecs/systems/actordrawsystem.h"
+#include "game/ecs/systems/actorupdatesystem.h"
 
 class ClientApplication {
 private:
@@ -33,6 +34,7 @@ private:
     std::unique_ptr<ClientStateMachine> clientStateMachine;
 
     std::unique_ptr<DrawSystemRegistry> drawSystemRegistry;
+    std::unique_ptr<LogicSystemRegistry> logicSystemRegistry;
 
     std::unique_ptr<WeaponDrawStrategy> weaponDrawStrategy;
     std::unique_ptr<ProjectileDrawStrategy> projectileDrawStrategy;

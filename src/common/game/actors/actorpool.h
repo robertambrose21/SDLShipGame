@@ -26,9 +26,7 @@ public:
     ActorPool();
 
     void initialise(ApplicationContext& context);
-
-    void updateActors(int64_t timeSinceLastFrame, bool& quit);
-
+    void update(int64_t timeSinceLastFrame, bool& quit);
     void addGameStateUpdate(const GameStateUpdate& update);
 
     Actor* addActor(const std::string& name);
@@ -69,11 +67,9 @@ private:
     ApplicationContext* context;
     bool initialised;
 
-    void updateActor(Actor* actor, int64_t timeSinceLastFrame, bool& quit);
     void loadActorDefinitions(void);
     void synchronize(void);
     bool applyChunkedGameStateUpdate(const ChunkedGameStateUpdate& chunked);
-    void killActor(uint32_t actorId);
 
     Actor* getActorByEntityId(entt::entity entityId) const;
 };

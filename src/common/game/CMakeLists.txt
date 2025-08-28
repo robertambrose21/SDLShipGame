@@ -53,6 +53,7 @@ add_library(
     ecs/components/drawable.h
     ecs/logicsystemregistry.cpp
     ecs/drawsystemregistry.cpp
+    ecs/systems/actorupdatesystem.cpp
 )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX CXX_STANDARD 20)

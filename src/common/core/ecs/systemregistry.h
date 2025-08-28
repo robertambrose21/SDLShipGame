@@ -33,13 +33,16 @@ public:
         registry(registry)
     { }
 
-    void addSystem(std::unique_ptr<T> system) {
-        if(systems.contains(system->getName())) {
-            spdlog::warn("Cannot add system '{}'. System already exists", system->getName());
-            return;
+    T* addSystem(std::unique_ptr<T> system) {
+        auto name = system->getName();
+
+        if(systems.contains(name)) {
+            spdlog::warn("Cannot add system '{}'. System already exists", name);
+            return nullptr;
         }
 
-        systems[system->getName()] = std::move(system);
+        systems[name] = std::move(system);
+        return systems[name].get();
     }
 
     void removeSystem(const std::string& name) {

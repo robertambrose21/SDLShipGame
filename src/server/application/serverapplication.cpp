@@ -74,7 +74,7 @@ void ServerApplication::initialise(void) {
     server->setTransmitter(transmitter.get());
     context.setServerMessagesTransmitter(transmitter.get());
     context.getItemController()->subscribe<ItemEventData>(transmitter.get());
-    context.getActorPool()->subscribe(context.getItemController());
+    context.getActorPool()->subscribe<ActorEventData>(context.getItemController());
     context.getGameController()->subscribe<MoveActionEventData>(transmitter.get());
     context.getGameController()->subscribe<AttackActionEventData>(transmitter.get());
     context.getGameController()->subscribe<TakeItemActionEventData>(transmitter.get());
@@ -98,10 +98,19 @@ void ServerApplication::initialise(void) {
     context.getGameController()->getFactionController()->subscribe<AddFactionEventData>(transmitter.get());
     context.getGameController()->getFactionController()->subscribe<ChangeFactionAlignmentEventData>(transmitter.get());
 
+    logicSystemRegistry = std::make_unique<LogicSystemRegistry>(context.getEntityRegistry());
+
+    auto actorUpdateSystem = std::make_unique<ActorUpdateSystem>("ActorUpdateSystem");
+    actorUpdateSystem->subscribe<ActorEventData>(&stdoutSubscriber);
+    actorUpdateSystem->subscribe<ActorEventData>(context.getItemController());
+    logicSystemRegistry->addSystem(std::move(actorUpdateSystem));
+
     application->addLogicWorker([&](ApplicationContext& c, auto const& timeSinceLastFrame, auto& quit) {
         server->update(timeSinceLastFrame);
+        logicSystemRegistry->update(c, timeSinceLastFrame, quit);
+        
         c.getGameController()->update(timeSinceLastFrame, quit);
-        c.getActorPool()->updateActors(timeSinceLastFrame, quit);
+        c.getActorPool()->update(timeSinceLastFrame, quit);
         c.getProjectilePool()->update(timeSinceLastFrame);
         c.getAreaOfEffectPool()->update(timeSinceLastFrame);
         c.getEffectController()->update(timeSinceLastFrame);
