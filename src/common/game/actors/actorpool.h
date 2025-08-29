@@ -36,6 +36,7 @@ public:
     Actor* getActor(uint32_t id);
     bool hasActor(uint32_t id);
 
+    void setPosition(uint32_t actorId, const Position& position);
     Actor* findClosestTarget(Actor* attacker, int participantId);
 
     LootTable getLootTable(const std::string& actorName);
