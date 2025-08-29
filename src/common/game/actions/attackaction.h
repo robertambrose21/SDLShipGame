@@ -4,28 +4,17 @@
 #include "game/weapons/weapon.h"
 
 class AttackAction : public Action {
-private:
-    Weapon* weapon;
-    glm::ivec2 target;
-    bool isAnimationOnly;
-
-    bool onValidate(ApplicationContext* context);
-    void onExecute(ApplicationContext* context);
-    bool hasFinished(void);
-
-    int numAttacksInChain(void);
-
 public:
     AttackAction(
         Participant* participant,
-        Actor* actor,
+        entt::entity entity,
         Weapon* weapon,
         const glm::ivec2& target,
         bool isAnimationOnly = false
     );
     AttackAction(
         Participant* participant,
-        Actor* actor,
+        entt::entity entity,
         int turnNumber,
         Weapon* weapon,
         const glm::ivec2& target,
@@ -39,4 +28,15 @@ public:
     glm::ivec2 getTarget(void) const;
     Type getType(void);
     bool getIsAnimationOnly(void) const;
+
+private:
+    Weapon* weapon;
+    glm::ivec2 target;
+    bool isAnimationOnly;
+
+    bool onValidate(ApplicationContext* context);
+    void onExecute(ApplicationContext* context);
+    bool hasFinished(ApplicationContext* context);
+
+    int numAttacksInChain(Actor& actor);
 };

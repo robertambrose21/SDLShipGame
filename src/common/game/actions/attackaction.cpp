@@ -3,12 +3,12 @@
 
 AttackAction::AttackAction(
     Participant* participant,
-    Actor* actor,
+    entt::entity entity,
     Weapon* weapon,
     const glm::ivec2& target,
     bool isAnimationOnly
 ) :
-    Action(participant, actor),
+    Action(participant, entity),
     weapon(weapon),
     target(target),
     isAnimationOnly(isAnimationOnly)
@@ -16,20 +16,20 @@ AttackAction::AttackAction(
 
 AttackAction::AttackAction(
     Participant* participant,
-    Actor* actor,
+    entt::entity entity,
     int turnNumber,
     Weapon* weapon,
     const glm::ivec2& target,
     bool isAnimationOnly
 ) : 
-    Action(participant, actor, turnNumber),
+    Action(participant, entity, turnNumber),
     weapon(weapon),
     target(target),
     isAnimationOnly(isAnimationOnly)
 { }
 
 ActionVariant AttackAction::getPublishData(void) {
-    return AttackActionEventData { turnNumber, actor, target, weapon };
+    return AttackActionEventData { turnNumber, entity, target, weapon };
 }
 
 Action::Type AttackAction::getType(void) {
@@ -70,14 +70,16 @@ bool AttackAction::onValidate(ApplicationContext* context) {
         return false;
     }
 
-    if(weapon->getUsesLeft() == 0 || weapon->getUsesLeft() < numAttacksInChain()) {
+    auto& actor = context->getEntityRegistry().get<Actor>(entity);
+
+    if(weapon->getUsesLeft() == 0 || weapon->getUsesLeft() < numAttacksInChain(actor)) {
         spdlog::trace(
             "[Attack]: Failed to validate action, not enough uses Weapon[{}#{}] ({}/{}), chain: {}",
             weapon->getName(),
             weapon->getId().getString(),
             weapon->getUsesLeft(),
             weapon->getStats().uses,
-            numAttacksInChain()
+            numAttacksInChain(actor)
         );
         return false;
     }
@@ -86,21 +88,22 @@ bool AttackAction::onValidate(ApplicationContext* context) {
 }
 
 void AttackAction::onExecute(ApplicationContext* context) {
-    actor->attack(target, weapon->getId(), isAnimationOnly);
+    auto& actor = context->getEntityRegistry().get<Actor>(entity);
+    actor.attack(target, weapon->getId(), isAnimationOnly);
 }
 
-bool AttackAction::hasFinished(void) {
+bool AttackAction::hasFinished(ApplicationContext* context) {
     return !weapon->isAnimationInProgress();
 }
 
-int AttackAction::numAttacksInChain(void) {
+int AttackAction::numAttacksInChain(Actor& actor) {
     if(participant->getEngagement() == nullptr || !turnNumber.has_value()) {
         return weapon->getUsesLeft();
     }
 
     int numAttacks = 0;
 
-    for(auto& action : actor->getActionsChain(turnNumber.value())) {
+    for(auto& action : actor.getActionsChain(turnNumber.value())) {
         if(action->getType() != Action::Type::Attack) {
             continue;
         }

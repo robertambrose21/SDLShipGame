@@ -71,7 +71,7 @@ ChaseAndAttackStrategy::ActorTurnResult ChaseAndAttackStrategy::doTurnForActor(A
     if(actor->isNeighbour(target)) {
         auto action = std::make_unique<AttackAction>(
             participant, 
-            actor, 
+            getContext().getActorPool()->getEntity(actor->getId()), 
             turnNumber, 
             actor->getCurrentWeapon(), 
             target->getPosition()
@@ -84,7 +84,7 @@ ChaseAndAttackStrategy::ActorTurnResult ChaseAndAttackStrategy::doTurnForActor(A
     else if(bWeapon != nullptr) {
         auto action = std::make_unique<AttackAction>(
             participant, 
-            actor, 
+            getContext().getActorPool()->getEntity(actor->getId()), 
             turnNumber,
             bWeapon, 
             target->getPosition()
@@ -96,7 +96,13 @@ ChaseAndAttackStrategy::ActorTurnResult ChaseAndAttackStrategy::doTurnForActor(A
     }
     else if(!actor->hasPath()) {
         auto distanceToTarget = glm::distance(glm::vec2(actor->getPosition()), glm::vec2(target->getPosition()));
-        auto action = std::make_unique<MoveAction>(participant, actor, turnNumber, target->getPosition(), 1);
+        auto action = std::make_unique<MoveAction>(
+            participant, 
+            getContext().getActorPool()->getEntity(actor->getId()), 
+            turnNumber, 
+            target->getPosition(), 
+            1
+        );
         
         if(!distanceToTarget <= actor->getAggroRange() && !gameController->queueAction(std::move(action))) {
             return { true, false };

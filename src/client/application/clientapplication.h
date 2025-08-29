@@ -29,7 +29,7 @@ private:
     std::unique_ptr<GameClientMessagesReceiver> clientMessagesReceiver;
     std::unique_ptr<GameClient> client;
     std::unique_ptr<Window> window;
-    StdOutSubscriber stdoutSubscriber;
+    std::unique_ptr<StdOutSubscriber> stdoutSubscriber;
 
     std::unique_ptr<ClientStateMachine> clientStateMachine;
 

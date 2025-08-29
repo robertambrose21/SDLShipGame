@@ -152,18 +152,20 @@ void ServerGameController::checkForItems(int participantId) {
             return;
         }
         
+        auto entity = context->getActorPool()->getEntity(actor->getId());
+
         if(participant->hasAnyEngagement()) {
             queueAction(
                 std::make_unique<TakeItemAction>(
                     participant,
-                    actor,
+                    entity,
                     participant->getEngagement()->getTurnNumber(),
                     items
                 )
             );
         }
         else {
-            executeActionImmediately(std::make_unique<TakeItemAction>(participant, actor, items));
+            executeActionImmediately(std::make_unique<TakeItemAction>(participant, entity, items));
         }
     }
 }

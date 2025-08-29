@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <optional>
+#include <entt/entt.hpp>
 
 #include "core/glmimport.h"
 #include "core/util/idgenerator.h"
@@ -51,34 +52,30 @@ struct MeleeWeaponEventData {
 // -- Actions -----------------------------------
 struct ActionEventData {
     std::optional<int> turnNumber;
+    entt::entity entity;
 };
 
 struct MoveActionEventData : public ActionEventData {
-    Actor* actor;
     glm::ivec2 position;
     int shortStopSteps;
 };
 
 struct AttackActionEventData : public ActionEventData {
-    Actor* owner;
     glm::ivec2 target;
     Weapon* weapon;
 };
 
 struct TakeItemActionEventData : public ActionEventData {
-    Actor* actor;
     std::vector<Item*> items;
 };
 
 struct EquipItemActionEventData : public ActionEventData {
-    Actor* actor;
     Item* item;
     int slot;
     bool isUnequip;
 };
 
 struct EquipWeaponActionEventData : public ActionEventData {
-    Actor* actor;
     Item* item;
     UUID weaponId;
 };

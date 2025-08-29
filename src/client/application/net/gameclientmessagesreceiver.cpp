@@ -112,12 +112,12 @@ void GameClientMessagesReceiver::receiveFindPath(FindPathMessage* message) {
         return;
     }
 
-    auto const& actor = context.getActorPool()->getActor(message->actorId);
+    auto const& [actor, entity] = context.getActorPool()->getActorWithEntity(message->actorId);
     auto participant = context.getGameController()->getParticipant(actor->getParticipantId());
     
     context.getGameController()->queueAction(std::make_unique<MoveAction>(
         participant,
-        actor, 
+        entity, 
         message->turnNumber, 
         glm::ivec2(message->x, message->y), 
         message->shortStopSteps
@@ -133,7 +133,7 @@ void GameClientMessagesReceiver::receiveAttackActor(AttackMessage* message) {
     }
 
     auto weaponId = UUID::fromBytes(message->weaponIdBytes);
-    auto const& actor = actorPool->getActor(message->actorId);
+    auto const& [actor, entity] = context.getActorPool()->getActorWithEntity(message->actorId);
     auto participant = context.getGameController()->getParticipant(actor->getParticipantId());
 
     for(auto weapon : actor->getWeapons()) {
@@ -141,7 +141,7 @@ void GameClientMessagesReceiver::receiveAttackActor(AttackMessage* message) {
             auto isQueued = context.getGameController()->queueAction(
                 std::make_unique<AttackAction>(
                     participant,
-                    actor, 
+                    entity, 
                     message->turnNumber, 
                     weapon, 
                     glm::ivec2(message->x, message->y), 
@@ -177,7 +177,7 @@ void GameClientMessagesReceiver::receiveTakeItems(TakeItemsMessage* message) {
         return;
     }
 
-    auto const& actor = actorPool->getActor(message->actorId);
+    auto const& [actor, entity] = context.getActorPool()->getActorWithEntity(message->actorId);
     auto participant = context.getGameController()->getParticipant(actor->getParticipantId());
 
     std::vector<Item*> itemsToTake;
@@ -194,7 +194,7 @@ void GameClientMessagesReceiver::receiveTakeItems(TakeItemsMessage* message) {
         context.getGameController()->executeActionImmediately(
             std::make_unique<TakeItemAction>(
                 participant,
-                actor,
+                entity,
                 itemsToTake
             )
         );
@@ -203,7 +203,7 @@ void GameClientMessagesReceiver::receiveTakeItems(TakeItemsMessage* message) {
         context.getGameController()->queueAction(
             std::make_unique<TakeItemAction>(
                 participant,
-                actor,
+                entity,
                 message->turnNumber,
                 itemsToTake
             )

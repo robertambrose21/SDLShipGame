@@ -20,6 +20,19 @@ class PlayerPanel :
     public EventSubscriber<TakeItemActionEventData>,
     public EventSubscriber<ApplyDamageEventData>
 {
+public:
+    PlayerPanel(ApplicationContext& context, int width, int height);
+
+    void draw(void);
+
+    void onPublish(const Event<ActorEventData>& event);
+    void onPublish(const Event<MeleeWeaponEventData>& event);
+    void onPublish(const Event<ProjectileEventData>& event);
+    void onPublish(const Event<AreaOfEffectEventData>& event);
+    void onPublish(const Event<ItemEventData>& event);
+    void onPublish(const Event<TakeItemActionEventData>& event);
+    void onPublish(const Event<ApplyDamageEventData>& event);
+
 private:
     typedef struct _textSegment {
         std::string text;
@@ -31,6 +44,8 @@ private:
     const ImVec4 StdTextColour = ImVec4(.8f, .8f, .8f, 1);
     const ImVec4 HighlightColour = ImVec4(1, 1, 1, 1);
 
+    ApplicationContext& context;
+
     int width;
     int height;
 
@@ -40,17 +55,4 @@ private:
     
     std::string getTimestampString(std::time_t timestamp);
     void appendItemsToLine(std::vector<TextSegment>& segment, const std::vector<Item*>& items);
-
-public:
-    PlayerPanel(int width, int height);
-
-    void draw(void);
-
-    void onPublish(const Event<ActorEventData>& event);
-    void onPublish(const Event<MeleeWeaponEventData>& event);
-    void onPublish(const Event<ProjectileEventData>& event);
-    void onPublish(const Event<AreaOfEffectEventData>& event);
-    void onPublish(const Event<ItemEventData>& event);
-    void onPublish(const Event<TakeItemActionEventData>& event);
-    void onPublish(const Event<ApplyDamageEventData>& event);
 };

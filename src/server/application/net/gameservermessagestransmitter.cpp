@@ -6,6 +6,7 @@ GameServerMessagesTransmitter::GameServerMessagesTransmitter(
     ServerGameController* gameController,
     VisiblityController* visibilityController,
     ItemController* itemController,
+    ActorPool* actorPool,
     std::function<void(int)> onClientConnectFunc,
     std::function<void(int)> onClientDisconnectFunc
 ) :
@@ -14,7 +15,8 @@ GameServerMessagesTransmitter::GameServerMessagesTransmitter(
     onClientDisconnectFunc(onClientDisconnectFunc),
     gameController(gameController),
     visibilityController(visibilityController),
-    itemController(itemController)
+    itemController(itemController),
+    actorPool(actorPool)
 { }
 
 void GameServerMessagesTransmitter::onClientConnected(int clientIndex) {
@@ -38,13 +40,15 @@ void GameServerMessagesTransmitter::onPublish(const Event<ItemEventData>& event)
 // TODO: Remove?
 void GameServerMessagesTransmitter::onPublish(const Event<MoveActionEventData>& event) {
     for(auto [participantId, clientIndex] : gameController->getAllAttachedClients()) {
-        if(gameController->getAttachedClient(event.data.actor->getParticipantId()) == clientIndex) {
+        auto actor = actorPool->getActorByEntityId(event.data.entity);
+
+        if(gameController->getAttachedClient(actor->getParticipantId()) == clientIndex) {
             return;
         }
 
         FindPathMessage* message = (FindPathMessage*) server.createMessage(clientIndex, GameMessageType::FIND_PATH);
 
-        message->actorId = event.data.actor->getId();
+        message->actorId = actor->getId();
         message->x = event.data.position.x;
         message->y = event.data.position.y;
         message->shortStopSteps = event.data.shortStopSteps;
@@ -56,19 +60,21 @@ void GameServerMessagesTransmitter::onPublish(const Event<MoveActionEventData>& 
 
 void GameServerMessagesTransmitter::onPublish(const Event<AttackActionEventData>& event) {
     for(auto [participantId, clientIndex] : gameController->getAllAttachedClients()) {
-        if(gameController->getAttachedClient(event.data.owner->getParticipantId()) == clientIndex) {
+        auto owner = actorPool->getActorByEntityId(event.data.entity);
+
+        if(gameController->getAttachedClient(owner->getParticipantId()) == clientIndex) {
             spdlog::trace(
                 "Not sending attack to participant {}, owning actor {}/{} sent the attack",
                 participantId,
-                event.data.owner->getParticipantId(),
-                event.data.owner->toString()
+                owner->getParticipantId(),
+                owner->toString()
             );
             continue;
         }
 
         AttackMessage* message = (AttackMessage*) server.createMessage(clientIndex, GameMessageType::ATTACK_ENTITY);
 
-        message->actorId = event.data.owner->getId();
+        message->actorId = owner->getId();
         message->x = event.data.target.x;
         message->y = event.data.target.y;
         memcpy(message->weaponIdBytes, &event.data.weapon->getId().getBytes()[0], 16);
@@ -76,8 +82,8 @@ void GameServerMessagesTransmitter::onPublish(const Event<AttackActionEventData>
 
         spdlog::trace("Sending attack to participant {}, owning actor {}/{} sent the attack",
             participantId,
-            event.data.owner->getParticipantId(),
-            event.data.owner->toString()
+            owner->getParticipantId(),
+            owner->toString()
         );
         server.sendMessage(clientIndex, message);
     }
@@ -87,8 +93,10 @@ void GameServerMessagesTransmitter::onPublish(const Event<TakeItemActionEventDat
     for(auto [_, clientIndex] : gameController->getAllAttachedClients()) {
         TakeItemsMessage* message = (TakeItemsMessage*) server.createMessage(clientIndex, GameMessageType::TAKE_ITEMS);
 
+        auto actor = actorPool->getActorByEntityId(event.data.entity);
+
         message->turnNumber = event.data.turnNumber.value_or(-1);
-        message->actorId = event.data.actor->getId();
+        message->actorId = actor->getId();
         message->numItems = event.data.items.size();
 
         for(int i = 0; i < event.data.items.size(); i++) {

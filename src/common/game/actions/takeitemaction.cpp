@@ -1,22 +1,22 @@
 #include "takeitemaction.h"
 
-TakeItemAction::TakeItemAction(Participant* participant, Actor* actor, const std::vector<Item*>& items) :
-    Action(participant, actor),
+TakeItemAction::TakeItemAction(Participant* participant, entt::entity entity, const std::vector<Item*>& items) :
+    Action(participant, entity),
     items(items)
 { }
 
 TakeItemAction::TakeItemAction(
     Participant* participant, 
-    Actor* actor,
+    entt::entity entity,
     int turnNumber,
     const std::vector<Item*>& items
 ) :
-    Action(participant, actor, turnNumber),
+    Action(participant, entity, turnNumber),
     items(items)
 { }
 
 ActionVariant TakeItemAction::getPublishData(void) {
-    return TakeItemActionEventData { turnNumber, actor, items };
+    return TakeItemActionEventData { turnNumber, entity, items };
 }
 
 bool TakeItemAction::onValidate(ApplicationContext* context) {
@@ -29,7 +29,9 @@ bool TakeItemAction::onValidate(ApplicationContext* context) {
         return true;
     }
 
-    for(auto action : actor->getActionsChain(turnNumber.value())) {
+    auto& actor = context->getEntityRegistry().get<Actor>(entity);
+
+    for(auto action : actor.getActionsChain(turnNumber.value())) {
         if(
             action->getType() == Action::Type::TakeItem && 
             containsAny(items, dynamic_cast<TakeItemAction*>(action)->getItems())
@@ -47,7 +49,8 @@ bool TakeItemAction::onValidate(ApplicationContext* context) {
 }
 
 void TakeItemAction::onExecute(ApplicationContext* context) {
-    auto participant = context->getGameController()->getParticipant(actor->getParticipantId());
+    auto& actor = context->getEntityRegistry().get<Actor>(entity);
+    auto participant = context->getGameController()->getParticipant(actor.getParticipantId());
 
     if(!participant->getIsPlayer()) {
         return;
@@ -61,7 +64,7 @@ void TakeItemAction::onExecute(ApplicationContext* context) {
     context->getItemController()->flagWorldItemsDirty();
 }
 
-bool TakeItemAction::hasFinished(void) {
+bool TakeItemAction::hasFinished(ApplicationContext* context) {
     return true;
 }
 

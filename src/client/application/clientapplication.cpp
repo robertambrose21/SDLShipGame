@@ -36,6 +36,8 @@ void ClientApplication::initialise(void) {
 
     auto& context = application->getContext();
 
+    stdoutSubscriber = std::make_unique<StdOutSubscriber>(context);
+
     context.getGameController()->initialise(application->getContext());
     context.getAreaOfEffectPool()->initialise(application->getContext());
     context.getProjectilePool()->initialise(application->getContext());
@@ -45,13 +47,13 @@ void ClientApplication::initialise(void) {
     context.getSpawnController()->initialise(application->getContext());
     context.getVisibilityController()->initialise(application->getContext());
     context.getEffectController()->initialise(application->getContext());
-    context.getActorPool()->subscribe<ActorEventData>(&stdoutSubscriber);
-    context.getWeaponController()->subscribe<MeleeWeaponEventData>(&stdoutSubscriber);
-    context.getProjectilePool()->subscribe<ProjectileEventData>(&stdoutSubscriber);
-    context.getAreaOfEffectPool()->subscribe<AreaOfEffectEventData>(&stdoutSubscriber);
-    context.getItemController()->subscribe<ItemEventData>(&stdoutSubscriber);
-    context.getGameController()->subscribe<TakeItemActionEventData>(&stdoutSubscriber);
-    context.getGameController()->subscribe<EquipItemActionEventData>(&stdoutSubscriber);
+    context.getActorPool()->subscribe<ActorEventData>(stdoutSubscriber.get());
+    context.getWeaponController()->subscribe<MeleeWeaponEventData>(stdoutSubscriber.get());
+    context.getProjectilePool()->subscribe<ProjectileEventData>(stdoutSubscriber.get());
+    context.getAreaOfEffectPool()->subscribe<AreaOfEffectEventData>(stdoutSubscriber.get());
+    context.getItemController()->subscribe<ItemEventData>(stdoutSubscriber.get());
+    context.getGameController()->subscribe<TakeItemActionEventData>(stdoutSubscriber.get());
+    context.getGameController()->subscribe<EquipItemActionEventData>(stdoutSubscriber.get());
     // TODO: Gross af - fix these subscriptions
     context.getGameController()->getEngagementController()
         ->subscribe<RemoveEngagementEventData>(dynamic_cast<ClientGameController*>(context.getGameController()));
@@ -62,7 +64,7 @@ void ClientApplication::initialise(void) {
     drawSystemRegistry->addSystem(std::make_unique<ActorDrawSystem>("ActorDrawSystem"));
     
     auto actorUpdateSystem = std::make_unique<ActorUpdateSystem>("ActorUpdateSystem");
-    actorUpdateSystem->subscribe<ActorEventData>(&stdoutSubscriber);
+    actorUpdateSystem->subscribe<ActorEventData>(stdoutSubscriber.get());
     logicSystemRegistry->addSystem(std::move(actorUpdateSystem));
 
     weaponDrawStrategy = std::make_unique<WeaponDrawStrategy>();
@@ -95,7 +97,7 @@ void ClientApplication::initialise(void) {
     clientMessagesTransmitter = std::make_unique<GameClientMessagesTransmitter>(*client);
 
     clientMessagesReceiver->setTransmitter(clientMessagesTransmitter.get());
-    clientMessagesReceiver->subscribe<ApplyDamageEventData>(&stdoutSubscriber);
+    clientMessagesReceiver->subscribe<ApplyDamageEventData>(stdoutSubscriber.get());
 
     context.getGameController()->setOnAllParticipantsSetFunction([&]() {
         clientStateMachine->setState(std::make_unique<ClientGameLoopState>());

@@ -8,14 +8,14 @@ class EquipWeaponAction : public Action{
 public:
     EquipWeaponAction(
         Participant* participant, 
-        Actor* actor, 
+        entt::entity entity, 
         Item* item, 
         const UUID& weaponId,
         bool isUnequip = false
     );
     EquipWeaponAction(
         Participant* participant, 
-        Actor* actor, 
+        entt::entity entity, 
         int turnNumber, 
         Item* item, 
         const UUID& weaponId,
@@ -33,7 +33,7 @@ public:
 private:
     bool onValidate(ApplicationContext* context);
     void onExecute(ApplicationContext* context);
-    bool hasFinished(void);
+    bool hasFinished(ApplicationContext* context);
 
     bool validateEquip(ApplicationContext* context);
     bool validateUnequip(ApplicationContext* context);

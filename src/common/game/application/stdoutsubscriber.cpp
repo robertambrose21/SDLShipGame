@@ -1,6 +1,7 @@
 #include "stdoutsubscriber.h"
 
-StdOutSubscriber::StdOutSubscriber()
+StdOutSubscriber::StdOutSubscriber(ApplicationContext& context) :
+    context(context)
 { }
 
 void StdOutSubscriber::onPublish(const Event<ActorEventData>& event) {
@@ -99,21 +100,25 @@ void StdOutSubscriber::onPublish(const Event<TakeItemActionEventData>& event) {
         }
     }
 
-    spdlog::info("{} picked up items: [{}]", getActorIdentifier(event.data.actor), items);
+    auto actor = context.getActorPool()->getActorByEntityId(event.data.entity);
+
+    spdlog::info("{} picked up items: [{}]", getActorIdentifier(actor), items);
 }
 
 void StdOutSubscriber::onPublish(const Event<EquipItemActionEventData>& event) {
+    auto actor = context.getActorPool()->getActorByEntityId(event.data.entity);
+
     if(event.data.isUnequip) {
         spdlog::info(
             "{} unequipped [{}]",
-            getActorIdentifier(event.data.actor),
+            getActorIdentifier(actor),
             event.data.item->getName()
         );
     }
     else {
         spdlog::info(
             "{} equipped [{}]",
-            getActorIdentifier(event.data.actor),
+            getActorIdentifier(actor),
             event.data.item->getName()
         );
     }

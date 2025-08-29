@@ -3,12 +3,12 @@
 
 EquipGearAction::EquipGearAction(
     Participant* participant,
-    Actor* actor, 
+    entt::entity entity, 
     Item* item, 
     Equippable<Stats::GearStats>::Slot slot, 
     bool isUnequip
 ) :
-    Action(participant, actor),
+    Action(participant, entity),
     item(item),
     slot(slot),
     isUnequip(isUnequip)
@@ -16,20 +16,20 @@ EquipGearAction::EquipGearAction(
 
 EquipGearAction::EquipGearAction(
     Participant* participant, 
-    Actor* actor,
+    entt::entity entity,
     int turnNumber,
     Item* item, 
     Equippable<Stats::GearStats>::Slot slot, 
     bool isUnequip
 ) :
-    Action(participant, actor, turnNumber),
+    Action(participant, entity, turnNumber),
     item(item),
     slot(slot),
     isUnequip(isUnequip)
 { }
 
 ActionVariant EquipGearAction::getPublishData(void) {
-    return EquipItemActionEventData { turnNumber, actor, item, slot, isUnequip };
+    return EquipItemActionEventData { turnNumber, entity, item, slot, isUnequip };
 }
 
 bool EquipGearAction::onValidate(ApplicationContext* context) {
@@ -38,11 +38,13 @@ bool EquipGearAction::onValidate(ApplicationContext* context) {
         return false;
     }
 
-    if(item->getParticipantId() != actor->getParticipantId()) {
+    auto& actor = context->getEntityRegistry().get<Actor>(entity);
+
+    if(item->getParticipantId() != actor.getParticipantId()) {
         spdlog::trace(
             "[EquipItem]: Failed to validate action, item participant ({}) does not match actor participant ({})",
             item->getParticipantId(),
-            actor->getParticipantId()
+            actor.getParticipantId()
         );
         return false;
     }
@@ -56,7 +58,7 @@ bool EquipGearAction::onValidate(ApplicationContext* context) {
     }
 
     if(isUnequip) {
-        auto hasEquippedGearSlot = actor->getGear(slot) != nullptr;
+        auto hasEquippedGearSlot = actor.getGear(slot) != nullptr;
 
         if(!hasEquippedGearSlot) {
             spdlog::trace(
@@ -68,7 +70,7 @@ bool EquipGearAction::onValidate(ApplicationContext* context) {
         return hasEquippedGearSlot;
     }
 
-    auto participant = context->getGameController()->getParticipant(actor->getParticipantId());
+    auto participant = context->getGameController()->getParticipant(actor.getParticipantId());
 
     bool hasItem = false;   
 
@@ -90,23 +92,24 @@ bool EquipGearAction::onValidate(ApplicationContext* context) {
 }
 
 void EquipGearAction::onExecute(ApplicationContext* context) {
-    auto participant = context->getGameController()->getParticipant(actor->getParticipantId());
-    auto existingGear = actor->getGear(slot);
+    auto& actor = context->getEntityRegistry().get<Actor>(entity);
+    auto participant = context->getGameController()->getParticipant(actor.getParticipantId());
+    auto existingGear = actor.getGear(slot);
 
     if(isUnequip) {
         participant->addItem(existingGear->getItem());
-        actor->removeGear(slot);
+        actor.removeGear(slot);
     } else {
         if(existingGear != nullptr) {
             participant->addItem(existingGear->getItem());
         }
 
         participant->removeItem(item);
-        actor->setGear(std::make_unique<Gear>(slot, item));
+        actor.setGear(std::make_unique<Gear>(slot, item));
     }
 }
 
-bool EquipGearAction::hasFinished(void) {
+bool EquipGearAction::hasFinished(ApplicationContext* context) {
     return true;
 }
 

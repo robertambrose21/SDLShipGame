@@ -2,12 +2,12 @@
 
 EquipWeaponAction::EquipWeaponAction(
     Participant* participant, 
-    Actor* actor, 
+    entt::entity entity, 
     Item* item, 
     const UUID& weaponId,
     bool isUnequip
 ) :
-    Action(participant, actor),
+    Action(participant, entity),
     item(item),
     weaponId(weaponId),
     isUnequip(isUnequip)
@@ -15,20 +15,20 @@ EquipWeaponAction::EquipWeaponAction(
 
 EquipWeaponAction::EquipWeaponAction(
     Participant* participant, 
-    Actor* actor,
+    entt::entity entity,
     int turnNumber,
     Item* item, 
     const UUID& weaponId,
     bool isUnequip
 ) :
-    Action(participant, actor, turnNumber),
+    Action(participant, entity, turnNumber),
     item(item),
     weaponId(weaponId),
     isUnequip(isUnequip)
 { }
 
 ActionVariant EquipWeaponAction::getPublishData(void) {
-    return EquipWeaponActionEventData { turnNumber, actor, item, weaponId };
+    return EquipWeaponActionEventData { turnNumber, entity, item, weaponId };
 }
 
 bool EquipWeaponAction::onValidate(ApplicationContext* context) {
@@ -37,21 +37,23 @@ bool EquipWeaponAction::onValidate(ApplicationContext* context) {
         return false;
     }
 
-    if(item->getParticipantId() != actor->getParticipantId()) {
+    auto& actor = context->getEntityRegistry().get<Actor>(entity);
+
+    if(item->getParticipantId() != actor.getParticipantId()) {
         spdlog::trace(
             "[EquipWeaponItem]: Failed to validate action, item participant ({}) does not match actor participant ({})",
             item->getParticipantId(),
-            actor->getParticipantId()
+            actor.getParticipantId()
         );
         return false;
     }
 
-    if(actor->getWeapon(weaponId)->getItem()->getId() != item->getId()) {
+    if(actor.getWeapon(weaponId)->getItem()->getId() != item->getId()) {
         spdlog::trace(
             "[EquipWeaponItem]: Failed to validate action, Weapon[{}#{}] item id {} does not match supplied item id {}",
-            actor->getWeapon(weaponId)->getName(),
+            actor.getWeapon(weaponId)->getName(),
             weaponId.getString(),
-            actor->getWeapon(weaponId)->getItem()->getId(),
+            actor.getWeapon(weaponId)->getItem()->getId(),
             item->getId()
         );
         return false;
@@ -65,7 +67,8 @@ bool EquipWeaponAction::onValidate(ApplicationContext* context) {
 }
 
 bool EquipWeaponAction::validateEquip(ApplicationContext* context) {
-    auto participant = context->getGameController()->getParticipant(actor->getParticipantId());
+    auto& actor = context->getEntityRegistry().get<Actor>(entity);
+    auto participant = context->getGameController()->getParticipant(actor.getParticipantId());
 
     bool hasItem = false;   
 
@@ -84,10 +87,10 @@ bool EquipWeaponAction::validateEquip(ApplicationContext* context) {
         return false;
     }
 
-    if(actor->hasWeapon(weaponId)) {
+    if(actor.hasWeapon(weaponId)) {
         spdlog::trace(
             "[EquipWeaponAction]: Actor already has Weapon[{}#{}] item {}",
-            actor->getWeapon(weaponId)->getName(),
+            actor.getWeapon(weaponId)->getName(),
             weaponId.getString(),
             item->getId()
         );
@@ -99,10 +102,12 @@ bool EquipWeaponAction::validateEquip(ApplicationContext* context) {
 }
 
 bool EquipWeaponAction::validateUnequip(ApplicationContext* context) {
-    if(!actor->hasWeapon(weaponId)) {
+    auto& actor = context->getEntityRegistry().get<Actor>(entity);
+
+    if(!actor.hasWeapon(weaponId)) {
         spdlog::trace(
             "[EquipWeaponAction(Unequip)]: Actor does not have Weapon[{}#{}] item {}",
-            actor->getWeapon(weaponId)->getName(),
+            actor.getWeapon(weaponId)->getName(),
             weaponId.getString(),
             item->getId()
         );
@@ -114,26 +119,27 @@ bool EquipWeaponAction::validateUnequip(ApplicationContext* context) {
 }
 
 void EquipWeaponAction::onExecute(ApplicationContext* context) {
-    auto participant = context->getGameController()->getParticipant(actor->getParticipantId());
+    auto& actor = context->getEntityRegistry().get<Actor>(entity);
+    auto participant = context->getGameController()->getParticipant(actor.getParticipantId());
 
     if(isUnequip) {
         participant->addItem(item);
-        actor->removeWeapon(weaponId);
+        actor.removeWeapon(weaponId);
         return;
     }
     
-    if(!actor->hasWeapon(weaponId)) {
+    if(!actor.hasWeapon(weaponId)) {
         spdlog::trace("Weapon {} doesn't exist, adding", weaponId.getString());
-        actor->addWeapon(context->getWeaponController()->createWeapon(weaponId, item->getName(), actor));
+        actor.addWeapon(context->getWeaponController()->createWeapon(weaponId, item->getName(), &actor));
     }
     else {
-        spdlog::trace("Actor {} already has weapon {}", actor->getId(), weaponId.getString());
+        spdlog::trace("Actor {} already has weapon {}", actor.getId(), weaponId.getString());
     }
 
     participant->removeItem(item);
 }
 
-bool EquipWeaponAction::hasFinished(void) {
+bool EquipWeaponAction::hasFinished(ApplicationContext* context) {
     return true;
 }
 

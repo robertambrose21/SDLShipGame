@@ -3,11 +3,11 @@
 
 MoveAction::MoveAction(
     Participant* participant,
-    Actor* actor, 
+    entt::entity entity, 
     const glm::ivec2& position,
     int shortStopSteps
 ) : 
-    Action(participant, actor),
+    Action(participant, entity),
     position(position),
     shortStopSteps(shortStopSteps)
 {
@@ -16,12 +16,12 @@ MoveAction::MoveAction(
 
 MoveAction::MoveAction(
     Participant* participant,
-    Actor* actor,
+    entt::entity entity,
     int turnNumber,
     const glm::ivec2& position,
     int shortStopSteps
 ) : 
-    Action(participant, actor, turnNumber),
+    Action(participant, entity, turnNumber),
     position(position),
     shortStopSteps(shortStopSteps)
 {
@@ -29,7 +29,7 @@ MoveAction::MoveAction(
 }
 
 ActionVariant MoveAction::getPublishData(void) {
-    return MoveActionEventData { turnNumber, actor, position, shortStopSteps };
+    return MoveActionEventData { turnNumber, entity, position, shortStopSteps };
 }
 
 Action::Type MoveAction::getType(void) {
@@ -41,47 +41,49 @@ bool MoveAction::passesPrecondition(void) {
 }
 
 bool MoveAction::onValidate(ApplicationContext* context) {
-    if(!actor->isEngaged()) {
-        auto hasPath = !getPath().empty();
+    auto& actor = context->getEntityRegistry().get<Actor>(entity);
+
+    if(!actor.isEngaged()) {
+        auto hasPath = !getPath(actor).empty();
 
         if(!hasPath) {
             spdlog::trace(
                 "[Move]: Failed to validate action, Actor[{}#{}] not engaged but has no path",
-                actor->getName(),
-                actor->getId()
+                actor.getName(),
+                actor.getId()
             );
         }
 
         return hasPath;
     }
 
-    if(actor->getMovesLeft() <= 0) {
+    if(actor.getMovesLeft() <= 0) {
         spdlog::trace(
             "[Move]: Failed to validate action, Actor[{}#{}] has (0/{}) moves left",
-            actor->getName(),
-            actor->getId(),
-            actor->getStats().movesPerTurn
+            actor.getName(),
+            actor.getId(),
+            actor.getStats().movesPerTurn
         );
         return false;
     }
 
-    if(getPath().empty()) {
+    if(getPath(actor).empty()) {
         spdlog::trace(
             "[Move]: Failed to validate action, Actor[{}#{}] has no path",
-            actor->getName(),
-            actor->getId()
+            actor.getName(),
+            actor.getId()
         );
         return false;
     }
 
 
-    if(!hasAvailableMoves()) {
+    if(!hasAvailableMoves(actor)) {
         spdlog::trace(
             "[Move]: Failed to validate action, Actor[{}#{}] has ({}/{}) moves left but not enough left in chain",
-            actor->getName(),
-            actor->getId(),
-            actor->getMovesLeft(),
-            actor->getStats().movesPerTurn
+            actor.getName(),
+            actor.getId(),
+            actor.getMovesLeft(),
+            actor.getStats().movesPerTurn
         );
         return false;
     }
@@ -90,11 +92,14 @@ bool MoveAction::onValidate(ApplicationContext* context) {
 }
 
 void MoveAction::onExecute(ApplicationContext* context) {
-    actor->setPath(getPath(true));
+    auto& actor = context->getEntityRegistry().get<Actor>(entity);
+    actor.setPath(getPath(actor, true));
 }
 
-bool MoveAction::hasFinished(void) {
-    if(actor->getMovesLeft() <= 0) {
+bool MoveAction::hasFinished(ApplicationContext* context) {
+    auto& actor = context->getEntityRegistry().get<Actor>(entity);
+
+    if(actor.getMovesLeft() <= 0) {
         return true;
     }
 
@@ -102,31 +107,31 @@ bool MoveAction::hasFinished(void) {
         return true;
     }
 
-    return actor->getPosition() == path[std::min(path.size() - shortStopSteps - 1, 0UL)];
+    return actor.getPosition() == path[std::min(path.size() - shortStopSteps - 1, 0UL)];
 }
 
-std::deque<glm::ivec2> MoveAction::getPath(bool recalculate) {
+std::deque<glm::ivec2> MoveAction::getPath(Actor& actor, bool recalculate) {
     if(recalculate || path.empty()) {
-        path = actor->calculatePath(position, shortStopSteps);
+        path = actor.calculatePath(position, shortStopSteps);
     }
 
     return path;
 }
 
-bool MoveAction::hasAvailableMoves(void) {
+bool MoveAction::hasAvailableMoves(Actor& actor) {
     if(participant->getEngagement() == nullptr || !turnNumber.has_value()) {
         return true;
     }
 
     int numMoves = 0;
  
-    for(auto& action : actor->getActionsChain(turnNumber.value())) {
+    for(auto& action : actor.getActionsChain(turnNumber.value())) {
         if(action->getType() == Action::Type::Move) {
-            numMoves += dynamic_cast<MoveAction*>(action)->getPath().size();
+            numMoves += dynamic_cast<MoveAction*>(action)->getPath(actor).size();
         }
     }
 
-    return actor->getMovesLeft() >= numMoves;
+    return actor.getMovesLeft() >= numMoves;
 }
 
 glm::ivec2 MoveAction::getPosition(void) const {

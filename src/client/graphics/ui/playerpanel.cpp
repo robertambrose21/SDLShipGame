@@ -1,6 +1,7 @@
 #include "playerpanel.h"
 
-PlayerPanel::PlayerPanel(int width, int height) :
+PlayerPanel::PlayerPanel(ApplicationContext& context, int width, int height) :
+    context(context),
     width(width),
     height(height)
 {
@@ -156,11 +157,13 @@ void PlayerPanel::onPublish(const Event<ItemEventData>& event) {
 }
 
 void PlayerPanel::onPublish(const Event<TakeItemActionEventData>& event) {
+    auto actor = context.getActorPool()->getActorByEntityId(event.data.entity);
+
     std::string items = "";
 
     std::vector<TextSegment> line = {
         { getTimestampString(event.timestamp), TimestampColour },
-        { getActorIdentifier(event.data.actor), HighlightColour },
+        { getActorIdentifier(actor), HighlightColour },
         { " picked up items: ", StdTextColour }
     };
 

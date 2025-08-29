@@ -35,6 +35,8 @@ void ServerApplication::initialise(void) {
 
     auto& context = application->getContext();
 
+    stdoutSubscriber = std::make_unique<StdOutSubscriber>(context);
+
     context.getGameController()->initialise(application->getContext());
     context.getAreaOfEffectPool()->initialise(application->getContext());
     context.getProjectilePool()->initialise(application->getContext());
@@ -44,13 +46,13 @@ void ServerApplication::initialise(void) {
     context.getSpawnController()->initialise(application->getContext());
     context.getVisibilityController()->initialise(application->getContext());
     context.getEffectController()->initialise(application->getContext());
-    context.getActorPool()->subscribe<ActorEventData>(&stdoutSubscriber);
-    context.getWeaponController()->subscribe<MeleeWeaponEventData>(&stdoutSubscriber);
-    context.getProjectilePool()->subscribe<ProjectileEventData>(&stdoutSubscriber);
-    context.getAreaOfEffectPool()->subscribe<AreaOfEffectEventData>(&stdoutSubscriber);
-    context.getItemController()->subscribe<ItemEventData>(&stdoutSubscriber);
-    context.getGameController()->subscribe<TakeItemActionEventData>(&stdoutSubscriber);
-    context.getGameController()->subscribe<EquipItemActionEventData>(&stdoutSubscriber);
+    context.getActorPool()->subscribe<ActorEventData>(stdoutSubscriber.get());
+    context.getWeaponController()->subscribe<MeleeWeaponEventData>(stdoutSubscriber.get());
+    context.getProjectilePool()->subscribe<ProjectileEventData>(stdoutSubscriber.get());
+    context.getAreaOfEffectPool()->subscribe<AreaOfEffectEventData>(stdoutSubscriber.get());
+    context.getItemController()->subscribe<ItemEventData>(stdoutSubscriber.get());
+    context.getGameController()->subscribe<TakeItemActionEventData>(stdoutSubscriber.get());
+    context.getGameController()->subscribe<EquipItemActionEventData>(stdoutSubscriber.get());
 
     server = std::make_unique<GameServer>(
         std::make_unique<GameMessageLogger>("server_messages.log"),
@@ -63,6 +65,7 @@ void ServerApplication::initialise(void) {
         dynamic_cast<ServerGameController*>(context.getGameController()),
         context.getVisibilityController(),
         context.getItemController(),
+        context.getActorPool(),
         [&](int clientIndex) { onClientConnect(clientIndex); },
         [&](int clientIndex) { onClientDisconnect(clientIndex); }
     );
@@ -101,7 +104,7 @@ void ServerApplication::initialise(void) {
     logicSystemRegistry = std::make_unique<LogicSystemRegistry>(context.getEntityRegistry());
 
     auto actorUpdateSystem = std::make_unique<ActorUpdateSystem>("ActorUpdateSystem");
-    actorUpdateSystem->subscribe<ActorEventData>(&stdoutSubscriber);
+    actorUpdateSystem->subscribe<ActorEventData>(stdoutSubscriber.get());
     actorUpdateSystem->subscribe<ActorEventData>(context.getItemController());
     logicSystemRegistry->addSystem(std::move(actorUpdateSystem));
 

@@ -18,7 +18,7 @@ PlayerController::PlayerController(
     cameraVector(glm::ivec2(0, 0)),
     participant(nullptr)
 {
-    playerPanel = std::make_unique<PlayerPanel>(1920, 1080);
+    playerPanel = std::make_unique<PlayerPanel>(context, 1920, 1080);
     inventoryPanel = std::make_unique<InventoryPanel>(400, 600);
     diagnosticsPanel = std::make_unique<DiagnosticsPanel>();
 
@@ -342,7 +342,7 @@ void PlayerController::attack(const glm::ivec2& target) {
         if(doAction(
             std::make_unique<AttackAction>(
                 participant, 
-                actor, 
+                actorPool->getEntity(actor->getId()), 
                 weapon, 
                 target, 
                 true
@@ -404,7 +404,7 @@ void PlayerController::equipItem(Item* item, Equippable<Stats::GearStats>::Slot 
     if(doAction(
         std::make_unique<EquipGearAction>(
             participant, 
-            actor, 
+            actorPool->getEntity(actor->getId()), 
             item, 
             slot, 
             false
@@ -420,7 +420,7 @@ void PlayerController::unequipItem(Item* item, Equippable<Stats::GearStats>::Slo
     if(doAction(
         std::make_unique<EquipGearAction>(
             participant, 
-            actor, 
+            actorPool->getEntity(actor->getId()), 
             item, 
             slot, 
             true
@@ -437,7 +437,7 @@ void PlayerController::equipWeapon(Item* item) {
     if(doAction(
         std::make_unique<EquipWeaponAction>(
             participant, 
-            actor, 
+            actorPool->getEntity(actor->getId()), 
             item, 
             weaponId,
             false
@@ -456,7 +456,7 @@ void PlayerController::unequipWeapon(Weapon* weapon) {
     if(doAction(
         std::make_unique<EquipWeaponAction>(
             participant,
-            actor,
+            actorPool->getEntity(actor->getId()),
             weapon->getItem(),
             weaponId,
             true

@@ -24,11 +24,8 @@ class StdOutSubscriber :
     public EventSubscriber<EquipItemActionEventData>,
     public EventSubscriber<ApplyDamageEventData>
 {
-private:
-    std::string getActorIdentifier(Actor* actor);
-
 public:
-    StdOutSubscriber();
+    StdOutSubscriber(ApplicationContext& context);
 
     void onPublish(const Event<ActorEventData>& event);
     void onPublish(const Event<MeleeWeaponEventData>& event);
@@ -38,4 +35,9 @@ public:
     void onPublish(const Event<TakeItemActionEventData>& event);
     void onPublish(const Event<EquipItemActionEventData>& event);
     void onPublish(const Event<ApplyDamageEventData>& event);
+
+private:
+    ApplicationContext& context;
+
+    std::string getActorIdentifier(Actor* actor);
 };

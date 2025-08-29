@@ -23,7 +23,7 @@ private:
     std::unique_ptr<GameServerMessagesTransmitter> transmitter;
     std::unique_ptr<GameServer> server;
     std::unique_ptr<GameServerMessagesReceiver> receiver;
-    StdOutSubscriber stdoutSubscriber;
+    std::unique_ptr<StdOutSubscriber> stdoutSubscriber;
 
     std::unique_ptr<LogicSystemRegistry> logicSystemRegistry;
 

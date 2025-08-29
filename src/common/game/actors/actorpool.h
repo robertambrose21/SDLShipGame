@@ -32,8 +32,13 @@ public:
     Actor* addActor(const std::string& name);
     Actor* addActor(const std::string& name, uint32_t id);
     void removeActor(uint32_t id);
+    
     std::vector<Actor*> getActors(void);
     Actor* getActor(uint32_t id);
+    entt::entity getEntity(uint32_t actorId);
+    std::pair<Actor*, entt::entity> getActorWithEntity(uint32_t id);
+    Actor* getActorByEntityId(entt::entity entityId);
+    
     bool hasActor(uint32_t id);
 
     void setPosition(uint32_t actorId, const Position& position);
@@ -71,6 +76,4 @@ private:
     void loadActorDefinitions(void);
     void synchronize(void);
     bool applyChunkedGameStateUpdate(const ChunkedGameStateUpdate& chunked);
-
-    Actor* getActorByEntityId(entt::entity entityId) const;
 };

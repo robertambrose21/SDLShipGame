@@ -110,11 +110,13 @@ void GameServerMessagesReceiver::receiveFindPathMessage(
             continue;
         }
 
+        auto entity = context.getActorPool()->getEntity(actor->getId());
+
         if(turnNumber == -1) {
-            gameController->executeActionImmediately(std::make_unique<MoveAction>(participant, actor, position));
+            gameController->executeActionImmediately(std::make_unique<MoveAction>(participant, entity, position));
         }
         else {
-            gameController->queueAction(std::make_unique<MoveAction>(participant, actor, turnNumber, position));
+            gameController->queueAction(std::make_unique<MoveAction>(participant, entity, turnNumber, position));
         }
         
     }
@@ -158,12 +160,14 @@ void GameServerMessagesReceiver::receieveAttackMessage(
         if(weapon->getId() != weaponId) {
             continue;
         }
+
+        auto entity = context.getActorPool()->getEntity(actor->getId());
         
         if(turnNumber != -1) {
             context.getGameController()->queueAction(
                 std::make_unique<AttackAction>(
                     participant, 
-                    actor,
+                    entity,
                     turnNumber,
                     weapon, 
                     glm::ivec2(x, y)
@@ -174,7 +178,7 @@ void GameServerMessagesReceiver::receieveAttackMessage(
             context.getGameController()->executeActionImmediately(
                 std::make_unique<AttackAction>(
                     participant, 
-                    actor,
+                    entity,
                     weapon, 
                     glm::ivec2(x, y)
                 )
@@ -240,11 +244,11 @@ void GameServerMessagesReceiver::receiveEquipItemMessage(
 
     auto participant = gameController->getParticipant(participantId);
     auto item = context.getItemController()->getItem(itemId);
-    auto actor = context.getActorPool()->getActor(actorId);
+    auto const& entity = context.getActorPool()->getEntity(actorId);
 
     gameController->executeActionImmediately(std::make_unique<EquipGearAction>(
         participant, 
-        actor, 
+        entity, 
         item,
         (Equippable<Stats::GearStats>::Slot) slot,
         isUnequip
@@ -277,18 +281,18 @@ void GameServerMessagesReceiver::receiveEquipWeaponMessage(
     auto participant = gameController->getParticipant(participantId);
     auto weaponId = UUID::fromBytes(weaponIdBytes);
     auto item = context.getItemController()->getItem(itemId);
-    auto actor = context.getActorPool()->getActor(actorId);
+    auto const& entity = context.getActorPool()->getEntity(actorId);
 
     spdlog::trace(
         "Player {} weapon {} from actor {}", 
         isUnequip ? "unequipping" : "equipping",
         weaponId.getString(), 
-        actor->getId()
+        actorId
     );
 
     gameController->executeActionImmediately(std::make_unique<EquipWeaponAction>(
         participant, 
-        actor, 
+        entity, 
         item,
         weaponId,
         isUnequip

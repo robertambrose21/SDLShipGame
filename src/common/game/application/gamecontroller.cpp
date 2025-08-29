@@ -79,7 +79,7 @@ void GameController::executeActorActions(Engagement* engagement, Actor* actor) {
     while(moreActionsToProcess) {
         auto action = actor->getActionsChain(engagement->getTurnNumber()).front();
 
-        if(action->isFinished()) {
+        if(action->isFinished(context)) {
             actor->popAction(engagement->getTurnNumber());
             moreActionsToProcess = !actor->getActionsChain(engagement->getTurnNumber()).empty();
         }
@@ -240,7 +240,9 @@ bool GameController::queueAction(std::unique_ptr<Action> action) {
         );
     }
 
-    return action->getActor()->queueAction(
+    auto& actor = context->getEntityRegistry().get<Actor>(action->getEntity());
+
+    return actor.queueAction(
         context,
         std::move(action),
         [&](auto& action) { publishAction(&action); },

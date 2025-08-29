@@ -278,7 +278,20 @@ Actor* ActorPool::getActor(uint32_t id) {
     return getActorByEntityId(actorIdsToEntities[id]);
 }
 
-Actor* ActorPool::getActorByEntityId(entt::entity entityId) const {
+entt::entity ActorPool::getEntity(uint32_t actorId) {
+    game_assert(initialised);
+    game_assert(actorIdsToEntities.contains(actorId));
+    return actorIdsToEntities[actorId];
+}
+
+std::pair<Actor*, entt::entity> ActorPool::getActorWithEntity(uint32_t id) {
+    game_assert(initialised);
+    game_assert(actorIdsToEntities.contains(id));
+    return { getActor(id), actorIdsToEntities[id] };
+}
+
+Actor* ActorPool::getActorByEntityId(entt::entity entityId) {
+    game_assert(initialised);
     return &context->getEntityRegistry().get<Actor>(entityId);
 }
 

@@ -42,6 +42,7 @@ public:
         ServerGameController* gameController,
         VisiblityController* visibilityController,
         ItemController* itemController,
+        ActorPool* actorPool,
         std::function<void(int)> onClientConnectFunc = [](int) { },
         std::function<void(int)> onClientDisconnectFunc = [](int) { }
     );
@@ -85,6 +86,7 @@ private:
     ServerGameController* gameController;
     VisiblityController* visibilityController;
     ItemController* itemController;
+    ActorPool* actorPool;
 
     std::function<void(int)> onClientConnectFunc;
     std::function<void(int)> onClientDisconnectFunc;
