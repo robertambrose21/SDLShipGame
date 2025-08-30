@@ -16,3 +16,5 @@ struct Drawable {
 };
 
 typedef glm::ivec2 Position;
+
+typedef uint32_t ExternaldId;

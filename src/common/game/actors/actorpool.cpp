@@ -229,6 +229,7 @@ Actor* ActorPool::addActor(const std::string& name, uint32_t id) {
     auto& registry = context->getEntityRegistry();
 
     auto entity = registry.create();
+    registry.emplace<ExternaldId>(entity, id);
     registry.emplace<Drawable>(entity, definition.textureId, UINT32_C(6),
         Colour { definition.r, definition.g, definition.b, definition.a});
     registry.emplace<Position>(entity, glm::ivec2(0, 0));
