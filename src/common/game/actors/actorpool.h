@@ -2,9 +2,11 @@
 
 #include <set>
 #include <map>
+#include <unordered_map>
 #include <fstream>
 #include <filesystem>
 #include <string>
+#include <optional>
 
 #include "core/json.hpp"
 #include "actor.h"
@@ -33,11 +35,14 @@ public:
     Actor* addActor(const std::string& name, uint32_t id);
     void removeActor(uint32_t id);
     
+    // TODO: Delete all these ---------------------------------------
     std::vector<Actor*> getActors(void);
     Actor* getActor(uint32_t id);
     entt::entity getEntity(uint32_t actorId);
     std::pair<Actor*, entt::entity> getActorWithEntity(uint32_t id);
     Actor* getActorByEntityId(entt::entity entityId);
+    // --------------------------------------------------------------
+    std::optional<entt::entity> getByExternalId(ExternalId externalId) const;
     
     bool hasActor(uint32_t id);
 
@@ -104,7 +109,8 @@ private:
     std::map<std::string, ActorDefinition> actorDefinitions;
 
     std::set<uint32_t> actorsForDeletion;
-    std::map<uint32_t, entt::entity> actorIdsToEntities;
+    std::map<uint32_t, entt::entity> actorIdsToEntities; // TODO: delete me;
+    std::unordered_map<ExternalId, entt::entity> actorByExternalId;
 
     std::map<uint8_t, ChunkedGameStateUpdate> pendingChunkedUpdates;
 

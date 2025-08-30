@@ -229,12 +229,13 @@ Actor* ActorPool::addActor(const std::string& name, uint32_t id) {
     auto& registry = context->getEntityRegistry();
 
     auto entity = registry.create();
-    registry.emplace<ExternaldId>(entity, id);
+    registry.emplace<ExternalId>(entity, id);
     registry.emplace<Drawable>(entity, definition.textureId, UINT32_C(6),
         Colour { definition.r, definition.g, definition.b, definition.a});
     registry.emplace<Position>(entity, glm::ivec2(0, 0));
     auto actor = &registry.emplace<Actor>(entity, context->getGrid(), id, *this, definition.name, stats);
     actorIdsToEntities[id] = entity;
+    actorByExternalId[id] = entity;
 
     return actor;
 }
@@ -259,6 +260,7 @@ void ActorPool::removeActor(uint32_t id) {
 
     context->getEntityRegistry().destroy(actorIdsToEntities[id]);
     actorIdsToEntities.erase(id);
+    actorByExternalId.erase(id);
 }
 
 // // TODO: Dumb - delete me
@@ -294,6 +296,14 @@ std::pair<Actor*, entt::entity> ActorPool::getActorWithEntity(uint32_t id) {
 Actor* ActorPool::getActorByEntityId(entt::entity entityId) {
     game_assert(initialised);
     return context->getEntityRegistry().try_get<Actor>(entityId);
+}
+
+std::optional<entt::entity> ActorPool::getByExternalId(ExternalId externalId) const {
+    if(!actorByExternalId.contains(externalId)) {
+        return std::nullopt;
+    }
+
+    return actorByExternalId.at(externalId);
 }
 
 bool ActorPool::hasActor(uint32_t id) {
