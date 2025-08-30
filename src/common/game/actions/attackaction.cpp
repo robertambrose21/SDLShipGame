@@ -70,7 +70,12 @@ bool AttackAction::onValidate(ApplicationContext* context) {
         return false;
     }
 
-    auto& actor = context->getEntityRegistry().get<Actor>(entity);
+    auto actor = context->getEntityRegistry().try_get<Actor>(entity);
+
+    if(!actor) {
+        spdlog::trace("[{}]: Failed to validate action, actor is null", typeToString());
+        return false;
+    }
 
     if(weapon->getUsesLeft() == 0 || weapon->getUsesLeft() < numAttacksInChain(actor)) {
         spdlog::trace(
@@ -88,22 +93,28 @@ bool AttackAction::onValidate(ApplicationContext* context) {
 }
 
 void AttackAction::onExecute(ApplicationContext* context) {
-    auto& actor = context->getEntityRegistry().get<Actor>(entity);
-    actor.attack(target, weapon->getId(), isAnimationOnly);
+    auto actor = context->getEntityRegistry().try_get<Actor>(entity);
+
+    if(!actor) {
+        spdlog::trace("[{}]: Failed to execute action, actor is null", typeToString());
+        return;
+    }
+
+    actor->attack(target, weapon->getId(), isAnimationOnly);
 }
 
 bool AttackAction::hasFinished(ApplicationContext* context) {
     return !weapon->isAnimationInProgress();
 }
 
-int AttackAction::numAttacksInChain(Actor& actor) {
+int AttackAction::numAttacksInChain(Actor* actor) {
     if(participant->getEngagement() == nullptr || !turnNumber.has_value()) {
         return weapon->getUsesLeft();
     }
 
     int numAttacks = 0;
 
-    for(auto& action : actor.getActionsChain(turnNumber.value())) {
+    for(auto& action : actor->getActionsChain(turnNumber.value())) {
         if(action->getType() != Action::Type::Attack) {
             continue;
         }

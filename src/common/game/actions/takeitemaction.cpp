@@ -29,9 +29,14 @@ bool TakeItemAction::onValidate(ApplicationContext* context) {
         return true;
     }
 
-    auto& actor = context->getEntityRegistry().get<Actor>(entity);
+    auto actor = context->getEntityRegistry().try_get<Actor>(entity);
 
-    for(auto action : actor.getActionsChain(turnNumber.value())) {
+    if(!actor) {
+        spdlog::trace("[{}]: Failed to validate action, actor is null", typeToString());
+        return false;
+    }
+
+    for(auto action : actor->getActionsChain(turnNumber.value())) {
         if(
             action->getType() == Action::Type::TakeItem && 
             containsAny(items, dynamic_cast<TakeItemAction*>(action)->getItems())
@@ -49,8 +54,14 @@ bool TakeItemAction::onValidate(ApplicationContext* context) {
 }
 
 void TakeItemAction::onExecute(ApplicationContext* context) {
-    auto& actor = context->getEntityRegistry().get<Actor>(entity);
-    auto participant = context->getGameController()->getParticipant(actor.getParticipantId());
+    auto actor = context->getEntityRegistry().try_get<Actor>(entity);
+
+    if(!actor) {
+        spdlog::trace("[{}]: Failed to execute action, actor is null", typeToString());
+        return;
+    }
+
+    auto participant = context->getGameController()->getParticipant(actor->getParticipantId());
 
     if(!participant->getIsPlayer()) {
         return;

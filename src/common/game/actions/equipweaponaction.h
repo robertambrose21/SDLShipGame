@@ -35,8 +35,8 @@ private:
     void onExecute(ApplicationContext* context);
     bool hasFinished(ApplicationContext* context);
 
-    bool validateEquip(ApplicationContext* context);
-    bool validateUnequip(ApplicationContext* context);
+    bool validateEquip(ApplicationContext* context, Actor* actor);
+    bool validateUnequip(ApplicationContext* context, Actor* actor);
 
     Item* item;
     UUID weaponId;

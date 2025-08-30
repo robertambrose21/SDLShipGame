@@ -292,7 +292,7 @@ std::pair<Actor*, entt::entity> ActorPool::getActorWithEntity(uint32_t id) {
 
 Actor* ActorPool::getActorByEntityId(entt::entity entityId) {
     game_assert(initialised);
-    return &context->getEntityRegistry().get<Actor>(entityId);
+    return context->getEntityRegistry().try_get<Actor>(entityId);
 }
 
 bool ActorPool::hasActor(uint32_t id) {

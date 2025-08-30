@@ -240,9 +240,14 @@ bool GameController::queueAction(std::unique_ptr<Action> action) {
         );
     }
 
-    auto& actor = context->getEntityRegistry().get<Actor>(action->getEntity());
+    auto actor = context->getEntityRegistry().try_get<Actor>(action->getEntity());
 
-    return actor.queueAction(
+    if(!actor) {
+        spdlog::trace("[{}]: Failed to queue action, actor is null", action->typeToString());
+        return false;
+    }
+
+    return actor->queueAction(
         context,
         std::move(action),
         [&](auto& action) { publishAction(&action); },
