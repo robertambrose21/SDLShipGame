@@ -89,8 +89,6 @@ public:
     bool isOnTile(int x, int y);
 
     void setPosition(const glm::ivec2& position);
-    int findPath(const glm::ivec2& target, int stopShortSteps = 0);
-    std::deque<glm::ivec2> calculatePath(const glm::ivec2& target, int stopShortSteps = 0);
     void setPath(const std::deque<glm::ivec2>& path);
     bool isNeighbour(Actor* actor) const;
     bool hasPath(void);

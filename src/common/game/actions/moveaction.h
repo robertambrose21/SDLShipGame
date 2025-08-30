@@ -40,6 +40,7 @@ private:
     void onExecute(ApplicationContext* context);
     bool hasFinished(ApplicationContext* context);
 
-    std::deque<glm::ivec2> getPath(Actor* actor, bool recalculate = false);
-    bool hasAvailableMoves(Actor* actor);
+    std::deque<glm::ivec2> getPath(ApplicationContext* context, bool recalculate = false);
+    std::deque<glm::ivec2> calculatePath(ApplicationContext* context, const glm::ivec2& target, int stopShortSteps = 0);
+    bool hasAvailableMoves(ApplicationContext* context, Actor* actor);
 };

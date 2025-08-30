@@ -235,37 +235,6 @@ void Actor::setPosition(const glm::ivec2& position) {
     publisher.publish<ActorSetPositionEventData>({ this, position });
 }
 
-int Actor::findPath(const glm::ivec2& target, int stopShortSteps) {
-    auto path = calculatePath(target, stopShortSteps);
-
-    if(path.empty()) {
-        return 0;
-    }
-
-    this->path = path;
-
-    return path.size();
-}
-
-std::deque<glm::ivec2> Actor::calculatePath(const glm::ivec2& target, int stopShortSteps) {
-    auto path = grid->findPath(getPosition(), target);
-
-    if(path.empty()) {
-        return std::deque<glm::ivec2>();
-    }
-
-    // Remove the initial path node which is just the actors current position
-    path.pop_front(); 
-
-    if(path.size() >= stopShortSteps) {
-        for(auto i = 0; i < stopShortSteps; i++) {
-            path.pop_back();
-        }
-    }
-
-    return path;
-}
-
 void Actor::setPath(const std::deque<glm::ivec2>& path) {
     this->path = path;
 }
