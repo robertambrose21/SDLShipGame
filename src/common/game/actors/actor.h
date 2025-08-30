@@ -22,11 +22,6 @@ class Action;
 class Effect;
 class ApplicationContext;
 
-struct ActorEventData {
-    Actor* actor;
-    std::string type;
-};
-
 class Actor {
 public:
     const uint32_t MOVES_PER_SECOND = 5;
@@ -86,9 +81,6 @@ public:
     std::string toString(void) const;
     void setName(const std::string& name);
 
-    glm::ivec2 getPosition(void) const;
-
-    void setPosition(const glm::ivec2& position);
     void setPath(const std::deque<glm::ivec2>& path);
     bool hasPath(void);
     glm::ivec2 popPath(void);
@@ -138,7 +130,6 @@ private:
     Grid* grid;
     EventPublisher<ActorEventData, ActorSetPositionEventData, ActorUpdateStatsEventData>& publisher;
 
-    glm::ivec2 position;
     std::deque<glm::ivec2> path;
     int64_t timeSinceLastMoved;
 

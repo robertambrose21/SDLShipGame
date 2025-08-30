@@ -14,13 +14,17 @@ Participant::Participant(int id, uint32_t factionId) :
 // TODO: There's some efficiencies we can do here.
 // - Grid based partitioning,
 // - k-d Tree? Whatever the hell that is: https://en.wikipedia.org/wiki/K-d_tree
-float Participant::distanceToOtherParticipant(Participant* other) {
+float Participant::distanceToOtherParticipant(ApplicationContext* context, Participant* other) {
     game_assert(other != nullptr);
     float shortestDistance = std::numeric_limits<float>::infinity();
 
     for(auto actor : actors) {
+        auto const& actorPosition = context->getActorPool()->getPosition(actor->getId());
+
         for(auto otherActor : other->getActors()) {
-            float distance = glm::distance(glm::vec2(actor->getPosition()), glm::vec2(otherActor->getPosition()));
+            auto const& otherPosition = context->getActorPool()->getPosition(otherActor->getId());
+
+            float distance = glm::distance(glm::vec2(actorPosition), glm::vec2(otherPosition));
 
             if(distance < shortestDistance) {
                 shortestDistance = distance;

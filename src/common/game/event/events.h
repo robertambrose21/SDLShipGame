@@ -10,6 +10,7 @@
 #include "game/effects/effecttypes.h"
 #include "game/stats/stats.h"
 #include "game/data/tiles.h"
+#include "game/ecs/components/drawable.h"
 
 class Actor;
 class Item;
@@ -47,6 +48,12 @@ struct MeleeWeaponEventData {
     Actor* target;
     Weapon* weapon;
     int damage;
+};
+
+struct ActorEventData {
+    Actor* actor;
+    Position position;
+    std::string type;
 };
 
 // -- Actions -----------------------------------

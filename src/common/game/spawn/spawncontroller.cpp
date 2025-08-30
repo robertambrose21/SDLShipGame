@@ -16,7 +16,7 @@ std::vector<Actor*> SpawnController::spawnActors(const std::string& name, const 
 
     for(auto i = 0; i < count; i++) {
         auto actor = context->getActorPool()->addActor(name);
-        actor->setPosition(getRandomPositionFromSpawnBox(spawnBox));
+        context->getActorPool()->setPosition(actor->getId(), getRandomPositionFromSpawnBox(spawnBox));
         actors.push_back(actor);
     }
 
@@ -52,7 +52,7 @@ std::vector<Actor*> SpawnController::spawnActors(const SpawnableActors& spawnabl
 
 Actor* SpawnController::spawnActor(const std::string& name, const glm::ivec2& position) {
     auto actor = context->getActorPool()->addActor(name);
-    actor->setPosition(position);
+    context->getActorPool()->setPosition(actor->getId(), position);
     return actor;
 }
 

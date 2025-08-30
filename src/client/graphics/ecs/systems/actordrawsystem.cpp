@@ -7,9 +7,7 @@ ActorDrawSystem::ActorDrawSystem(const std::string& name) :
 void ActorDrawSystem::draw(entt::registry& registry, GraphicsContext& graphicsContext) {
     auto& gridRenderer = graphicsContext.getGridRenderer();
 
-    for(auto [_, drawable, actor]: registry.view<Drawable, Actor>().each()) {
-        auto const& position = actor.getPosition();
-
+    for(auto [_, drawable, actor, position]: registry.view<Drawable, Actor, Position>().each()) {
         gridRenderer.draw(
             graphicsContext,
             drawable.textureId,

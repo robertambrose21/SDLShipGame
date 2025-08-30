@@ -10,17 +10,22 @@ void ActorUpdateSystem::update(
     int64_t timeSinceLastFrame, 
     bool& quit
 ) {
-    for(auto [entityId, actor]: registry.view<Actor>().each()) {
+    for(auto [entity, actor, position]: registry.view<Actor, Position>().each()) {
         if(actor.getCurrentHP() <= 0) {
             killActor(context, actor);
             continue;
         }
 
-        updateActor(actor, timeSinceLastFrame);
+        updateActor(context, actor, position, timeSinceLastFrame);
     }
 }
 
-void ActorUpdateSystem::updateActor(Actor& actor, int64_t timeSinceLastFrame) {
+void ActorUpdateSystem::updateActor(
+    ApplicationContext& context,
+    Actor& actor, 
+    Position& position, 
+    int64_t timeSinceLastFrame
+) {
     for(auto weapon : actor.getWeapons()) {
         weapon->update(timeSinceLastFrame);
     }
@@ -45,13 +50,14 @@ void ActorUpdateSystem::updateActor(Actor& actor, int64_t timeSinceLastFrame) {
 
         if(actor.isEngaged()) {
             actor.useMoves(1);
-        }
+        }        
 
-        actor.setPosition(position);
+        context.getActorPool()->setPosition(actor.getId(), position);
     }
 }
 
 void ActorUpdateSystem::killActor(ApplicationContext& context, Actor& actor) {
+    auto const& position = context.getActorPool()->getPosition(actor.getId());
     context.getActorPool()->removeActor(actor.getId());
-    publish<ActorEventData>({ &actor, "Death" });
+    publish<ActorEventData>({ &actor, position, "Death" });
 }

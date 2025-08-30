@@ -299,8 +299,7 @@ void GameClientMessagesReceiver::receiveSetActorPositionMessage(SetActorPosition
     }
 
     auto actor = context.getActorPool()->getActor(message->actorId);
-
-    actor->setPosition(glm::ivec2(message->x, message->y));
+    context.getActorPool()->setPosition(message->actorId, glm::ivec2(message->x, message->y));
     actor->setMovesLeft(message->movesLeft);
 }
 
@@ -394,7 +393,7 @@ void GameClientMessagesReceiver::receiveAddActorVisibilityMessage(AddActorVisibi
         }
     }
 
-    ActorStateUpdate::deserialize(message->actor, actor);
+    ActorStateUpdate::deserialize(&context, message->actor, actor);
 
     if(clientParticipant->hasVisibleActor(actor)) {
         std::cout << std::format("Warning: received already visible actor {}", actor->getId()) << std::endl;

@@ -68,9 +68,7 @@ private:
 
     std::vector<Actor*> selectedActors;
     GridRenderer& gridRenderer;
-    GameController* gameController;
-    ActorPool* actorPool;
-    Grid* grid;
+    ApplicationContext& context;
     GraphicsContext& graphicsContext;
 
     bool isLeftShiftPressed;

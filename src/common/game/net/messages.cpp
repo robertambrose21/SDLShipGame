@@ -36,17 +36,19 @@ Weapon* WeaponStateUpdate::deserialize(const WeaponStateUpdate& update, Weapon* 
     return existing;
 }
 
-ActorStateUpdate ActorStateUpdate::serialize(Actor* actor) {
+ActorStateUpdate ActorStateUpdate::serialize(ApplicationContext* context, Actor* actor) {
     game_assert(actor != nullptr);
 
     ActorStateUpdate actorStateUpdate;
+
+    auto position = context->getActorPool()->getPosition(actor->getId());
 
     actorStateUpdate.id = actor->getId();
     strcpy(actorStateUpdate.name, actor->getName().c_str());
     actorStateUpdate.totalHP = actor->getStats().totalHp;
     actorStateUpdate.currentHP = actor->getCurrentHP();
-    actorStateUpdate.x = actor->getPosition().x;
-    actorStateUpdate.y = actor->getPosition().y;
+    actorStateUpdate.x = position.x;
+    actorStateUpdate.y = position.y;
     actorStateUpdate.participantId = actor->getParticipantId();
     actorStateUpdate.isEngaged = actor->isEngaged();
     memcpy(actorStateUpdate.currentWeaponIdBytes, &actor->getCurrentWeapon()->getId().getBytes()[0], 16);
@@ -61,9 +63,9 @@ ActorStateUpdate ActorStateUpdate::serialize(Actor* actor) {
 }
 
 // TODO: Return the actor
-void ActorStateUpdate::deserialize(const ActorStateUpdate& update, Actor* existing) {
+void ActorStateUpdate::deserialize(ApplicationContext* context, const ActorStateUpdate& update, Actor* existing) {
     game_assert(existing != nullptr);
-    existing->setPosition(glm::ivec2(update.x, update.y));
+    context->getActorPool()->setPosition(existing->getId(), glm::ivec2(update.x, update.y));
     existing->setCurrentHP(update.currentHP);
     existing->setParticipantId(update.participantId);
 

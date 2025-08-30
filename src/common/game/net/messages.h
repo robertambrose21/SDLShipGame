@@ -14,6 +14,7 @@ class Actor;
 class Enemy;
 class Player;
 class Weapon;
+class ApplicationContext;
 
 struct WeaponStateUpdate {
     uint8_t idBytes[16];
@@ -53,8 +54,8 @@ struct ActorStateUpdate {
         memset(this, 0, sizeof(ActorStateUpdate));
     }
 
-    static ActorStateUpdate serialize(Actor* actor);
-    static void deserialize(const ActorStateUpdate& update, Actor* existing);
+    static ActorStateUpdate serialize(ApplicationContext* context, Actor* actor);
+    static void deserialize(ApplicationContext* context, const ActorStateUpdate& update, Actor* existing);
 };
 
 struct GameStateUpdate {
@@ -69,6 +70,7 @@ struct GameStateUpdate {
     }
 
     static GameStateUpdate serialize(
+        ApplicationContext* context,
         int currentParticipantId, 
         const std::vector<Actor*>& actors,
         uint32_t chunkId,
@@ -79,7 +81,7 @@ struct GameStateUpdate {
 
         int index = 0;
         for(auto actor : actors) {
-            update.actors[index++] = ActorStateUpdate::serialize(actor);
+            update.actors[index++] = ActorStateUpdate::serialize(context, actor);
         }
 
         update.currentParticipantId = currentParticipantId;

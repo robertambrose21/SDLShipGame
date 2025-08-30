@@ -12,12 +12,13 @@ class Actor;
 class BehaviourStrategy;
 class Engagement;
 class Item;
+class ApplicationContext;
 
 class Participant : public Factioned {
 public:
     Participant(int id, uint32_t factionId);
 
-    float distanceToOtherParticipant(Participant* other);
+    float distanceToOtherParticipant(ApplicationContext* context, Participant* other);
 
     bool hasEngagement(Participant* other);
     bool hasAnyEngagement(void);

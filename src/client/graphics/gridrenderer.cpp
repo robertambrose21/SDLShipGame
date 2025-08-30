@@ -152,9 +152,10 @@ void GridRenderer::buildFogTiles(
     int yMax
 ) {
     auto renderer = graphicsContext.getRenderer();
+    auto const& position = actorPool->getPosition(actor->getId());
 
     auto tiles = grid->getVisibleTiles(
-        glm::vec2(actor->getPosition().x, actor->getPosition().y),
+        glm::vec2(position.x, position.y),
         actor->getAggroRange()
     );
 
@@ -197,11 +198,13 @@ void GridRenderer::buildFogTexture(GraphicsContext& graphicsContext) {
     SDL_RenderClear(renderer);
 
     if(participant != nullptr) {
-        for(auto const& actor : participant->getActors()) {
-            int xMin = std::max(actor->getPosition().x - actor->getAggroRange(), 0);
-            int xMax = std::min(actor->getPosition().x + actor->getAggroRange() + 1, grid->getWidth());
-            int yMin = std::max(actor->getPosition().y - actor->getAggroRange(), 0);
-            int yMax = std::min(actor->getPosition().y + actor->getAggroRange() + 1, grid->getHeight());
+        for(auto actor : participant->getActors()) {
+            auto const& position = actorPool->getPosition(actor->getId());
+
+            int xMin = std::max(position.x - actor->getAggroRange(), 0);
+            int xMax = std::min(position.x + actor->getAggroRange() + 1, grid->getWidth());
+            int yMin = std::max(position.y - actor->getAggroRange(), 0);
+            int yMax = std::min(position.y + actor->getAggroRange() + 1, grid->getHeight());
 
             buildFogBorders(graphicsContext, xMin, xMax, yMin, yMax);
             buildFogTiles(graphicsContext, actor, xMin, xMax, yMin, yMax);

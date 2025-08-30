@@ -1,5 +1,6 @@
 #include "moveaction.h"
 #include "game/participant/participant.h"
+#include "game/actors/actorpool.h"
 
 MoveAction::MoveAction(
     Participant* participant,
@@ -123,7 +124,9 @@ bool MoveAction::hasFinished(ApplicationContext* context) {
         return true;
     }
 
-    return actor->getPosition() == path[std::min(path.size() - shortStopSteps - 1, 0UL)];
+    auto const& actorPosition = context->getActorPool()->getPosition(actor->getId());
+
+    return actorPosition == path[std::min(path.size() - shortStopSteps - 1, 0UL)];
 }
 
 std::deque<glm::ivec2> MoveAction::getPath(ApplicationContext* context, bool recalculate) {
@@ -147,7 +150,8 @@ std::deque<glm::ivec2> MoveAction::calculatePath(
         return std::deque<glm::ivec2>();
     }
 
-    auto path = context->getGrid()->findPath(actor->getPosition(), target);
+    auto const& actorPosition = context->getActorPool()->getPosition(actor->getId());
+    auto path = context->getGrid()->findPath(actorPosition, target);
 
     if(path.empty()) {
         return std::deque<glm::ivec2>();

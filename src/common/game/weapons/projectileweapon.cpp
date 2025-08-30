@@ -64,7 +64,9 @@ bool ProjectileWeapon::isInRange(const glm::ivec2& target) {
         return false;
     }
 
-    glm::vec2 ownerCentrePos = glm::vec2(owner->getPosition()) + glm::vec2(.5f, .5f);
+    auto const& ownerPosition = context->getActorPool()->getPosition(owner->getId());
+
+    glm::vec2 ownerCentrePos = glm::vec2(ownerPosition) + glm::vec2(.5f, .5f);
     glm::vec2 targetCentrePos = glm::vec2(target) + glm::vec2(.5f, .5f);
 
     return !context->getGrid()->hasIntersection(ownerCentrePos, targetCentrePos);

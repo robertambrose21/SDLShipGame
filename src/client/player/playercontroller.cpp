@@ -9,9 +9,7 @@ PlayerController::PlayerController(
     clientMessagesTransmitter(clientMessagesTransmitter),
     graphicsContext(graphicsContext),
     gridRenderer(graphicsContext.getGridRenderer()),
-    gameController(context.getGameController()),
-    actorPool(context.getActorPool()),
-    grid(context.getGrid()),
+    context(context),
     camera(graphicsContext.getGridRenderer().getCamera()),
     isLeftShiftPressed(false),
     isCurrentWeaponInRange(true),
@@ -34,7 +32,7 @@ PlayerController::PlayerController(
         }
     });
     
-    actorPool->subscribe<ActorEventData>(playerPanel.get());
+    context.getActorPool()->subscribe<ActorEventData>(playerPanel.get());
     context.getWeaponController()->subscribe<MeleeWeaponEventData>(playerPanel.get());
     context.getProjectilePool()->subscribe<ProjectileEventData>(playerPanel.get());
     context.getAreaOfEffectPool()->subscribe<AreaOfEffectEventData>(playerPanel.get());
@@ -55,7 +53,8 @@ void PlayerController::update(int64_t timeSinceLastFrame) {
     if(selectedActors.size() == 1) {
         auto windowWidth = graphicsContext.getWindowWidth();
         auto windowHeight = graphicsContext.getWindowHeight();
-        auto position = selectedActors[0]->getPosition();
+
+        auto const& position = context.getActorPool()->getPosition(selectedActors[0]->getId());
         
         camera.setPosition(gridRenderer.getTilePosition(-position.x, -position.y) +
             glm::ivec2(windowWidth / 2, windowHeight / 2));
@@ -106,7 +105,7 @@ void PlayerController::drawUI(GraphicsContext& graphicsContext) {
         bool isOpen = actorPanel->getIsOpen();
 
         if(!isOpen) {
-            actorPool->unsubscribe<ActorUpdateStatsEventData>(actorPanel.get());
+            context.getActorPool()->unsubscribe<ActorUpdateStatsEventData>(actorPanel.get());
         }
 
         return !isOpen;
@@ -233,7 +232,7 @@ void PlayerController::handleMouseDown(const SDL_Event& event) {
                 break;
             }
 
-            auto actor = ActorPool::filterByTile(x, y, participant->getActors());
+            auto actor = context.getActorPool()->filterByTile(x, y, participant->getActors());
 
             if(actor != nullptr) {
                 toggleSelection({ actor });
@@ -249,7 +248,7 @@ void PlayerController::handleMouseDown(const SDL_Event& event) {
         }
 
         case SDL_BUTTON_RIGHT: {
-            auto const& target = ActorPool::filterByTile(x, y, actorPool->getActors());
+            auto const& target = context.getActorPool()->filterByTile(x, y, context.getActorPool()->getActors());
 
             if(target != nullptr || isLeftShiftPressed) {
                 attack(position);
@@ -285,7 +284,7 @@ void PlayerController::handleMouseUp(const SDL_Event& event) {
 
                 auto tiles = gridRenderer.getGrid()->getTilesInSquare(x, y, sizeX, sizeY);
                 
-                toggleSelection(ActorPool::filterByTiles(tiles, participant->getActors()));
+                toggleSelection(context.getActorPool()->filterByTiles(tiles, participant->getActors()));
             }
             break;
         }
@@ -326,7 +325,10 @@ void PlayerController::move(const glm::ivec2& position) {
     int turnNumber = participant->hasAnyEngagement() ? participant->getEngagement()->getTurnNumber() : -1;
 
     for(auto const& actor : selectedActors) {
-        if(!grid->findPath(actor->getPosition(), position).empty()) {
+        auto const& entity = context.getActorPool()->getEntity(actor->getId());
+        auto const& actorPosition = context.getEntityRegistry().get<Position>(entity);
+
+        if(!context.getGrid()->findPath(actorPosition, position).empty()) {
             clientMessagesTransmitter.sendFindPathMessage(actor->getId(), position, 0, turnNumber);
         }
     }
@@ -342,7 +344,7 @@ void PlayerController::attack(const glm::ivec2& target) {
         if(doAction(
             std::make_unique<AttackAction>(
                 participant, 
-                actorPool->getEntity(actor->getId()), 
+                context.getActorPool()->getEntity(actor->getId()), 
                 weapon, 
                 target, 
                 true
@@ -371,6 +373,9 @@ void PlayerController::setHoverTiles(void) {
         return;
     }
 
+    auto const& entity = context.getActorPool()->getEntity(actor->getId());
+    auto const& position = context.getEntityRegistry().get<Position>(entity);
+
     glm::ivec2 mousePosition;
     SDL_GetMouseState(&mousePosition.x, &mousePosition.y);
     auto [x, y] = gridRenderer.getTileIndices(mousePosition - camera.getPosition());
@@ -378,14 +383,14 @@ void PlayerController::setHoverTiles(void) {
     auto grid = gridRenderer.getGrid();
 
     isCurrentWeaponInRange = weapon->isInRange(glm::vec2(x, y));
-    p1 = (actor->getPosition() * 32) + glm::ivec2(16, 16) + camera.getPosition();
+    p1 = (position * 32) + glm::ivec2(16, 16) + camera.getPosition();
     p2 = (glm::ivec2(x, y) * 32) + glm::ivec2(16, 16) + camera.getPosition();
 
     if(weapon->getName() == "Grenade Launcher") {
         hoverTiles = gridRenderer.getGrid()->getTilesInCircle(x, y, 2);
     }
     else if(weapon->getName()== "Freeze Gun") {
-        glm::ivec2 dir = actor->getPosition() - glm::ivec2(x, y);
+        glm::ivec2 dir = position - glm::ivec2(x, y);
         auto perp = glm::normalize(glm::vec2(dir.y, -dir.x));
         auto pX = std::min(grid->getWidth() - 1, (int) std::round(perp.x));
         auto pY = std::min(grid->getHeight() - 1, (int) std::round(perp.y));
@@ -404,7 +409,7 @@ void PlayerController::equipItem(Item* item, Equippable<Stats::GearStats>::Slot 
     if(doAction(
         std::make_unique<EquipGearAction>(
             participant, 
-            actorPool->getEntity(actor->getId()), 
+            context.getActorPool()->getEntity(actor->getId()), 
             item, 
             slot, 
             false
@@ -420,7 +425,7 @@ void PlayerController::unequipItem(Item* item, Equippable<Stats::GearStats>::Slo
     if(doAction(
         std::make_unique<EquipGearAction>(
             participant, 
-            actorPool->getEntity(actor->getId()), 
+            context.getActorPool()->getEntity(actor->getId()), 
             item, 
             slot, 
             true
@@ -437,7 +442,7 @@ void PlayerController::equipWeapon(Item* item) {
     if(doAction(
         std::make_unique<EquipWeaponAction>(
             participant, 
-            actorPool->getEntity(actor->getId()), 
+            context.getActorPool()->getEntity(actor->getId()), 
             item, 
             weaponId,
             false
@@ -456,7 +461,7 @@ void PlayerController::unequipWeapon(Weapon* weapon) {
     if(doAction(
         std::make_unique<EquipWeaponAction>(
             participant,
-            actorPool->getEntity(actor->getId()),
+            context.getActorPool()->getEntity(actor->getId()),
             weapon->getItem(),
             weaponId,
             true
@@ -469,11 +474,11 @@ void PlayerController::unequipWeapon(Weapon* weapon) {
 
 bool PlayerController::doAction(std::unique_ptr<Action> action) {
     if(participant->hasAnyEngagement()) {
-        return gameController->queueAction(std::move(action));
+        return context.getGameController()->queueAction(std::move(action));
     }
 
 
-    return gameController->executeActionImmediately(std::move(action));
+    return context.getGameController()->executeActionImmediately(std::move(action));
 }
 
 const std::vector<Actor*>& PlayerController::getSelectedActors(void) const {
@@ -505,7 +510,7 @@ void PlayerController::addActorPanel(Actor* actor) {
         }
     });
 
-    actorPool->subscribe<ActorUpdateStatsEventData>(panel.get());
+    context.getActorPool()->subscribe<ActorUpdateStatsEventData>(panel.get());
 
     actorPanels[actor->getId()] = std::move(panel);
 }

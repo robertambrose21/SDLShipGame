@@ -61,7 +61,7 @@ void Projectile::doHit(const glm::ivec2& position) {
 }
 
 void Projectile::apply(const glm::ivec2& position) {
-    auto actor = ActorPool::filterByTile(
+    auto actor = context->getActorPool()->filterByTile(
         position.x,
         position.y,
         context->getActorPool()->getActors(),

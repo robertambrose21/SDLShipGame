@@ -1,5 +1,6 @@
 #include "attackaction.h"
 #include "game/participant/participant.h"
+#include "game/actors/actorpool.h"
 
 AttackAction::AttackAction(
     Participant* participant,
@@ -58,22 +59,24 @@ bool AttackAction::onValidate(ApplicationContext* context) {
         return false;
     }
 
+    auto actor = context->getEntityRegistry().try_get<Actor>(entity);
+
+    if(!actor) {
+        spdlog::trace("[{}]: Failed to validate action, actor is null", typeToString());
+        return false;
+    }
+
+    auto const& weaponOwnerPosition = context->getActorPool()->getPosition(weapon->getOwner()->getId());
+
     if(!weapon->isInRange(target)) {
         spdlog::trace(
             "[Attack]: Failed to validate action, weapon is out of range of actor. Weapon[{}#{}] range=({}) pos=({}, {}), targetPos=({}, {})", 
             weapon->getName(),
             weapon->getId().getString(),
             weapon->getStats().range,
-            weapon->getOwner()->getPosition().x, weapon->getOwner()->getPosition().y,
+            weaponOwnerPosition.x, weaponOwnerPosition.y,
             target.x, target.y
         );
-        return false;
-    }
-
-    auto actor = context->getEntityRegistry().try_get<Actor>(entity);
-
-    if(!actor) {
-        spdlog::trace("[{}]: Failed to validate action, actor is null", typeToString());
         return false;
     }
 
@@ -100,7 +103,9 @@ void AttackAction::onExecute(ApplicationContext* context) {
         return;
     }
 
-    actor->attack(actor->getPosition(), target, weapon->getId(), isAnimationOnly);
+    auto const& position = context->getEntityRegistry().get<Position>(entity);
+
+    actor->attack(position, target, weapon->getId(), isAnimationOnly);
 }
 
 bool AttackAction::hasFinished(ApplicationContext* context) {

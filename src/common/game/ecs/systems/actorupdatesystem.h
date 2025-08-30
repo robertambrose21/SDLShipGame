@@ -23,6 +23,11 @@ public:
     );
 
 private:
-    void updateActor(Actor& actor, int64_t timeSinceLastFrame);
+    void updateActor(
+        ApplicationContext& context,
+        Actor& actor, 
+        Position& position, 
+        int64_t timeSinceLastFrame
+    );
     void killActor(ApplicationContext& context, Actor& actor);
 };

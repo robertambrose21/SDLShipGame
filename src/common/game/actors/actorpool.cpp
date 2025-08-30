@@ -112,7 +112,7 @@ bool ActorPool::applyChunkedGameStateUpdate(const ChunkedGameStateUpdate& chunke
                 }
             }
 
-            ActorStateUpdate::deserialize(actorUpdate, existing);
+            ActorStateUpdate::deserialize(context, actorUpdate, existing);
 
             if(actorUpdate.currentHP <= 0) {
                 actorsForDeletion.insert(actorUpdate.id);
@@ -300,11 +300,18 @@ bool ActorPool::hasActor(uint32_t id) {
     return actorIdsToEntities.contains(id);
 }
 
+Position ActorPool::getPosition(uint32_t actorId) const{
+    game_assert(actorIdsToEntities.contains(actorId));
+    auto const& entityId = actorIdsToEntities.at(actorId);
+
+    return context->getEntityRegistry().get<Position>(entityId);
+}
+
 void ActorPool::setPosition(uint32_t actorId, const Position& position) {
     game_assert(actorIdsToEntities.contains(actorId));
-    const auto& entityId = actorIdsToEntities[actorId];
+    auto const& entityId = actorIdsToEntities[actorId];
 
-    context->getEntityRegistry().emplace<Position>(entityId, position);
+    context->getEntityRegistry().replace<Position>(entityId, position);
     
     publish<ActorSetPositionEventData>({ getActorByEntityId(entityId), position });
 }
@@ -312,13 +319,15 @@ void ActorPool::setPosition(uint32_t actorId, const Position& position) {
 Actor* ActorPool::findClosestTarget(Actor* attacker, int participantId) {
     Actor* closestActor = nullptr;
     auto shortestDistance = attacker->getDisengagementRange();
+
+    auto const attackerPosition = context->getActorPool()->getPosition(attacker->getId());
     
-    for(auto [_, actor]: context->getEntityRegistry().view<Actor>().each()) {
+    for(auto [_, actor, position]: context->getEntityRegistry().view<Actor, Position>().each()) {
         if(actor.getParticipantId() == participantId) {
             continue;
         }
 
-        auto distance = glm::distance(glm::vec2(attacker->getPosition()), glm::vec2(actor.getPosition()));
+        auto distance = glm::distance(glm::vec2(attackerPosition), glm::vec2(position));
 
         if(distance < shortestDistance) {
             shortestDistance = distance;
@@ -339,7 +348,10 @@ Actor* ActorPool::filterByTile(
     const std::set<Actor*>& actors
 ) {
     for(auto const& actor : actors) {
-        if(actor->getPosition() == glm::ivec2(x, y)) {
+        auto const& entity = actorIdsToEntities[actor->getId()];
+        auto const& position = context->getEntityRegistry().get<Position>(entity);
+
+        if(position == glm::ivec2(x, y)) {
             return actor;
         }
     }
@@ -354,7 +366,10 @@ Actor* ActorPool::filterByTile(
     int excludedParticipantId
 ) {
     for(auto actor : actors) {
-        if(actor->getPosition() == glm::ivec2(x, y) && actor->getParticipantId() != excludedParticipantId) {
+        auto const& entity = actorIdsToEntities[actor->getId()];
+        auto const& position = context->getEntityRegistry().get<Position>(entity);
+
+        if(position == glm::ivec2(x, y) && actor->getParticipantId() != excludedParticipantId) {
             return actor;
         }
     }
@@ -370,8 +385,11 @@ std::vector<Actor*> ActorPool::filterByTiles(
     std::vector<Actor*> filteredActors;
 
     for(auto actor : actors) {
+        auto const& entity = actorIdsToEntities[actor->getId()];
+        auto const& position = context->getEntityRegistry().get<Position>(entity);
+
         for(auto const& tile : tiles) {
-            if (actor->getPosition() == glm::ivec2(tile.x, tile.y) && 
+            if (position == glm::ivec2(tile.x, tile.y) && 
                 actor->getParticipantId() != excludedParticipantId)
             {
                 filteredActors.push_back(actor);

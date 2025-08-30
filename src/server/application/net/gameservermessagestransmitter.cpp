@@ -4,9 +4,7 @@
 GameServerMessagesTransmitter::GameServerMessagesTransmitter(
     GameServer& server,
     ServerGameController* gameController,
-    VisiblityController* visibilityController,
-    ItemController* itemController,
-    ActorPool* actorPool,
+    ApplicationContext* context,
     std::function<void(int)> onClientConnectFunc,
     std::function<void(int)> onClientDisconnectFunc
 ) :
@@ -14,9 +12,7 @@ GameServerMessagesTransmitter::GameServerMessagesTransmitter(
     onClientConnectFunc(onClientConnectFunc),
     onClientDisconnectFunc(onClientDisconnectFunc),
     gameController(gameController),
-    visibilityController(visibilityController),
-    itemController(itemController),
-    actorPool(actorPool)
+    context(context)
 { }
 
 void GameServerMessagesTransmitter::onClientConnected(int clientIndex) {
@@ -40,7 +36,7 @@ void GameServerMessagesTransmitter::onPublish(const Event<ItemEventData>& event)
 // TODO: Remove?
 void GameServerMessagesTransmitter::onPublish(const Event<MoveActionEventData>& event) {
     for(auto [participantId, clientIndex] : gameController->getAllAttachedClients()) {
-        auto actor = actorPool->getActorByEntityId(event.data.entity);
+        auto actor = context->getActorPool()->getActorByEntityId(event.data.entity);
 
         if(gameController->getAttachedClient(actor->getParticipantId()) == clientIndex) {
             return;
@@ -60,7 +56,7 @@ void GameServerMessagesTransmitter::onPublish(const Event<MoveActionEventData>& 
 
 void GameServerMessagesTransmitter::onPublish(const Event<AttackActionEventData>& event) {
     for(auto [participantId, clientIndex] : gameController->getAllAttachedClients()) {
-        auto owner = actorPool->getActorByEntityId(event.data.entity);
+        auto owner = context->getActorPool()->getActorByEntityId(event.data.entity);
 
         if(gameController->getAttachedClient(owner->getParticipantId()) == clientIndex) {
             spdlog::trace(
@@ -93,7 +89,7 @@ void GameServerMessagesTransmitter::onPublish(const Event<TakeItemActionEventDat
     for(auto [_, clientIndex] : gameController->getAllAttachedClients()) {
         TakeItemsMessage* message = (TakeItemsMessage*) server.createMessage(clientIndex, GameMessageType::TAKE_ITEMS);
 
-        auto actor = actorPool->getActorByEntityId(event.data.entity);
+        auto actor = context->getActorPool()->getActorByEntityId(event.data.entity);
 
         message->turnNumber = event.data.turnNumber.value_or(-1);
         message->actorId = actor->getId();
@@ -217,7 +213,7 @@ void GameServerMessagesTransmitter::onPublish(const Event<ActorVisibilityToParti
         AddActorVisibilityMessage* message =
             (AddActorVisibilityMessage*) server.createMessage(clientIndex, GameMessageType::ADD_ENTITY_VISIBILITY);
 
-        message->actor = ActorStateUpdate::serialize(event.data.actor);
+        message->actor = ActorStateUpdate::serialize(context, event.data.actor);
         message->visibleToParticipantId = event.data.visibleToParticipantId;
         spdlog::trace(
             "Sending AddActorVisibilityMessage for actor {} to {}", 
@@ -547,7 +543,7 @@ void GameServerMessagesTransmitter::sendLoadGameToClient(int clientIndex) {
     }
 
     // -- TILES --
-    auto tilesWithVisibility = visibilityController->getTilesWithVisibility(participantId);
+    auto tilesWithVisibility = context->getVisibilityController()->getTilesWithVisibility(participantId);
 
     std::vector<RevealedTile> revealedTiles;
 
@@ -583,7 +579,7 @@ void GameServerMessagesTransmitter::sendLoadGameToClient(int clientIndex) {
     // spdlog::trace("Sent engagements to client {} for participant {}", clientIndex, participantId);
 
     // -- ITEMS --
-    sendItems(clientIndex, itemController->getWorldItems());
+    sendItems(clientIndex, context->getItemController()->getWorldItems());
 
     // -- ACTORS --
 

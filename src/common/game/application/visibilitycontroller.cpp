@@ -74,7 +74,9 @@ void VisiblityController::onPublish(const Event<ActorSetPositionEventData>& even
             continue;
         }
 
-        auto distance = glm::distance(glm::vec2(actor->getPosition()), glm::vec2(other->getPosition()));
+        auto const& actorPosition = context->getActorPool()->getPosition(actor->getId());
+        auto const& otherPosition = context->getActorPool()->getPosition(other->getId());
+        auto distance = glm::distance(glm::vec2(actorPosition), glm::vec2(otherPosition));
 
         assignVisibility(actor, other, distance, visibleTiles[participantId]);
         assignVisibility(other, actor, distance, visibleTiles[other->getParticipantId()]);
@@ -88,9 +90,10 @@ void VisiblityController::assignVisibility(
     const std::unordered_set<glm::ivec2, glm::ivec2Hash>& visibleTiles
 ) {
     auto participant = context->getGameController()->getParticipant(actor->getParticipantId());
+    auto const& otherPosition = context->getActorPool()->getPosition(other->getId());
     
     bool isInRange = distanceBetweenActors < actor->getAggroRange();
-    bool isInLOS = contains(visibleTiles, other->getPosition());
+    bool isInLOS = contains(visibleTiles, otherPosition);
     bool isVisible = isInRange && isInLOS;
 
     if(!participant->hasVisibleActor(other) && isVisible) {
@@ -104,10 +107,13 @@ void VisiblityController::assignVisibility(
 }
 
 bool VisiblityController::isVisible(Actor* actor, Actor* target) {
-    auto distance = glm::distance(glm::vec2(actor->getPosition()), glm::vec2(target->getPosition()));
+    auto const& actorPosition = context->getActorPool()->getPosition(actor->getId());
+    auto const& targetPosition = context->getActorPool()->getPosition(target->getId());
+
+    auto distance = glm::distance(glm::vec2(actorPosition), glm::vec2(targetPosition));
 
     bool isInRange = distance < actor->getAggroRange();
-    bool isInLOS = contains(visibleTiles[actor->getParticipantId()], target->getPosition());
+    bool isInLOS = contains(visibleTiles[actor->getParticipantId()], targetPosition);
     
     return isInRange && isInLOS;
 }

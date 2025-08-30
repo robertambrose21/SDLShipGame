@@ -15,7 +15,6 @@ Actor::Actor(
     baseStats(stats),
     grid(grid),
     currentWeapon(nullptr),
-    position({ 0, 0 }),
     timeSinceLastMoved(0),
     selected(false),
     engaged(false),
@@ -219,15 +218,6 @@ std::string Actor::toString(void) const {
 
 void Actor::setName(const std::string& name) {
     this->name = name;
-}
-
-glm::ivec2 Actor::getPosition(void) const {
-    return position;
-}
-
-void Actor::setPosition(const glm::ivec2& position) {
-    this->position = position;
-    publisher.publish<ActorSetPositionEventData>({ this, position });
 }
 
 void Actor::setPath(const std::deque<glm::ivec2>& path) {

@@ -63,18 +63,21 @@ ChaseAndAttackStrategy::ActorTurnResult ChaseAndAttackStrategy::doTurnForActor(A
         return { true, true };
     }
 
-    auto bWeapon = getBestInRangeWeapon(actor, target->getPosition());
+    auto const& actorPosition = getContext().getActorPool()->getPosition(actor->getId());
+    auto const& targetPosition = getContext().getActorPool()->getPosition(target->getId());
+
+    auto bWeapon = getBestInRangeWeapon(actor, targetPosition);
     auto gameController = getContext().getGameController();
     auto turnNumber = participant->getEngagement()->getTurnNumber();
 
     // TODO: Change 'current weapon' to best melee weapon
-    if(getContext().getGrid()->areNeighbours(actor->getPosition(), target->getPosition())) {
+    if(getContext().getGrid()->areNeighbours(actorPosition, targetPosition)) {
         auto action = std::make_unique<AttackAction>(
             participant, 
             getContext().getActorPool()->getEntity(actor->getId()), 
             turnNumber, 
             actor->getCurrentWeapon(), 
-            target->getPosition()
+            targetPosition
         );
         
         if(actor->getCurrentWeapon()->getUsesLeft() <= 0 || !gameController->queueAction(std::move(action))) {
@@ -87,7 +90,7 @@ ChaseAndAttackStrategy::ActorTurnResult ChaseAndAttackStrategy::doTurnForActor(A
             getContext().getActorPool()->getEntity(actor->getId()), 
             turnNumber,
             bWeapon, 
-            target->getPosition()
+            targetPosition
         );
 
         if(bWeapon->getUsesLeft() <= 0 || !gameController->queueAction(std::move(action))) {
@@ -95,12 +98,12 @@ ChaseAndAttackStrategy::ActorTurnResult ChaseAndAttackStrategy::doTurnForActor(A
         }
     }
     else if(!actor->hasPath()) {
-        auto distanceToTarget = glm::distance(glm::vec2(actor->getPosition()), glm::vec2(target->getPosition()));
+        auto distanceToTarget = glm::distance(glm::vec2(actorPosition), glm::vec2(targetPosition));
         auto action = std::make_unique<MoveAction>(
             participant, 
             getContext().getActorPool()->getEntity(actor->getId()), 
             turnNumber, 
-            target->getPosition(), 
+            targetPosition, 
             1
         );
         

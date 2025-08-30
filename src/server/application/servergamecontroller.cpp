@@ -120,7 +120,7 @@ void ServerGameController::onParticipantTurnEnd(Engagement* engagement) {
             }
 
             // TODO: Determine actual disengagement range properly
-            canDisengage = canDisengage && participant->distanceToOtherParticipant(other) > 15;
+            canDisengage = canDisengage && participant->distanceToOtherParticipant(context, other) > 15;
         }
     }
     else {
@@ -146,7 +146,8 @@ void ServerGameController::checkForItems(int participantId) {
     }
 
     for(auto actor : participant->getActors()) {
-        auto items = itemController->getItemsAt(actor->getPosition());
+        auto const& position = context->getActorPool()->getPosition(actor->getId());
+        auto items = itemController->getItemsAt(position);
 
         if(items.empty()) {
             return;

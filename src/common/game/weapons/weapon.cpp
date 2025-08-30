@@ -1,4 +1,5 @@
 #include "weapon.h"
+#include "game/actors/actorpool.h"
 
 Weapon::Weapon(
     Actor* owner,
@@ -67,7 +68,8 @@ void Weapon::reset(void) {
 }
 
 bool Weapon::isInRange(const glm::ivec2& position) {
-    return glm::distance(glm::vec2(owner->getPosition()), glm::vec2(position)) <= stats.range;
+    auto const& ownerPosition = context->getActorPool()->getPosition(owner->getId());
+    return glm::distance(glm::vec2(ownerPosition), glm::vec2(position)) <= stats.range;
 }
 
 Stats::WeaponStats Weapon::getStats(void) const {

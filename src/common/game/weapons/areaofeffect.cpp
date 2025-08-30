@@ -45,11 +45,11 @@ void AreaOfEffect::apply(void) {
     }
 
     auto actors = actorPool->getActors();
-    auto effectedActors = ActorPool::filterByTiles(effectedTilePositions, actors, ownerId);
+    auto effectedActors = actorPool->filterByTiles(effectedTilePositions, actors, ownerId);
 
     spdlog::trace("AoE applied at ({}, {}), {} turns left", position.x, position.y, turnsLeft);
 
-    for(auto const& actor : effectedActors) {
+    for(auto actor : effectedActors) {
         publisher.publish<AreaOfEffectEventData>({ this, actor, damageSource.apply(actor) });
     }
 }

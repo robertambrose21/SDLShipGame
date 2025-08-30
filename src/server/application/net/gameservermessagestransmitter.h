@@ -40,9 +40,7 @@ public:
     GameServerMessagesTransmitter(
         GameServer& server,
         ServerGameController* gameController,
-        VisiblityController* visibilityController,
-        ItemController* itemController,
-        ActorPool* actorPool,
+        ApplicationContext* context,
         std::function<void(int)> onClientConnectFunc = [](int) { },
         std::function<void(int)> onClientDisconnectFunc = [](int) { }
     );
@@ -84,9 +82,7 @@ public:
 private:
     GameServer& server;
     ServerGameController* gameController;
-    VisiblityController* visibilityController;
-    ItemController* itemController;
-    ActorPool* actorPool;
+    ApplicationContext* context;
 
     std::function<void(int)> onClientConnectFunc;
     std::function<void(int)> onClientDisconnectFunc;

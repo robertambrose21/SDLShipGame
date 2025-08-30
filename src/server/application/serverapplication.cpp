@@ -63,9 +63,7 @@ void ServerApplication::initialise(void) {
     transmitter = std::make_unique<GameServerMessagesTransmitter>(
         *server, 
         dynamic_cast<ServerGameController*>(context.getGameController()),
-        context.getVisibilityController(),
-        context.getItemController(),
-        context.getActorPool(),
+        &context,
         [&](int clientIndex) { onClientConnect(clientIndex); },
         [&](int clientIndex) { onClientDisconnect(clientIndex); }
     );
@@ -168,12 +166,14 @@ void ServerApplication::onClientConnect(int clientIndex) {
 
     // Temp hack to trigger a grid tile reveal
     for(auto actor : participant->getActors()) {
-        actor->setPosition(actor->getPosition());
+        auto const& position = application->getContext().getActorPool()->getPosition(actor->getId());
+        application->getContext().getActorPool()->setPosition(actor->getId(), position);
+
         spdlog::trace(
             "Actor {} spawned at position ({}, {}) for participant {}", 
             actor->toString(), 
-            actor->getPosition().x,
-            actor->getPosition().y,
+            position.x,
+            position.y,
             participant->getId()
         );
     }
@@ -265,7 +265,7 @@ void ServerApplication::sendGameStateUpdatesToParticipant(int clientIndex) {
         if(actorsBlock.size() == MaxActors) {
             transmitter->sendGameStateUpdate(
                 clientIndex, 
-                GameStateUpdate::serialize(participantId, actorsBlock, chunkId, expectedNumChunks)
+                GameStateUpdate::serialize(&context, participantId, actorsBlock, chunkId, expectedNumChunks)
             );
             spdlog::trace("Sent GameStateUpdate [{}] to participant {}", actorsBlock.size(), participantId);
             actorsBlock.clear();
@@ -275,7 +275,7 @@ void ServerApplication::sendGameStateUpdatesToParticipant(int clientIndex) {
     if(!actorsBlock.empty()) {
         transmitter->sendGameStateUpdate(
             clientIndex, 
-            GameStateUpdate::serialize(participantId, actorsBlock, chunkId, expectedNumChunks)
+            GameStateUpdate::serialize(&context, participantId, actorsBlock, chunkId, expectedNumChunks)
         );
         spdlog::trace("Sent GameStateUpdate [{}] to participant {}", actorsBlock.size(), participantId);
     }

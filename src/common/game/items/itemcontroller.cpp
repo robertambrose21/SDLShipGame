@@ -267,7 +267,7 @@ void ItemController::onPublish(const Event<ActorEventData>& event) {
 
     if(itemsDropped.empty()) {
         return;
-    }    
+    }
 
-    addItems(itemsDropped, actor->getPosition(), actor == nullptr ? Item::UnknownOwner : actor->toString());
+    addItems(itemsDropped, event.data.position, actor == nullptr ? Item::UnknownOwner : actor->toString());
 }
