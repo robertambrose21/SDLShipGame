@@ -60,33 +60,32 @@ void Projectile::doHit(const glm::ivec2& position) {
     }
 }
 
+// TOOD: Split this up between entities hit vs position hit
 void Projectile::apply(const glm::ivec2& position) {
-    auto actor = context->getActorPool()->filterByTile(
-        position.x,
-        position.y,
-        context->getActorPool()->getActors(),
-        ownerId
-    );
+    auto entities = context->getActorPool()->filterByTile(position.x, position.y, ownerId);
 
-    int damage = 0;
+    if(!entities.empty()) {
+        for(auto entity : entities) {
+            auto& actor = context->getEntityRegistry().get<Actor>(entity);
+            int damage = damageSource.apply(&actor);
 
-    if (actor != nullptr) {
-        damage = damageSource.apply(actor);
+            for (auto& effect : stats.effects) {
+                switch(effect.type) {
+                case FREEZE:
+                    context->getEffectController()->addEffect(std::make_unique<FreezeEffect>(&actor, ownerId, effect));
+                    break;
 
-        for (auto& effect : stats.effects) {
-            switch(effect.type) {
-            case FREEZE:
-                context->getEffectController()->addEffect(std::make_unique<FreezeEffect>(actor, ownerId, effect));
-                break;
+                case POISON: {
+                    context->getEffectController()->addEffect(std::make_unique<PoisonEffect>(&actor, ownerId, effect));
+                    break;
+                }
 
-            case POISON: {
-                context->getEffectController()->addEffect(std::make_unique<PoisonEffect>(actor, ownerId, effect));
-                break;
+                default:
+                    break;
+                }
             }
 
-            default:
-                break;
-            }
+            publisher.publish<ProjectileEventData>({ this, &actor, position, damage });
         }
     }
     else {
@@ -115,9 +114,8 @@ void Projectile::apply(const glm::ivec2& position) {
             }
         }
 
+        publisher.publish<ProjectileEventData>({ this, nullptr, position, 0 });
     }
-
-    publisher.publish<ProjectileEventData>({ this, actor, position, damage });
 }
 
 float Projectile::calculateStep(void) const {

@@ -248,9 +248,9 @@ void PlayerController::handleMouseDown(const SDL_Event& event) {
         }
 
         case SDL_BUTTON_RIGHT: {
-            auto const& target = context.getActorPool()->filterByTile(x, y, context.getActorPool()->getActors());
+            auto const& target = context.getActorPool()->filterByTile(x, y);
 
-            if(target != nullptr || isLeftShiftPressed) {
+            if(!target.empty() || isLeftShiftPressed) {
                 attack(position);
             }
             else {

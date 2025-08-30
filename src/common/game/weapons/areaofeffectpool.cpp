@@ -43,8 +43,7 @@ void AreaOfEffectPool::add(const std::string& name, int ownerId, const glm::ivec
     auto damageSource = DamageSource::parse(definition.damageSource, definition.power);
 
     auto areaOfEffect = std::make_unique<AreaOfEffect>(
-        context->getGrid(),
-        context->getActorPool(),
+        context,
         *this,
         definition.textureId,
         ownerId,

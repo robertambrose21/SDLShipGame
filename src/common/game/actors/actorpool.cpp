@@ -261,7 +261,7 @@ void ActorPool::removeActor(uint32_t id) {
     actorIdsToEntities.erase(id);
 }
 
-// TODO: Dumb - delete me
+// // TODO: Dumb - delete me
 std::vector<Actor*> ActorPool::getActors(void) {
     game_assert(initialised);
     std::vector<Actor*> vActors;
@@ -343,6 +343,91 @@ LootTable ActorPool::getLootTable(const std::string& actorName) {
     return actorDefinitions[actorName].lootTable;
 }
 
+std::vector<entt::entity> ActorPool::filterByTile(int x, int y, int excludedParticipantId) {
+    std::vector<entt::entity> entities;
+
+    for(auto [entity, actor, position]: context->getEntityRegistry().view<Actor, Position>().each()) {
+        if(actor.getParticipantId() == excludedParticipantId) {
+            continue;
+        }
+
+        if(position == glm::ivec2(x, y)) {
+            entities.push_back(entity);
+        }
+    }
+
+    return entities;
+}
+
+std::vector<entt::entity> ActorPool::filterByTile(
+    int x, 
+    int y, 
+    const std::vector<entt::entity>& actors, 
+    int excludedParticipantId
+) {
+    std::vector<entt::entity> entities;
+
+    for(auto entity : actors) {
+        auto [actor, position] = context->getEntityRegistry().try_get<Actor, Position>(entity);
+
+        if(actor == nullptr) {
+            spdlog::debug(
+                "ActorPool#filterByTile: Cannot find actor for entity {}", 
+                static_cast<entt::id_type>(entity)
+            );
+            continue;
+        }
+
+        if(position == nullptr) {
+            spdlog::debug(
+                "ActorPool#filterByTile: Cannot find position for entity {}", 
+                static_cast<entt::id_type>(entity)
+            );
+            continue;
+        }
+
+        if(actor->getParticipantId() == excludedParticipantId) {
+            continue;
+        }
+
+        if(*position == glm::ivec2(x, y)) {
+            entities.push_back(entity);
+        }
+    }
+
+    return entities;
+}
+
+std::vector<entt::entity> ActorPool::filterByTiles(
+    const std::vector<glm::ivec2>& tiles, 
+    int excludedParticipantId
+) {
+    std::vector<entt::entity> entities;
+
+    for(auto const& tile : tiles) {
+        auto entitiesByTile = filterByTile(tile.x, tile.y, excludedParticipantId);
+        entities.insert(entities.end(), entitiesByTile.begin(), entitiesByTile.end());
+    }
+
+    return entities;
+}
+
+std::vector<entt::entity> ActorPool::filterByTiles(
+    const std::vector<entt::entity>& actors,
+    const std::vector<glm::ivec2>& tiles, 
+    int excludedParticipantId
+) {
+    std::vector<entt::entity> entities;
+
+    for(auto const& tile : tiles) {
+        auto entitiesByTile = filterByTile(tile.x, tile.y, actors, excludedParticipantId);
+        entities.insert(entities.end(), entitiesByTile.begin(), entitiesByTile.end());
+    }
+
+    return entities;
+}
+
+// TODO -- DELETE THESE -----------------------------
 Actor* ActorPool::filterByTile(
     int x, 
     int y, 
@@ -400,3 +485,4 @@ std::vector<Actor*> ActorPool::filterByTiles(
 
     return filteredActors;
 }
+// --------------------------------------------------

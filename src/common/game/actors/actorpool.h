@@ -47,6 +47,24 @@ public:
 
     LootTable getLootTable(const std::string& actorName);
 
+    std::vector<entt::entity> filterByTile(int x, int y, int excludedParticipantId = -1);
+    std::vector<entt::entity> filterByTile(
+        int x, 
+        int y, 
+        const std::vector<entt::entity>& actors, 
+        int excludedParticipantId = -1
+    );
+    std::vector<entt::entity> filterByTiles(
+        const std::vector<glm::ivec2>& tiles, 
+        int excludedParticipantId = -1
+    );
+    std::vector<entt::entity> filterByTiles(
+        const std::vector<entt::entity>& actors,
+        const std::vector<glm::ivec2>& tiles, 
+        int excludedParticipantId = -1
+    );
+
+    // TODO: Replace all these with entt::entity equivs
     Actor* filterByTile(
         int x, 
         int y, 

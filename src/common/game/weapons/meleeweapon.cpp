@@ -36,11 +36,11 @@ bool MeleeWeapon::onUse(const glm::ivec2& position, const glm::ivec2& target, bo
 }
 
 void MeleeWeapon::apply(const glm::ivec2& position, const glm::ivec2& target) {
-    auto actors = context->getActorPool()->getActors();
-    auto actor = context->getActorPool()->filterByTile(target.x, target.y, actors, owner->getParticipantId());
+    auto entities = context->getActorPool()->filterByTile(target.x, target.y, owner->getParticipantId());
     
-    if(actor != nullptr) {
-        publisher.publish<MeleeWeaponEventData>({ owner, actor, this, damageSource.apply(actor) });
+    for(auto entity : entities) {
+        auto& actor = context->getEntityRegistry().get<Actor>(entity);
+        publisher.publish<MeleeWeaponEventData>({ owner, &actor, this, damageSource.apply(&actor) });
     }
 }
 

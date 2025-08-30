@@ -2,8 +2,7 @@
 #include "game/application/application.h"
 
 AreaOfEffect::AreaOfEffect(
-    Grid* grid,
-    ActorPool* actorPool,
+    ApplicationContext* context,
     EventPublisher<AreaOfEffectEventData>& publisher,
     uint32_t textureId,
     int ownerId,
@@ -12,8 +11,7 @@ AreaOfEffect::AreaOfEffect(
     const DamageSource& damageSource,
     const Stats::AoEStats& stats
 ) :
-    grid(grid),
-    actorPool(actorPool),
+    context(context),
     publisher(publisher),
     textureId(textureId),
     ownerId(ownerId),
@@ -26,7 +24,7 @@ AreaOfEffect::AreaOfEffect(
     elapsedTime(0),
     timeSinceLastTick(0)
 {
-    effectedTilePositions = grid->getTilesInCircle(position.x, position.y, stats.radius);
+    effectedTilePositions = context->getGrid()->getTilesInCircle(position.x, position.y, stats.radius);
 
     if(!isAnimationOnly) {
         apply();
@@ -44,13 +42,13 @@ void AreaOfEffect::apply(void) {
         return;
     }
 
-    auto actors = actorPool->getActors();
-    auto effectedActors = actorPool->filterByTiles(effectedTilePositions, actors, ownerId);
+    auto effectedEntities = context->getActorPool()->filterByTiles(effectedTilePositions, ownerId);
 
     spdlog::trace("AoE applied at ({}, {}), {} turns left", position.x, position.y, turnsLeft);
 
-    for(auto actor : effectedActors) {
-        publisher.publish<AreaOfEffectEventData>({ this, actor, damageSource.apply(actor) });
+    for(auto entity : effectedEntities) {
+        auto& actor = context->getEntityRegistry().get<Actor>(entity);
+        publisher.publish<AreaOfEffectEventData>({ this, &actor, damageSource.apply(&actor) });
     }
 }
 
