@@ -24,7 +24,7 @@ struct GameStateUpdate;
 class ActorPool : public EventPublisher<ActorEventData, ActorSetPositionEventData, ActorUpdateStatsEventData> {
 public:
     ActorPool();
-
+    
     void initialise(ApplicationContext& context);
     void update(int64_t timeSinceLastFrame, bool& quit);
     void addGameStateUpdate(const GameStateUpdate& update);
@@ -45,6 +45,25 @@ public:
     Actor* findClosestTarget(Actor* attacker, int participantId);
 
     LootTable getLootTable(const std::string& actorName);
+
+    static Actor* filterByTile(
+        int x, 
+        int y, 
+        const std::set<Actor*>& actors
+    );
+
+    static Actor* filterByTile(
+        int x, 
+        int y, 
+        const std::vector<Actor*>& actors,
+        int excludedParticipantId = -1
+    );
+
+    static std::vector<Actor*> filterByTiles(
+        const std::vector<glm::ivec2>& tiles,
+        const std::vector<Actor*>& actors,
+        int excludedParticipantId = -1
+    );
 
 private:
     typedef struct _actorDefinition {

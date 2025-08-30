@@ -45,7 +45,7 @@ void AreaOfEffect::apply(void) {
     }
 
     auto actors = actorPool->getActors();
-    auto effectedActors = Actor::filterByTiles(effectedTilePositions, actors, ownerId);
+    auto effectedActors = ActorPool::filterByTiles(effectedTilePositions, actors, ownerId);
 
     spdlog::trace("AoE applied at ({}, {}), {} turns left", position.x, position.y, turnsLeft);
 

@@ -332,3 +332,50 @@ Actor* ActorPool::findClosestTarget(Actor* attacker, int participantId) {
 LootTable ActorPool::getLootTable(const std::string& actorName) {
     return actorDefinitions[actorName].lootTable;
 }
+
+Actor* ActorPool::filterByTile(
+    int x, 
+    int y, 
+    const std::set<Actor*>& actors
+) {
+    for(auto const& actor : actors) {
+        if(actor->isOnTile(x, y)) {
+            return actor;
+        }
+    }
+
+    return nullptr;
+}
+
+Actor* ActorPool::filterByTile(
+    int x, 
+    int y, 
+    const std::vector<Actor*>& actors,
+    int excludedParticipantId
+) {
+    for(auto actor : actors) {
+        if(actor->isOnTile(x, y) && actor->getParticipantId() != excludedParticipantId) {
+            return actor;
+        }
+    }
+
+    return nullptr;
+}
+
+std::vector<Actor*> ActorPool::filterByTiles(
+    const std::vector<glm::ivec2>& tiles,
+    const std::vector<Actor*>& actors,
+    int excludedParticipantId
+) {
+    std::vector<Actor*> filteredActors;
+
+    for(auto actor : actors) {
+        for(auto const& tile : tiles) {
+            if(actor->isOnTile(tile.x, tile.y) && actor->getParticipantId() != excludedParticipantId) {
+                filteredActors.push_back(actor);
+            }
+        }
+    }
+
+    return filteredActors;
+}

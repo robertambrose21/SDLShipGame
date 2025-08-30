@@ -233,7 +233,7 @@ void PlayerController::handleMouseDown(const SDL_Event& event) {
                 break;
             }
 
-            auto actor = Actor::filterByTile(x, y, participant->getActors());
+            auto actor = ActorPool::filterByTile(x, y, participant->getActors());
 
             if(actor != nullptr) {
                 toggleSelection({ actor });
@@ -249,7 +249,7 @@ void PlayerController::handleMouseDown(const SDL_Event& event) {
         }
 
         case SDL_BUTTON_RIGHT: {
-            auto const& target = Actor::filterByTile(x, y, actorPool->getActors());
+            auto const& target = ActorPool::filterByTile(x, y, actorPool->getActors());
 
             if(target != nullptr || isLeftShiftPressed) {
                 attack(position);
@@ -285,7 +285,7 @@ void PlayerController::handleMouseUp(const SDL_Event& event) {
 
                 auto tiles = gridRenderer.getGrid()->getTilesInSquare(x, y, sizeX, sizeY);
                 
-                toggleSelection(Actor::filterByTiles(tiles, participant->getActors()));
+                toggleSelection(ActorPool::filterByTiles(tiles, participant->getActors()));
             }
             break;
         }

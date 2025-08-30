@@ -49,54 +49,6 @@ public:
         const Stats::ActorStats& stats
     );
 
-    // TODO: Should these be in ActorPool?
-    static Actor* filterByTile(
-        int x, 
-        int y, 
-        const std::set<Actor*>& actors
-    ) {
-        for(auto const& actor : actors) {
-            if(actor->isOnTile(x, y)) {
-                return actor;
-            }
-        }
-
-        return nullptr;
-    }
-
-    static Actor* filterByTile(
-        int x, 
-        int y, 
-        const std::vector<Actor*>& actors,
-        int excludedParticipantId = -1
-    ) {
-        for(auto actor : actors) {
-            if(actor->isOnTile(x, y) && actor->getParticipantId() != excludedParticipantId) {
-                return actor;
-            }
-        }
-
-        return nullptr;
-    }
-
-    static std::vector<Actor*> filterByTiles(
-        const std::vector<glm::ivec2>& tiles,
-        const std::vector<Actor*>& actors,
-        int excludedParticipantId = -1
-    ) {
-        std::vector<Actor*> filteredActors;
-
-        for(auto actor : actors) {
-            for(auto const& tile : tiles) {
-                if(actor->isOnTile(tile.x, tile.y) && actor->getParticipantId() != excludedParticipantId) {
-                    filteredActors.push_back(actor);
-                }
-            }
-        }
-
-        return filteredActors;
-    }
-
     void setSelected(bool selected);
     bool isSelected(void) const;
 
