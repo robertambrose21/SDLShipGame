@@ -468,6 +468,11 @@ std::set<glm::ivec2> Grid::getNeighbours(const glm::ivec2& node) {
     return neighbours;
 }
 
+bool Grid::areNeighbours(const glm::ivec2& positionA, const glm::ivec2& positionB) const {
+    // TODO: This could be more efficient
+    return glm::distance(glm::vec2(positionA), glm::vec2(positionB)) < 2;
+}
+
 bool Grid::isNodeInBounds(const glm::ivec2& node) const {
     return node.x >= 0 && node.x < width && node.y >= 0 && node.y < height;
 }

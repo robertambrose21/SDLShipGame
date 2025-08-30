@@ -68,7 +68,7 @@ ChaseAndAttackStrategy::ActorTurnResult ChaseAndAttackStrategy::doTurnForActor(A
     auto turnNumber = participant->getEngagement()->getTurnNumber();
 
     // TODO: Change 'current weapon' to best melee weapon
-    if(actor->isNeighbour(target)) {
+    if(getContext().getGrid()->areNeighbours(actor->getPosition(), target->getPosition())) {
         auto action = std::make_unique<AttackAction>(
             participant, 
             getContext().getActorPool()->getEntity(actor->getId()), 

@@ -28,6 +28,40 @@ public:
         uint8_t orientation = 0;
     } Tile;
 
+public:
+    Grid(int width, int height, const std::vector<std::vector<Tile>>& data = { });
+
+    int getWidth(void) const;
+    int getHeight(void) const;
+
+    void setTile(int x, int y, const Tile& tile, bool fireEvent = true);
+    void setTileWalkable(int x, int y, bool isWalkable);
+    void setTileFrozen(int x, int y, bool isFrozen);
+
+    bool getIsDirty(void) const;
+
+    // Expects points to be in tile space.
+    // e.g. the line (0, 0) -> (1, 1) in a 3x3 grid will check a 4x4 square of tiles like so:
+    // x x o
+    // x x o
+    // o o o
+    // Where x are the tiles checked and o are unchecked tiles
+    bool hasIntersection(const glm::vec2& p1, const glm::vec2& p2);
+    std::vector<glm::ivec2> getIntersections(const glm::vec2& p1, const glm::vec2& p2);
+    std::vector<glm::ivec2> getVisibleTiles(const glm::ivec2& position, float radius);
+
+    void setData(const std::vector<std::vector<Tile>>& data);
+    const std::vector<std::vector<Tile>>& getData(void) const;
+    std::vector<Tile> getWalkableTiles(void);
+    // TODO: Throw exception if x/y are out of bounds
+    const Tile& getTileAt(int x, int y) const;
+    std::vector<glm::ivec2> getTilesInCircle(int x, int y, float radius);
+    std::vector<glm::ivec2> getTilesInSquare(int x, int y, int w, int h);
+
+    std::deque<glm::ivec2> findPath(const glm::ivec2& source, const glm::ivec2& destination);
+
+    bool areNeighbours(const glm::ivec2& positionA, const glm::ivec2& positionB) const;
+
 private:
     int width;
     int height;
@@ -71,36 +105,4 @@ private:
     );
     
     void setDirty(bool isDirty);
-
-public:
-    Grid(int width, int height, const std::vector<std::vector<Tile>>& data = { });
-
-    int getWidth(void) const;
-    int getHeight(void) const;
-
-    void setTile(int x, int y, const Tile& tile, bool fireEvent = true);
-    void setTileWalkable(int x, int y, bool isWalkable);
-    void setTileFrozen(int x, int y, bool isFrozen);
-
-    bool getIsDirty(void) const;
-
-    // Expects points to be in tile space.
-    // e.g. the line (0, 0) -> (1, 1) in a 3x3 grid will check a 4x4 square of tiles like so:
-    // x x o
-    // x x o
-    // o o o
-    // Where x are the tiles checked and o are unchecked tiles
-    bool hasIntersection(const glm::vec2& p1, const glm::vec2& p2);
-    std::vector<glm::ivec2> getIntersections(const glm::vec2& p1, const glm::vec2& p2);
-    std::vector<glm::ivec2> getVisibleTiles(const glm::ivec2& position, float radius);
-
-    void setData(const std::vector<std::vector<Tile>>& data);
-    const std::vector<std::vector<Tile>>& getData(void) const;
-    std::vector<Tile> getWalkableTiles(void);
-    // TODO: Throw exception if x/y are out of bounds
-    const Tile& getTileAt(int x, int y) const;
-    std::vector<glm::ivec2> getTilesInCircle(int x, int y, float radius);
-    std::vector<glm::ivec2> getTilesInSquare(int x, int y, int w, int h);
-
-    std::deque<glm::ivec2> findPath(const glm::ivec2& source, const glm::ivec2& destination);
 };

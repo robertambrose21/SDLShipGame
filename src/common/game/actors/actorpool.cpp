@@ -339,7 +339,7 @@ Actor* ActorPool::filterByTile(
     const std::set<Actor*>& actors
 ) {
     for(auto const& actor : actors) {
-        if(actor->isOnTile(x, y)) {
+        if(actor->getPosition() == glm::ivec2(x, y)) {
             return actor;
         }
     }
@@ -354,7 +354,7 @@ Actor* ActorPool::filterByTile(
     int excludedParticipantId
 ) {
     for(auto actor : actors) {
-        if(actor->isOnTile(x, y) && actor->getParticipantId() != excludedParticipantId) {
+        if(actor->getPosition() == glm::ivec2(x, y) && actor->getParticipantId() != excludedParticipantId) {
             return actor;
         }
     }
@@ -371,7 +371,9 @@ std::vector<Actor*> ActorPool::filterByTiles(
 
     for(auto actor : actors) {
         for(auto const& tile : tiles) {
-            if(actor->isOnTile(tile.x, tile.y) && actor->getParticipantId() != excludedParticipantId) {
+            if (actor->getPosition() == glm::ivec2(tile.x, tile.y) && 
+                actor->getParticipantId() != excludedParticipantId)
+            {
                 filteredActors.push_back(actor);
             }
         }

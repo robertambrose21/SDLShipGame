@@ -87,11 +87,9 @@ public:
     void setName(const std::string& name);
 
     glm::ivec2 getPosition(void) const;
-    bool isOnTile(int x, int y);
 
     void setPosition(const glm::ivec2& position);
     void setPath(const std::deque<glm::ivec2>& path);
-    bool isNeighbour(Actor* actor) const;
     bool hasPath(void);
     glm::ivec2 popPath(void);
 

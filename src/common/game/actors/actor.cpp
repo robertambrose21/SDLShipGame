@@ -225,10 +225,6 @@ glm::ivec2 Actor::getPosition(void) const {
     return position;
 }
 
-bool Actor::isOnTile(int x, int y) {
-    return position == glm::ivec2(x, y);
-}
-
 void Actor::setPosition(const glm::ivec2& position) {
     this->position = position;
     publisher.publish<ActorSetPositionEventData>({ this, position });
@@ -258,11 +254,6 @@ void Actor::incrementTimeSinceLastMoved(int64_t amount) {
 
 int64_t Actor::getTimeSinceLastMoved(void) const {
     return timeSinceLastMoved;
-}
-
-bool Actor::isNeighbour(Actor* actor) const {
-    // TODO: This could be more efficient
-    return glm::distance(glm::vec2(getPosition()), glm::vec2(actor->getPosition())) < 2;
 }
 
 int Actor::getMovesLeft(void) const {
