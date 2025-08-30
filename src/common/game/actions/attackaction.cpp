@@ -100,7 +100,7 @@ void AttackAction::onExecute(ApplicationContext* context) {
         return;
     }
 
-    actor->attack(target, weapon->getId(), isAnimationOnly);
+    actor->attack(actor->getPosition(), target, weapon->getId(), isAnimationOnly);
 }
 
 bool AttackAction::hasFinished(ApplicationContext* context) {

@@ -128,9 +128,8 @@ void Actor::takeDamage(uint32_t amount) {
     publisher.publish<ActorUpdateStatsEventData>({ this });
 }
 
-void Actor::attack(const glm::ivec2& target, const UUID& weaponId, bool isAnimationOnly) {
-    // TODO: free use when not engaged
-    weapons[weaponId]->use(position, target, isAnimationOnly);
+void Actor::attack(const glm::ivec2& from, const glm::ivec2& target, const UUID& weaponId, bool isAnimationOnly) {
+    weapons[weaponId]->use(from, target, isAnimationOnly);
     publisher.publish<ActorUpdateStatsEventData>({ this });
 }
 

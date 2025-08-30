@@ -68,7 +68,8 @@ public:
     int getCurrentHP(void) const;
     void setCurrentHP(uint32_t hp);
     void takeDamage(uint32_t amount);
-    void attack(const glm::ivec2& target, const UUID& weaponId, bool isAnimationOnly = false);
+    // TODO: Move me into AttackAction
+    void attack(const glm::ivec2& from, const glm::ivec2& target, const UUID& weaponId, bool isAnimationOnly = false);
 
     std::vector<Weapon*> getWeapons(void) const;
     Weapon* getWeapon(const UUID& weaponId);
