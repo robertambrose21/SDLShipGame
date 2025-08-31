@@ -280,11 +280,6 @@ std::optional<entt::entity> ActorPool::getByExternalId(ExternalId externalId) co
     return actorByExternalId.at(externalId);
 }
 
-bool ActorPool::hasActor(uint32_t id) {
-    game_assert(initialised);
-    return actorIdsToEntities.contains(id);
-}
-
 Position ActorPool::getPosition(uint32_t actorId) const{
     game_assert(actorIdsToEntities.contains(actorId));
     auto const& entityId = actorIdsToEntities.at(actorId);

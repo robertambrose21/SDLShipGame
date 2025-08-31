@@ -108,18 +108,19 @@ void GameClientMessagesReceiver::receiveLoadMap(LoadMapMessage* message) {
 }
 
 void GameClientMessagesReceiver::receiveFindPath(FindPathMessage* message) {
-    if(!context.getActorPool()->hasActor(message->actorId)) {
+    auto entity = context.getActorPool()->getByExternalId(message->actorId);
+
+    if(!entity.has_value()) {
         return;
     }
 
-    auto entity = context.getActorPool()->getByExternalId(message->actorId).value();
-    auto& actor = context.getEntityRegistry().get<Actor>(entity);
+    auto& actor = context.getEntityRegistry().get<Actor>(entity.value());
 
     auto participant = context.getGameController()->getParticipant(actor.getParticipantId());
     
     context.getGameController()->queueAction(std::make_unique<MoveAction>(
         participant,
-        entity, 
+        entity.value(), 
         message->turnNumber, 
         glm::ivec2(message->x, message->y), 
         message->shortStopSteps
@@ -130,13 +131,14 @@ void GameClientMessagesReceiver::receiveAttackActor(AttackMessage* message) {
     spdlog::trace("Received attack actor message {} -> ({}, {})", message->actorId, message->x, message->y);
     auto actorPool = context.getActorPool();
 
-    if(!actorPool->hasActor(message->actorId)) {
+    auto entity = context.getActorPool()->getByExternalId(message->actorId);
+
+    if(!entity.has_value()) {
         return;
     }
 
     auto weaponId = UUID::fromBytes(message->weaponIdBytes);
-    auto entity = context.getActorPool()->getByExternalId(message->actorId).value();
-    auto& actor = context.getEntityRegistry().get<Actor>(entity);
+    auto& actor = context.getEntityRegistry().get<Actor>(entity.value());
     auto participant = context.getGameController()->getParticipant(actor.getParticipantId());
 
     for(auto weapon : actor.getWeapons()) {
@@ -144,7 +146,7 @@ void GameClientMessagesReceiver::receiveAttackActor(AttackMessage* message) {
             auto isQueued = context.getGameController()->queueAction(
                 std::make_unique<AttackAction>(
                     participant,
-                    entity, 
+                    entity.value(), 
                     message->turnNumber, 
                     weapon, 
                     glm::ivec2(message->x, message->y), 
@@ -176,12 +178,13 @@ void GameClientMessagesReceiver::receiveSpawnItems(SpawnItemsMessage* message) {
 void GameClientMessagesReceiver::receiveTakeItems(TakeItemsMessage* message) {
     auto actorPool = context.getActorPool();
 
-    if(!actorPool->hasActor(message->actorId)) {
+    auto entity = context.getActorPool()->getByExternalId(message->actorId);
+
+    if(!entity.has_value()) {
         return;
     }
 
-    auto entity = context.getActorPool()->getByExternalId(message->actorId).value();
-    auto& actor = context.getEntityRegistry().get<Actor>(entity);
+    auto& actor = context.getEntityRegistry().get<Actor>(entity.value());
     auto participant = context.getGameController()->getParticipant(actor.getParticipantId());
 
     std::vector<Item*> itemsToTake;
@@ -198,7 +201,7 @@ void GameClientMessagesReceiver::receiveTakeItems(TakeItemsMessage* message) {
         context.getGameController()->executeActionImmediately(
             std::make_unique<TakeItemAction>(
                 participant,
-                entity,
+                entity.value(),
                 itemsToTake
             )
         );
@@ -207,7 +210,7 @@ void GameClientMessagesReceiver::receiveTakeItems(TakeItemsMessage* message) {
         context.getGameController()->queueAction(
             std::make_unique<TakeItemAction>(
                 participant,
-                entity,
+                entity.value(),
                 message->turnNumber,
                 itemsToTake
             )
@@ -218,12 +221,13 @@ void GameClientMessagesReceiver::receiveTakeItems(TakeItemsMessage* message) {
 void GameClientMessagesReceiver::receiveApplyDamageMessage(ApplyDamageMessage* message) {
     auto actorPool = context.getActorPool();
 
-    if(!actorPool->hasActor(message->targetId)) {
+    auto entity = context.getActorPool()->getByExternalId(message->targetId);
+
+    if(!entity.has_value()) {
         return;
     }
 
-    auto entity = context.getActorPool()->getByExternalId(message->targetId).value();
-    auto& actor = context.getEntityRegistry().get<Actor>(entity);
+    auto& actor = context.getEntityRegistry().get<Actor>(entity.value());
 
     actor.takeDamage(message->damage);
 
@@ -233,12 +237,12 @@ void GameClientMessagesReceiver::receiveApplyDamageMessage(ApplyDamageMessage* m
 void GameClientMessagesReceiver::receiveApplyActorEffectMessage(ApplyActorEffectMessage* message) {
     auto actorPool = context.getActorPool();
 
-    if(!actorPool->hasActor(message->targetId)) {
+   auto entity = context.getActorPool()->getByExternalId(message->targetId);
+
+    if(!entity.has_value()) {
         return;
     }
-
-    auto entity = context.getActorPool()->getByExternalId(message->targetId).value();
-    auto& target = context.getEntityRegistry().get<Actor>(entity);
+    auto& target = context.getEntityRegistry().get<Actor>(entity.value());
 
     std::vector<uint32_t> damageTicks;
     for(int i = 0; i < message->effectStats.numDamageTicks; i++) {
@@ -299,13 +303,14 @@ void GameClientMessagesReceiver::receiveTilesRevealedMessage(TilesRevealedMessag
 }
 
 void GameClientMessagesReceiver::receiveSetActorPositionMessage(SetActorPositionMessage* message) {
-    if(!context.getActorPool()->hasActor(message->actorId)) {
+    auto entity = context.getActorPool()->getByExternalId(message->actorId);
+
+    if(!entity.has_value()) {
         spdlog::debug("Cannot set position for unrecognized actor with id {}", message->actorId);
         return;
     }
 
-    auto entity = context.getActorPool()->getByExternalId(message->actorId).value();
-    auto& actor = context.getEntityRegistry().get<Actor>(entity);
+    auto& actor = context.getEntityRegistry().get<Actor>(entity.value());
 
     context.getActorPool()->setPosition(message->actorId, glm::ivec2(message->x, message->y));
     actor.setMovesLeft(message->movesLeft);
@@ -366,7 +371,7 @@ void GameClientMessagesReceiver::receiveAddActorVisibilityMessage(AddActorVisibi
 
     auto actorStateUpdate = message->actor;
 
-    if(context.getActorPool()->hasActor(actorStateUpdate.id)) {
+    if(context.getActorPool()->getByExternalId(actorStateUpdate.id).has_value()) {
         std::cout << "Actor with id " << actorStateUpdate.id << " already exists and is visible" << std::endl;
         return;
     }

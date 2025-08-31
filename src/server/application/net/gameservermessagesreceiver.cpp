@@ -90,7 +90,7 @@ void GameServerMessagesReceiver::receiveFindPathMessage(
     int shortStopSteps,
     int turnNumber
 ) {
-    if(!context.getActorPool()->hasActor(actorId)) {
+    if(!context.getActorPool()->getByExternalId(actorId).has_value()) {
         return;
     }
 
@@ -124,12 +124,13 @@ void GameServerMessagesReceiver::receiveFindPathMessage(
 
 // TODO: This should not be a toggle but take a bool from the message
 void GameServerMessagesReceiver::receiveSelectActorMessage(int clientIndex, uint32_t actorId) {
-    if(!context.getActorPool()->hasActor(actorId)) {
+    auto entity = context.getActorPool()->getByExternalId(actorId);
+
+    if(!entity.has_value()) {
         return;
     }
     
-    auto entity = context.getActorPool()->getByExternalId(actorId).value();
-    auto& actor = context.getEntityRegistry().get<Actor>(entity);
+    auto& actor = context.getEntityRegistry().get<Actor>(entity.value());
 
     actor.setSelected(!actor.isSelected());
 }
@@ -142,7 +143,9 @@ void GameServerMessagesReceiver::receieveAttackMessage(
     uint8_t weaponIdBytes[16],
     int turnNumber
 ) {
-    if(!context.getActorPool()->hasActor(actorId)) {
+    auto entity = context.getActorPool()->getByExternalId(actorId);
+
+    if(!entity.has_value()) {
         return;
     }
 
@@ -155,8 +158,7 @@ void GameServerMessagesReceiver::receieveAttackMessage(
     }
 
     auto weaponId = UUID::fromBytes(weaponIdBytes);
-    auto entity = context.getActorPool()->getByExternalId(actorId).value();
-    auto& actor = context.getEntityRegistry().get<Actor>(entity);
+    auto& actor = context.getEntityRegistry().get<Actor>(entity.value());
     auto participant = gameController->getParticipant(participantId);
 
     for(auto weapon : actor.getWeapons()) {
@@ -168,7 +170,7 @@ void GameServerMessagesReceiver::receieveAttackMessage(
             context.getGameController()->queueAction(
                 std::make_unique<AttackAction>(
                     participant, 
-                    entity,
+                    entity.value(),
                     turnNumber,
                     weapon, 
                     glm::ivec2(x, y)
@@ -179,7 +181,7 @@ void GameServerMessagesReceiver::receieveAttackMessage(
             context.getGameController()->executeActionImmediately(
                 std::make_unique<AttackAction>(
                     participant, 
-                    entity,
+                    entity.value(),
                     weapon, 
                     glm::ivec2(x, y)
                 )
@@ -234,22 +236,23 @@ void GameServerMessagesReceiver::receiveEquipItemMessage(
                 Equippable<Stats::GearStats>::SLOT_NAMES[slot]) << std::endl;
         return;
     }
-    
-    if(!context.getActorPool()->hasActor(actorId)) {
-        return;
-    }
 
     if(!context.getItemController()->hasItem(itemId)) {
         return;
     }
 
+    auto entity = context.getActorPool()->getByExternalId(actorId);
+
+    if(!entity.has_value()) {
+        return;
+    }
+
     auto participant = gameController->getParticipant(participantId);
     auto item = context.getItemController()->getItem(itemId);
-    auto entity = context.getActorPool()->getByExternalId(actorId).value();
 
     gameController->executeActionImmediately(std::make_unique<EquipGearAction>(
         participant, 
-        entity, 
+        entity.value(), 
         item,
         (Equippable<Stats::GearStats>::Slot) slot,
         isUnequip
@@ -271,18 +274,19 @@ void GameServerMessagesReceiver::receiveEquipWeaponMessage(
         return;
     }
 
-    if(!context.getActorPool()->hasActor(actorId)) {
+    if(!context.getItemController()->hasItem(itemId)) {
         return;
     }
 
-    if(!context.getItemController()->hasItem(itemId)) {
+    auto entity = context.getActorPool()->getByExternalId(actorId);
+
+    if(!entity.has_value()) {
         return;
     }
 
     auto participant = gameController->getParticipant(participantId);
     auto weaponId = UUID::fromBytes(weaponIdBytes);
     auto item = context.getItemController()->getItem(itemId);
-    auto entity = context.getActorPool()->getByExternalId(actorId).value();
 
     spdlog::trace(
         "Player {} weapon {} from actor {}", 
@@ -293,7 +297,7 @@ void GameServerMessagesReceiver::receiveEquipWeaponMessage(
 
     gameController->executeActionImmediately(std::make_unique<EquipWeaponAction>(
         participant, 
-        entity, 
+        entity.value(), 
         item,
         weaponId,
         isUnequip

@@ -36,8 +36,6 @@ public:
     void removeActor(uint32_t id);
     
     std::optional<entt::entity> getByExternalId(ExternalId externalId) const;
-    
-    bool hasActor(uint32_t id);
 
     Position getPosition(uint32_t actorId) const;
     void setPosition(uint32_t actorId, const Position& position);
