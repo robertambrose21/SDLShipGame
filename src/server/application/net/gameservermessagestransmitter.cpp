@@ -36,15 +36,15 @@ void GameServerMessagesTransmitter::onPublish(const Event<ItemEventData>& event)
 // TODO: Remove?
 void GameServerMessagesTransmitter::onPublish(const Event<MoveActionEventData>& event) {
     for(auto [participantId, clientIndex] : gameController->getAllAttachedClients()) {
-        auto actor = context->getActorPool()->getActorByEntityId(event.data.entity);
+        auto& actor = context->getEntityRegistry().get<Actor>(event.data.entity);
 
-        if(gameController->getAttachedClient(actor->getParticipantId()) == clientIndex) {
+        if(gameController->getAttachedClient(actor.getParticipantId()) == clientIndex) {
             return;
         }
 
         FindPathMessage* message = (FindPathMessage*) server.createMessage(clientIndex, GameMessageType::FIND_PATH);
 
-        message->actorId = actor->getId();
+        message->actorId = actor.getId();
         message->x = event.data.position.x;
         message->y = event.data.position.y;
         message->shortStopSteps = event.data.shortStopSteps;
@@ -56,21 +56,21 @@ void GameServerMessagesTransmitter::onPublish(const Event<MoveActionEventData>& 
 
 void GameServerMessagesTransmitter::onPublish(const Event<AttackActionEventData>& event) {
     for(auto [participantId, clientIndex] : gameController->getAllAttachedClients()) {
-        auto owner = context->getActorPool()->getActorByEntityId(event.data.entity);
+        auto& owner = context->getEntityRegistry().get<Actor>(event.data.entity);
 
-        if(gameController->getAttachedClient(owner->getParticipantId()) == clientIndex) {
+        if(gameController->getAttachedClient(owner.getParticipantId()) == clientIndex) {
             spdlog::trace(
                 "Not sending attack to participant {}, owning actor {}/{} sent the attack",
                 participantId,
-                owner->getParticipantId(),
-                owner->toString()
+                owner.getParticipantId(),
+                owner.toString()
             );
             continue;
         }
 
         AttackMessage* message = (AttackMessage*) server.createMessage(clientIndex, GameMessageType::ATTACK_ENTITY);
 
-        message->actorId = owner->getId();
+        message->actorId = owner.getId();
         message->x = event.data.target.x;
         message->y = event.data.target.y;
         memcpy(message->weaponIdBytes, &event.data.weapon->getId().getBytes()[0], 16);
@@ -78,8 +78,8 @@ void GameServerMessagesTransmitter::onPublish(const Event<AttackActionEventData>
 
         spdlog::trace("Sending attack to participant {}, owning actor {}/{} sent the attack",
             participantId,
-            owner->getParticipantId(),
-            owner->toString()
+            owner.getParticipantId(),
+            owner.toString()
         );
         server.sendMessage(clientIndex, message);
     }
@@ -89,10 +89,10 @@ void GameServerMessagesTransmitter::onPublish(const Event<TakeItemActionEventDat
     for(auto [_, clientIndex] : gameController->getAllAttachedClients()) {
         TakeItemsMessage* message = (TakeItemsMessage*) server.createMessage(clientIndex, GameMessageType::TAKE_ITEMS);
 
-        auto actor = context->getActorPool()->getActorByEntityId(event.data.entity);
+        auto& actor = context->getEntityRegistry().get<Actor>(event.data.entity);
 
         message->turnNumber = event.data.turnNumber.value_or(-1);
-        message->actorId = actor->getId();
+        message->actorId = actor.getId();
         message->numItems = event.data.items.size();
 
         for(int i = 0; i < event.data.items.size(); i++) {

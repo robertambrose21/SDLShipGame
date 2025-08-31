@@ -72,11 +72,13 @@ ChaseAndAttackStrategy::ActorTurnResult ChaseAndAttackStrategy::doTurnForActor(A
     auto gameController = getContext().getGameController();
     auto turnNumber = participant->getEngagement()->getTurnNumber();
 
+    auto entity = getContext().getActorPool()->getByExternalId(actor->getId()).value();
+
     // TODO: Change 'current weapon' to best melee weapon
     if(getContext().getGrid()->areNeighbours(actorPosition, targetPosition)) {
         auto action = std::make_unique<AttackAction>(
             participant, 
-            getContext().getActorPool()->getEntity(actor->getId()), 
+            entity, 
             turnNumber, 
             actor->getCurrentWeapon(), 
             targetPosition
@@ -89,7 +91,7 @@ ChaseAndAttackStrategy::ActorTurnResult ChaseAndAttackStrategy::doTurnForActor(A
     else if(bWeapon != nullptr) {
         auto action = std::make_unique<AttackAction>(
             participant, 
-            getContext().getActorPool()->getEntity(actor->getId()), 
+            entity, 
             turnNumber,
             bWeapon, 
             targetPosition
@@ -103,7 +105,7 @@ ChaseAndAttackStrategy::ActorTurnResult ChaseAndAttackStrategy::doTurnForActor(A
         auto distanceToTarget = glm::distance(glm::vec2(actorPosition), glm::vec2(targetPosition));
         auto action = std::make_unique<MoveAction>(
             participant, 
-            getContext().getActorPool()->getEntity(actor->getId()), 
+            entity, 
             turnNumber, 
             targetPosition, 
             1

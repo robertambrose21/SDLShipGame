@@ -112,8 +112,10 @@ void GameClientMessagesReceiver::receiveFindPath(FindPathMessage* message) {
         return;
     }
 
-    auto const& [actor, entity] = context.getActorPool()->getActorWithEntity(message->actorId);
-    auto participant = context.getGameController()->getParticipant(actor->getParticipantId());
+    auto entity = context.getActorPool()->getByExternalId(message->actorId).value();
+    auto& actor = context.getEntityRegistry().get<Actor>(entity);
+
+    auto participant = context.getGameController()->getParticipant(actor.getParticipantId());
     
     context.getGameController()->queueAction(std::make_unique<MoveAction>(
         participant,
@@ -133,10 +135,11 @@ void GameClientMessagesReceiver::receiveAttackActor(AttackMessage* message) {
     }
 
     auto weaponId = UUID::fromBytes(message->weaponIdBytes);
-    auto const& [actor, entity] = context.getActorPool()->getActorWithEntity(message->actorId);
-    auto participant = context.getGameController()->getParticipant(actor->getParticipantId());
+    auto entity = context.getActorPool()->getByExternalId(message->actorId).value();
+    auto& actor = context.getEntityRegistry().get<Actor>(entity);
+    auto participant = context.getGameController()->getParticipant(actor.getParticipantId());
 
-    for(auto weapon : actor->getWeapons()) {
+    for(auto weapon : actor.getWeapons()) {
         if(weapon->getId() == weaponId) {
             auto isQueued = context.getGameController()->queueAction(
                 std::make_unique<AttackAction>(
@@ -177,8 +180,9 @@ void GameClientMessagesReceiver::receiveTakeItems(TakeItemsMessage* message) {
         return;
     }
 
-    auto const& [actor, entity] = context.getActorPool()->getActorWithEntity(message->actorId);
-    auto participant = context.getGameController()->getParticipant(actor->getParticipantId());
+    auto entity = context.getActorPool()->getByExternalId(message->actorId).value();
+    auto& actor = context.getEntityRegistry().get<Actor>(entity);
+    auto participant = context.getGameController()->getParticipant(actor.getParticipantId());
 
     std::vector<Item*> itemsToTake;
 
@@ -218,11 +222,12 @@ void GameClientMessagesReceiver::receiveApplyDamageMessage(ApplyDamageMessage* m
         return;
     }
 
-    auto const& actor = actorPool->getActor(message->targetId);
+    auto entity = context.getActorPool()->getByExternalId(message->targetId).value();
+    auto& actor = context.getEntityRegistry().get<Actor>(entity);
 
-    actor->takeDamage(message->damage);
+    actor.takeDamage(message->damage);
 
-    publish<ApplyDamageEventData>({ message->fromId, actor, (DamageType) message->source, message->damage });
+    publish<ApplyDamageEventData>({ message->fromId, &actor, (DamageType) message->source, message->damage });
 }
 
 void GameClientMessagesReceiver::receiveApplyActorEffectMessage(ApplyActorEffectMessage* message) {
@@ -232,7 +237,8 @@ void GameClientMessagesReceiver::receiveApplyActorEffectMessage(ApplyActorEffect
         return;
     }
 
-    auto const& target = actorPool->getActor(message->targetId);
+    auto entity = context.getActorPool()->getByExternalId(message->targetId).value();
+    auto& target = context.getEntityRegistry().get<Actor>(entity);
 
     std::vector<uint32_t> damageTicks;
     for(int i = 0; i < message->effectStats.numDamageTicks; i++) {
@@ -247,12 +253,12 @@ void GameClientMessagesReceiver::receiveApplyActorEffectMessage(ApplyActorEffect
     switch((EffectType) message->type) {
         case FREEZE:
             context.getEffectController()->addEffect(
-                std::make_unique<FreezeEffect>(target, message->participantId, stats));
+                std::make_unique<FreezeEffect>(&target, message->participantId, stats));
             break;
 
         case POISON:
             context.getEffectController()->addEffect(
-                std::make_unique<PoisonEffect>(target, message->participantId, stats));
+                std::make_unique<PoisonEffect>(&target, message->participantId, stats));
             break;
 
         default:
@@ -298,9 +304,11 @@ void GameClientMessagesReceiver::receiveSetActorPositionMessage(SetActorPosition
         return;
     }
 
-    auto actor = context.getActorPool()->getActor(message->actorId);
+    auto entity = context.getActorPool()->getByExternalId(message->actorId).value();
+    auto& actor = context.getEntityRegistry().get<Actor>(entity);
+
     context.getActorPool()->setPosition(message->actorId, glm::ivec2(message->x, message->y));
-    actor->setMovesLeft(message->movesLeft);
+    actor.setMovesLeft(message->movesLeft);
 }
 
 

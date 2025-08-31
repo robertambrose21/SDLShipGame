@@ -122,14 +122,16 @@ void GameServerMessagesReceiver::receiveFindPathMessage(
     }
 }
 
+// TODO: This should not be a toggle but take a bool from the message
 void GameServerMessagesReceiver::receiveSelectActorMessage(int clientIndex, uint32_t actorId) {
     if(!context.getActorPool()->hasActor(actorId)) {
         return;
     }
     
-    auto const& actor = context.getActorPool()->getActor(actorId);
+    auto entity = context.getActorPool()->getByExternalId(actorId).value();
+    auto& actor = context.getEntityRegistry().get<Actor>(entity);
 
-    actor->setSelected(!actor->isSelected());
+    actor.setSelected(!actor.isSelected());
 }
 
 void GameServerMessagesReceiver::receieveAttackMessage(
@@ -153,15 +155,14 @@ void GameServerMessagesReceiver::receieveAttackMessage(
     }
 
     auto weaponId = UUID::fromBytes(weaponIdBytes);
-    auto const& actor = context.getActorPool()->getActor(actorId);
+    auto entity = context.getActorPool()->getByExternalId(actorId).value();
+    auto& actor = context.getEntityRegistry().get<Actor>(entity);
     auto participant = gameController->getParticipant(participantId);
 
-    for(auto weapon : actor->getWeapons()) {
+    for(auto weapon : actor.getWeapons()) {
         if(weapon->getId() != weaponId) {
             continue;
         }
-
-        auto entity = context.getActorPool()->getEntity(actor->getId());
         
         if(turnNumber != -1) {
             context.getGameController()->queueAction(
@@ -244,7 +245,7 @@ void GameServerMessagesReceiver::receiveEquipItemMessage(
 
     auto participant = gameController->getParticipant(participantId);
     auto item = context.getItemController()->getItem(itemId);
-    auto const& entity = context.getActorPool()->getEntity(actorId);
+    auto entity = context.getActorPool()->getByExternalId(actorId).value();
 
     gameController->executeActionImmediately(std::make_unique<EquipGearAction>(
         participant, 
@@ -281,7 +282,7 @@ void GameServerMessagesReceiver::receiveEquipWeaponMessage(
     auto participant = gameController->getParticipant(participantId);
     auto weaponId = UUID::fromBytes(weaponIdBytes);
     auto item = context.getItemController()->getItem(itemId);
-    auto const& entity = context.getActorPool()->getEntity(actorId);
+    auto entity = context.getActorPool()->getByExternalId(actorId).value();
 
     spdlog::trace(
         "Player {} weapon {} from actor {}", 

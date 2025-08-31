@@ -157,13 +157,13 @@ void PlayerPanel::onPublish(const Event<ItemEventData>& event) {
 }
 
 void PlayerPanel::onPublish(const Event<TakeItemActionEventData>& event) {
-    auto actor = context.getActorPool()->getActorByEntityId(event.data.entity);
+    auto& actor = context.getEntityRegistry().get<Actor>(event.data.entity);
 
     std::string items = "";
 
     std::vector<TextSegment> line = {
         { getTimestampString(event.timestamp), TimestampColour },
-        { getActorIdentifier(actor), HighlightColour },
+        { getActorIdentifier(&actor), HighlightColour },
         { " picked up items: ", StdTextColour }
     };
 

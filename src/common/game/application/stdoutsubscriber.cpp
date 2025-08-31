@@ -100,25 +100,25 @@ void StdOutSubscriber::onPublish(const Event<TakeItemActionEventData>& event) {
         }
     }
 
-    auto actor = context.getActorPool()->getActorByEntityId(event.data.entity);
+    auto& actor = context.getEntityRegistry().get<Actor>(event.data.entity);
 
-    spdlog::info("{} picked up items: [{}]", getActorIdentifier(actor), items);
+    spdlog::info("{} picked up items: [{}]", getActorIdentifier(&actor), items);
 }
 
 void StdOutSubscriber::onPublish(const Event<EquipItemActionEventData>& event) {
-    auto actor = context.getActorPool()->getActorByEntityId(event.data.entity);
+    auto& actor = context.getEntityRegistry().get<Actor>(event.data.entity);
 
     if(event.data.isUnequip) {
         spdlog::info(
             "{} unequipped [{}]",
-            getActorIdentifier(actor),
+            getActorIdentifier(&actor),
             event.data.item->getName()
         );
     }
     else {
         spdlog::info(
             "{} equipped [{}]",
-            getActorIdentifier(actor),
+            getActorIdentifier(&actor),
             event.data.item->getName()
         );
     }

@@ -35,13 +35,6 @@ public:
     Actor* addActor(const std::string& name, uint32_t id);
     void removeActor(uint32_t id);
     
-    // TODO: Delete all these ---------------------------------------
-    std::vector<Actor*> getActors(void);
-    Actor* getActor(uint32_t id);
-    entt::entity getEntity(uint32_t actorId);
-    std::pair<Actor*, entt::entity> getActorWithEntity(uint32_t id);
-    Actor* getActorByEntityId(entt::entity entityId);
-    // --------------------------------------------------------------
     std::optional<entt::entity> getByExternalId(ExternalId externalId) const;
     
     bool hasActor(uint32_t id);
