@@ -1,23 +1,19 @@
 #include "gridrenderer.h"
 
 GridRenderer::GridRenderer(
-    Grid* grid, 
-    VisiblityController* visiblityController,
-    ActorPool* actorPool,
+    ApplicationContext* context,
     int windowHeight
 ) :
-    grid(grid),
-    visiblityController(visiblityController),
-    actorPool(actorPool),
+    context(context),
     windowHeight(windowHeight),
     tileSize(32),
     participant(nullptr),
     fogTextureNeedsRebuilding(true)
 {
-    grid->subscribe<TileEventData>(this);
-    grid->subscribe<GridDirtyEventData>(this);
-    visiblityController->subscribe<TilesRevealedEventData>(this);
-    actorPool->subscribe<ActorSetPositionEventData>(this);
+    context->getGrid()->subscribe<TileEventData>(this);
+    context->getGrid()->subscribe<GridDirtyEventData>(this);
+    context->getVisibilityController()->subscribe<TilesRevealedEventData>(this);
+    context->getActorPool()->subscribe<ActorSetPositionEventData>(this);
 
     camera = std::make_unique<Camera>(glm::ivec2(0, 0));
     chunks = createChunks();
@@ -30,6 +26,8 @@ void GridRenderer::setTileTexture(int tileId, uint32_t textureId) {
 
 std::vector<std::unique_ptr<GridRenderer::Chunk>> GridRenderer::createChunks(void) {
     std::vector<std::unique_ptr<Chunk>> chunks;
+
+    auto grid = context->getGrid();
 
     int chunksX = grid->getWidth() / ChunkSize;
     int chunksY = grid->getHeight() / ChunkSize;
@@ -67,7 +65,7 @@ void GridRenderer::buildChunkTexture(GraphicsContext& graphicsContext, Chunk* ch
     auto renderer = graphicsContext.getRenderer();
 
     // auto const& data = grid->getData();
-    auto const& data = visiblityController->getTilesWithVisibility(participant->getId());
+    auto const& data = context->getVisibilityController()->getTilesWithVisibility(participant->getId());
 
     auto target = std::unique_ptr<SDL_Texture, Texture::sdl_deleter>(
         SDL_CreateTexture(
@@ -98,7 +96,7 @@ void GridRenderer::buildChunkTexture(GraphicsContext& graphicsContext, Chunk* ch
         graphicsContext.getTextureLoader().loadTexture(tileTexturesIds[tile.id])
             ->draw(renderer, colour, 0xFF, NULL, &dst, tile.orientation * -90);
 
-        if(grid->getTileAt(x, y).isFrozen) {
+        if(context->getGrid()->getTileAt(x, y).isFrozen) {
             SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
             SDL_SetRenderDrawColor(renderer, 0x00, 0xFF, 0xFF, 0x7F);
             SDL_RenderFillRect(renderer, &dst);
@@ -128,6 +126,7 @@ void GridRenderer::buildChunkTexture(GraphicsContext& graphicsContext, Chunk* ch
 
 void GridRenderer::buildFogBorders(GraphicsContext& graphicsContext, int xMin, int xMax, int yMin, int yMax) {
     auto renderer = graphicsContext.getRenderer();
+    auto grid = context->getGrid();
 
     SDL_Rect left =     { 0, 0, xMin * tileSize, grid->getHeight() * tileSize };
     SDL_Rect right =    { xMax * tileSize, 0, (grid->getWidth() - xMax) * tileSize, grid->getHeight() * tileSize };
@@ -152,9 +151,9 @@ void GridRenderer::buildFogTiles(
     int yMax
 ) {
     auto renderer = graphicsContext.getRenderer();
-    auto const& position = actorPool->getPosition(actor->getId());
+    auto const& position = context->getActorPool()->getPosition(actor->getId());
 
-    auto tiles = grid->getVisibleTiles(
+    auto tiles = context->getGrid()->getVisibleTiles(
         glm::vec2(position.x, position.y),
         actor->getAggroRange()
     );
@@ -180,6 +179,7 @@ void GridRenderer::buildFogTexture(GraphicsContext& graphicsContext) {
     // auto startTime = getCurrentTimeInMicroseconds();
 
     auto renderer = graphicsContext.getRenderer();
+    auto grid = context->getGrid();
 
     auto target = std::unique_ptr<SDL_Texture, Texture::sdl_deleter>(
         SDL_CreateTexture(
@@ -198,16 +198,17 @@ void GridRenderer::buildFogTexture(GraphicsContext& graphicsContext) {
     SDL_RenderClear(renderer);
 
     if(participant != nullptr) {
-        for(auto actor : participant->getActors()) {
-            auto const& position = actorPool->getPosition(actor->getId());
+        for(auto entity : participant->getActors()) {
+            auto& actor = context->getEntityRegistry().get<Actor>(entity);
+            auto const& position = context->getEntityRegistry().get<Position>(entity);
 
-            int xMin = std::max(position.x - actor->getAggroRange(), 0);
-            int xMax = std::min(position.x + actor->getAggroRange() + 1, grid->getWidth());
-            int yMin = std::max(position.y - actor->getAggroRange(), 0);
-            int yMax = std::min(position.y + actor->getAggroRange() + 1, grid->getHeight());
+            int xMin = std::max(position.x - actor.getAggroRange(), 0);
+            int xMax = std::min(position.x + actor.getAggroRange() + 1, grid->getWidth());
+            int yMin = std::max(position.y - actor.getAggroRange(), 0);
+            int yMax = std::min(position.y + actor.getAggroRange() + 1, grid->getHeight());
 
             buildFogBorders(graphicsContext, xMin, xMax, yMin, yMax);
-            buildFogTiles(graphicsContext, actor, xMin, xMax, yMin, yMax);
+            buildFogTiles(graphicsContext, &actor, xMin, xMax, yMin, yMax);
         }
     }
 
@@ -223,6 +224,7 @@ void GridRenderer::buildFogTexture(GraphicsContext& graphicsContext) {
 // TODO: Chunk this
 void GridRenderer::buildDebugTexture(GraphicsContext& graphicsContext) {
     auto renderer = graphicsContext.getRenderer();
+    auto grid = context->getGrid();
 
     auto target = std::unique_ptr<SDL_Texture, Texture::sdl_deleter>(
         SDL_CreateTexture(
@@ -279,6 +281,8 @@ void GridRenderer::drawDebugTexture(GraphicsContext& graphicsContext) {
         buildDebugTexture(graphicsContext);
     }
 
+    auto grid = context->getGrid();
+
     auto camPos = camera->getPosition();
 
     SDL_Rect debugDst = { camPos.x, camPos.y, tileSize * grid->getWidth(), tileSize * grid->getHeight() };
@@ -332,7 +336,7 @@ void GridRenderer::draw(
     SDL_Rect dst = { realPosition.x, realPosition.y, getTileSize(), getTileSize() };
     graphicsContext.getTextureLoader().loadTexture(textureId)->draw(renderer, NULL, &dst);
 
-    if(grid->getTileAt(position.x, position.y).isFrozen) {
+    if(context->getGrid()->getTileAt(position.x, position.y).isFrozen) {
         SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
         SDL_SetRenderDrawColor(renderer, 0x00, 0xFF, 0xFF, 0x7F);
         SDL_RenderFillRect(renderer, &dst);
@@ -420,5 +424,5 @@ int GridRenderer::getTileSize(void) const {
 }
 
 Grid* GridRenderer::getGrid(void) {
-    return grid;
+    return context->getGrid();
 }

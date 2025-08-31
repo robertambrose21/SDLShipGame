@@ -46,17 +46,17 @@ public:
 
     Participant* addParticipant(
         bool isPlayer,
-        const std::vector<Actor*>& actors,
+        const std::vector<entt::entity>& actors,
         std::unique_ptr<BehaviourStrategy> behaviourStrategy = nullptr,
         bool isReady = true);
     Participant* addParticipant(
         int id,
         bool isPlayer,
-        const std::vector<Actor*>& actors, 
+        const std::vector<entt::entity>& actors, 
         std::unique_ptr<BehaviourStrategy> behaviourStrategy = nullptr,
         bool isReady = true
     );
-    void addActorToParticipant(int participantId, Actor* actor);
+    void addActorToParticipant(int participantId, entt::entity actor);
     Participant* getParticipant(int id);
     std::vector<Participant*> getParticipants(void);
     bool hasParticipant(int id);
@@ -85,7 +85,7 @@ protected:
     std::function<void()> onAllParticipantsSet;
 
     void executeActions(uint32_t engagementId);
-    void executeActorActions(Engagement* engagement, Actor* actor);
+    void executeActorActions(Engagement* engagement, entt::entity entity);
     void endCurrentParticipantTurn(uint32_t engagementId);
     void nextParticipantTurn(uint32_t engagementId);
 

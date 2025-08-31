@@ -40,10 +40,8 @@ private:
 public:
     Window(
         int width, 
-        int height, 
-        Grid* grid, 
-        VisiblityController* visiblityController, 
-        ActorPool* actorPool
+        int height,
+        ApplicationContext* context
     );
     ~Window();
  

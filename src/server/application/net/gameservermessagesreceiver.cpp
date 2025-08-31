@@ -105,12 +105,12 @@ void GameServerMessagesReceiver::receiveFindPathMessage(
     auto participant = gameController->getParticipant(participantId);
     auto const& actors = participant->getActors();
 
-    for(auto const& actor : actors) {
-        if(actor->getId() != actorId) {
+    for(auto entity : actors) {
+        auto const& externalId = context.getEntityRegistry().get<ExternalId>(entity);
+
+        if(externalId != actorId) {
             continue;
         }
-
-        auto entity = context.getActorPool()->getEntity(actor->getId());
 
         if(turnNumber == -1) {
             gameController->executeActionImmediately(std::make_unique<MoveAction>(participant, entity, position));

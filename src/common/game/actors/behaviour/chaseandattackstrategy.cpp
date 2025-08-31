@@ -23,8 +23,10 @@ void ChaseAndAttackStrategy::onUpdate(int participantId, int64_t timeSinceLastFr
     auto actorsPassed = 0;
     auto actorsDisengaged = 0;
 
-    for(auto actor : participant->getActors()) {
-        auto [canActorPass, canActorDisengage] = doTurnForActor(actor, participant);
+    for(auto entity : participant->getActors()) {
+        auto& actor = getContext().getEntityRegistry().get<Actor>(entity);
+
+        auto [canActorPass, canActorDisengage] = doTurnForActor(&actor, participant);
         
         if(canActorPass) {
             actorsPassed++;

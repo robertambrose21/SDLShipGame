@@ -108,9 +108,7 @@ void ClientApplication::initialise(void) {
     window = std::make_unique<Window>(
         1920, 
         1080, 
-        grid, 
-        context.getVisibilityController(),
-        context.getActorPool()
+        &context
     );
     window->initialiseWindow();
 

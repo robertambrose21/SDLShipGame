@@ -69,40 +69,46 @@ void VisiblityController::onPublish(const Event<ActorSetPositionEventData>& even
     revealTiles(participantId, tiles);
     visibleTiles[participantId] = std::unordered_set<glm::ivec2, glm::ivec2Hash>(tiles.begin(), tiles.end());
 
-    for(auto const& other : context->getActorPool()->getActors()) {
-        if(other->getParticipantId() == actor->getParticipantId()) {
+    auto actorEntity = context->getActorPool()->getByExternalId(actor->getId()).value();
+    auto const& actorPosition = context->getEntityRegistry().get<Position>(actorEntity);
+    
+    for(auto [otherEntity, other, otherPosition, externalId] : 
+        context->getEntityRegistry().view<Actor, Position, ExternalId>().each())
+    {
+        if(other.getParticipantId() == actor->getParticipantId()) {
             continue;
         }
 
-        auto const& actorPosition = context->getActorPool()->getPosition(actor->getId());
-        auto const& otherPosition = context->getActorPool()->getPosition(other->getId());
         auto distance = glm::distance(glm::vec2(actorPosition), glm::vec2(otherPosition));
 
-        assignVisibility(actor, other, distance, visibleTiles[participantId]);
-        assignVisibility(other, actor, distance, visibleTiles[other->getParticipantId()]);
+        assignVisibility(actorEntity, otherEntity, distance, visibleTiles[participantId]);
+        assignVisibility(otherEntity, actorEntity, distance, visibleTiles[other.getParticipantId()]);
     }
 }
 
 void VisiblityController::assignVisibility(
-    Actor* actor, 
-    Actor* other, 
+    entt::entity actorEntity, 
+    entt::entity otherEntity, 
     float distanceBetweenActors,
     const std::unordered_set<glm::ivec2, glm::ivec2Hash>& visibleTiles
 ) {
-    auto participant = context->getGameController()->getParticipant(actor->getParticipantId());
-    auto const& otherPosition = context->getActorPool()->getPosition(other->getId());
+    auto& actor = context->getEntityRegistry().get<Actor>(actorEntity);
+    auto& other = context->getEntityRegistry().get<Actor>(otherEntity);
+    auto const& otherPosition = context->getEntityRegistry().get<Position>(otherEntity);
+
+    auto participant = context->getGameController()->getParticipant(actor.getParticipantId());
     
-    bool isInRange = distanceBetweenActors < actor->getAggroRange();
+    bool isInRange = distanceBetweenActors < actor.getAggroRange();
     bool isInLOS = contains(visibleTiles, otherPosition);
     bool isVisible = isInRange && isInLOS;
 
-    if(!participant->hasVisibleActor(other) && isVisible) {
-        participant->addVisibleActor(other);
-        publish<ActorVisibilityToParticipantData>({ other, participant->getId(), true });
+    if(!participant->hasVisibleActor(otherEntity) && isVisible) {
+        participant->addVisibleActor(otherEntity);
+        publish<ActorVisibilityToParticipantData>({ &other, participant->getId(), true });
     }
-    else if(participant->hasVisibleActor(other) && !isVisible) {
-        participant->removeVisibleActor(other);
-        publish<ActorVisibilityToParticipantData>({ other, participant->getId(), false });
+    else if(participant->hasVisibleActor(otherEntity) && !isVisible) {
+        participant->removeVisibleActor(otherEntity);
+        publish<ActorVisibilityToParticipantData>({ &other, participant->getId(), false });
     }
 }
 

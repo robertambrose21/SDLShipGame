@@ -144,7 +144,9 @@ void ServerApplication::onClientConnect(int clientIndex) {
         spdlog::trace("Client {} reconnected and is attaching to participant {}", clientIndex, participant->getId());
     }
     else {
-        participant = gameController->addParticipant(true, { addPlayer(false) });
+        auto actor = addPlayer(false);
+        auto entity = application->getContext().getActorPool()->getByExternalId(actor->getId());
+        participant = gameController->addParticipant(true, { entity.value() });
 
         transmitter->sendFactionUpdates(clientIndex, factionController->getAlignedFactions());
         auto basedFaction = factionController->getFactionByName("Based");
@@ -165,13 +167,14 @@ void ServerApplication::onClientConnect(int clientIndex) {
     }
 
     // Temp hack to trigger a grid tile reveal
-    for(auto actor : participant->getActors()) {
-        auto const& position = application->getContext().getActorPool()->getPosition(actor->getId());
-        application->getContext().getActorPool()->setPosition(actor->getId(), position);
+    for(auto entity : participant->getActors()) {
+        auto const& position = application->getContext().getEntityRegistry().get<Position>(entity);
+        auto& actor = application->getContext().getEntityRegistry().get<Actor>(entity);
+        application->getContext().getActorPool()->setPosition(actor.getId(), position);
 
         spdlog::trace(
             "Actor {} spawned at position ({}, {}) for participant {}", 
-            actor->toString(), 
+            actor.toString(), 
             position.x,
             position.y,
             participant->getId()
@@ -255,12 +258,14 @@ void ServerApplication::sendGameStateUpdatesToParticipant(int clientIndex) {
         expectedNumChunks++;
     }
 
-    for(auto actor : visibleActors) {
-        if(actor->getStats().hp <= 0) {
+    for(auto entity : visibleActors) {
+        auto& actor = application->getContext().getEntityRegistry().get<Actor>(entity);
+
+        if(actor.getStats().hp <= 0) {
             std::cout << "Actor with 0 hp, should not happen" << std::endl;
         }
 
-        actorsBlock.push_back(actor);
+        actorsBlock.push_back(&actor);
 
         if(actorsBlock.size() == MaxActors) {
             transmitter->sendGameStateUpdate(
@@ -313,7 +318,7 @@ std::vector<GenerationStrategy::Room> ServerApplication::loadMap(void) {
 // TODO: Eventually move to some kind of map generator class
 void ServerApplication::loadGame(const std::vector<GenerationStrategy::Room>& rooms) {
     auto& context = application->getContext();
-    std::vector<Actor*> enemies;
+    std::vector<entt::entity> enemies;
 
     for(auto& room : rooms) {
         if(randomD6() > 3) {
@@ -334,7 +339,8 @@ void ServerApplication::loadGame(const std::vector<GenerationStrategy::Room>& ro
         );
 
         for(auto actor : actors) {
-            enemies.push_back(actor);
+            auto entity = context.getActorPool()->getByExternalId(actor->getId());
+            enemies.push_back(entity.value());
         }
     }
 

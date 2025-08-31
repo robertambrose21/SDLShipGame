@@ -4,6 +4,7 @@
 #include <set>
 #include <limits>
 #include <optional>
+#include <entt/entt.hpp>
 
 #include "spdlog/spdlog.h"
 #include "core/ecs/components/factioned.h"
@@ -16,7 +17,7 @@ class ApplicationContext;
 
 class Participant : public Factioned {
 public:
-    Participant(int id, uint32_t factionId);
+    Participant(ApplicationContext* context, int id, uint32_t factionId);
 
     float distanceToOtherParticipant(ApplicationContext* context, Participant* other);
 
@@ -40,10 +41,10 @@ public:
 
     bool isPassingNextTurn(void);
 
-    const std::vector<Actor*>& getActors(void) const;
-    void addActor(Actor* actor);
-    void addActors(const std::vector<Actor*>& actors);
-    void removeActor(Actor* actor);
+    const std::vector<entt::entity>& getActors(void) const;
+    void addActor(entt::entity entity);
+    void addActors(const std::vector<entt::entity>& actors);
+    void removeActor(entt::entity entity);
 
     const std::vector<Item*>& getItems(void) const;
     void addItem(Item* item);
@@ -52,23 +53,24 @@ public:
     BehaviourStrategy* getBehaviourStrategy(void);
     void setBehaviourStrategy(std::unique_ptr<BehaviourStrategy> behaviourStrategy);
 
-    void setVisibleActors(const std::set<Actor*>& visibleActors);
-    const std::set<Actor*>& getVisibleActors(void) const;
+    void setVisibleActors(const std::set<entt::entity>& visibleActors);
+    const std::set<entt::entity>& getVisibleActors(void) const;
     
-    void addVisibleActor(Actor* actor);
-    void removeVisibleActor(Actor* actor);
-    bool hasVisibleActor(Actor* actor);
+    void addVisibleActor(entt::entity entity);
+    void removeVisibleActor(entt::entity entity);
+    bool hasVisibleActor(entt::entity entity);
 
 private:
     int id;
     bool isReady;
     bool isPlayer;
-    std::vector<Actor*> actors;
+    std::vector<entt::entity> actors;
     std::vector<Item*> items;
     bool passNextTurn;
     std::unique_ptr<BehaviourStrategy> behaviourStrategy;
     
     Engagement* engagement;
+    ApplicationContext* context;
 
-    std::set<Actor*> visibleActors;
+    std::set<entt::entity> visibleActors;
 };

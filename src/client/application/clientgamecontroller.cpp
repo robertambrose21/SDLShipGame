@@ -15,7 +15,9 @@ bool ClientGameController::canProgressToNextTurn(Engagement* engagement) {
 
     auto participant = engagement->getCurrentParticipant();
 
-    for(auto actor : participant->getActors()) {
+    for(auto entity : participant->getActors()) {
+        auto actor = context->getEntityRegistry().try_get<Actor>(entity);
+
         if(actor->hasAnimationsInProgress() || !actor->getActionsChain(engagement->getTurnNumber()).empty()) {
             return false;
         }

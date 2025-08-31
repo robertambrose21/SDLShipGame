@@ -40,11 +40,11 @@ public:
     void handleKeyPress(const SDL_Event& event);
     void handleMouseEvent(const SDL_Event& event);
 
-    const std::vector<Actor*>& getSelectedActors(void) const;
+    const std::vector<entt::entity>& getSelectedActors(void) const;
     void setParticipant(Participant* participant);
     Participant* getParticipant(void);
 
-    void toggleSelection(const std::vector<Actor*>& actors);
+    void toggleSelection(const std::vector<entt::entity>& actors);
     void selectAll(void);
     void deselectAll(void);
 
@@ -66,7 +66,7 @@ private:
 
     Participant* participant;
 
-    std::vector<Actor*> selectedActors;
+    std::vector<entt::entity> selectedActors;
     GridRenderer& gridRenderer;
     ApplicationContext& context;
     GraphicsContext& graphicsContext;

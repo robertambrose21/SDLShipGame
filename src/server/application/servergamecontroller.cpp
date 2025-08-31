@@ -85,10 +85,12 @@ bool ServerGameController::canProgressToNextTurn(Engagement* engagement) {
 
     bool haveActorsTurnsFinished = true;
     bool haveActorsActionsFinished = true;
-    for(auto actor : participant->getActors()) {
-        haveActorsTurnsFinished = haveActorsTurnsFinished && !actor->isTurnInProgress();
-        haveActorsActionsFinished = haveActorsActionsFinished && !actor->hasAnimationsInProgress() 
-            && actor->getActionsChain(turnNumber).empty();
+    for(auto entity : participant->getActors()) {
+        auto& actor = context->getEntityRegistry().get<Actor>(entity);
+
+        haveActorsTurnsFinished = haveActorsTurnsFinished && !actor.isTurnInProgress();
+        haveActorsActionsFinished = haveActorsActionsFinished && !actor.hasAnimationsInProgress() 
+            && actor.getActionsChain(turnNumber).empty();
     }
 
     if(!haveActorsActionsFinished) {
@@ -145,15 +147,13 @@ void ServerGameController::checkForItems(int participantId) {
         return;
     }
 
-    for(auto actor : participant->getActors()) {
-        auto const& position = context->getActorPool()->getPosition(actor->getId());
+    for(auto entity : participant->getActors()) {
+        auto const& position = context->getEntityRegistry().get<Position>(entity);
         auto items = itemController->getItemsAt(position);
 
         if(items.empty()) {
             return;
         }
-        
-        auto entity = context->getActorPool()->getEntity(actor->getId());
 
         if(participant->hasAnyEngagement()) {
             queueAction(
@@ -194,8 +194,10 @@ void ServerGameController::compareAndEngageParticipants(Participant* participant
     }
 
     bool canEngage = false;
-    for(auto actorToCheck : participantA->getActors()) {
-        if(hasActorEngagement(actorToCheck, participantB)) {
+    for(auto entity : participantA->getActors()) {
+        auto& actorToCheck = context->getEntityRegistry().get<Actor>(entity);
+
+        if(hasActorEngagement(&actorToCheck, participantB)) {
             canEngage = true;
             break;
         }
@@ -228,8 +230,10 @@ void ServerGameController::compareAndEngageParticipants(Participant* participant
 }
 
 bool ServerGameController::hasActorEngagement(Actor* target, Participant* participant) {
-    for(auto actor : participant->getActors()) {
-        if(context->getVisibilityController()->isVisible(actor, target)) {
+    for(auto entity : participant->getActors()) {
+        auto& actor = context->getEntityRegistry().get<Actor>(entity);
+
+        if(context->getVisibilityController()->isVisible(&actor, target)) {
             return true;
         }
     }

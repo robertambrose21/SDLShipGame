@@ -47,8 +47,8 @@ private:
     std::map<int, std::set<TileWithVisibility>> revealedTiles;
 
     void assignVisibility(
-        Actor* actor, 
-        Actor* other, 
+        entt::entity actorEntity, 
+        entt::entity otherEntity, 
         float distanceBetweenActors,
         const std::unordered_set<glm::ivec2, glm::ivec2Hash>& visibleTiles
     );

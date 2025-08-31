@@ -325,11 +325,9 @@ void GameClientMessagesReceiver::receiveRemoveActorVisibilityMessage(RemoveActor
         return;
     }
 
-
-    if(context.getActorPool()->hasActor(message->actorId)) {
-        auto actorToRemove = context.getActorPool()->getActor(message->actorId);
-        clientParticipant->removeVisibleActor(actorToRemove);
-
+    auto actorToRemove = context.getActorPool()->getByExternalId(message->actorId);
+    if(actorToRemove.has_value()) {
+        clientParticipant->removeVisibleActor(actorToRemove.value());
         context.getActorPool()->removeActor(message->actorId);
     }
     else {
@@ -366,6 +364,7 @@ void GameClientMessagesReceiver::receiveAddActorVisibilityMessage(AddActorVisibi
     }
 
     auto actor = context.getActorPool()->addActor(message->actor.name, message->actor.id);
+    auto entity = context.getActorPool()->getByExternalId(actor->getId());
 
     if(!context.getGameController()->hasParticipant(message->actor.participantId)) {
         spdlog::warn(
@@ -376,7 +375,7 @@ void GameClientMessagesReceiver::receiveAddActorVisibilityMessage(AddActorVisibi
         return;
     }
 
-    context.getGameController()->getParticipant(message->actor.participantId)->addActor(actor);
+    context.getGameController()->getParticipant(message->actor.participantId)->addActor(entity.value());
 
     for(int j = 0; j < actorStateUpdate.numWeapons; j++) {
         auto const& weaponUpdate = actorStateUpdate.weaponUpdates[j];
@@ -395,11 +394,11 @@ void GameClientMessagesReceiver::receiveAddActorVisibilityMessage(AddActorVisibi
 
     ActorStateUpdate::deserialize(&context, message->actor, actor);
 
-    if(clientParticipant->hasVisibleActor(actor)) {
+    if(clientParticipant->hasVisibleActor(entity.value())) {
         std::cout << std::format("Warning: received already visible actor {}", actor->getId()) << std::endl;
     }
     
-    clientParticipant->addVisibleActor(actor);
+    clientParticipant->addVisibleActor(entity.value());
 }
 
 void GameClientMessagesReceiver::receiveCreateEngagementMessage(CreateEngagementMessage* message) {

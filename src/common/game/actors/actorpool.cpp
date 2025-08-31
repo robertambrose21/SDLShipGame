@@ -89,8 +89,9 @@ bool ActorPool::applyChunkedGameStateUpdate(const ChunkedGameStateUpdate& chunke
             auto const& actorUpdate = update.actors[i];
 
             if(!actorIdsToEntities.contains(actorUpdate.id)) {
-                auto const& actor = addActor(actorUpdate.name, actorUpdate.id);
-                context->getGameController()->addActorToParticipant(actorUpdate.participantId, actor);   
+                auto actor = addActor(actorUpdate.name, actorUpdate.id);
+                auto entity = context->getActorPool()->getByExternalId(actor->getId());
+                context->getGameController()->addActorToParticipant(actorUpdate.participantId, entity.value());   
             }
 
             auto existing = getActor(actorUpdate.id);
@@ -253,10 +254,10 @@ void ActorPool::removeActor(uint32_t id) {
 
     // Remove visibility of actor from participants (and prevent a seg-fault)
     for(auto participant : gameController->getParticipants()) {
-        participant->removeVisibleActor(actor);
+        participant->removeVisibleActor(actorByExternalId[actor->getId()]);
     }
 
-    participant->removeActor(actor);
+    participant->removeActor(actorByExternalId[actor->getId()]);
 
     context->getEntityRegistry().destroy(actorIdsToEntities[id]);
     actorIdsToEntities.erase(id);
