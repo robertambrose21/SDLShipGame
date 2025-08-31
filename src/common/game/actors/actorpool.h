@@ -69,26 +69,6 @@ public:
         int excludedParticipantId = -1
     );
 
-    // TODO: Replace all these with entt::entity equivs
-    Actor* filterByTile(
-        int x, 
-        int y, 
-        const std::set<Actor*>& actors
-    );
-
-    Actor* filterByTile(
-        int x, 
-        int y, 
-        const std::vector<Actor*>& actors,
-        int excludedParticipantId = -1
-    );
-
-    std::vector<Actor*> filterByTiles(
-        const std::vector<glm::ivec2>& tiles,
-        const std::vector<Actor*>& actors,
-        int excludedParticipantId = -1
-    );
-
 private:
     typedef struct _actorDefinition {
         std::string filename;
