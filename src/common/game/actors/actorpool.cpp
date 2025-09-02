@@ -296,13 +296,15 @@ void ActorPool::setPosition(uint32_t actorId, const Position& position) {
     publish<ActorSetPositionEventData>({ &actor, position });
 }
 
-Actor* ActorPool::findClosestTarget(Actor* attacker, int participantId) {
-    Actor* closestActor = nullptr;
-    auto shortestDistance = attacker->getDisengagementRange();
-
-    auto const attackerPosition = context->getActorPool()->getPosition(attacker->getId());
+std::optional<entt::entity> ActorPool::findClosestTarget(entt::entity attacker, int participantId) {
+    std::optional<entt::entity> closestActor = std::nullopt;
     
-    for(auto [_, actor, position]: context->getEntityRegistry().view<Actor, Position>().each()) {
+    auto& attackerActor = context->getEntityRegistry().get<Actor>(attacker);
+    auto const& attackerPosition = context->getEntityRegistry().get<Position>(attacker);
+
+    auto shortestDistance = attackerActor.getDisengagementRange();
+    
+    for(auto [entity, actor, position]: context->getEntityRegistry().view<Actor, Position>().each()) {
         if(actor.getParticipantId() == participantId) {
             continue;
         }
@@ -311,7 +313,7 @@ Actor* ActorPool::findClosestTarget(Actor* attacker, int participantId) {
 
         if(distance < shortestDistance) {
             shortestDistance = distance;
-            closestActor = &actor;
+            closestActor = entity;
         }
     }
 

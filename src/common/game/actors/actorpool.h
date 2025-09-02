@@ -39,7 +39,7 @@ public:
 
     Position getPosition(uint32_t actorId) const;
     void setPosition(uint32_t actorId, const Position& position);
-    Actor* findClosestTarget(Actor* attacker, int participantId);
+    std::optional<entt::entity> findClosestTarget(entt::entity attacker, int participantId);
 
     LootTable getLootTable(const std::string& actorName);
 

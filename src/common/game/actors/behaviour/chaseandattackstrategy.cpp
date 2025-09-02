@@ -24,9 +24,7 @@ void ChaseAndAttackStrategy::onUpdate(int participantId, int64_t timeSinceLastFr
     auto actorsDisengaged = 0;
 
     for(auto entity : participant->getActors()) {
-        auto& actor = getContext().getEntityRegistry().get<Actor>(entity);
-
-        auto [canActorPass, canActorDisengage] = doTurnForActor(&actor, participant);
+        auto [canActorPass, canActorDisengage] = doTurnForActor(entity, participant);
         
         if(canActorPass) {
             actorsPassed++;
@@ -50,29 +48,32 @@ void ChaseAndAttackStrategy::onUpdate(int participantId, int64_t timeSinceLastFr
     }
 }
 
-ChaseAndAttackStrategy::ActorTurnResult ChaseAndAttackStrategy::doTurnForActor(Actor* actor, Participant* participant) {
-    if(!actor->isTurnInProgress()) {
+ChaseAndAttackStrategy::ActorTurnResult ChaseAndAttackStrategy::doTurnForActor(
+    entt::entity entity, 
+    Participant* participant
+) {
+    auto& actor = getContext().getEntityRegistry().get<Actor>(entity);
+
+    if(!actor.isTurnInProgress()) {
         return { true, false };
     }
 
-    if(actor->getIsFrozen()) {
+    if(actor.getIsFrozen()) {
         return { true, true };
     }
 
-    auto target = getContext().getActorPool()->findClosestTarget(actor, participant->getId());
+    auto targetEntity = getContext().getActorPool()->findClosestTarget(entity, participant->getId());
 
-    if(target == nullptr) {
+    if(!targetEntity.has_value()) {
         return { true, true };
     }
 
-    auto const& actorPosition = getContext().getActorPool()->getPosition(actor->getId());
-    auto const& targetPosition = getContext().getActorPool()->getPosition(target->getId());
+    auto const& actorPosition = getContext().getEntityRegistry().get<Position>(entity);
+    auto const& targetPosition = getContext().getEntityRegistry().get<Position>(targetEntity.value());
 
-    auto bWeapon = getBestInRangeWeapon(actor, targetPosition);
+    auto bWeapon = getBestInRangeWeapon(&actor, targetPosition);
     auto gameController = getContext().getGameController();
     auto turnNumber = participant->getEngagement()->getTurnNumber();
-
-    auto entity = getContext().getActorPool()->getByExternalId(actor->getId()).value();
 
     // TODO: Change 'current weapon' to best melee weapon
     if(getContext().getGrid()->areNeighbours(actorPosition, targetPosition)) {
@@ -80,11 +81,11 @@ ChaseAndAttackStrategy::ActorTurnResult ChaseAndAttackStrategy::doTurnForActor(A
             participant, 
             entity, 
             turnNumber, 
-            actor->getCurrentWeapon(), 
+            actor.getCurrentWeapon(), 
             targetPosition
         );
         
-        if(actor->getCurrentWeapon()->getUsesLeft() <= 0 || !gameController->queueAction(std::move(action))) {
+        if(actor.getCurrentWeapon()->getUsesLeft() <= 0 || !gameController->queueAction(std::move(action))) {
             return { true, false };
         }
     }
@@ -101,7 +102,7 @@ ChaseAndAttackStrategy::ActorTurnResult ChaseAndAttackStrategy::doTurnForActor(A
             return { true, false };
         }
     }
-    else if(!actor->hasPath()) {
+    else if(!actor.hasPath()) {
         auto distanceToTarget = glm::distance(glm::vec2(actorPosition), glm::vec2(targetPosition));
         auto action = std::make_unique<MoveAction>(
             participant, 
@@ -111,7 +112,7 @@ ChaseAndAttackStrategy::ActorTurnResult ChaseAndAttackStrategy::doTurnForActor(A
             1
         );
         
-        if(!distanceToTarget <= actor->getAggroRange() && !gameController->queueAction(std::move(action))) {
+        if(!distanceToTarget <= actor.getAggroRange() && !gameController->queueAction(std::move(action))) {
             return { true, false };
         }
     }
