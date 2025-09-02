@@ -31,8 +31,8 @@ public:
     void update(int64_t timeSinceLastFrame, bool& quit);
     void addGameStateUpdate(const GameStateUpdate& update);
 
-    Actor* addActor(const std::string& name);
-    Actor* addActor(const std::string& name, uint32_t id);
+    entt::entity addActor(const std::string& name);
+    entt::entity addActor(const std::string& name, uint32_t id);
     void removeActor(uint32_t id);
     
     std::optional<entt::entity> getByExternalId(ExternalId externalId) const;

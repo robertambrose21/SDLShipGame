@@ -89,9 +89,8 @@ bool ActorPool::applyChunkedGameStateUpdate(const ChunkedGameStateUpdate& chunke
             auto const& actorUpdate = update.actors[i];
 
             if(!actorIdsToEntities.contains(actorUpdate.id)) {
-                auto actor = addActor(actorUpdate.name, actorUpdate.id);
-                auto entity = context->getActorPool()->getByExternalId(actor->getId());
-                context->getGameController()->addActorToParticipant(actorUpdate.participantId, entity.value());   
+                auto newEntity = addActor(actorUpdate.name, actorUpdate.id);
+                context->getGameController()->addActorToParticipant(actorUpdate.participantId, newEntity);   
             }
 
             auto entity = getByExternalId(actorUpdate.id);
@@ -220,7 +219,7 @@ void ActorPool::addGameStateUpdate(const GameStateUpdate& update) {
     }
 }
 
-Actor* ActorPool::addActor(const std::string& name, uint32_t id) {
+entt::entity ActorPool::addActor(const std::string& name, uint32_t id) {
     game_assert(initialised);
     game_assert(actorDefinitions.contains(name));
 
@@ -245,10 +244,10 @@ Actor* ActorPool::addActor(const std::string& name, uint32_t id) {
     actorIdsToEntities[id] = entity;
     actorByExternalId[id] = entity;
 
-    return actor;
+    return entity;
 }
 
-Actor* ActorPool::addActor(const std::string& name) {
+entt::entity ActorPool::addActor(const std::string& name) {
     game_assert(initialised);
     return addActor(name, getNewId());
 }

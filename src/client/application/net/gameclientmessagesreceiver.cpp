@@ -376,42 +376,42 @@ void GameClientMessagesReceiver::receiveAddActorVisibilityMessage(AddActorVisibi
         return;
     }
 
-    auto actor = context.getActorPool()->addActor(message->actor.name, message->actor.id);
-    auto entity = context.getActorPool()->getByExternalId(actor->getId());
+    auto entity = context.getActorPool()->addActor(message->actor.name, message->actor.id);
+    auto& actor = context.getEntityRegistry().get<Actor>(entity);
 
     if(!context.getGameController()->hasParticipant(message->actor.participantId)) {
         spdlog::warn(
             "Cannot add actor {} which has a non-existant participant {}",
-            actor->toString(),
+            actor.toString(),
             message->actor.participantId
         );
         return;
     }
 
-    context.getGameController()->getParticipant(message->actor.participantId)->addActor(entity.value());
+    context.getGameController()->getParticipant(message->actor.participantId)->addActor(entity);
 
     for(int j = 0; j < actorStateUpdate.numWeapons; j++) {
         auto const& weaponUpdate = actorStateUpdate.weaponUpdates[j];
         auto weaponId = UUID::fromBytes(weaponUpdate.idBytes);
         
-        if(!actor->hasWeapon(weaponId)) {
-            auto weapon = context.getWeaponController()->createWeapon(weaponId, weaponUpdate.name, actor);
+        if(!actor.hasWeapon(weaponId)) {
+            auto weapon = context.getWeaponController()->createWeapon(weaponId, weaponUpdate.name, &actor);
             
             if(weapon->getItem() != nullptr && weaponUpdate.hasItem) {
                 weapon->getItem()->setId(weaponUpdate.itemId);
             }
 
-            actor->addWeapon(std::move(weapon));
+            actor.addWeapon(std::move(weapon));
         }
     }
 
-    ActorStateUpdate::deserialize(&context, message->actor, actor);
+    ActorStateUpdate::deserialize(&context, message->actor, &actor);
 
-    if(clientParticipant->hasVisibleActor(entity.value())) {
-        std::cout << std::format("Warning: received already visible actor {}", actor->getId()) << std::endl;
+    if(clientParticipant->hasVisibleActor(entity)) {
+        std::cout << std::format("Warning: received already visible actor {}", actor.getId()) << std::endl;
     }
     
-    clientParticipant->addVisibleActor(entity.value());
+    clientParticipant->addVisibleActor(entity);
 }
 
 void GameClientMessagesReceiver::receiveCreateEngagementMessage(CreateEngagementMessage* message) {
