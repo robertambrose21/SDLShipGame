@@ -78,7 +78,6 @@ private:
     std::map<std::string, ActorDefinition> actorDefinitions;
 
     std::set<uint32_t> actorsForDeletion;
-    std::map<uint32_t, entt::entity> actorIdsToEntities; // TODO: delete me;
     std::unordered_map<ExternalId, entt::entity> actorByExternalId;
 
     std::map<uint8_t, ChunkedGameStateUpdate> pendingChunkedUpdates;

@@ -88,7 +88,7 @@ bool ActorPool::applyChunkedGameStateUpdate(const ChunkedGameStateUpdate& chunke
         for(int i = 0; i < update.numActors; i++) {
             auto const& actorUpdate = update.actors[i];
 
-            if(!actorIdsToEntities.contains(actorUpdate.id)) {
+            if(!actorByExternalId.contains(actorUpdate.id)) {
                 auto newEntity = addActor(actorUpdate.name, actorUpdate.id);
                 context->getGameController()->addActorToParticipant(actorUpdate.participantId, newEntity);   
             }
@@ -247,7 +247,6 @@ entt::entity ActorPool::addActor(const std::string& name, uint32_t id) {
     registry.emplace<PositionDirty>(entity);
     auto actor = &registry.emplace<Actor>(entity, context->getGrid(), id, *this, definition.name, stats);
 
-    actorIdsToEntities[id] = entity;
     actorByExternalId[id] = entity;
 
     return entity;
@@ -272,8 +271,7 @@ void ActorPool::removeActor(uint32_t id) {
 
     participant->removeActor(entity);
 
-    context->getEntityRegistry().destroy(actorIdsToEntities[id]);
-    actorIdsToEntities.erase(id);
+    context->getEntityRegistry().destroy(actorByExternalId[id]);
     actorByExternalId.erase(id);
 }
 
