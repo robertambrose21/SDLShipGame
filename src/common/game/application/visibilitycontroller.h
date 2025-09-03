@@ -32,7 +32,7 @@ public:
     void revealTiles(int participantId, const std::vector<glm::ivec2>& tiles);
     void onPublish(const Event<ActorSetPositionEventData>& event);
 
-    bool isVisible(Actor* actor, Actor* target);
+    bool isVisible(entt::entity entity, entt::entity target);
 
     const std::map<int, std::set<TileWithVisibility>>& getTilesWithVisibility(void) const;
     const std::set<TileWithVisibility>& getTilesWithVisibility(int participantId);

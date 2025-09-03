@@ -18,26 +18,9 @@ class Actor;
 class ApplicationContext;
 
 class Weapon {
-protected:
-    UUID id;
-    std::string name;
-    Actor* owner;
-    DamageSource damageSource;
-    Stats::WeaponStats stats;
-
-    int usesLeft;
-
-    ApplicationContext* context;
-    EventPublisher<MeleeWeaponEventData>& publisher;
-
-    Item* item;
-
-    virtual bool onUse(const glm::ivec2& position, const glm::ivec2& target, bool isAnimationOnly) = 0;
-    virtual void apply(const glm::ivec2& position, const glm::ivec2& target) = 0;
-
 public:
     Weapon(
-        Actor* owner,
+        entt::entity owner,
         ApplicationContext* context,
         Item* item,
         EventPublisher<MeleeWeaponEventData>& publisher,
@@ -48,7 +31,7 @@ public:
     );
 
     Weapon(
-        Actor* owner, 
+        entt::entity owner, 
         ApplicationContext* context,
         Item* item,
         EventPublisher<MeleeWeaponEventData>& publisher,
@@ -74,9 +57,26 @@ public:
 
     UUID getId(void) const;
     std::string getName(void) const;
-    Actor* getOwner(void);
+    entt::entity getOwner(void);
     DamageSource getDamageSource(void) const;
 
     Item* getItem(void);
     void addTo(Stats::ActorStats& actorStats);
+
+protected:
+    UUID id;
+    std::string name;
+    entt::entity owner;
+    DamageSource damageSource;
+    Stats::WeaponStats stats;
+
+    int usesLeft;
+
+    ApplicationContext* context;
+    EventPublisher<MeleeWeaponEventData>& publisher;
+
+    Item* item;
+
+    virtual bool onUse(const glm::ivec2& position, const glm::ivec2& target, bool isAnimationOnly) = 0;
+    virtual void apply(const glm::ivec2& position, const glm::ivec2& target) = 0;
 };

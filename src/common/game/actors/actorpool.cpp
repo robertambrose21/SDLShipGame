@@ -109,7 +109,7 @@ bool ActorPool::applyChunkedGameStateUpdate(const ChunkedGameStateUpdate& chunke
                 
                 if(!existing.hasWeapon(weaponId)) {
                     spdlog::trace("Syncing weapon {} to actor {}", weaponId.getString(), existing.getId());
-                    auto weapon = context->getWeaponController()->createWeapon(weaponId, weaponUpdate.name, &existing);
+                    auto weapon = context->getWeaponController()->createWeapon(weaponId, weaponUpdate.name, entity.value());
                     
                     if(weapon->getItem() != nullptr && weaponUpdate.hasItem) {
                         weapon->getItem()->setId(weaponUpdate.itemId);
@@ -237,10 +237,16 @@ entt::entity ActorPool::addActor(const std::string& name, uint32_t id) {
 
     auto entity = registry.create();
     registry.emplace<ExternalId>(entity, id);
-    registry.emplace<Drawable>(entity, definition.textureId, UINT32_C(6),
-        Colour { definition.r, definition.g, definition.b, definition.a});
+    registry.emplace<Drawable>(
+        entity, 
+        definition.textureId, 
+        UINT32_C(6),
+        Colour { definition.r, definition.g, definition.b, definition.a}
+    );
     registry.emplace<Position>(entity, glm::ivec2(0, 0));
+    registry.emplace<PositionDirty>(entity);
     auto actor = &registry.emplace<Actor>(entity, context->getGrid(), id, *this, definition.name, stats);
+
     actorIdsToEntities[id] = entity;
     actorByExternalId[id] = entity;
 
@@ -277,23 +283,6 @@ std::optional<entt::entity> ActorPool::getByExternalId(ExternalId externalId) co
     }
 
     return actorByExternalId.at(externalId);
-}
-
-Position ActorPool::getPosition(uint32_t actorId) const{
-    game_assert(actorIdsToEntities.contains(actorId));
-    auto const& entityId = actorIdsToEntities.at(actorId);
-
-    return context->getEntityRegistry().get<Position>(entityId);
-}
-
-void ActorPool::setPosition(uint32_t actorId, const Position& position) {
-    game_assert(actorIdsToEntities.contains(actorId));
-    auto const& entity = actorIdsToEntities[actorId];
-
-    context->getEntityRegistry().replace<Position>(entity, position);
-    auto& actor = context->getEntityRegistry().get<Actor>(entity);
-    
-    publish<ActorSetPositionEventData>({ &actor, position });
 }
 
 std::optional<entt::entity> ActorPool::findClosestTarget(entt::entity attacker, int participantId) {

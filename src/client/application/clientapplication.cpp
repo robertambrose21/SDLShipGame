@@ -62,10 +62,6 @@ void ClientApplication::initialise(void) {
     logicSystemRegistry = std::make_unique<LogicSystemRegistry>(context.getEntityRegistry());
 
     drawSystemRegistry->addSystem(std::make_unique<ActorDrawSystem>("ActorDrawSystem"));
-    
-    auto actorUpdateSystem = std::make_unique<ActorUpdateSystem>("ActorUpdateSystem");
-    actorUpdateSystem->subscribe<ActorEventData>(stdoutSubscriber.get());
-    logicSystemRegistry->addSystem(std::move(actorUpdateSystem));
 
     weaponDrawStrategy = std::make_unique<WeaponDrawStrategy>();
     projectileDrawStrategy = std::make_unique<ProjectileDrawStrategy>();
@@ -110,6 +106,12 @@ void ClientApplication::initialise(void) {
         1080, 
         &context
     );
+
+    auto actorUpdateSystem = std::make_unique<ActorUpdateSystem>("ActorUpdateSystem");
+    actorUpdateSystem->subscribe<ActorEventData>(stdoutSubscriber.get());
+    actorUpdateSystem->subscribe<ActorSetPositionEventData>(&window->getGridRenderer());
+    logicSystemRegistry->addSystem(std::move(actorUpdateSystem));
+    
     window->initialiseWindow();
 
     for(auto const& [_, tile] : tileSet.getTileMapping()) {

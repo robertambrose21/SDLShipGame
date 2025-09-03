@@ -2,7 +2,7 @@
 #include "game/actors/actorpool.h"
 
 Weapon::Weapon(
-    Actor* owner,
+    entt::entity owner,
     ApplicationContext* context,
     Item* item,
     EventPublisher<MeleeWeaponEventData>& publisher,
@@ -20,12 +20,10 @@ Weapon::Weapon(
     damageSource(damageSource),
     stats(stats),
     usesLeft(0)
-{
-    game_assert(owner != nullptr);
-}
+{ }
 
 Weapon::Weapon(
-    Actor* owner,
+    entt::entity owner,
     ApplicationContext* context,
     Item* item,
     EventPublisher<MeleeWeaponEventData>& publisher,
@@ -37,7 +35,9 @@ Weapon::Weapon(
 { }
 
 void Weapon::use(const glm::ivec2& position, const glm::ivec2& target, bool isAnimationOnly) {
-    if(owner->isEngaged() && usesLeft <= 0) {
+    auto& ownerActor = context->getEntityRegistry().get<Actor>(owner);
+
+    if(ownerActor.isEngaged() && usesLeft <= 0) {
         spdlog::trace("Cannot use weapon {}#{}, no uses left", name, id.getString());
         return;
     }
@@ -46,7 +46,7 @@ void Weapon::use(const glm::ivec2& position, const glm::ivec2& target, bool isAn
         return;
     }
     
-    if(owner->isEngaged()) {
+    if(ownerActor.isEngaged()) {
         usesLeft--;
     }
 }
@@ -68,7 +68,7 @@ void Weapon::reset(void) {
 }
 
 bool Weapon::isInRange(const glm::ivec2& position) {
-    auto const& ownerPosition = context->getActorPool()->getPosition(owner->getId());
+    auto const& ownerPosition = context->getEntityRegistry().get<Position>(owner);
     return glm::distance(glm::vec2(ownerPosition), glm::vec2(position)) <= stats.range;
 }
 
@@ -92,7 +92,7 @@ std::string Weapon::getName(void) const {
     return name;
 }
 
-Actor* Weapon::getOwner(void) {
+entt::entity Weapon::getOwner(void) {
     return owner;
 }
 

@@ -9,7 +9,7 @@
 
 class ActorUpdateSystem :
     public LogicSystem, 
-    public EventPublisher<ActorEventData, ActorSetPositionEventData, ActorUpdateStatsEventData> 
+    public EventPublisher<ActorSetPositionEventData, ActorEventData> 
 {
 public:
     ActorUpdateSystem() = delete;
@@ -25,9 +25,10 @@ public:
 private:
     void updateActor(
         ApplicationContext& context,
+        entt::entity,
         Actor& actor, 
         Position& position, 
         int64_t timeSinceLastFrame
     );
-    void killActor(ApplicationContext& context, Actor& actor);
+    void killActor(ApplicationContext& context, entt::entity, Actor& actor, Position position);
 };

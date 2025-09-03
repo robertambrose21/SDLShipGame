@@ -85,9 +85,6 @@ void ServerApplication::initialise(void) {
     context.getEffectController()->subscribe<ActorEffectEvent>(transmitter.get());
     context.getEffectController()->subscribe<GridEffectEvent>(transmitter.get());
     context.getVisibilityController()->subscribe<TilesRevealedEventData>(transmitter.get());
-    context.getActorPool()->subscribe<ActorSetPositionEventData>(context.getVisibilityController());
-    context.getActorPool()->subscribe<ActorSetPositionEventData>(transmitter.get());
-    context.getActorPool()->subscribe<ActorSetPositionEventData>(dynamic_cast<ServerGameController*>(context.getGameController()));
     context.getVisibilityController()->subscribe<ActorVisibilityToParticipantData>(transmitter.get());
     context.getGameController()->getEngagementController()->subscribe<CreateEngagementEventData>(transmitter.get());
     context.getGameController()->getEngagementController()->subscribe<AddToEngagementEventData>(transmitter.get());
@@ -104,6 +101,9 @@ void ServerApplication::initialise(void) {
     auto actorUpdateSystem = std::make_unique<ActorUpdateSystem>("ActorUpdateSystem");
     actorUpdateSystem->subscribe<ActorEventData>(stdoutSubscriber.get());
     actorUpdateSystem->subscribe<ActorEventData>(context.getItemController());
+    actorUpdateSystem->subscribe<ActorSetPositionEventData>(context.getVisibilityController());
+    actorUpdateSystem->subscribe<ActorSetPositionEventData>(transmitter.get());
+    actorUpdateSystem->subscribe<ActorSetPositionEventData>(dynamic_cast<ServerGameController*>(context.getGameController()));
     logicSystemRegistry->addSystem(std::move(actorUpdateSystem));
 
     application->addLogicWorker([&](ApplicationContext& c, auto const& timeSinceLastFrame, auto& quit) {
@@ -145,8 +145,7 @@ void ServerApplication::onClientConnect(int clientIndex) {
     }
     else {
         auto actor = addPlayer(false);
-        auto entity = application->getContext().getActorPool()->getByExternalId(actor->getId());
-        participant = gameController->addParticipant(true, { entity.value() });
+        participant = gameController->addParticipant(true, { actor });
 
         transmitter->sendFactionUpdates(clientIndex, factionController->getAlignedFactions());
         auto basedFaction = factionController->getFactionByName("Based");
@@ -164,21 +163,6 @@ void ServerApplication::onClientConnect(int clientIndex) {
     // TOOD: Send just unready participants to all clients
     for(auto& p : gameController->getParticipants()) {
         transmitter->sendSetParticipantToAllClients(p);
-    }
-
-    // Temp hack to trigger a grid tile reveal
-    for(auto entity : participant->getActors()) {
-        auto const& position = application->getContext().getEntityRegistry().get<Position>(entity);
-        auto& actor = application->getContext().getEntityRegistry().get<Actor>(entity);
-        application->getContext().getActorPool()->setPosition(actor.getId(), position);
-
-        spdlog::trace(
-            "Actor {} spawned at position ({}, {}) for participant {}", 
-            actor.toString(), 
-            position.x,
-            position.y,
-            participant->getId()
-        );
     }
     
     transmitter->sendLoadGameToClient(clientIndex);
@@ -339,8 +323,7 @@ void ServerApplication::loadGame(const std::vector<GenerationStrategy::Room>& ro
         );
 
         for(auto actor : actors) {
-            auto entity = context.getActorPool()->getByExternalId(actor->getId());
-            enemies.push_back(entity.value());
+            enemies.push_back(actor);
         }
     }
 
@@ -363,7 +346,7 @@ void ServerApplication::loadGame(const std::vector<GenerationStrategy::Room>& ro
     context.getGameController()->reset();
 }
 
-Actor* ServerApplication::addPlayer(bool hasFreezeGun) {
+entt::entity ServerApplication::addPlayer(bool hasFreezeGun) {
     auto& context = application->getContext();
 
     static int i = 0;

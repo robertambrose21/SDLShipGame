@@ -36,9 +36,7 @@ public:
     void removeActor(uint32_t id);
     
     std::optional<entt::entity> getByExternalId(ExternalId externalId) const;
-
-    Position getPosition(uint32_t actorId) const;
-    void setPosition(uint32_t actorId, const Position& position);
+    
     std::optional<entt::entity> findClosestTarget(entt::entity attacker, int participantId);
 
     LootTable getLootTable(const std::string& actorName);

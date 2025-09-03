@@ -47,5 +47,5 @@ public:
     // Temp
     void loadGame(const std::vector<GenerationStrategy::Room>& rooms);
     // Temp
-    Actor* addPlayer(bool hasFreezeGun);
+    entt::entity addPlayer(bool hasFreezeGun);
 };

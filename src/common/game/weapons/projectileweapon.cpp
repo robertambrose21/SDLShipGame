@@ -1,7 +1,7 @@
 #include "projectileweapon.h"
 
 ProjectileWeapon::ProjectileWeapon(
-    Actor* owner,
+    entt::entity owner,
     ApplicationContext* context,
     Item* item,
     EventPublisher<MeleeWeaponEventData>& publisher,
@@ -16,7 +16,7 @@ ProjectileWeapon::ProjectileWeapon(
 { }
 
 ProjectileWeapon::ProjectileWeapon(
-    Actor* owner,
+    entt::entity owner,
     ApplicationContext* context,
     Item* item,
     EventPublisher<MeleeWeaponEventData>& publisher,
@@ -34,18 +34,20 @@ bool ProjectileWeapon::onUse(const glm::ivec2& position, const glm::ivec2& targe
         return false;
     }
 
+    auto& ownerActor = context->getEntityRegistry().get<Actor>(owner);
+
     context->getProjectilePool()->add(
         Projectile::create(
             context,
             *context->getProjectilePool(), 
-            owner->getParticipantId(), 
+            ownerActor.getParticipantId(), 
             projectileBlueprint, 
             position, 
             target,
             damageSource,
             isAnimationOnly
         ), 
-        owner
+        &ownerActor
     );
 
     return true;
@@ -64,7 +66,7 @@ bool ProjectileWeapon::isInRange(const glm::ivec2& target) {
         return false;
     }
 
-    auto const& ownerPosition = context->getActorPool()->getPosition(owner->getId());
+    auto const& ownerPosition = context->getEntityRegistry().get<Position>(owner);
 
     glm::vec2 ownerCentrePos = glm::vec2(ownerPosition) + glm::vec2(.5f, .5f);
     glm::vec2 targetCentrePos = glm::vec2(target) + glm::vec2(.5f, .5f);
@@ -81,7 +83,8 @@ Projectile::Blueprint ProjectileWeapon::getProjectileBluePrint(void) const {
 }
 
 bool ProjectileWeapon::isAnimationInProgress(void) {
-    return context->getProjectilePool()->getNumProjectilesForOwner(owner) > 0;
+    auto& ownerActor = context->getEntityRegistry().get<Actor>(owner);
+    return context->getProjectilePool()->getNumProjectilesForOwner(&ownerActor) > 0;
 }
 
 Stats::WeaponStats::WeaponClass ProjectileWeapon::getType(void) const {

@@ -51,7 +51,7 @@ void WeaponController::loadWeaponDefinitions(void) {
 std::unique_ptr<Weapon> WeaponController::createWeapon(
     const UUID& id,
     const std::string& name, 
-    Actor* owner
+    entt::entity owner
 ) {
     game_assert(initialised);
     game_assert(weaponDefinitions.contains(name));
@@ -133,18 +133,20 @@ void WeaponController::synchronizeWithItemStats(Item* item, Stats::WeaponStats& 
     item->setWeaponStats(weaponStats);
 }
 
-std::unique_ptr<Weapon> WeaponController::createWeapon(const std::string& name, Actor* owner) {
+std::unique_ptr<Weapon> WeaponController::createWeapon(const std::string& name, entt::entity owner) {
     game_assert(initialised);
     return createWeapon(UUID::getNewUUID(), name, owner);
 }
 
-Item* WeaponController::getItem(const std::string& itemName, Actor* owner) {
+Item* WeaponController::getItem(const std::string& itemName, entt::entity owner) {
     if(itemName == "") {
         return nullptr;
     }
 
-    auto item = context->getItemController()->addItem(itemName, glm::ivec2(0, 0), owner->toString(), false);
-    item->setParticipantId(owner->getParticipantId());
+    auto& ownerActor = context->getEntityRegistry().get<Actor>(owner);
+
+    auto item = context->getItemController()->addItem(itemName, glm::ivec2(0, 0), ownerActor.toString(), false);
+    item->setParticipantId(ownerActor.getParticipantId());
 
     return item;
 }

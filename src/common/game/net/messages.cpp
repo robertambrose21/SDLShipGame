@@ -41,7 +41,8 @@ ActorStateUpdate ActorStateUpdate::serialize(ApplicationContext* context, Actor*
 
     ActorStateUpdate actorStateUpdate;
 
-    auto position = context->getActorPool()->getPosition(actor->getId());
+    auto entity = context->getActorPool()->getByExternalId(actor->getId());
+    auto const& position = context->getEntityRegistry().get<Position>(entity.value());
 
     actorStateUpdate.id = actor->getId();
     strcpy(actorStateUpdate.name, actor->getName().c_str());
@@ -65,7 +66,11 @@ ActorStateUpdate ActorStateUpdate::serialize(ApplicationContext* context, Actor*
 // TODO: Return the actor
 void ActorStateUpdate::deserialize(ApplicationContext* context, const ActorStateUpdate& update, Actor* existing) {
     game_assert(existing != nullptr);
-    context->getActorPool()->setPosition(existing->getId(), glm::ivec2(update.x, update.y));
+    
+    auto entity = context->getActorPool()->getByExternalId(existing->getId());
+    context->getEntityRegistry().replace<Position>(entity.value(), glm::ivec2(update.x, update.y));
+    context->getEntityRegistry().get_or_emplace<PositionDirty>(entity.value());
+
     existing->setCurrentHP(update.currentHP);
     existing->setParticipantId(update.participantId);
 

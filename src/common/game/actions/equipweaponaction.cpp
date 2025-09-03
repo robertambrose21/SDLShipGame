@@ -138,7 +138,7 @@ void EquipWeaponAction::onExecute(ApplicationContext* context) {
     
     if(!actor->hasWeapon(weaponId)) {
         spdlog::trace("Weapon {} doesn't exist, adding", weaponId.getString());
-        actor->addWeapon(context->getWeaponController()->createWeapon(weaponId, item->getName(), actor));
+        actor->addWeapon(context->getWeaponController()->createWeapon(weaponId, item->getName(), entity));
     }
     else {
         spdlog::trace("Actor {} already has weapon {}", actor->getId(), weaponId.getString());

@@ -195,9 +195,7 @@ void ServerGameController::compareAndEngageParticipants(Participant* participant
 
     bool canEngage = false;
     for(auto entity : participantA->getActors()) {
-        auto& actorToCheck = context->getEntityRegistry().get<Actor>(entity);
-
-        if(hasActorEngagement(&actorToCheck, participantB)) {
+        if(hasActorEngagement(entity, participantB)) {
             canEngage = true;
             break;
         }
@@ -229,11 +227,9 @@ void ServerGameController::compareAndEngageParticipants(Participant* participant
     }
 }
 
-bool ServerGameController::hasActorEngagement(Actor* target, Participant* participant) {
+bool ServerGameController::hasActorEngagement(entt::entity target, Participant* participant) {
     for(auto entity : participant->getActors()) {
-        auto& actor = context->getEntityRegistry().get<Actor>(entity);
-
-        if(context->getVisibilityController()->isVisible(&actor, target)) {
+        if(context->getVisibilityController()->isVisible(entity, target)) {
             return true;
         }
     }

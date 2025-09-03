@@ -112,14 +112,15 @@ void VisiblityController::assignVisibility(
     }
 }
 
-bool VisiblityController::isVisible(Actor* actor, Actor* target) {
-    auto const& actorPosition = context->getActorPool()->getPosition(actor->getId());
-    auto const& targetPosition = context->getActorPool()->getPosition(target->getId());
-
+bool VisiblityController::isVisible(entt::entity entity, entt::entity target) {
+    auto& actor = context->getEntityRegistry().get<Actor>(entity);
+    auto const& actorPosition = context->getEntityRegistry().get<Position>(entity);
+    auto const& targetPosition = context->getEntityRegistry().get<Position>(target);
+    
     auto distance = glm::distance(glm::vec2(actorPosition), glm::vec2(targetPosition));
 
-    bool isInRange = distance < actor->getAggroRange();
-    bool isInLOS = contains(visibleTiles[actor->getParticipantId()], targetPosition);
+    bool isInRange = distance < actor.getAggroRange();
+    bool isInLOS = contains(visibleTiles[actor.getParticipantId()], targetPosition);
     
     return isInRange && isInLOS;
 }

@@ -66,7 +66,7 @@ bool AttackAction::onValidate(ApplicationContext* context) {
         return false;
     }
 
-    auto const& weaponOwnerPosition = context->getActorPool()->getPosition(weapon->getOwner()->getId());
+    auto const& weaponOwnerPosition = context->getEntityRegistry().get<Position>(entity);
 
     if(!weapon->isInRange(target)) {
         spdlog::trace(

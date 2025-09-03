@@ -312,7 +312,9 @@ void GameClientMessagesReceiver::receiveSetActorPositionMessage(SetActorPosition
 
     auto& actor = context.getEntityRegistry().get<Actor>(entity.value());
 
-    context.getActorPool()->setPosition(message->actorId, glm::ivec2(message->x, message->y));
+    context.getEntityRegistry().replace<Position>(entity.value(), glm::ivec2(message->x, message->y));
+    context.getEntityRegistry().get_or_emplace<PositionDirty>(entity.value());
+    
     actor.setMovesLeft(message->movesLeft);
 }
 
@@ -395,7 +397,7 @@ void GameClientMessagesReceiver::receiveAddActorVisibilityMessage(AddActorVisibi
         auto weaponId = UUID::fromBytes(weaponUpdate.idBytes);
         
         if(!actor.hasWeapon(weaponId)) {
-            auto weapon = context.getWeaponController()->createWeapon(weaponId, weaponUpdate.name, &actor);
+            auto weapon = context.getWeaponController()->createWeapon(weaponId, weaponUpdate.name, entity);
             
             if(weapon->getItem() != nullptr && weaponUpdate.hasItem) {
                 weapon->getItem()->setId(weaponUpdate.itemId);

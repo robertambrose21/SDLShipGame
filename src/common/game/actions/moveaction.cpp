@@ -124,7 +124,7 @@ bool MoveAction::hasFinished(ApplicationContext* context) {
         return true;
     }
 
-    auto const& actorPosition = context->getActorPool()->getPosition(actor->getId());
+    auto const& actorPosition = context->getEntityRegistry().get<Position>(entity);
 
     return actorPosition == path[std::min(path.size() - shortStopSteps - 1, 0UL)];
 }
@@ -142,15 +142,7 @@ std::deque<glm::ivec2> MoveAction::calculatePath(
     const glm::ivec2& target, 
     int stopShortSteps
 ) {
-    // TODO: Get position instead eventually
-    auto actor = context->getEntityRegistry().try_get<Actor>(entity);
-
-    if(!actor) {
-        spdlog::trace("[{}]: Failed to calculate path, actor is null", typeToString());
-        return std::deque<glm::ivec2>();
-    }
-
-    auto const& actorPosition = context->getActorPool()->getPosition(actor->getId());
+    auto const& actorPosition = context->getEntityRegistry().get<Position>(entity);
     auto path = context->getGrid()->findPath(actorPosition, target);
 
     if(path.empty()) {

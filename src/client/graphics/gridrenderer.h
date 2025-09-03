@@ -89,7 +89,7 @@ private:
     void buildFogBorders(GraphicsContext& graphicsContext, int xMin, int xMax, int yMin, int yMax);
     void buildFogTiles(
         GraphicsContext& graphicsContext, 
-        Actor* actor, 
+        entt::entity entity, 
         int xMin, 
         int xMax, 
         int yMin, 
