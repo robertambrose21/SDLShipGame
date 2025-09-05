@@ -21,6 +21,7 @@ add_library(
     util/vectorutils.h
     util/setutils.h
     util/timing.h
+    util/hashing.h
     state/state.h
     state/statemachine.cpp
     event/event.h

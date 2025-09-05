@@ -7,6 +7,7 @@
 #include <format>
 
 #include "game/effects/effecttypes.h"
+#include "core/util/hashing.h"
 
 namespace Stats {
     enum StatCategory {
@@ -17,46 +18,159 @@ namespace Stats {
         ENTITY
     };
 
+    struct Stats { 
+        virtual std::size_t getHash(void) = 0;
+    };
+
     typedef struct _statsPair {
         std::string name;
         std::string value;
     } StatsPair;
 
     // When adding new stats, ensure they have a default value set
-    typedef struct _equipmentStats {
+    typedef struct _equipmentStats : public Stats {
         uint32_t armour = 0;
         uint32_t hp = 0;
         uint8_t speed = 0;
         uint8_t power = 0;
         uint8_t wisdom = 0;
+
+        _equipmentStats() = default;
+        _equipmentStats(
+            uint32_t armour, 
+            uint32_t hp, 
+            uint8_t speed, 
+            uint8_t power,
+            uint8_t wisdom
+        ) : 
+            armour(armour), 
+            hp(hp), 
+            speed(speed), 
+            power(power), 
+            wisdom(wisdom)
+        { }
+
+        std::size_t getHash(void) {
+            return constructHash(0, armour, hp, speed, power, wisdom);
+        }
     } EquipmentStats;
 
     typedef struct _gearStats : public EquipmentStats {
+        _gearStats() = default;
+        _gearStats(
+            uint32_t armour, 
+            uint32_t hp, 
+            uint8_t speed, 
+            uint8_t power, 
+            uint8_t wisdom
+        ) : 
+            EquipmentStats(armour, hp, speed, power, wisdom)
+        { }
     } GearStats;
 
-    typedef struct _damageStats {
+    typedef struct _damageStats : public Stats {
         uint8_t numDice = 0;
         uint8_t diceSize = 0;
         uint32_t flatDamage = 0;
         uint8_t power = 0;
+
+        _damageStats() = default;
+        _damageStats(
+            uint8_t numDice, 
+            uint8_t diceSize, 
+            uint32_t flatDamage, 
+            uint8_t power
+        ) :
+            numDice(numDice), 
+            diceSize(diceSize), 
+            flatDamage(flatDamage), 
+            power(power)
+        { }
+
+        std::size_t getHash(void) {
+            return constructHash(0, numDice, diceSize, flatDamage, power);
+        }
     } DamageStats;
 
-    typedef struct _aoeStats {
+    typedef struct _aoeStats : public Stats {
         DamageStats damage;
         float radius = 0;
         uint8_t duration = 0;
+
+        _aoeStats() = default;
+        _aoeStats(
+            const DamageStats& damage, 
+            float radius, 
+            uint8_t duration
+        ) : 
+            damage(damage), 
+            radius(radius), 
+            duration(duration)
+        { }
+
+        std::size_t getHash(void) {
+            std::size_t h = 0;
+
+            combineHashes(h, damage.getHash());
+
+            return constructHash(h, radius, duration);
+        }
     } AoEStats;
 
-    typedef struct _effectStats {
+    typedef struct _effectStats : public Stats {
         EffectType type;
         uint8_t duration = 0;
         std::vector<uint32_t> damageTicks;
+
+        _effectStats() = default;
+        _effectStats(
+            EffectType type, 
+            uint8_t duration, 
+            const std::vector<uint32_t>& damageTicks
+        ) :
+            type(type),
+            duration(duration), 
+            damageTicks(damageTicks)
+        { }
+
+        std::size_t getHash(void) {
+            std::size_t h = 0;
+
+            for (auto tick : damageTicks) {
+                combineHashes(h, std::hash<uint32_t>{}(tick));
+            }
+
+            return constructHash(h, type, duration);
+        }
     } EffectStats;
 
-    typedef struct _projectileStats {
+    typedef struct _projectileStats : public Stats {
         float speed;
         std::vector<EffectStats> effects;
         AoEStats aoe;
+
+        _projectileStats() = default;
+        _projectileStats(
+            float speed, 
+            const std::vector<EffectStats>& effects, 
+            const AoEStats& aoe
+        ) : 
+            speed(speed), 
+            effects(effects), 
+            aoe(aoe)
+        { }
+
+        std::size_t getHash(void) {
+            std::size_t h = 0;
+
+            for (auto effect : effects) {
+                combineHashes(h, effect.getHash());
+            }
+
+            combineHashes(h, aoe.getHash());
+
+            return constructHash(h, speed);
+        }
     } ProjectileStats;
 
     typedef struct _weaponStats : public EquipmentStats {
@@ -70,17 +184,79 @@ namespace Stats {
         ProjectileStats projectile;
         uint8_t uses = 0;
         uint8_t range = 0;
+
+        _weaponStats() = default;
+        _weaponStats(
+            WeaponClass weaponClass, 
+            const DamageStats& damage, 
+            const ProjectileStats& projectile,
+            uint8_t uses, 
+            uint8_t range,
+            uint32_t armour = 0, 
+            uint32_t hp = 0, 
+            uint8_t speed = 0, 
+            uint8_t power = 0, 
+            uint8_t wisdom = 0
+        ) :
+            EquipmentStats(armour, hp, speed, power, wisdom),
+            weaponClass(weaponClass), 
+            damage(damage), 
+            projectile(projectile), 
+            uses(uses), 
+            range(range)
+        { }
+
+        std::size_t getHash(void) {
+            std::size_t h = 0;
+
+            combineHashes(h, EquipmentStats::getHash());
+            combineHashes(h, damage.getHash());
+            combineHashes(h, projectile.getHash());
+
+            return constructHash(h, weaponClass, range);
+        }
     } WeaponStats;
 
     typedef struct _actorStats : public EquipmentStats {
         uint32_t totalHp = 0;
         uint8_t movesPerTurn = 0;
         uint8_t movesLeft = 0;
+
+        _actorStats() = default;
+        _actorStats(
+            uint32_t totalHp, 
+            uint8_t movesPerTurn, 
+            uint8_t movesLeft,
+            uint32_t armour = 0, 
+            uint32_t hp = 0, 
+            uint8_t speed = 0, 
+            uint8_t power = 0, 
+            uint8_t wisdom = 0
+        ) : 
+            EquipmentStats(armour, hp, speed, power, wisdom),
+            totalHp(totalHp), 
+            movesPerTurn(movesPerTurn), 
+            movesLeft(movesLeft)
+        { }
+
+
+        std::size_t getHash(void) {
+            return constructHash(EquipmentStats::getHash(), movesPerTurn, movesLeft);
+        }
     } ActorStats;
 
-    typedef struct _itemStats { 
+    typedef struct _itemStats : public Stats { 
         GearStats gear;
         WeaponStats weapon;
+
+        std::size_t getHash(void) {
+            std::size_t h = 0;
+
+            combineHashes(h, gear.getHash());
+            combineHashes(h, weapon.getHash());
+
+            return h;
+        }
     } ItemStats;
 
     static std::string getEffectLabel(const EffectStats& effectStats) {
