@@ -21,7 +21,7 @@ void ActorUpdateSystem::update(
 
     for(auto [entity, actor, position]: registry.view<Actor, Position, PositionDirty>().each()) {
         publish<ActorSetPositionEventData>({ &actor, position });
-        context.getEntityRegistry().remove<PositionDirty>(entity);
+        registry.remove<PositionDirty>(entity);
     }
 }
 
