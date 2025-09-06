@@ -118,6 +118,8 @@ void EquipGearAction::onExecute(ApplicationContext* context) {
         participant->removeItem(item);
         actor->setGear(std::make_unique<Gear>(slot, item));
     }
+
+    context->getActorController()->applyStats(entity);
 }
 
 bool EquipGearAction::hasFinished(ApplicationContext* context) {

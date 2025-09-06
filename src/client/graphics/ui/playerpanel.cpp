@@ -56,6 +56,9 @@ void PlayerPanel::onPublish(const Event<MeleeWeaponEventData>& event) {
         return;
     }
 
+    auto entity = context.getActorPool()->getByExternalId(event.data.target->getId());
+    auto targetCurrentHP = context.getEntityRegistry().get<Stats::ActorStats>(entity.value()).hp;
+
     lines.push_back({
         { getTimestampString(event.timestamp), TimestampColour },
         { getActorIdentifier(event.data.owner), HighlightColour },
@@ -66,7 +69,7 @@ void PlayerPanel::onPublish(const Event<MeleeWeaponEventData>& event) {
         { " damage! ", StdTextColour },
         { getActorIdentifier(event.data.target), HighlightColour },
         { " now has ", StdTextColour },
-        { std::to_string(event.data.target->getCurrentHP()), HighlightColour },
+        { std::to_string(targetCurrentHP), HighlightColour },
         { " HP ", StdTextColour }
     });
 }
@@ -75,6 +78,9 @@ void PlayerPanel::onPublish(const Event<ProjectileEventData>& event) {
     if(event.data.target == nullptr) {
         return;
     }
+
+    auto entity = context.getActorPool()->getByExternalId(event.data.target->getId());
+    auto targetCurrentHP = context.getEntityRegistry().get<Stats::ActorStats>(entity.value()).hp;
 
     if(event.data.damage > 0) {      
         lines.push_back({
@@ -87,7 +93,7 @@ void PlayerPanel::onPublish(const Event<ProjectileEventData>& event) {
             { " damage! ", StdTextColour },
             { getActorIdentifier(event.data.target), HighlightColour },
             { " now has ", StdTextColour },
-            { std::to_string(event.data.target->getCurrentHP()), HighlightColour },
+            { std::to_string(targetCurrentHP), HighlightColour },
             { " HP ", StdTextColour }
         });
     }
@@ -116,6 +122,9 @@ void PlayerPanel::onPublish(const Event<ProjectileEventData>& event) {
 }
 
 void PlayerPanel::onPublish(const Event<AreaOfEffectEventData>& event) {
+    auto entity = context.getActorPool()->getByExternalId(event.data.target->getId());
+    auto targetCurrentHP = context.getEntityRegistry().get<Stats::ActorStats>(entity.value()).hp;
+
     lines.push_back({
         { getTimestampString(event.timestamp), TimestampColour },
         { getActorIdentifier(event.data.target), HighlightColour },
@@ -126,7 +135,7 @@ void PlayerPanel::onPublish(const Event<AreaOfEffectEventData>& event) {
         { " damage! ", StdTextColour },
         { getActorIdentifier(event.data.target), HighlightColour },
         { " now has ", StdTextColour },
-        { std::to_string(event.data.target->getCurrentHP()), HighlightColour },
+        { std::to_string(targetCurrentHP), HighlightColour },
         { " HP ", StdTextColour }
     });
 }
@@ -195,13 +204,16 @@ void PlayerPanel::onPublish(const Event<ApplyDamageEventData>& event) {
             break;
     }
 
+    auto entity = context.getActorPool()->getByExternalId(event.data.target->getId());
+    auto targetCurrentHP = context.getEntityRegistry().get<Stats::ActorStats>(entity.value()).hp;
+
     line.push_back({ std::to_string(event.data.participantId), HighlightColour });
     line.push_back({ "] and took ", StdTextColour });
     line.push_back({ std::to_string(event.data.damage), HighlightColour });
     line.push_back({ " damage! ", StdTextColour });
     line.push_back({ getActorIdentifier(event.data.target), HighlightColour });
     line.push_back({ " now has ", StdTextColour });
-    line.push_back({ std::to_string(event.data.target->getCurrentHP()), StdTextColour });
+    line.push_back({ std::to_string(targetCurrentHP), StdTextColour });
     line.push_back({ " HP.", StdTextColour });
 
     lines.push_back(line);

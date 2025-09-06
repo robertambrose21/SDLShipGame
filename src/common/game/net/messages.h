@@ -54,8 +54,8 @@ struct ActorStateUpdate {
         memset(this, 0, sizeof(ActorStateUpdate));
     }
 
-    static ActorStateUpdate serialize(ApplicationContext* context, Actor* actor);
-    static void deserialize(ApplicationContext* context, const ActorStateUpdate& update, Actor* existing);
+    static ActorStateUpdate serialize(ApplicationContext* context, entt::entity entity);
+    static void deserialize(ApplicationContext* context, const ActorStateUpdate& update, entt::entity existing);
 };
 
 struct GameStateUpdate {
@@ -75,20 +75,7 @@ struct GameStateUpdate {
         const std::vector<Actor*>& actors,
         uint32_t chunkId,
         uint8_t numExpectedChunks = 1
-    ) {
-        GameStateUpdate update;
-        update.numActors = actors.size();
-
-        int index = 0;
-        for(auto actor : actors) {
-            update.actors[index++] = ActorStateUpdate::serialize(context, actor);
-        }
-
-        update.currentParticipantId = currentParticipantId;
-        update.numExpectedChunks = numExpectedChunks;
-
-        return update;
-    }
+    );
 };
 
 const int MaxMapBlockSize = 512;

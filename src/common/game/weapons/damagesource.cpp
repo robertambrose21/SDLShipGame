@@ -69,16 +69,14 @@ int DamageSource::getFlatDamageModifier(const std::string& value) {
     throw std::runtime_error("failed regex");
 }
 
-int DamageSource::apply(Actor* actor) {
+int DamageSource::rollActorDamage(const Stats::ActorStats& actorStats) {
     int damage = stats.flatDamage;
 
     for(int i = 0; i < stats.numDice; i++) {
         damage += randomDN(stats.diceSize);
     }
 
-    damage *= (stats.power / actor->getStats().armour);
-
-    actor->takeDamage(damage);
+    damage *= (stats.power / actorStats.armour);
 
     return damage;
 }

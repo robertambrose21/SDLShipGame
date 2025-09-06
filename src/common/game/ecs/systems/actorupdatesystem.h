@@ -26,9 +26,11 @@ private:
     void updateActor(
         ApplicationContext& context,
         entt::entity,
-        Actor& actor, 
-        Position& position, 
+        Actor& actor,
+        const Stats::ActorStats& stats,
+        const Position& position, 
         int64_t timeSinceLastFrame
     );
     void killActor(ApplicationContext& context, entt::entity, Actor& actor, Position position);
+    float getActorSpeed(const Stats::ActorStats& stats);
 };

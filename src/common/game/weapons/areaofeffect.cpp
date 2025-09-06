@@ -48,7 +48,11 @@ void AreaOfEffect::apply(void) {
 
     for(auto entity : effectedEntities) {
         auto& actor = context->getEntityRegistry().get<Actor>(entity);
-        publisher.publish<AreaOfEffectEventData>({ this, &actor, damageSource.apply(&actor) });
+        auto const& stats = context->getEntityRegistry().get<Stats::ActorStats>(entity);
+        auto damage = damageSource.rollActorDamage(stats);
+        context->getActorController()->applyDamage(entity, damage);
+
+        publisher.publish<AreaOfEffectEventData>({ this, &actor, damage });
     }
 }
 

@@ -3,6 +3,7 @@
 Application::Application(
     std::unique_ptr<Grid> grid,
     std::unique_ptr<ActorPool> actorPool,
+    std::unique_ptr<ActorController> actorController,
     std::unique_ptr<WeaponController> weaponController,
     std::unique_ptr<ProjectilePool> projectilePool,
     std::unique_ptr<AreaOfEffectPool> areaOfEffectPool,
@@ -14,6 +15,7 @@ Application::Application(
 ) :
     grid(std::move(grid)),
     actorPool(std::move(actorPool)),
+    actorController(std::move(actorController)),
     weaponController(std::move(weaponController)),
     projectilePool(std::move(projectilePool)),
     areaOfEffectPool(std::move(areaOfEffectPool)),
@@ -26,6 +28,7 @@ Application::Application(
     context = std::make_unique<ApplicationContext>(
         this->grid.get(),
         this->actorPool.get(),
+        this->actorController.get(),
         this->weaponController.get(),
         this->projectilePool.get(), 
         this->areaOfEffectPool.get(), 

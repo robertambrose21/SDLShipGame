@@ -46,6 +46,7 @@ std::vector<entt::entity> SpawnController::spawnActors(const SpawnableActors& sp
             actor.addWeapon(std::move(weapon));
         }
 
+        context->getActorController()->applyStats(entity);
         actors.push_back(entity);
     }
 

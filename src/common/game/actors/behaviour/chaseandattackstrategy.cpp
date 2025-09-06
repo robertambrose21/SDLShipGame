@@ -54,7 +54,7 @@ ChaseAndAttackStrategy::ActorTurnResult ChaseAndAttackStrategy::doTurnForActor(
 ) {
     auto& actor = getContext().getEntityRegistry().get<Actor>(entity);
 
-    if(!actor.isTurnInProgress()) {
+    if(!getContext().getActorController()->isTurnInProgress(entity)) {
         return { true, false };
     }
 

@@ -219,8 +219,6 @@ void GameClientMessagesReceiver::receiveTakeItems(TakeItemsMessage* message) {
 }
 
 void GameClientMessagesReceiver::receiveApplyDamageMessage(ApplyDamageMessage* message) {
-    auto actorPool = context.getActorPool();
-
     auto entity = context.getActorPool()->getByExternalId(message->targetId);
 
     if(!entity.has_value()) {
@@ -229,7 +227,7 @@ void GameClientMessagesReceiver::receiveApplyDamageMessage(ApplyDamageMessage* m
 
     auto& actor = context.getEntityRegistry().get<Actor>(entity.value());
 
-    actor.takeDamage(message->damage);
+    context.getActorController()->applyDamage(entity.value(), message->damage);
 
     publish<ApplyDamageEventData>({ message->fromId, &actor, (DamageType) message->source, message->damage });
 }
@@ -242,6 +240,7 @@ void GameClientMessagesReceiver::receiveApplyActorEffectMessage(ApplyActorEffect
     if(!entity.has_value()) {
         return;
     }
+    
     auto& target = context.getEntityRegistry().get<Actor>(entity.value());
 
     std::vector<uint32_t> damageTicks;
@@ -257,12 +256,12 @@ void GameClientMessagesReceiver::receiveApplyActorEffectMessage(ApplyActorEffect
     switch((EffectType) message->type) {
         case FREEZE:
             context.getEffectController()->addEffect(
-                std::make_unique<FreezeEffect>(&target, message->participantId, stats));
+                std::make_unique<FreezeEffect>(entity.value(), message->participantId, stats));
             break;
 
         case POISON:
             context.getEffectController()->addEffect(
-                std::make_unique<PoisonEffect>(&target, message->participantId, stats));
+                std::make_unique<PoisonEffect>(entity.value(), message->participantId, stats));
             break;
 
         default:
@@ -314,10 +313,8 @@ void GameClientMessagesReceiver::receiveSetActorPositionMessage(SetActorPosition
 
     context.getEntityRegistry().replace<Position>(entity.value(), glm::ivec2(message->x, message->y));
     context.getEntityRegistry().get_or_emplace<PositionDirty>(entity.value());
-    
-    actor.setMovesLeft(message->movesLeft);
+    context.getEntityRegistry().get<Stats::ActorStats>(entity.value()).movesLeft = message->movesLeft;
 }
-
 
 void GameClientMessagesReceiver::receiveRemoveActorVisibilityMessage(RemoveActorVisibilityMessage* message) {
     auto clientParticipant = playerController->getParticipant();
@@ -407,7 +404,8 @@ void GameClientMessagesReceiver::receiveAddActorVisibilityMessage(AddActorVisibi
         }
     }
 
-    ActorStateUpdate::deserialize(&context, message->actor, &actor);
+    ActorStateUpdate::deserialize(&context, message->actor, entity);
+    context.getActorController()->applyStats(entity);
 
     if(clientParticipant->hasVisibleActor(entity)) {
         std::cout << std::format("Warning: received already visible actor {}", actor.getId()) << std::endl;

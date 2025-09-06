@@ -24,6 +24,7 @@ void ClientApplication::initialise(void) {
     application = std::make_unique<Application>(
         std::make_unique<Grid>(128, 128), // TODO: This should be defined by the server
         std::make_unique<ActorPool>(),
+        std::make_unique<ActorController>(),
         std::make_unique<WeaponController>(),
         std::make_unique<ProjectilePool>(),
         std::make_unique<AreaOfEffectPool>(),
@@ -43,6 +44,7 @@ void ClientApplication::initialise(void) {
     context.getProjectilePool()->initialise(application->getContext());
     context.getWeaponController()->initialise(application->getContext());
     context.getActorPool()->initialise(application->getContext());
+    context.getActorController()->initialise(application->getContext());
     context.getItemController()->initialise(application->getContext());
     context.getSpawnController()->initialise(application->getContext());
     context.getVisibilityController()->initialise(application->getContext());

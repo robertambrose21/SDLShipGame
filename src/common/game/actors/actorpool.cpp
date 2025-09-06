@@ -119,7 +119,9 @@ bool ActorPool::applyChunkedGameStateUpdate(const ChunkedGameStateUpdate& chunke
                 }
             }
 
-            ActorStateUpdate::deserialize(context, actorUpdate, &existing);
+            context->getActorController()->applyStats(entity.value());
+
+            ActorStateUpdate::deserialize(context, actorUpdate, entity.value());
 
             if(actorUpdate.currentHP <= 0) {
                 actorsForDeletion.insert(actorUpdate.id);
@@ -245,6 +247,8 @@ entt::entity ActorPool::addActor(const std::string& name, uint32_t id) {
     );
     registry.emplace<Position>(entity, glm::ivec2(0, 0));
     registry.emplace<PositionDirty>(entity);
+    registry.emplace<Stats::ActorStats>(entity, stats);
+
     auto actor = &registry.emplace<Actor>(entity, context->getGrid(), id, *this, definition.name, stats);
 
     actorByExternalId[id] = entity;

@@ -47,26 +47,21 @@ public:
     void setSelected(bool selected);
     bool isSelected(void) const;
 
-    void engage(void);
-    void disengage(void);
     bool isEngaged(void) const;
+    void setEngaged(bool engaged);
 
-    Stats::ActorStats getStats(void) const;
+    Stats::ActorStats getBaseStats(void) const;
 
     void setGear(std::unique_ptr<Gear> gear);
     void removeGear(Equippable<Stats::GearStats>::Slot slot);
     Gear* getGear(Equippable<Stats::GearStats>::Slot slot);
 
-    void applyStats();
-
-    const float getSpeed(void);
-    int getCurrentHP(void) const;
-    void setCurrentHP(uint32_t hp);
-    void takeDamage(uint32_t amount);
     // TODO: Move me into AttackAction
     void attack(const glm::ivec2& from, const glm::ivec2& target, const UUID& weaponId, bool isAnimationOnly = false);
 
     std::vector<Weapon*> getWeapons(void) const;
+    const std::map<Equippable<Stats::GearStats>::Slot, std::unique_ptr<Gear>>& getEquippedGear(void) const;
+
     Weapon* getWeapon(const UUID& weaponId);
     bool hasWeapon(const UUID& weaponId);
     Weapon* addWeapon(std::unique_ptr<Weapon> weapon);
@@ -89,13 +84,9 @@ public:
     void incrementTimeSinceLastMoved(int64_t amount);
     int64_t getTimeSinceLastMoved(void) const;
 
-    int getMovesLeft(void) const;
-    void setMovesLeft(int movesLeft);
     int getAggroRange(void) const;
     int getDisengagementRange(void) const;
-    bool isTurnInProgress(void);
     bool hasAnimationsInProgress(void);
-    void useMoves(int numMoves);
 
     bool queueAction(
         ApplicationContext* context,
@@ -110,16 +101,14 @@ public:
     void setParticipantId(int participantId);
     int getParticipantId(void) const;
     bool hasParticipant(void) const;
-
-    void nextTurn(void);
-    void endTurn(void);
-    void reset(void);
     
     bool getIsFrozen(void) const;
     void setFrozen(bool isFrozen);
 
     bool getIsPoisoned(void) const;
     void setIsPoisoned(bool isPoisoned);
+
+    void clearAllActions(void);
 
 private: 
     uint32_t id;
@@ -134,7 +123,6 @@ private:
     int64_t timeSinceLastMoved;
 
     Stats::ActorStats baseStats;
-    Stats::ActorStats stats;
     std::map<Equippable<Stats::GearStats>::Slot, std::unique_ptr<Gear>> equippedGear;
 
     std::map<UUID, std::unique_ptr<Weapon>> weapons;
@@ -150,6 +138,4 @@ private:
 
     bool isFrozen;
     bool isPoisoned;
-
-    void clearAllActions(void);
 };

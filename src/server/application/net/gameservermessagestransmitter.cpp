@@ -192,8 +192,10 @@ void GameServerMessagesTransmitter::onPublish(const Event<ActorSetPositionEventD
         SetActorPositionMessage* message =
             (SetActorPositionMessage*) server.createMessage(clientIndex, GameMessageType::SET_ENTITY_POSITION);
 
+        auto entity = context->getActorPool()->getByExternalId(event.data.actor->getId());
+
         message->actorId = event.data.actor->getId();
-        message->movesLeft = event.data.actor->getMovesLeft();
+        message->movesLeft = context->getEntityRegistry().get<Stats::ActorStats>(entity.value()).movesLeft;
         message->x = event.data.position.x;
         message->y = event.data.position.y;
 
@@ -213,7 +215,9 @@ void GameServerMessagesTransmitter::onPublish(const Event<ActorVisibilityToParti
         AddActorVisibilityMessage* message =
             (AddActorVisibilityMessage*) server.createMessage(clientIndex, GameMessageType::ADD_ENTITY_VISIBILITY);
 
-        message->actor = ActorStateUpdate::serialize(context, event.data.actor);
+        auto entity = context->getActorPool()->getByExternalId(event.data.actor->getId());
+
+        message->actor = ActorStateUpdate::serialize(context, entity.value());
         message->visibleToParticipantId = event.data.visibleToParticipantId;
         spdlog::trace(
             "Sending AddActorVisibilityMessage for actor {} to {}", 

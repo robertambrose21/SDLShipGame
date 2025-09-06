@@ -144,6 +144,7 @@ void EquipWeaponAction::onExecute(ApplicationContext* context) {
         spdlog::trace("Actor {} already has weapon {}", actor->getId(), weaponId.getString());
     }
 
+    context->getActorController()->applyStats(entity);
     participant->removeItem(item);
 }
 

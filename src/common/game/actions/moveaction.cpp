@@ -63,12 +63,14 @@ bool MoveAction::onValidate(ApplicationContext* context) {
         return hasPath;
     }
 
-    if(actor->getMovesLeft() <= 0) {
+    auto const& stats = context->getEntityRegistry().get<Stats::ActorStats>(entity);
+
+    if(stats.movesLeft <= 0) {
         spdlog::trace(
             "[Move]: Failed to validate action, Actor[{}#{}] has (0/{}) moves left",
             actor->getName(),
             actor->getId(),
-            actor->getStats().movesPerTurn
+            stats.movesPerTurn
         );
         return false;
     }
@@ -88,8 +90,8 @@ bool MoveAction::onValidate(ApplicationContext* context) {
             "[Move]: Failed to validate action, Actor[{}#{}] has ({}/{}) moves left but not enough left in chain",
             actor->getName(),
             actor->getId(),
-            actor->getMovesLeft(),
-            actor->getStats().movesPerTurn
+            stats.movesLeft,
+            stats.movesPerTurn
         );
         return false;
     }
@@ -116,7 +118,9 @@ bool MoveAction::hasFinished(ApplicationContext* context) {
         return false;
     }
 
-    if(actor->getMovesLeft() <= 0) {
+    auto const& stats = context->getEntityRegistry().get<Stats::ActorStats>(entity);
+
+    if(stats.movesLeft <= 0) {
         return true;
     }
 
@@ -162,6 +166,8 @@ std::deque<glm::ivec2> MoveAction::calculatePath(
 }
 
 bool MoveAction::hasAvailableMoves(ApplicationContext* context, Actor* actor) {
+    auto const& stats = context->getEntityRegistry().get<Stats::ActorStats>(entity);
+
     if(participant->getEngagement() == nullptr || !turnNumber.has_value()) {
         return true;
     }
@@ -174,7 +180,7 @@ bool MoveAction::hasAvailableMoves(ApplicationContext* context, Actor* actor) {
         }
     }
 
-    return actor->getMovesLeft() >= numMoves;
+    return stats.movesLeft >= numMoves;
 }
 
 glm::ivec2 MoveAction::getPosition(void) const {

@@ -43,8 +43,9 @@ PlayerController::PlayerController(
 void PlayerController::update(int64_t timeSinceLastFrame) {
     for(auto entity : selectedActors) {
         auto actor = context.getEntityRegistry().try_get<Actor>(entity);
+        auto stats = context.getEntityRegistry().get<Stats::ActorStats>(entity);
 
-        if(actor == nullptr || actor->getCurrentHP() <= 0) {
+        if(actor == nullptr || stats.hp <= 0) {
             selectedActors.erase(
                 std::remove(selectedActors.begin(), selectedActors.end(), entity), selectedActors.end());
         }
@@ -107,7 +108,7 @@ void PlayerController::drawUI(GraphicsContext& graphicsContext) {
         bool isOpen = actorPanel->getIsOpen();
 
         if(!isOpen) {
-            context.getActorPool()->unsubscribe<ActorUpdateStatsEventData>(actorPanel.get());
+            context.getActorController()->unsubscribe<ActorUpdateStatsEventData>(actorPanel.get());
         }
 
         return !isOpen;
@@ -137,8 +138,7 @@ void PlayerController::handleKeyPress(const SDL_Event& event) {
 
             case SDLK_c: {
                 for(auto entity : selectedActors) {
-                    auto& actor = context.getEntityRegistry().get<Actor>(entity);
-                    addActorPanel(&actor);
+                    addActorPanel(entity);
                 }
                 break;
             }
@@ -500,16 +500,12 @@ const std::vector<entt::entity>& PlayerController::getSelectedActors(void) const
     return selectedActors;
 }
 
-void PlayerController::addActorPanel(Actor* actor) {
-    if(actor == nullptr) {
+void PlayerController::addActorPanel(entt::entity entity) {
+    if(actorPanels.contains(entity)) {
         return;
     }
 
-    if(actorPanels.contains(actor->getId())) {
-        return;
-    }
-
-    auto panel = std::make_unique<ActorPanel>(400, 400, actor);
+    auto panel = std::make_unique<ActorPanel>(&context, 400, 400, entity);
 
     panel->addOnUnequipCallback([&](auto item, auto slot) {
         unequipItem(item, slot);
@@ -525,9 +521,9 @@ void PlayerController::addActorPanel(Actor* actor) {
         }
     });
 
-    context.getActorPool()->subscribe<ActorUpdateStatsEventData>(panel.get());
+    context.getActorController()->subscribe<ActorUpdateStatsEventData>(panel.get());
 
-    actorPanels[actor->getId()] = std::move(panel);
+    actorPanels[entity] = std::move(panel);
 }
 
 void PlayerController::setParticipant(Participant* participant) {

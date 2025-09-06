@@ -17,6 +17,9 @@ void StdOutSubscriber::onPublish(const Event<MeleeWeaponEventData>& event) {
     if(event.data.weapon->getType() != Stats::WeaponStats::MELEE) {
         return;
     }
+
+    auto entity = context.getActorPool()->getByExternalId(event.data.target->getId());
+    auto targetCurrentHP = context.getEntityRegistry().get<Stats::ActorStats>(entity.value()).hp;
     
     spdlog::info(
         "{} was meleed by participant [{}] and took {} damage! {} now has {} HP.",
@@ -24,7 +27,7 @@ void StdOutSubscriber::onPublish(const Event<MeleeWeaponEventData>& event) {
         event.data.owner->getParticipantId(),
         event.data.damage,
         getActorIdentifier(event.data.target),
-        event.data.target->getCurrentHP()
+        targetCurrentHP
     );
 }
 
@@ -33,6 +36,9 @@ void StdOutSubscriber::onPublish(const Event<ProjectileEventData>& event) {
         return;
     }
 
+    auto entity = context.getActorPool()->getByExternalId(event.data.target->getId());
+    auto targetCurrentHP = context.getEntityRegistry().get<Stats::ActorStats>(entity.value()).hp;
+
     if(event.data.damage > 0) {      
         spdlog::info(
             "{} was hit by a projectile from participant [{}] and took {} damage! {} now has {} HP.",
@@ -40,7 +46,7 @@ void StdOutSubscriber::onPublish(const Event<ProjectileEventData>& event) {
             event.data.projectile->getOwnerId(),
             event.data.damage,
             getActorIdentifier(event.data.target),
-            event.data.target->getCurrentHP()
+            targetCurrentHP
         );
     }
 
@@ -56,13 +62,16 @@ void StdOutSubscriber::onPublish(const Event<ProjectileEventData>& event) {
 }
 
 void StdOutSubscriber::onPublish(const Event<AreaOfEffectEventData>& event) {
+    auto entity = context.getActorPool()->getByExternalId(event.data.target->getId());
+    auto targetCurrentHP = context.getEntityRegistry().get<Stats::ActorStats>(entity.value()).hp;
+
     spdlog::info(
         "{} was hit by an area of effect from participant [{}] and took {} damage! {} now has {} HP.",
         getActorIdentifier(event.data.target),
         event.data.aoe->getOwnerId(),
         event.data.damage,
         getActorIdentifier(event.data.target),
-        event.data.target->getCurrentHP()
+        targetCurrentHP
     );
 }
 
@@ -125,6 +134,9 @@ void StdOutSubscriber::onPublish(const Event<EquipItemActionEventData>& event) {
 }
 
 void StdOutSubscriber::onPublish(const Event<ApplyDamageEventData>& event) {
+    auto entity = context.getActorPool()->getByExternalId(event.data.target->getId());
+    auto targetCurrentHP = context.getEntityRegistry().get<Stats::ActorStats>(entity.value()).hp;
+
     switch(event.data.source) {
         case DamageType::AOE:
             spdlog::info(
@@ -133,7 +145,7 @@ void StdOutSubscriber::onPublish(const Event<ApplyDamageEventData>& event) {
                 event.data.participantId,
                 event.data.damage,
                 getActorIdentifier(event.data.target),
-                event.data.target->getCurrentHP()
+                targetCurrentHP
             );
             break;
 
@@ -144,7 +156,7 @@ void StdOutSubscriber::onPublish(const Event<ApplyDamageEventData>& event) {
                 event.data.participantId,
                 event.data.damage,
                 getActorIdentifier(event.data.target),
-                event.data.target->getCurrentHP()
+                targetCurrentHP
             );
             break;
 
@@ -155,7 +167,7 @@ void StdOutSubscriber::onPublish(const Event<ApplyDamageEventData>& event) {
                 event.data.participantId,
                 event.data.damage,
                 getActorIdentifier(event.data.target),
-                event.data.target->getCurrentHP()
+                targetCurrentHP
             );
             break;
         

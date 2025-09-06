@@ -11,7 +11,6 @@ Actor::Actor(
     id(id),
     publisher(publisher),
     name(name),
-    stats(std::move(stats)),
     baseStats(stats),
     grid(grid),
     currentWeapon(nullptr),
@@ -41,32 +40,16 @@ bool Actor::isSelected(void) const {
     return selected;
 }
 
-void Actor::engage(void) {
-    if(engaged) {
-        return;
-    }
-
-    engaged = true;
-    clearAllActions();
-    reset();
-}
-
-void Actor::disengage(void) {
-    if(!engaged) {
-        return;
-    }
-
-    engaged = false;
-    clearAllActions();
-    reset();
-}
-
 bool Actor::isEngaged(void) const {
     return engaged;
 }
 
-Stats::ActorStats Actor::getStats(void) const {
-    return stats;
+void Actor::setEngaged(bool engaged) {
+    this->engaged = engaged;
+}
+
+Stats::ActorStats Actor::getBaseStats(void) const {
+    return baseStats;
 }
 
 void Actor::setGear(std::unique_ptr<Gear> gear) {
@@ -77,54 +60,14 @@ void Actor::setGear(std::unique_ptr<Gear> gear) {
     }
 
     equippedGear[gear->getSlot()] = std::move(gear);
-    applyStats();
 }
 
 void Actor::removeGear(Equippable<Stats::GearStats>::Slot slot) {
     equippedGear[slot] = nullptr;
-    applyStats();
 }
 
 Gear* Actor::getGear(Equippable<Stats::GearStats>::Slot slot) {
     return equippedGear[slot].get();
-}
-
-void Actor::applyStats() {
-    uint32_t currentHp = stats.hp;
-    stats = baseStats;
-    stats.hp = currentHp;
-
-    for(auto const& [slot, gear] : equippedGear) {
-        if(gear != nullptr) {
-            gear->addTo(stats);
-        }
-    }
-
-    for(auto const& [_, weapon] : weapons) {
-        if(weapon != nullptr) {
-            weapon->addTo(stats);
-        }
-    }
-
-    publisher.publish<ActorUpdateStatsEventData>({ this });
-}
-
-const float Actor::getSpeed(void) {
-    return 2000.0f / (MOVES_PER_SECOND * stats.movesPerTurn);
-}
-
-int Actor::getCurrentHP(void) const {
-    return stats.hp;
-}
-
-void Actor::setCurrentHP(uint32_t hp) {
-    stats.hp = hp;
-    publisher.publish<ActorUpdateStatsEventData>({ this });
-}
-
-void Actor::takeDamage(uint32_t amount) {
-    stats.hp -= amount;
-    publisher.publish<ActorUpdateStatsEventData>({ this });
 }
 
 void Actor::attack(const glm::ivec2& from, const glm::ivec2& target, const UUID& weaponId, bool isAnimationOnly) {
@@ -145,6 +88,10 @@ std::vector<Weapon*> Actor::getWeapons(void) const {
     return vWeapons;
 }
 
+const std::map<Equippable<Stats::GearStats>::Slot, std::unique_ptr<Gear>>& Actor::getEquippedGear(void) const {
+    return equippedGear;
+}
+
 Weapon* Actor::getWeapon(const UUID& weaponId) {
     return weapons[weaponId].get();
 }
@@ -161,8 +108,6 @@ Weapon* Actor::addWeapon(std::unique_ptr<Weapon> weapon) {
         currentWeapon = weapons[id].get();
     }
 
-    applyStats();
-
     return weapons[id].get();
 }
 
@@ -172,12 +117,10 @@ void Actor::removeWeapon(const UUID& weaponId) {
     }
 
     weapons.erase(weaponId);
-    applyStats();
 }
 
 void Actor::removeAllWeapons(void) {
     weapons.clear();
-    applyStats();
 }
 
 void Actor::setCurrentWeapon(const UUID& weaponId) {
@@ -246,15 +189,6 @@ int64_t Actor::getTimeSinceLastMoved(void) const {
     return timeSinceLastMoved;
 }
 
-int Actor::getMovesLeft(void) const {
-    return stats.movesLeft;
-}
-
-void Actor::setMovesLeft(int movesLeft) {
-    stats.movesLeft = movesLeft;
-    publisher.publish<ActorUpdateStatsEventData>({ this });
-}
-
 int Actor::getAggroRange(void) const {
     return 10; // temp hardcoded for now
 }
@@ -263,54 +197,8 @@ int Actor::getDisengagementRange(void) const {
     return 15; // temp hardcoded for now
 }
 
-bool Actor::isTurnInProgress(void) {
-    return (getCurrentWeapon() != nullptr && !getCurrentWeapon()->hasFinished()) || getMovesLeft() > 0;
-}
-
 bool Actor::hasAnimationsInProgress(void) {
     return getCurrentWeapon() != nullptr && getCurrentWeapon()->isAnimationInProgress();
-}
-
-void Actor::useMoves(int numMoves) {
-    stats.movesLeft -= numMoves;
-    
-    if(stats.movesLeft <= 0) {
-        stats.movesLeft = 0;
-        path.clear();
-    }
-
-    publisher.publish<ActorUpdateStatsEventData>({ this });
-}
-
-void Actor::nextTurn(void) {
-    reset();
-}
-
-void Actor::reset(void) {
-    stats.movesLeft = stats.movesPerTurn;
-    path.clear();
-
-    isFrozen = false;
-    isPoisoned = false;
-
-    for(auto& [_, weapon] : weapons) {
-        if(weapon != nullptr) {
-            weapon->reset();
-        }
-    }
-
-    publisher.publish<ActorUpdateStatsEventData>({ this });
-}
-
-void Actor::endTurn(void) {
-    stats.movesLeft = 0;
-    path.clear();
-
-    for(auto& [_, weapon] : weapons) {
-        weapon->setUsesLeft(0);
-    }
-
-    publisher.publish<ActorUpdateStatsEventData>({ this });
 }
 
 void Actor::clearAllActions(void) {

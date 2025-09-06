@@ -48,7 +48,7 @@ public:
     void selectAll(void);
     void deselectAll(void);
 
-    void addActorPanel(Actor* actor);
+    void addActorPanel(entt::entity entity);
 
     PlayerPanel* getPlayerPanel(void);
 
@@ -84,7 +84,7 @@ private:
     std::unique_ptr<InventoryPanel> inventoryPanel;
     std::unique_ptr<DiagnosticsPanel> diagnosticsPanel;
     std::map<uint32_t, std::unique_ptr<ExamineItemPanel>> examineItemPanels;
-    std::map<uint32_t, std::unique_ptr<ActorPanel>> actorPanels;
+    std::map<entt::entity, std::unique_ptr<ActorPanel>> actorPanels;
 
     void move(const glm::ivec2& position);
     void attack(const glm::ivec2& target);

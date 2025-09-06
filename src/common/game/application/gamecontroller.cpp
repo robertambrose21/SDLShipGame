@@ -174,7 +174,7 @@ void GameController::reset(void) {
 
     for(auto& [participantId, participant] : participants) {
         for(auto entity : participant->getActors()) {
-            context->getEntityRegistry().get<Actor>(entity).nextTurn();
+            context->getActorController()->nextTurn(entity);
         }
     }
 }

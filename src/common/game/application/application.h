@@ -13,6 +13,7 @@
 #include "game/effects/effectcontroller.h"
 #include "game/spawn/spawncontroller.h"
 #include "visibilitycontroller.h"
+#include "game/actors/actorcontroller.h"
 
 class WeaponController;
 
@@ -20,6 +21,7 @@ class Application {
 private:
     std::unique_ptr<Grid> grid;
     std::unique_ptr<ActorPool> actorPool;
+    std::unique_ptr<ActorController> actorController;
     std::unique_ptr<WeaponController> weaponController;
     std::unique_ptr<ProjectilePool> projectilePool;
     std::unique_ptr<AreaOfEffectPool> areaOfEffectPool;
@@ -37,6 +39,7 @@ public:
     Application(
         std::unique_ptr<Grid> grid,
         std::unique_ptr<ActorPool> actorPool,
+        std::unique_ptr<ActorController> actorController,
         std::unique_ptr<WeaponController> weaponController,
         std::unique_ptr<ProjectilePool> projectilePool,
         std::unique_ptr<AreaOfEffectPool> areaOfEffectPool,

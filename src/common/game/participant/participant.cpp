@@ -71,7 +71,7 @@ void Participant::engage(Engagement* engagement) {
     this->engagement = engagement;
 
     for(auto entity : actors) {
-        context->getEntityRegistry().get<Actor>(entity).engage();
+        context->getActorController()->engage(entity);
     }
 }
 
@@ -79,7 +79,7 @@ void Participant::disengage(void) {
     engagement = nullptr;
 
     for(auto entity : actors) {
-        context->getEntityRegistry().get<Actor>(entity).disengage();
+        context->getActorController()->disengage(entity);
     }
 }
 
@@ -88,7 +88,7 @@ float Participant::getAverageActorSpeed(void) {
 
     for(auto entity : actors) {
         auto& actor = context->getEntityRegistry().get<Actor>(entity);
-        totalSpeed += actor.getSpeed();
+        totalSpeed += context->getActorController()->getSpeed(entity);
     }
 
     return totalSpeed / (float) actors.size();
@@ -96,7 +96,7 @@ float Participant::getAverageActorSpeed(void) {
 
 void Participant::endTurn(void) {
     for(auto entity : actors) {
-        context->getEntityRegistry().get<Actor>(entity).endTurn();
+        context->getActorController()->endTurn(entity);
     }
 
     passNextTurn = false;
@@ -110,11 +110,11 @@ void Participant::nextTurn(void) {
     std::set<entt::entity> actorsForDeletion;
 
     for(auto entity : actors) {
-        auto& actor = context->getEntityRegistry().get<Actor>(entity);
+        auto const& stats = context->getEntityRegistry().get<Stats::ActorStats>(entity);
 
-        actor.nextTurn();
+        context->getActorController()->nextTurn(entity);
 
-        if(actor.getCurrentHP() <= 0) {
+        if(stats.hp <= 0) {
             actorsForDeletion.insert(entity);
         }
     }
@@ -166,7 +166,7 @@ void Participant::addActor(entt::entity entity) {
     actor.setParticipantId(id);
 
     if(hasAnyEngagement()) {
-        actor.engage();
+        context->getActorController()->engage(entity);
     }
     
     actors.push_back(entity);

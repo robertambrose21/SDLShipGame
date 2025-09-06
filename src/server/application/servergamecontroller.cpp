@@ -87,8 +87,9 @@ bool ServerGameController::canProgressToNextTurn(Engagement* engagement) {
     bool haveActorsActionsFinished = true;
     for(auto entity : participant->getActors()) {
         auto& actor = context->getEntityRegistry().get<Actor>(entity);
+        auto isTurnInProgress = context->getActorController()->isTurnInProgress(entity);
 
-        haveActorsTurnsFinished = haveActorsTurnsFinished && !actor.isTurnInProgress();
+        haveActorsTurnsFinished = haveActorsTurnsFinished && !isTurnInProgress;
         haveActorsActionsFinished = haveActorsActionsFinished && !actor.hasAnimationsInProgress() 
             && actor.getActionsChain(turnNumber).empty();
     }

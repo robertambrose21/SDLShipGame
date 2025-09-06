@@ -11,7 +11,8 @@ add_library(
     effects/grideffect.cpp
     effects/effectcontroller.cpp
     actors/actor.cpp 
-    actors/actorpool.cpp 
+    actors/actorpool.cpp
+    actors/actorcontroller.cpp
     actors/behaviour/behaviourstrategy.cpp
     actors/behaviour/chaseandattackstrategy.cpp
     items/item.cpp

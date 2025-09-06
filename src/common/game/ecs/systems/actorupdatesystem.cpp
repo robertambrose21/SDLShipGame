@@ -10,13 +10,13 @@ void ActorUpdateSystem::update(
     int64_t timeSinceLastFrame, 
     bool& quit
 ) {
-    for(auto [entity, actor, position]: registry.view<Actor, Position>().each()) {
-        if(actor.getCurrentHP() <= 0) {
+    for(auto [entity, actor, stats, position]: registry.view<Actor, Stats::ActorStats, Position>().each()) {
+        if(stats.hp <= 0) {
             killActor(context, entity, actor, position);
             continue;
         }
 
-        updateActor(context, entity, actor, position, timeSinceLastFrame);
+        updateActor(context, entity, actor, stats, position, timeSinceLastFrame);
     }
 
     for(auto [entity, actor, position]: registry.view<Actor, Position, PositionDirty>().each()) {
@@ -29,7 +29,8 @@ void ActorUpdateSystem::updateActor(
     ApplicationContext& context,
     entt::entity entity,
     Actor& actor, 
-    Position& position, 
+    const Stats::ActorStats& stats,
+    const Position& position, 
     int64_t timeSinceLastFrame
 ) {
     for(auto weapon : actor.getWeapons()) {
@@ -40,7 +41,7 @@ void ActorUpdateSystem::updateActor(
         return;
     }
     
-    if(actor.isEngaged() && actor.getMovesLeft() == 0) {
+    if(actor.isEngaged() && stats.movesLeft == 0) {
         return;
     }
 
@@ -50,15 +51,15 @@ void ActorUpdateSystem::updateActor(
 
     actor.incrementTimeSinceLastMoved(timeSinceLastFrame);
 
-    if(actor.getTimeSinceLastMoved() > actor.getSpeed()) {
-        auto position = actor.popPath();
+    if(actor.getTimeSinceLastMoved() > context.getActorController()->getSpeed(entity)) {
+        auto newPosition = actor.popPath();
         actor.setTimeSinceLastMoved(0);
 
         if(actor.isEngaged()) {
-            actor.useMoves(1);
+            context.getActorController()->useMoves(entity, 1);
         }
 
-        context.getEntityRegistry().replace<Position>(entity, position);
+        context.getEntityRegistry().replace<Position>(entity, newPosition);
         context.getEntityRegistry().get_or_emplace<PositionDirty>(entity);
     }
 }

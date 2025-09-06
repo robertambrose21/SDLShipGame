@@ -30,14 +30,14 @@ void EffectController::updateEngagementEffects(int64_t timeSinceLastFrame) {
     });
 
     for(auto& [engagementId, effects]: engagementEffects) {
-        std::erase_if(effects, [](const auto& effect) {
+        std::erase_if(effects, [&](const auto& effect) {
             bool isComplete = effect->getTicksLeft() <= 0;
             if(isComplete) {
                 spdlog::trace(
                     "Effect for participant {} complete - removing", 
                     effect->getOwnerId()
                 );
-                effect->onEffectEnd();
+                effect->onEffectEnd(context);
             }
             return isComplete;
         });
@@ -67,14 +67,14 @@ void EffectController::updateEngagementEffects(int64_t timeSinceLastFrame) {
 }
 
 void EffectController::updateAdhocEffects(int64_t timeSinceLastFrame) {    
-    std::erase_if(adhocEffects, [](const auto& effect) {
+    std::erase_if(adhocEffects, [&](const auto& effect) {
         bool isComplete = effect->getTicksLeft() <= 0;
         if(isComplete) {
             spdlog::trace(
                 "Effect for participant {} complete - removing", 
                 effect->getOwnerId()
             );
-            effect->onEffectEnd();
+            effect->onEffectEnd(context);
         }
         return isComplete;
     });
@@ -93,7 +93,7 @@ void EffectController::updateAdhocEffects(int64_t timeSinceLastFrame) {
 
     for(auto& effect : adhocEffects) {
         if(effect->getTimeSinceLastTick() >= Effect::RealTimeTick) {
-            effect->apply();
+            effect->apply(context);
             effect->nextTurn();
         }
 
@@ -111,9 +111,7 @@ void EffectController::updateAdhocEffects(int64_t timeSinceLastFrame) {
 }
 
 Effect* EffectController::addEffect(std::unique_ptr<Effect> effect) {
-    auto actorId = effect->getTarget()->getId();
     auto effectPtr = effect.get();
-
     auto participant = context->getGameController()->getParticipant(effect->getOwnerId());
 
     if(participant->hasAnyEngagement()) {
@@ -126,7 +124,7 @@ Effect* EffectController::addEffect(std::unique_ptr<Effect> effect) {
                         continue;
                     }
 
-                    effect->apply();
+                    effect->apply(context);
                     effect->nextTurn();
                 }
             });
@@ -139,11 +137,13 @@ Effect* EffectController::addEffect(std::unique_ptr<Effect> effect) {
         adhocEffects.push_back(std::move(effect));
     }
 
-    effectPtr->apply();
+    effectPtr->apply(context);
+
+    auto& actor = context->getEntityRegistry().get<Actor>(effectPtr->getTarget());
 
     publish<ActorEffectEvent>({ 
         effectPtr->getType(), 
-        effectPtr->getTarget(), 
+        &actor, 
         effectPtr->getOwnerId(),
         effectPtr->getStats()
     });

@@ -66,17 +66,20 @@ void Projectile::apply(const glm::ivec2& position) {
 
     if(!entities.empty()) {
         for(auto entity : entities) {
-            auto& actor = context->getEntityRegistry().get<Actor>(entity);
-            int damage = damageSource.apply(&actor);
+            auto& actor = context->getEntityRegistry().get<Actor>(entity); // TODO: Remove me
+            auto const& actorStats = context->getEntityRegistry().get<Stats::ActorStats>(entity);
+            int damage = damageSource.rollActorDamage(actorStats);
+
+            context->getActorController()->applyDamage(entity, damage);
 
             for (auto& effect : stats.effects) {
                 switch(effect.type) {
                 case FREEZE:
-                    context->getEffectController()->addEffect(std::make_unique<FreezeEffect>(&actor, ownerId, effect));
+                    context->getEffectController()->addEffect(std::make_unique<FreezeEffect>(entity, ownerId, effect));
                     break;
 
                 case POISON: {
-                    context->getEffectController()->addEffect(std::make_unique<PoisonEffect>(&actor, ownerId, effect));
+                    context->getEffectController()->addEffect(std::make_unique<PoisonEffect>(entity, ownerId, effect));
                     break;
                 }
 

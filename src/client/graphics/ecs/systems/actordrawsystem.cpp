@@ -7,7 +7,7 @@ ActorDrawSystem::ActorDrawSystem(const std::string& name) :
 void ActorDrawSystem::draw(entt::registry& registry, GraphicsContext& graphicsContext) {
     auto& gridRenderer = graphicsContext.getGridRenderer();
 
-    for(auto [_, drawable, actor, position]: registry.view<Drawable, Actor, Position>().each()) {
+    for(auto [_, drawable, actor, stats, position]: registry.view<Drawable, Actor, Stats::ActorStats, Position>().each()) {
         gridRenderer.draw(
             graphicsContext,
             drawable.textureId,
@@ -32,7 +32,7 @@ void ActorDrawSystem::draw(entt::registry& registry, GraphicsContext& graphicsCo
             SDL_RenderFillRect(graphicsContext.getRenderer(), &frozen);
         }
 
-        drawHealthBar(graphicsContext, position, actor.getStats().totalHp, actor.getCurrentHP());
+        drawHealthBar(graphicsContext, position, stats.totalHp, stats.hp);
     }
 }
 

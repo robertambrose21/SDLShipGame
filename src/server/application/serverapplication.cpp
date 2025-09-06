@@ -23,6 +23,7 @@ void ServerApplication::initialise(void) {
     application = std::make_unique<Application>(
         std::make_unique<Grid>(128, 128),
         std::make_unique<ActorPool>(),
+        std::make_unique<ActorController>(),
         std::make_unique<WeaponController>(),
         std::make_unique<ProjectilePool>(),
         std::make_unique<AreaOfEffectPool>(),
@@ -42,6 +43,7 @@ void ServerApplication::initialise(void) {
     context.getProjectilePool()->initialise(application->getContext());
     context.getWeaponController()->initialise(application->getContext());
     context.getActorPool()->initialise(application->getContext());
+    context.getActorController()->initialise(application->getContext());
     context.getItemController()->initialise(application->getContext());
     context.getSpawnController()->initialise(application->getContext());
     context.getVisibilityController()->initialise(application->getContext());
@@ -244,8 +246,9 @@ void ServerApplication::sendGameStateUpdatesToParticipant(int clientIndex) {
 
     for(auto entity : visibleActors) {
         auto& actor = application->getContext().getEntityRegistry().get<Actor>(entity);
+        auto const& stats = application->getContext().getEntityRegistry().get<Stats::ActorStats>(entity);
 
-        if(actor.getStats().hp <= 0) {
+        if(stats.hp <= 0) {
             std::cout << "Actor with 0 hp, should not happen" << std::endl;
         }
 

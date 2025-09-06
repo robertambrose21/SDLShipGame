@@ -3,6 +3,7 @@
 ApplicationContext::ApplicationContext(
     Grid* grid,
     ActorPool* actorPool,
+    ActorController* actorController,
     WeaponController* weaponController,
     ProjectilePool* projectilePool,
     AreaOfEffectPool* areaOfEffectPool,
@@ -14,6 +15,7 @@ ApplicationContext::ApplicationContext(
 ) :
     grid(grid),
     actorPool(actorPool),
+    actorController(actorController),
     weaponController(weaponController),
     projectilePool(projectilePool),
     areaOfEffectPool(areaOfEffectPool),
@@ -21,12 +23,15 @@ ApplicationContext::ApplicationContext(
     itemController(itemController),
     effectController(effectController),
     spawnController(spawnController),
-    visiblityController(visiblityController),
-    logicSystemRegistry(std::make_unique<LogicSystemRegistry>(registry))
+    visiblityController(visiblityController)
 { }
 
 ActorPool* ApplicationContext::getActorPool(void) {
     return actorPool;
+}
+
+ActorController* ApplicationContext::getActorController(void) {
+    return actorController;
 }
 
 WeaponController* ApplicationContext::getWeaponController(void) {
@@ -78,11 +83,3 @@ ServerMessagesTransmitter* ApplicationContext::getServerMessagesTransmitter(void
 entt::registry& ApplicationContext::getEntityRegistry(void) {
     return registry;
 }
-
-LogicSystemRegistry* ApplicationContext::getLogicSystemRegistry(void) {
-    return logicSystemRegistry.get();
-}
-
-// DrawSystemRegistry* ApplicationContext::getDrawSystemRegistry(void) {
-//     return drawSystemRegistry.get();
-// }
