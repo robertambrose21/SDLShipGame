@@ -2,7 +2,6 @@
 #include "game/application/application.h"
 
 Actor::Actor(
-    Grid* grid,
     uint32_t id,
     const std::string& name,
     const Stats::ActorStats& stats
@@ -10,7 +9,6 @@ Actor::Actor(
     id(id),
     name(name),
     baseStats(stats),
-    grid(grid),
     currentWeapon(nullptr),
     timeSinceLastMoved(0),
     selected(false),
@@ -22,11 +20,10 @@ Actor::Actor(
 { }
 
 Actor::Actor(
-    Grid* grid,
     const std::string& name,
     const Stats::ActorStats& stats
 ) : 
-    Actor(grid, getNewId(), name, stats)
+    Actor(getNewId(), name, stats)
 { }
 
 void Actor::setSelected(bool selected) {

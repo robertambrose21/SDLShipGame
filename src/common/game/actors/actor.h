@@ -8,7 +8,6 @@
 #include "game/weapons/weapon.h"
 #include "core/util/gameassert.h"
 #include "core/event/eventpublisher.h"
-#include "core/grid/grid.h"
 #include "game/application/applicationcontext.h"
 #include "game/effects/effect.h"
 #include "game/stats/stats.h"
@@ -30,14 +29,12 @@ public:
     Actor& operator=(Actor&&) = default; 
 
     Actor(
-        Grid* grid,
         uint32_t id,
         const std::string& name,
         const Stats::ActorStats& stats
     );
 
     Actor(
-        Grid* grid,
         const std::string& name,
         const Stats::ActorStats& stats
     );
@@ -113,8 +110,6 @@ private:
 
     bool selected;
     bool engaged;
-
-    Grid* grid;
 
     std::deque<glm::ivec2> path;
     int64_t timeSinceLastMoved;
