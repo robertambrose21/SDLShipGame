@@ -11,7 +11,7 @@
 #include "game/participant/participant.h"
 #include "game/engagements/engagement.h"
 #include "game/actors/actor.h"
-#include "game/ecs/components/drawable.h"
+#include "game/ecs/components/common.h"
 
 using ActionVariant = std::variant<
     MoveActionEventData,

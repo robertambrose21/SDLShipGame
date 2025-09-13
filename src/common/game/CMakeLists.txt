@@ -51,7 +51,7 @@ add_library(
     net/gamemessagelogger.cpp
     participant/participant.cpp
     data/tiles.h
-    ecs/components/drawable.h
+    ecs/components/common.h
     ecs/logicsystemregistry.cpp
     ecs/drawsystemregistry.cpp
     ecs/systems/actorupdatesystem.cpp

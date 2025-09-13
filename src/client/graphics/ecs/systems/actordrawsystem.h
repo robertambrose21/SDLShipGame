@@ -1,6 +1,6 @@
 #pragma once
 
-#include "game/ecs/components/drawable.h"
+#include "game/ecs/components/common.h"
 #include "game/ecs/drawsystemregistry.h"
 
 class ActorDrawSystem : public DrawSystem {

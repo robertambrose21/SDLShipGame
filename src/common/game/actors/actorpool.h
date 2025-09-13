@@ -16,7 +16,7 @@
 #include "game/net/messages.h"
 #include "game/application/applicationcontext.h"
 #include "game/items/loottable.h"
-#include "game/ecs/components/drawable.h"
+#include "game/ecs/components/common.h"
 
 using json = nlohmann::json;
 

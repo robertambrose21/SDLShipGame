@@ -1,4 +1,3 @@
-// TODO: Change me to "components.h"
 #pragma once
 
 #include <cstdint>

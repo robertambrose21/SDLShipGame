@@ -10,7 +10,7 @@
 #include "game/effects/effecttypes.h"
 #include "game/stats/stats.h"
 #include "game/data/tiles.h"
-#include "game/ecs/components/drawable.h"
+#include "game/ecs/components/common.h"
 
 class Actor;
 class Item;

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "game/event/events.h"
 #include "game/application/applicationcontext.h"
 
 class ActorController : public EventPublisher<ActorUpdateStatsEventData> {
