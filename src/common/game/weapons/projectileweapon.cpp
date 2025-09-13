@@ -47,7 +47,7 @@ bool ProjectileWeapon::onUse(const glm::ivec2& position, const glm::ivec2& targe
             damageSource,
             isAnimationOnly
         ), 
-        &ownerActor
+        owner
     );
 
     return true;
@@ -83,8 +83,7 @@ Projectile::Blueprint ProjectileWeapon::getProjectileBluePrint(void) const {
 }
 
 bool ProjectileWeapon::isAnimationInProgress(void) {
-    auto& ownerActor = context->getEntityRegistry().get<Actor>(owner);
-    return context->getProjectilePool()->getNumProjectilesForOwner(&ownerActor) > 0;
+    return context->getProjectilePool()->getNumProjectilesForOwner(owner) > 0;
 }
 
 Stats::WeaponStats::WeaponClass ProjectileWeapon::getType(void) const {

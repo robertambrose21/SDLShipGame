@@ -14,6 +14,19 @@
 using json = nlohmann::json;
 
 class ProjectilePool : public EventPublisher<ProjectileEventData> {
+public:
+    ProjectilePool();
+
+    void initialise(ApplicationContext& context);
+    void add(std::unique_ptr<Projectile> projectile, entt::entity owner);
+    Projectile::Blueprint create(const std::string& name);
+
+    void update(int64_t timeSinceLastFrame);
+
+    std::vector<Projectile*> getProjectilesForOwner(entt::entity owner);
+    std::vector<Projectile*> getAllProjectiles(void);
+    int getNumProjectilesForOwner(entt::entity owner);
+    
 private:
     typedef struct _effectDefinition {
         EffectType type;
@@ -33,8 +46,8 @@ private:
 
     std::map<std::string, ProjectileDefinition> projectileDefinitions;
 
-    std::map<Actor*, std::vector<std::unique_ptr<Projectile>>> projectiles;
-    std::map<Actor*, std::vector<int>> projectilesForDeletion;
+    std::map<entt::entity, std::vector<std::unique_ptr<Projectile>>> projectiles;
+    std::map<entt::entity, std::vector<int>> projectilesForDeletion;
 
     ApplicationContext* context;
     bool initialised;
@@ -42,17 +55,4 @@ private:
     void loadProjectileDefinitions(void);
     std::function<void(int, const glm::ivec2&, bool)> buildOnHitCallback(const ProjectileDefinition& definition);
     std::vector<Stats::EffectStats> buildEffectStats(const ProjectileDefinition& definition);
-
-public:
-    ProjectilePool();
-
-    void initialise(ApplicationContext& context);
-    void add(std::unique_ptr<Projectile> projectile, Actor* owner);
-    Projectile::Blueprint create(const std::string& name);
-
-    void update(int64_t timeSinceLastFrame);
-
-    std::vector<Projectile*> getProjectilesForOwner(Actor* owner);
-    std::vector<Projectile*> getAllProjectiles(void);
-    int getNumProjectilesForOwner(Actor* owner);
 };
