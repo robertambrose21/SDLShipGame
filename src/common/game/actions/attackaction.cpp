@@ -80,14 +80,14 @@ bool AttackAction::onValidate(ApplicationContext* context) {
         return false;
     }
 
-    if(weapon->getUsesLeft() == 0 || weapon->getUsesLeft() < numAttacksInChain(actor)) {
+    if(weapon->getUsesLeft() == 0 || weapon->getUsesLeft() < numAttacksInChain(context)) {
         spdlog::trace(
             "[Attack]: Failed to validate action, not enough uses Weapon[{}#{}] ({}/{}), chain: {}",
             weapon->getName(),
             weapon->getId().getString(),
             weapon->getUsesLeft(),
             weapon->getStats().uses,
-            numAttacksInChain(actor)
+            numAttacksInChain(context)
         );
         return false;
     }
@@ -113,19 +113,25 @@ bool AttackAction::hasFinished(ApplicationContext* context) {
     return !weapon->isAnimationInProgress();
 }
 
-int AttackAction::numAttacksInChain(Actor* actor) {
+int AttackAction::numAttacksInChain(ApplicationContext* context) {
     if(participant->getEngagement() == nullptr || !turnNumber.has_value()) {
         return weapon->getUsesLeft();
     }
 
+    auto& chain = context->getEntityRegistry().get<ActionChain>(entity).chain;
+
+    if(!chain.contains(turnNumber.value())) {
+        return true;
+    }
+
     int numAttacks = 0;
 
-    for(auto& action : actor->getActionsChain(turnNumber.value())) {
+    for(auto& action : chain.at(turnNumber.value())) {
         if(action->getType() != Action::Type::Attack) {
             continue;
         }
 
-        auto previousWeapon = dynamic_cast<AttackAction*>(action)->getWeapon();
+        auto previousWeapon = dynamic_cast<AttackAction*>(action.get())->getWeapon();
 
         if(weapon->getName() == previousWeapon->getName()) {
             numAttacks++;

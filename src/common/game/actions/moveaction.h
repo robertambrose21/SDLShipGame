@@ -42,5 +42,5 @@ private:
 
     std::deque<glm::ivec2> getPath(ApplicationContext* context, bool recalculate = false);
     std::deque<glm::ivec2> calculatePath(ApplicationContext* context, const glm::ivec2& target, int stopShortSteps = 0);
-    bool hasAvailableMoves(ApplicationContext* context, Actor* actor);
+    bool hasAvailableMoves(ApplicationContext* context);
 };

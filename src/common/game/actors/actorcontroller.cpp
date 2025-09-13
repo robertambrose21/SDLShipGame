@@ -100,26 +100,28 @@ void ActorController::reset(entt::entity entity) {
 
 void ActorController::engage(entt::entity entity) {
     auto& actor = context->getEntityRegistry().get<Actor>(entity);
+    auto& chain = context->getEntityRegistry().get<ActionChain>(entity).chain;
 
     if(actor.isEngaged()) {
         return;
     }
 
     actor.setEngaged(true);
-    actor.clearAllActions();
+    chain.clear();
 
     reset(entity);
 }
 
 void ActorController::disengage(entt::entity entity) {
     auto& actor = context->getEntityRegistry().get<Actor>(entity);
+    auto& chain = context->getEntityRegistry().get<ActionChain>(entity).chain;
 
     if(!actor.isEngaged()) {
         return;
     }
 
     actor.setEngaged(false);
-    actor.clearAllActions();
+    chain.clear();
 
     reset(entity);
 }

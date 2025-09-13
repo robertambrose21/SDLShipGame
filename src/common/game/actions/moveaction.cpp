@@ -85,7 +85,7 @@ bool MoveAction::onValidate(ApplicationContext* context) {
     }
 
 
-    if(!hasAvailableMoves(context, actor)) {
+    if(!hasAvailableMoves(context)) {
         spdlog::trace(
             "[Move]: Failed to validate action, Actor[{}#{}] has ({}/{}) moves left but not enough left in chain",
             actor->getName(),
@@ -165,18 +165,24 @@ std::deque<glm::ivec2> MoveAction::calculatePath(
     return path;
 }
 
-bool MoveAction::hasAvailableMoves(ApplicationContext* context, Actor* actor) {
+bool MoveAction::hasAvailableMoves(ApplicationContext* context) {
     auto const& stats = context->getEntityRegistry().get<Stats::ActorStats>(entity);
 
     if(participant->getEngagement() == nullptr || !turnNumber.has_value()) {
         return true;
     }
 
+    auto& chain = context->getEntityRegistry().get<ActionChain>(entity).chain;
+
+    if(!chain.contains(turnNumber.value())) {
+        return true;
+    }
+
     int numMoves = 0;
  
-    for(auto& action : actor->getActionsChain(turnNumber.value())) {
+    for(auto& action : chain.at(turnNumber.value())) {
         if(action->getType() == Action::Type::Move) {
-            numMoves += dynamic_cast<MoveAction*>(action)->getPath(context).size();
+            numMoves += dynamic_cast<MoveAction*>(action.get())->getPath(context).size();
         }
     }
 

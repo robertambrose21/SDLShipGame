@@ -83,16 +83,6 @@ public:
     int getDisengagementRange(void) const;
     bool hasAnimationsInProgress(void);
 
-    bool queueAction(
-        ApplicationContext* context,
-        std::unique_ptr<Action> action, 
-        std::function<void(Action&)> onSuccessfulQueue, 
-        bool skipValidation = false
-    );
-    std::deque<Action*>& getActionsChain(int turnNumber);
-    void recalculateActionsChain();
-    void popAction(int currentTurnNumber);
-
     void setParticipantId(int participantId);
     int getParticipantId(void) const;
     bool hasParticipant(void) const;
@@ -102,8 +92,6 @@ public:
 
     bool getIsPoisoned(void) const;
     void setIsPoisoned(bool isPoisoned);
-
-    void clearAllActions(void);
 
 private: 
     uint32_t id;
@@ -119,10 +107,6 @@ private:
 
     std::map<UUID, std::unique_ptr<Weapon>> weapons;
     Weapon* currentWeapon;
-
-    std::map<int, std::deque<std::unique_ptr<Action>>> actionsChain;
-    std::map<int, std::deque<Action*>> externalActionsChain;
-    bool externalActionsChainNeedsRecalculating;
 
     std::string name;
 

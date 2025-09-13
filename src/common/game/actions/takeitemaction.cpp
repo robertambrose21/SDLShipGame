@@ -29,17 +29,16 @@ bool TakeItemAction::onValidate(ApplicationContext* context) {
         return true;
     }
 
-    auto actor = context->getEntityRegistry().try_get<Actor>(entity);
+    auto& chain = context->getEntityRegistry().get<ActionChain>(entity).chain;
 
-    if(!actor) {
-        spdlog::trace("[{}]: Failed to validate action, actor is null", typeToString());
-        return false;
+    if(!chain.contains(turnNumber.value())) {
+        return true;
     }
 
-    for(auto action : actor->getActionsChain(turnNumber.value())) {
+    for(auto& action : chain.at(turnNumber.value())) {
         if(
             action->getType() == Action::Type::TakeItem && 
-            containsAny(items, dynamic_cast<TakeItemAction*>(action)->getItems())
+            containsAny(items, dynamic_cast<TakeItemAction*>(action.get())->getItems())
         ) {
             spdlog::trace(
                 "[{}, TakeItem]: Failed to validate action, there are already actions on the chain to take these items [{}]",

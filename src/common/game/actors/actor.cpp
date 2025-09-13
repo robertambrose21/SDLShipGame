@@ -15,7 +15,6 @@ Actor::Actor(
     engaged(false),
     isFrozen(false),
     isPoisoned(false),
-    externalActionsChainNeedsRecalculating(true),
     participantId(-1)
 { }
 
@@ -192,59 +191,6 @@ int Actor::getDisengagementRange(void) const {
 
 bool Actor::hasAnimationsInProgress(void) {
     return getCurrentWeapon() != nullptr && getCurrentWeapon()->isAnimationInProgress();
-}
-
-void Actor::clearAllActions(void) {
-    actionsChain.clear();
-    externalActionsChain.clear();
-}
-
-bool Actor::queueAction(
-    ApplicationContext* context,
-    std::unique_ptr<Action> action,
-    std::function<void(Action&)> onSuccessfulQueue,
-    bool skipValidation
-) {
-    if(!action->getTurnNumber().has_value()) {
-        spdlog::error("[{}], Trying to queue with no turn number, dropping action", action->typeToString());
-        return false;
-    }
-
-    if(!skipValidation && !action->validate(context)) {
-        return false;
-    }
-
-    onSuccessfulQueue(*action);
-
-    actionsChain[action->getTurnNumber().value()].push_back(std::move(action));
-    externalActionsChainNeedsRecalculating = true;
-
-    return true;
-}
-
-std::deque<Action*>& Actor::getActionsChain(int turnNumber) {
-    if(externalActionsChainNeedsRecalculating) {
-        recalculateActionsChain();
-    }
-
-    return externalActionsChain[turnNumber];
-}
-
-void Actor::recalculateActionsChain() {
-    externalActionsChain.clear();
-
-    for (auto& [turnNumber, actionChain] : actionsChain) {
-        for (auto& action : actionChain) {
-            externalActionsChain[turnNumber].push_back(action.get());
-        }
-    }
-
-    externalActionsChainNeedsRecalculating = false;
-}
-
-void Actor::popAction(int currentTurnNumber) {
-    actionsChain[currentTurnNumber].pop_front();
-    externalActionsChainNeedsRecalculating = true;
 }
 
 void Actor::setParticipantId(int participantId) {

@@ -248,6 +248,7 @@ entt::entity ActorPool::addActor(const std::string& name, uint32_t id) {
     registry.emplace<Position>(entity, glm::ivec2(0, 0));
     registry.emplace<PositionDirty>(entity);
     registry.emplace<Stats::ActorStats>(entity, stats);
+    registry.emplace<ActionChain>(entity);
 
     auto actor = &registry.emplace<Actor>(entity, id, definition.name, stats);
 

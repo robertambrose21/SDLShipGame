@@ -38,5 +38,5 @@ private:
     void onExecute(ApplicationContext* context);
     bool hasFinished(ApplicationContext* context);
 
-    int numAttacksInChain(Actor* actor);
+    int numAttacksInChain(ApplicationContext* context);
 };

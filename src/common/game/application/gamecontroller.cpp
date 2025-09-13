@@ -75,15 +75,17 @@ void GameController::executeActions(uint32_t engagementId) {
 
 void GameController::executeActorActions(Engagement* engagement, entt::entity entity) {
     auto& actor = context->getEntityRegistry().get<Actor>(entity);
+    auto& chain = context->getEntityRegistry().get<ActionChain>(entity).chain;
 
-    bool moreActionsToProcess = !actor.getActionsChain(engagement->getTurnNumber()).empty();
+    auto turnNumber = engagement->getTurnNumber();
+    bool moreActionsToProcess = chain.contains(turnNumber) && !chain.at(turnNumber).empty();
 
     while(moreActionsToProcess) {
-        auto action = actor.getActionsChain(engagement->getTurnNumber()).front();
+        auto& action = chain.at(turnNumber).front();
 
         if(action->isFinished(context)) {
-            actor.popAction(engagement->getTurnNumber());
-            moreActionsToProcess = !actor.getActionsChain(engagement->getTurnNumber()).empty();
+            chain.at(turnNumber).pop_front();
+            moreActionsToProcess = !chain.at(turnNumber).empty();
         }
         // TODO: If precondition fails - just drop?
         else if(action->passesPrecondition() && !action->isExecuted()) {
@@ -241,19 +243,16 @@ bool GameController::queueAction(std::unique_ptr<Action> action) {
         );
     }
 
-    auto actor = context->getEntityRegistry().try_get<Actor>(action->getEntity());
-
-    if(!actor) {
-        spdlog::trace("[{}]: Failed to queue action, actor is null", action->typeToString());
+    if(!skipValidation && !action->validate(context)) {
         return false;
     }
 
-    return actor->queueAction(
-        context,
-        std::move(action),
-        [&](auto& action) { publishAction(&action); },
-        skipValidation
-    );
+    publishAction(action.get());
+
+    auto& chain = context->getEntityRegistry().get<ActionChain>(action->getEntity()).chain;
+    chain[action->getTurnNumber().value()].push_back(std::move(action));
+
+    return true;
 }
 
 void GameController::setOnAllParticipantsSetFunction(std::function<void()> onAllParticipantsSet) {
