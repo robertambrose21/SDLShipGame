@@ -105,11 +105,13 @@ void GameServerMessagesTransmitter::onPublish(const Event<TakeItemActionEventDat
 }
 
 void GameServerMessagesTransmitter::onPublish(const Event<AreaOfEffectEventData>& event) {
+    auto targetId = context->getEntityRegistry().get<Actor>(event.data.target).getId();
+
     for(auto [participantId, clientIndex] : gameController->getAllAttachedClients()) {
         ApplyDamageMessage* message = (ApplyDamageMessage*) server.createMessage(clientIndex, GameMessageType::APPLY_DAMAGE);
 
         message->fromId = event.data.aoe->getOwnerId();
-        message->targetId = event.data.target->getId();
+        message->targetId = targetId;
         message->source = (uint8_t) DamageType::AOE;
         message->damage = event.data.damage;
 
@@ -119,15 +121,17 @@ void GameServerMessagesTransmitter::onPublish(const Event<AreaOfEffectEventData>
 
 void GameServerMessagesTransmitter::onPublish(const Event<ProjectileEventData>& event) {
     // TODO: Handle status effects
-    if(event.data.target == nullptr) {
+    if(!event.data.target.has_value()) {
         return;
     }
+
+    auto targetId = context->getEntityRegistry().get<Actor>(event.data.target.value()).getId();
 
     for(auto [participantId, clientIndex] : gameController->getAllAttachedClients()) {
         ApplyDamageMessage* message = (ApplyDamageMessage*) server.createMessage(clientIndex, GameMessageType::APPLY_DAMAGE);
 
         message->fromId = event.data.projectile->getOwnerId();
-        message->targetId = event.data.target->getId();
+        message->targetId = targetId;
         message->source = (uint8_t) DamageType::PROJECTILE;
         message->damage = event.data.damage;
 
@@ -136,11 +140,14 @@ void GameServerMessagesTransmitter::onPublish(const Event<ProjectileEventData>& 
 }
 
 void GameServerMessagesTransmitter::onPublish(const Event<MeleeWeaponEventData>& event) {
+    auto fromId = context->getEntityRegistry().get<Actor>(event.data.owner).getParticipantId();
+    auto targetId = context->getEntityRegistry().get<Actor>(event.data.target).getId();
+
     for(auto [participantId, clientIndex] : gameController->getAllAttachedClients()) {
         ApplyDamageMessage* message = (ApplyDamageMessage*) server.createMessage(clientIndex, GameMessageType::APPLY_DAMAGE);
 
-        message->fromId = event.data.owner->getParticipantId();
-        message->targetId = event.data.target->getId();
+        message->fromId = fromId;
+        message->targetId = targetId;
         message->source = (uint8_t) DamageType::MELEE;
         message->damage = event.data.damage;
 
@@ -149,12 +156,14 @@ void GameServerMessagesTransmitter::onPublish(const Event<MeleeWeaponEventData>&
 }
 
 void GameServerMessagesTransmitter::onPublish(const Event<ActorEffectEvent>& event) {
+    auto targetId = context->getEntityRegistry().get<Actor>(event.data.target).getId();
+
     for(auto [participantId, clientIndex] : gameController->getAllAttachedClients()) {
         ApplyActorEffectMessage* message = 
             (ApplyActorEffectMessage*) server.createMessage(clientIndex, GameMessageType::APPLY_ENTITY_EFFECT);
         
         message->type = event.data.type;
-        message->targetId = event.data.target->getId();
+        message->targetId = targetId;
         message->participantId = event.data.participantId;
         message->effectStats.duration = event.data.stats.duration;
         message->effectStats.effectType = event.data.stats.type;
@@ -188,14 +197,14 @@ void GameServerMessagesTransmitter::onPublish(const Event<TilesRevealedEventData
 }
 
 void GameServerMessagesTransmitter::onPublish(const Event<ActorSetPositionEventData>& event) {
+    auto actorId = context->getEntityRegistry().get<Actor>(event.data.entity).getId();
+
     for(auto [participantId, clientIndex] : gameController->getAllAttachedClients()) {
         SetActorPositionMessage* message =
             (SetActorPositionMessage*) server.createMessage(clientIndex, GameMessageType::SET_ENTITY_POSITION);
 
-        auto entity = context->getActorPool()->getByExternalId(event.data.actor->getId());
-
-        message->actorId = event.data.actor->getId();
-        message->movesLeft = context->getEntityRegistry().get<Stats::ActorStats>(entity.value()).movesLeft;
+        message->actorId = actorId;
+        message->movesLeft = context->getEntityRegistry().get<Stats::ActorStats>(event.data.entity).movesLeft;
         message->x = event.data.position.x;
         message->y = event.data.position.y;
 
@@ -211,17 +220,17 @@ void GameServerMessagesTransmitter::onPublish(const Event<ActorVisibilityToParti
         return;
     }
 
+    auto& actor = context->getEntityRegistry().get<Actor>(event.data.entity);
+
     if(event.data.isVisible) {
         AddActorVisibilityMessage* message =
             (AddActorVisibilityMessage*) server.createMessage(clientIndex, GameMessageType::ADD_ENTITY_VISIBILITY);
 
-        auto entity = context->getActorPool()->getByExternalId(event.data.actor->getId());
-
-        message->actor = ActorStateUpdate::serialize(context, entity.value());
+        message->actor = ActorStateUpdate::serialize(context, event.data.entity);
         message->visibleToParticipantId = event.data.visibleToParticipantId;
         spdlog::trace(
             "Sending AddActorVisibilityMessage for actor {} to {}", 
-            event.data.actor->toString(), 
+            actor.toString(), 
             event.data.visibleToParticipantId
         );
         server.sendMessage(clientIndex, message);
@@ -230,11 +239,11 @@ void GameServerMessagesTransmitter::onPublish(const Event<ActorVisibilityToParti
         RemoveActorVisibilityMessage* message = 
             (RemoveActorVisibilityMessage*) server.createMessage(clientIndex, GameMessageType::REMOVE_ENTITY_VISIBILITY);
 
-        message->actorId = event.data.actor->getId();
+        message->actorId = actor.getId();
         message->visibleToParticipantId = event.data.visibleToParticipantId;
         spdlog::trace(
             "Sending AddActorVisibilityMessage for actor {} to {}", 
-            event.data.actor->toString(), 
+            actor.toString(), 
             event.data.visibleToParticipantId
         );
         server.sendMessage(clientIndex, message);

@@ -229,7 +229,7 @@ void GameClientMessagesReceiver::receiveApplyDamageMessage(ApplyDamageMessage* m
 
     context.getActorController()->applyDamage(entity.value(), message->damage);
 
-    publish<ApplyDamageEventData>({ message->fromId, &actor, (DamageType) message->source, message->damage });
+    publish<ApplyDamageEventData>({ message->fromId, entity.value(), (DamageType) message->source, message->damage });
 }
 
 void GameClientMessagesReceiver::receiveApplyActorEffectMessage(ApplyActorEffectMessage* message) {

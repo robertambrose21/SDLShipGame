@@ -47,12 +47,11 @@ void AreaOfEffect::apply(void) {
     spdlog::trace("AoE applied at ({}, {}), {} turns left", position.x, position.y, turnsLeft);
 
     for(auto entity : effectedEntities) {
-        auto& actor = context->getEntityRegistry().get<Actor>(entity);
         auto const& stats = context->getEntityRegistry().get<Stats::ActorStats>(entity);
         auto damage = damageSource.rollActorDamage(stats);
         context->getActorController()->applyDamage(entity, damage);
 
-        publisher.publish<AreaOfEffectEventData>({ this, &actor, damage });
+        publisher.publish<AreaOfEffectEventData>({ this, entity, damage });
     }
 }
 

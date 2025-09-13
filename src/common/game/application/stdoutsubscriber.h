@@ -39,5 +39,5 @@ public:
 private:
     ApplicationContext& context;
 
-    std::string getActorIdentifier(Actor* actor);
+    std::string getActorIdentifier(entt::entity entity);
 };

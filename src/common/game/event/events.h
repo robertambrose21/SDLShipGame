@@ -32,26 +32,26 @@ struct ItemEventData {
 
 struct AreaOfEffectEventData {
     AreaOfEffect* aoe;
-    Actor* target;
+    entt::entity target;
     int damage;
 };
 
 struct ProjectileEventData {
     Projectile* projectile;
-    Actor* target;
+    std::optional<entt::entity> target;
     glm::ivec2 hitPosition;
     int damage;
 };
 
 struct MeleeWeaponEventData {
-    Actor* owner;
-    Actor* target;
+    entt::entity owner;
+    entt::entity target;
     Weapon* weapon;
     int damage;
 };
 
 struct ActorEventData {
-    Actor* actor;
+    entt::entity entity;
     Position position;
     std::string type;
 };
@@ -96,7 +96,7 @@ enum DamageType {
 
 struct ApplyDamageEventData {
     int participantId;
-    Actor* target;
+    entt::entity target;
     DamageType source;
     int damage;
 };
@@ -163,7 +163,7 @@ struct TileEventData {
 
 struct ActorEffectEvent {
     EffectType type;
-    Actor* target;
+    entt::entity target;
     int participantId;
     Stats::EffectStats stats;
 };
@@ -185,16 +185,16 @@ struct TilesRevealedEventData {
 };
 
 struct ActorSetPositionEventData {
-    Actor* actor;
+    entt::entity entity;
     glm::ivec2 position;
 };
 
 struct ActorVisibilityToParticipantData {
-    Actor* actor;
+    entt::entity entity;
     int visibleToParticipantId;
     bool isVisible;
 };
 
 struct ActorUpdateStatsEventData {
-    Actor* actor;
+    entt::entity entity;
 };

@@ -247,5 +247,7 @@ void ServerGameController::onPublish(const Event<ActorSetPositionEventData>& eve
         assignEngagements(participantId);
     }
 
-    checkForItems(event.data.actor->getParticipantId());
+    auto participantId = context->getEntityRegistry().get<Actor>(event.data.entity).getParticipantId();
+
+    checkForItems(participantId);
 }

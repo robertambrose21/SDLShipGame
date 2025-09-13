@@ -5,7 +5,6 @@ void ActorController::initialise(ApplicationContext& context) {
 }
 
 void ActorController::applyDamage(entt::entity entity, uint32_t amount) {
-    auto& actor = context->getEntityRegistry().get<Actor>(entity);
     auto& stats = context->getEntityRegistry().get<Stats::ActorStats>(entity);
 
     if(amount >= stats.hp) {
@@ -15,7 +14,7 @@ void ActorController::applyDamage(entt::entity entity, uint32_t amount) {
         stats.hp -= amount;
     }
 
-    publish<ActorUpdateStatsEventData>({ &actor });
+    publish<ActorUpdateStatsEventData>({ entity });
 }
 
 void ActorController::applyStats(entt::entity entity) {
@@ -38,7 +37,7 @@ void ActorController::applyStats(entt::entity entity) {
         }
     }
 
-    publish<ActorUpdateStatsEventData>({ &actor });
+    publish<ActorUpdateStatsEventData>({ entity });
 }
 
 void ActorController::useMoves(entt::entity entity, int numMoves) {
@@ -52,7 +51,7 @@ void ActorController::useMoves(entt::entity entity, int numMoves) {
         actor.setPath({});
     }
 
-    publish<ActorUpdateStatsEventData>({ &actor });
+    publish<ActorUpdateStatsEventData>({ entity });
 }
 
 void ActorController::nextTurn(entt::entity entity) {
@@ -70,7 +69,7 @@ void ActorController::endTurn(entt::entity entity) {
         weapon->setUsesLeft(0);
     }
 
-    publish<ActorUpdateStatsEventData>({ &actor });
+    publish<ActorUpdateStatsEventData>({ entity });
 }
 
 bool ActorController::isTurnInProgress(entt::entity entity) {
@@ -96,7 +95,7 @@ void ActorController::reset(entt::entity entity) {
         }
     }
 
-    publish<ActorUpdateStatsEventData>({ &actor });
+    publish<ActorUpdateStatsEventData>({ entity });
 }
 
 void ActorController::engage(entt::entity entity) {

@@ -139,11 +139,9 @@ Effect* EffectController::addEffect(std::unique_ptr<Effect> effect) {
 
     effectPtr->apply(context);
 
-    auto& actor = context->getEntityRegistry().get<Actor>(effectPtr->getTarget());
-
     publish<ActorEffectEvent>({ 
         effectPtr->getType(), 
-        &actor, 
+        effectPtr->getTarget(), 
         effectPtr->getOwnerId(),
         effectPtr->getStats()
     });

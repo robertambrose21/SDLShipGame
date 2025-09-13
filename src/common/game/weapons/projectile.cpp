@@ -66,7 +66,6 @@ void Projectile::apply(const glm::ivec2& position) {
 
     if(!entities.empty()) {
         for(auto entity : entities) {
-            auto& actor = context->getEntityRegistry().get<Actor>(entity); // TODO: Remove me
             auto const& actorStats = context->getEntityRegistry().get<Stats::ActorStats>(entity);
             int damage = damageSource.rollActorDamage(actorStats);
 
@@ -88,7 +87,7 @@ void Projectile::apply(const glm::ivec2& position) {
                 }
             }
 
-            publisher.publish<ProjectileEventData>({ this, &actor, position, damage });
+            publisher.publish<ProjectileEventData>({ this, entity, position, damage });
         }
     }
     else {
@@ -117,7 +116,7 @@ void Projectile::apply(const glm::ivec2& position) {
             }
         }
 
-        publisher.publish<ProjectileEventData>({ this, nullptr, position, 0 });
+        publisher.publish<ProjectileEventData>({ this, std::nullopt, position, 0 });
     }
 }
 

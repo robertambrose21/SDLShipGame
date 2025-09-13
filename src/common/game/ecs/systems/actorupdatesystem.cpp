@@ -20,7 +20,7 @@ void ActorUpdateSystem::update(
     }
 
     for(auto [entity, actor, position]: registry.view<Actor, Position, PositionDirty>().each()) {
-        publish<ActorSetPositionEventData>({ &actor, position });
+        publish<ActorSetPositionEventData>({ entity, position });
         registry.remove<PositionDirty>(entity);
     }
 }
@@ -64,7 +64,7 @@ void ActorUpdateSystem::updateActor(
     }
 }
 
-void ActorUpdateSystem::killActor(ApplicationContext& context, entt::entity, Actor& actor, Position position) {
+void ActorUpdateSystem::killActor(ApplicationContext& context, entt::entity entity, Actor& actor, Position position) {
+    publish<ActorEventData>({ entity, position, "Death" });
     context.getActorPool()->removeActor(actor.getId());
-    publish<ActorEventData>({ &actor, position, "Death" });
 }

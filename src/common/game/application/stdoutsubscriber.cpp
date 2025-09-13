@@ -6,10 +6,14 @@ StdOutSubscriber::StdOutSubscriber(ApplicationContext& context) :
 
 void StdOutSubscriber::onPublish(const Event<ActorEventData>& event) {
     if(event.data.type == "Death") {
-        spdlog::info("{} died.",getActorIdentifier(event.data.actor));
+        spdlog::info("{} died.", getActorIdentifier(event.data.entity));
     }
-    else if(event.data.type == "Freeze" && event.data.actor->getIsFrozen()) {
-        spdlog::info("{} unfreezes.", getActorIdentifier(event.data.actor));
+    else if(event.data.type == "Freeze") {
+        if(!context.getEntityRegistry().get<Actor>(event.data.entity).getIsFrozen()) {
+            return;
+        }
+
+        spdlog::info("{} unfreezes.", getActorIdentifier(event.data.entity));
     }
 }
 
@@ -18,13 +22,13 @@ void StdOutSubscriber::onPublish(const Event<MeleeWeaponEventData>& event) {
         return;
     }
 
-    auto entity = context.getActorPool()->getByExternalId(event.data.target->getId());
-    auto targetCurrentHP = context.getEntityRegistry().get<Stats::ActorStats>(entity.value()).hp;
+    auto targetCurrentHP = context.getEntityRegistry().get<Stats::ActorStats>(event.data.target).hp;
+    auto participantId = context.getEntityRegistry().get<Actor>(event.data.owner).getParticipantId();
     
     spdlog::info(
         "{} was meleed by participant [{}] and took {} damage! {} now has {} HP.",
         getActorIdentifier(event.data.target),
-        event.data.owner->getParticipantId(),
+        participantId,
         event.data.damage,
         getActorIdentifier(event.data.target),
         targetCurrentHP
@@ -32,20 +36,20 @@ void StdOutSubscriber::onPublish(const Event<MeleeWeaponEventData>& event) {
 }
 
 void StdOutSubscriber::onPublish(const Event<ProjectileEventData>& event) {
-    if(event.data.target == nullptr) {
+    if(!event.data.target.has_value()) {
         return;
     }
 
-    auto entity = context.getActorPool()->getByExternalId(event.data.target->getId());
-    auto targetCurrentHP = context.getEntityRegistry().get<Stats::ActorStats>(entity.value()).hp;
+    auto target = event.data.target.value();
+    auto targetCurrentHP = context.getEntityRegistry().get<Stats::ActorStats>(target).hp;
 
     if(event.data.damage > 0) {      
         spdlog::info(
             "{} was hit by a projectile from participant [{}] and took {} damage! {} now has {} HP.",
-            getActorIdentifier(event.data.target),
+            getActorIdentifier(target),
             event.data.projectile->getOwnerId(),
             event.data.damage,
-            getActorIdentifier(event.data.target),
+            getActorIdentifier(target),
             targetCurrentHP
         );
     }
@@ -53,17 +57,16 @@ void StdOutSubscriber::onPublish(const Event<ProjectileEventData>& event) {
     auto effects = event.data.projectile->getStats().effects;
     for(auto effect : effects) {
         if(effect.type == EffectType::FREEZE) {
-            spdlog::info("{} is frozen for {} turns.", getActorIdentifier(event.data.target), effect.duration);
+            spdlog::info("{} is frozen for {} turns.", getActorIdentifier(target), effect.duration);
         }
         else if(effect.type == EffectType::POISON) {
-            spdlog::info("{} is poisoned for {} turns.", getActorIdentifier(event.data.target), effect.duration);
+            spdlog::info("{} is poisoned for {} turns.", getActorIdentifier(target), effect.duration);
         }
     }
 }
 
 void StdOutSubscriber::onPublish(const Event<AreaOfEffectEventData>& event) {
-    auto entity = context.getActorPool()->getByExternalId(event.data.target->getId());
-    auto targetCurrentHP = context.getEntityRegistry().get<Stats::ActorStats>(entity.value()).hp;
+    auto targetCurrentHP = context.getEntityRegistry().get<Stats::ActorStats>(event.data.target).hp;
 
     spdlog::info(
         "{} was hit by an area of effect from participant [{}] and took {} damage! {} now has {} HP.",
@@ -109,33 +112,28 @@ void StdOutSubscriber::onPublish(const Event<TakeItemActionEventData>& event) {
         }
     }
 
-    auto& actor = context.getEntityRegistry().get<Actor>(event.data.entity);
-
-    spdlog::info("{} picked up items: [{}]", getActorIdentifier(&actor), items);
+    spdlog::info("{} picked up items: [{}]", getActorIdentifier(event.data.entity), items);
 }
 
 void StdOutSubscriber::onPublish(const Event<EquipItemActionEventData>& event) {
-    auto& actor = context.getEntityRegistry().get<Actor>(event.data.entity);
-
     if(event.data.isUnequip) {
         spdlog::info(
             "{} unequipped [{}]",
-            getActorIdentifier(&actor),
+            getActorIdentifier(event.data.entity),
             event.data.item->getName()
         );
     }
     else {
         spdlog::info(
             "{} equipped [{}]",
-            getActorIdentifier(&actor),
+            getActorIdentifier(event.data.entity),
             event.data.item->getName()
         );
     }
 }
 
 void StdOutSubscriber::onPublish(const Event<ApplyDamageEventData>& event) {
-    auto entity = context.getActorPool()->getByExternalId(event.data.target->getId());
-    auto targetCurrentHP = context.getEntityRegistry().get<Stats::ActorStats>(entity.value()).hp;
+    auto targetCurrentHP = context.getEntityRegistry().get<Stats::ActorStats>(event.data.target).hp;
 
     switch(event.data.source) {
         case DamageType::AOE:
@@ -176,7 +174,7 @@ void StdOutSubscriber::onPublish(const Event<ApplyDamageEventData>& event) {
     }
 }
 
-std::string StdOutSubscriber::getActorIdentifier(Actor* actor) {
-    game_assert(actor != nullptr);
-    return actor->getName() + "#" + std::to_string(actor->getId());
+std::string StdOutSubscriber::getActorIdentifier(entt::entity entity) {
+    auto& actor = context.getEntityRegistry().get<Actor>(entity);
+    return actor.getName() + "#" + std::to_string(actor.getId());
 }

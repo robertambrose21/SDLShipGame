@@ -160,13 +160,6 @@ bool ActorPanel::getIsOpen(void) const {
 }
 
 void ActorPanel::onPublish(const Event<ActorUpdateStatsEventData>& event) {
-    auto& actor = context->getEntityRegistry().get<Actor>(entity);
-
-    if(event.data.actor->getId() != actor.getId()) {
-        return;
-    }
-
-    auto const& stats = context->getEntityRegistry().get<Stats::ActorStats>(entity);
-
+    auto const& stats = context->getEntityRegistry().get<Stats::ActorStats>(event.data.entity);
     statsMapping = Stats::calculateActorStatCategories(stats);
 }

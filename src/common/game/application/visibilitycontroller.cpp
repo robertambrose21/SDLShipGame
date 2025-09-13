@@ -53,36 +53,35 @@ const std::unordered_set<glm::ivec2, glm::ivec2Hash>& VisiblityController::getVi
 }
 
 void VisiblityController::onPublish(const Event<ActorSetPositionEventData>& event) {
-    auto actor = event.data.actor;
+    auto& actor = context->getEntityRegistry().get<Actor>(event.data.entity);
 
-    if(!actor->hasParticipant()) {
+    if(!actor.hasParticipant()) {
         return;
     }
     
     auto tiles = context->getGrid()->getVisibleTiles(
         glm::vec2(event.data.position.x, event.data.position.y),
-        actor->getAggroRange()
+        actor.getAggroRange()
     );
 
-    auto participantId = actor->getParticipantId();
+    auto participantId = actor.getParticipantId();
 
     revealTiles(participantId, tiles);
     visibleTiles[participantId] = std::unordered_set<glm::ivec2, glm::ivec2Hash>(tiles.begin(), tiles.end());
 
-    auto actorEntity = context->getActorPool()->getByExternalId(actor->getId()).value();
-    auto const& actorPosition = context->getEntityRegistry().get<Position>(actorEntity);
+    auto const& actorPosition = context->getEntityRegistry().get<Position>(event.data.entity);
     
     for(auto [otherEntity, other, otherPosition, externalId] : 
         context->getEntityRegistry().view<Actor, Position, ExternalId>().each())
     {
-        if(other.getParticipantId() == actor->getParticipantId()) {
+        if(other.getParticipantId() == actor.getParticipantId()) {
             continue;
         }
 
         auto distance = glm::distance(glm::vec2(actorPosition), glm::vec2(otherPosition));
 
-        assignVisibility(actorEntity, otherEntity, distance, visibleTiles[participantId]);
-        assignVisibility(otherEntity, actorEntity, distance, visibleTiles[other.getParticipantId()]);
+        assignVisibility(event.data.entity, otherEntity, distance, visibleTiles[participantId]);
+        assignVisibility(otherEntity, event.data.entity, distance, visibleTiles[other.getParticipantId()]);
     }
 }
 
@@ -93,7 +92,6 @@ void VisiblityController::assignVisibility(
     const std::unordered_set<glm::ivec2, glm::ivec2Hash>& visibleTiles
 ) {
     auto& actor = context->getEntityRegistry().get<Actor>(actorEntity);
-    auto& other = context->getEntityRegistry().get<Actor>(otherEntity);
     auto const& otherPosition = context->getEntityRegistry().get<Position>(otherEntity);
 
     auto participant = context->getGameController()->getParticipant(actor.getParticipantId());
@@ -104,11 +102,11 @@ void VisiblityController::assignVisibility(
 
     if(!participant->hasVisibleActor(otherEntity) && isVisible) {
         participant->addVisibleActor(otherEntity);
-        publish<ActorVisibilityToParticipantData>({ &other, participant->getId(), true });
+        publish<ActorVisibilityToParticipantData>({ otherEntity, participant->getId(), true });
     }
     else if(participant->hasVisibleActor(otherEntity) && !isVisible) {
         participant->removeVisibleActor(otherEntity);
-        publish<ActorVisibilityToParticipantData>({ &other, participant->getId(), false });
+        publish<ActorVisibilityToParticipantData>({ otherEntity, participant->getId(), false });
     }
 }
 

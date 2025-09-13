@@ -51,7 +51,7 @@ private:
 
     std::vector<std::vector<TextSegment>> lines;
 
-    std::string getActorIdentifier(Actor* actor);
+    std::string getActorIdentifier(entt::entity entity);
     
     std::string getTimestampString(std::time_t timestamp);
     void appendItemsToLine(std::vector<TextSegment>& segment, const std::vector<Item*>& items);

@@ -41,12 +41,11 @@ void MeleeWeapon::apply(const glm::ivec2& position, const glm::ivec2& target) {
     auto entities = context->getActorPool()->filterByTile(target.x, target.y, ownerActor.getParticipantId());
     
     for(auto entity : entities) {
-        auto& actor = context->getEntityRegistry().get<Actor>(entity);
         auto const& stats = context->getEntityRegistry().get<Stats::ActorStats>(entity);
         auto damage = damageSource.rollActorDamage(stats);
         context->getActorController()->applyDamage(entity, damage);
 
-        publisher.publish<MeleeWeaponEventData>({ &ownerActor, &actor, this, damage });
+        publisher.publish<MeleeWeaponEventData>({ owner, entity, this, damage });
     }
 }
 
