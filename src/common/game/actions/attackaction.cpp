@@ -106,6 +106,7 @@ void AttackAction::onExecute(ApplicationContext* context) {
     auto const& position = context->getEntityRegistry().get<Position>(entity);
 
     actor->attack(position, target, weapon->getId(), isAnimationOnly);
+    context->getActorController()->applyStats(entity);
 }
 
 bool AttackAction::hasFinished(ApplicationContext* context) {

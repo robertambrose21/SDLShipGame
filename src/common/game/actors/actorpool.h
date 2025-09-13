@@ -14,7 +14,6 @@
 #include "game/weapons/weaponcontroller.h"
 #include "game/items/itemcontroller.h"
 #include "game/net/messages.h"
-#include "core/event/eventpublisher.h"
 #include "game/application/applicationcontext.h"
 #include "game/items/loottable.h"
 #include "game/ecs/components/drawable.h"
@@ -23,7 +22,7 @@ using json = nlohmann::json;
 
 struct GameStateUpdate;
 
-class ActorPool : public EventPublisher<ActorEventData, ActorSetPositionEventData, ActorUpdateStatsEventData> {
+class ActorPool {
 public:
     ActorPool();
     

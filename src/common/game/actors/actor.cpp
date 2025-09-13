@@ -4,12 +4,10 @@
 Actor::Actor(
     Grid* grid,
     uint32_t id,
-    EventPublisher<ActorEventData, ActorSetPositionEventData, ActorUpdateStatsEventData>& publisher,
     const std::string& name,
     const Stats::ActorStats& stats
 ) :
     id(id),
-    publisher(publisher),
     name(name),
     baseStats(stats),
     grid(grid),
@@ -25,11 +23,10 @@ Actor::Actor(
 
 Actor::Actor(
     Grid* grid,
-    EventPublisher<ActorEventData, ActorSetPositionEventData, ActorUpdateStatsEventData>& publisher,
     const std::string& name,
     const Stats::ActorStats& stats
 ) : 
-    Actor(grid, getNewId(), publisher, name, stats)
+    Actor(grid, getNewId(), name, stats)
 { }
 
 void Actor::setSelected(bool selected) {
@@ -72,7 +69,6 @@ Gear* Actor::getGear(Equippable<Stats::GearStats>::Slot slot) {
 
 void Actor::attack(const glm::ivec2& from, const glm::ivec2& target, const UUID& weaponId, bool isAnimationOnly) {
     weapons[weaponId]->use(from, target, isAnimationOnly);
-    publisher.publish<ActorUpdateStatsEventData>({ this });
 }
 
 // TODO: Remove me

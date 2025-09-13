@@ -32,14 +32,12 @@ public:
     Actor(
         Grid* grid,
         uint32_t id,
-        EventPublisher<ActorEventData, ActorSetPositionEventData, ActorUpdateStatsEventData>& publisher,
         const std::string& name,
         const Stats::ActorStats& stats
     );
 
     Actor(
         Grid* grid,
-        EventPublisher<ActorEventData, ActorSetPositionEventData, ActorUpdateStatsEventData>& publisher,
         const std::string& name,
         const Stats::ActorStats& stats
     );
@@ -117,7 +115,6 @@ private:
     bool engaged;
 
     Grid* grid;
-    EventPublisher<ActorEventData, ActorSetPositionEventData, ActorUpdateStatsEventData>& publisher;
 
     std::deque<glm::ivec2> path;
     int64_t timeSinceLastMoved;

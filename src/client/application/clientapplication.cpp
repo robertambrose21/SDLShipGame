@@ -49,7 +49,6 @@ void ClientApplication::initialise(void) {
     context.getSpawnController()->initialise(application->getContext());
     context.getVisibilityController()->initialise(application->getContext());
     context.getEffectController()->initialise(application->getContext());
-    context.getActorPool()->subscribe<ActorEventData>(stdoutSubscriber.get());
     context.getWeaponController()->subscribe<MeleeWeaponEventData>(stdoutSubscriber.get());
     context.getProjectilePool()->subscribe<ProjectileEventData>(stdoutSubscriber.get());
     context.getAreaOfEffectPool()->subscribe<AreaOfEffectEventData>(stdoutSubscriber.get());
@@ -109,12 +108,19 @@ void ClientApplication::initialise(void) {
         &context
     );
 
+    window->initialiseWindow();
+
+    playerController = std::make_unique<PlayerController>(
+        *clientMessagesTransmitter,
+        application->getContext(), 
+        window->getGraphicsContext()
+    );
+
     auto actorUpdateSystem = std::make_unique<ActorUpdateSystem>("ActorUpdateSystem");
+    actorUpdateSystem->subscribe<ActorEventData>(playerController->getPlayerPanel());
     actorUpdateSystem->subscribe<ActorEventData>(stdoutSubscriber.get());
     actorUpdateSystem->subscribe<ActorSetPositionEventData>(&window->getGridRenderer());
     logicSystemRegistry->addSystem(std::move(actorUpdateSystem));
-    
-    window->initialiseWindow();
 
     for(auto const& [_, tile] : tileSet.getTileMapping()) {
         window->setGridTileTexture(tile.id, tile.textureId);
@@ -127,12 +133,7 @@ void ClientApplication::initialise(void) {
     }
 
     context.getEffectController()->subscribe<GridEffectEvent>(&window->getGraphicsContext().getGridRenderer());
-
-    playerController = std::make_unique<PlayerController>(
-        *clientMessagesTransmitter,
-        application->getContext(), 
-        window->getGraphicsContext()
-    );
+    
     clientMessagesReceiver->setPlayerController(playerController.get());
     clientMessagesReceiver->subscribe<ApplyDamageEventData>(playerController->getPlayerPanel());
 

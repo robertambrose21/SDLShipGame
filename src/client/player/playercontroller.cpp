@@ -32,7 +32,6 @@ PlayerController::PlayerController(
         }
     });
     
-    context.getActorPool()->subscribe<ActorEventData>(playerPanel.get());
     context.getWeaponController()->subscribe<MeleeWeaponEventData>(playerPanel.get());
     context.getProjectilePool()->subscribe<ProjectileEventData>(playerPanel.get());
     context.getAreaOfEffectPool()->subscribe<AreaOfEffectEventData>(playerPanel.get());

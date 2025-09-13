@@ -48,7 +48,6 @@ void ServerApplication::initialise(void) {
     context.getSpawnController()->initialise(application->getContext());
     context.getVisibilityController()->initialise(application->getContext());
     context.getEffectController()->initialise(application->getContext());
-    context.getActorPool()->subscribe<ActorEventData>(stdoutSubscriber.get());
     context.getWeaponController()->subscribe<MeleeWeaponEventData>(stdoutSubscriber.get());
     context.getProjectilePool()->subscribe<ProjectileEventData>(stdoutSubscriber.get());
     context.getAreaOfEffectPool()->subscribe<AreaOfEffectEventData>(stdoutSubscriber.get());
@@ -77,7 +76,6 @@ void ServerApplication::initialise(void) {
     server->setTransmitter(transmitter.get());
     context.setServerMessagesTransmitter(transmitter.get());
     context.getItemController()->subscribe<ItemEventData>(transmitter.get());
-    context.getActorPool()->subscribe<ActorEventData>(context.getItemController());
     context.getGameController()->subscribe<MoveActionEventData>(transmitter.get());
     context.getGameController()->subscribe<AttackActionEventData>(transmitter.get());
     context.getGameController()->subscribe<TakeItemActionEventData>(transmitter.get());

@@ -249,7 +249,7 @@ entt::entity ActorPool::addActor(const std::string& name, uint32_t id) {
     registry.emplace<PositionDirty>(entity);
     registry.emplace<Stats::ActorStats>(entity, stats);
 
-    auto actor = &registry.emplace<Actor>(entity, context->getGrid(), id, *this, definition.name, stats);
+    auto actor = &registry.emplace<Actor>(entity, context->getGrid(), id, definition.name, stats);
 
     actorByExternalId[id] = entity;
 
