@@ -160,7 +160,7 @@ void ActorPool::synchronize() {
     game_assert(initialised);
 
     for(auto const& actorId : actorsForDeletion) {
-        removeActor(actorId);
+        removeActorByExternalId(actorId);
     }
 
     if(pendingChunkedUpdates.empty()) {
@@ -261,9 +261,8 @@ entt::entity ActorPool::addActor(const std::string& name) {
     return addActor(name, getNewId());
 }
 
-void ActorPool::removeActor(uint32_t id) {
+void ActorPool::removeActor(entt::entity entity) {
     auto gameController = context->getGameController();
-    auto entity = getByExternalId(id).value();
     auto& actor = context->getEntityRegistry().get<Actor>(entity);
 
     auto participant = context->getGameController()->getParticipant(actor.getParticipantId());
@@ -275,8 +274,19 @@ void ActorPool::removeActor(uint32_t id) {
 
     participant->removeActor(entity);
 
-    context->getEntityRegistry().destroy(actorByExternalId[id]);
-    actorByExternalId.erase(id);
+    context->getEntityRegistry().destroy(actorByExternalId[actor.getId()]);
+    actorByExternalId.erase(actor.getId());
+}
+
+void ActorPool::removeActorByExternalId(ExternalId id) {
+    auto entity = getByExternalId(id);
+
+    if(!entity.has_value()) {
+        spdlog::warn("Cannot remove non-existent actor with external id '{}'", id);
+        return;
+    }
+
+    removeActor(entity.value());
 }
 
 std::optional<entt::entity> ActorPool::getByExternalId(ExternalId externalId) const {

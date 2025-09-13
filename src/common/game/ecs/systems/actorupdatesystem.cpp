@@ -12,7 +12,7 @@ void ActorUpdateSystem::update(
 ) {
     for(auto [entity, actor, stats, position]: registry.view<Actor, Stats::ActorStats, Position>().each()) {
         if(stats.hp <= 0) {
-            killActor(context, entity, actor, position);
+            killActor(context, entity, position);
             continue;
         }
 
@@ -64,7 +64,7 @@ void ActorUpdateSystem::updateActor(
     }
 }
 
-void ActorUpdateSystem::killActor(ApplicationContext& context, entt::entity entity, Actor& actor, Position position) {
+void ActorUpdateSystem::killActor(ApplicationContext& context, entt::entity entity, Position position) {
     publish<ActorEventData>({ entity, position, "Death" });
-    context.getActorPool()->removeActor(actor.getId());
+    context.getActorPool()->removeActor(entity);
 }

@@ -32,7 +32,8 @@ public:
 
     entt::entity addActor(const std::string& name);
     entt::entity addActor(const std::string& name, uint32_t id);
-    void removeActor(uint32_t id);
+    void removeActor(entt::entity entity);
+    void removeActorByExternalId(ExternalId id);
     
     std::optional<entt::entity> getByExternalId(ExternalId externalId) const;
     

@@ -340,7 +340,7 @@ void GameClientMessagesReceiver::receiveRemoveActorVisibilityMessage(RemoveActor
     auto actorToRemove = context.getActorPool()->getByExternalId(message->actorId);
     if(actorToRemove.has_value()) {
         clientParticipant->removeVisibleActor(actorToRemove.value());
-        context.getActorPool()->removeActor(message->actorId);
+        context.getActorPool()->removeActorByExternalId(message->actorId);
     }
     else {
         std::cout << std::format("Warning: removing actor which doesn't exist {}", message->actorId) << std::endl;
