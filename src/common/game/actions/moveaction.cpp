@@ -37,7 +37,7 @@ Action::Type MoveAction::getType(void) {
     return Action::Type::Move;
 }
 
-bool MoveAction::passesPrecondition(void) {
+bool MoveAction::passesPrecondition(ApplicationContext* context) {
     return true;
 }
 

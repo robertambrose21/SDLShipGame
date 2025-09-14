@@ -57,6 +57,7 @@ void GameServerMessagesTransmitter::onPublish(const Event<MoveActionEventData>& 
 void GameServerMessagesTransmitter::onPublish(const Event<AttackActionEventData>& event) {
     for(auto [participantId, clientIndex] : gameController->getAllAttachedClients()) {
         auto& owner = context->getEntityRegistry().get<Actor>(event.data.entity);
+        auto& weapon = context->getEntityRegistry().get<WeaponHolder>(event.data.weapon).weapon;
 
         if(gameController->getAttachedClient(owner.getParticipantId()) == clientIndex) {
             spdlog::trace(
@@ -73,7 +74,7 @@ void GameServerMessagesTransmitter::onPublish(const Event<AttackActionEventData>
         message->actorId = owner.getId();
         message->x = event.data.target.x;
         message->y = event.data.target.y;
-        memcpy(message->weaponIdBytes, &event.data.weapon->getId().getBytes()[0], 16);
+        memcpy(message->weaponIdBytes, &weapon->getId().getBytes()[0], 16);
         message->turnNumber = event.data.turnNumber.value_or(-1);
 
         spdlog::trace("Sending attack to participant {}, owning actor {}/{} sent the attack",

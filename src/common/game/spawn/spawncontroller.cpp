@@ -42,8 +42,10 @@ std::vector<entt::entity> SpawnController::spawnActors(const SpawnableActors& sp
         auto& actor = context->getEntityRegistry().get<Actor>(entity);
 
         for(auto weaponName : spawnable.weapons) {
-            auto weapon = context->getWeaponController()->createWeapon(weaponName, entity);
-            actor.addWeapon(std::move(weapon));
+            // auto weapon = context->getWeaponController()->createWeapon(weaponName, entity);
+            // actor.addWeapon(std::move(weapon));
+            auto weapon = context->getWeaponController()->addWeapon(weaponName, entity);
+            actor.addWeapon(weapon);
         }
 
         context->getActorController()->applyStats(entity);

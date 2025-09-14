@@ -21,6 +21,7 @@ typedef glm::ivec2 Position;
 
 struct PositionDirty { };
 
+// TODO: Make this UUID eventually
 typedef uint32_t ExternalId;
 
 class Action;
@@ -34,4 +35,11 @@ struct ActionChain {
 
     ActionChain(const ActionChain&) = delete;
     ActionChain& operator=(const ActionChain&) = delete;
+};
+
+// Temp, decompose weapons into pure components without any inheritance
+class Weapon;
+
+struct WeaponHolder {
+    std::unique_ptr<Weapon> weapon;
 };

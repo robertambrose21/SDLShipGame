@@ -54,16 +54,24 @@ public:
     // TODO: Move me into AttackAction
     void attack(const glm::ivec2& from, const glm::ivec2& target, const UUID& weaponId, bool isAnimationOnly = false);
 
-    std::vector<Weapon*> getWeapons(void) const;
+    // std::vector<Weapon*> getWeapons(void) const;
     const std::map<Equippable<Stats::GearStats>::Slot, std::unique_ptr<Gear>>& getEquippedGear(void) const;
 
-    Weapon* getWeapon(const UUID& weaponId);
-    bool hasWeapon(const UUID& weaponId);
-    Weapon* addWeapon(std::unique_ptr<Weapon> weapon);
-    void removeWeapon(const UUID& weaponId);
+    // Weapon* getWeapon(const UUID& weaponId);
+    // bool hasWeapon(const UUID& weaponId);
+    // Weapon* addWeapon(std::unique_ptr<Weapon> weapon);
+    // void removeWeapon(const UUID& weaponId);
+    // void removeAllWeapons(void);
+    // void setCurrentWeapon(const UUID& weaponId);
+    // Weapon* getCurrentWeapon(void);
+
+    bool hasWeapon(entt::entity weaponId);
+    entt::entity addWeapon(entt::entity weaponId);
+    void removeWeapon(entt::entity weaponId);
     void removeAllWeapons(void);
-    void setCurrentWeapon(const UUID& weaponId);
-    Weapon* getCurrentWeapon(void);
+    void setCurrentWeapon(entt::entity weaponId);
+    entt::entity getCurrentWeapon(void);
+    const std::set<entt::entity>& getWeapons(void) const;
     
     uint32_t getId(void) const;
     void setId(uint32_t id);
@@ -105,8 +113,10 @@ private:
     Stats::ActorStats baseStats;
     std::map<Equippable<Stats::GearStats>::Slot, std::unique_ptr<Gear>> equippedGear;
 
-    std::map<UUID, std::unique_ptr<Weapon>> weapons;
-    Weapon* currentWeapon;
+    // std::map<UUID, std::unique_ptr<Weapon>> weapons;
+    std::set<entt::entity> weapons;
+    entt::entity currentWeapon;
+    // Weapon* currentWeapon;
 
     std::string name;
 

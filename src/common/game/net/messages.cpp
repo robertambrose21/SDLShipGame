@@ -43,6 +43,7 @@ ActorStateUpdate ActorStateUpdate::serialize(ApplicationContext* context, entt::
     auto& actor = context->getEntityRegistry().get<Actor>(entity);
     auto const& position = context->getEntityRegistry().get<Position>(entity);
     auto const& stats = context->getEntityRegistry().get<Stats::ActorStats>(entity);
+    auto& currentWeapon = context->getEntityRegistry().get<WeaponHolder>(actor.getCurrentWeapon()).weapon;
 
     actorStateUpdate.id = actor.getId();
     strcpy(actorStateUpdate.name, actor.getName().c_str());
@@ -52,12 +53,13 @@ ActorStateUpdate ActorStateUpdate::serialize(ApplicationContext* context, entt::
     actorStateUpdate.y = position.y;
     actorStateUpdate.participantId = actor.getParticipantId();
     actorStateUpdate.isEngaged = actor.isEngaged();
-    memcpy(actorStateUpdate.currentWeaponIdBytes, &actor.getCurrentWeapon()->getId().getBytes()[0], 16);
+    memcpy(actorStateUpdate.currentWeaponIdBytes, &currentWeapon->getId().getBytes()[0], 16);
     actorStateUpdate.numWeapons = actor.getWeapons().size();
 
     int index = 0;
-    for(auto weapon : actor.getWeapons()) {
-        actorStateUpdate.weaponUpdates[index++] = WeaponStateUpdate::serialize(weapon);
+    for(auto weaponId : actor.getWeapons()) {
+        auto& weapon = context->getEntityRegistry().get<WeaponHolder>(weaponId).weapon;
+        actorStateUpdate.weaponUpdates[index++] = WeaponStateUpdate::serialize(weapon.get());
     }
 
     return actorStateUpdate;
@@ -81,16 +83,28 @@ void ActorStateUpdate::deserialize(ApplicationContext* context, const ActorState
 
     for(int i = 0; i < update.numWeapons; i++) {
         auto& weaponUpdate = update.weaponUpdates[i];
-        auto weaponId = UUID::fromBytes(weaponUpdate.idBytes);
-        auto weapon = actor.getWeapon(weaponId);
+        auto uuid = UUID::fromBytes(weaponUpdate.idBytes);
+        auto weaponId = context->getWeaponController()->getByExternalId(UUID::fromBytes(weaponUpdate.idBytes));
+        // auto weapon = actor.getWeapon(weaponId);
 
-        game_assert(weapon != nullptr);
+        // game_assert(weapon != nullptr);
 
-        if(weaponId == UUID::fromBytes(update.currentWeaponIdBytes)) {
-            actor.setCurrentWeapon(weapon->getId());
+        if(!weaponId.has_value()) {
+            spdlog::warn(
+                "ActorStateUpdate::deserialize: Actor {} does not have weapon with UUID {}",
+                actor.getName(), 
+                uuid.getString()
+            );
+            continue;
         }
 
-        WeaponStateUpdate::deserialize(weaponUpdate, weapon);
+        auto& weapon = context->getEntityRegistry().get<WeaponHolder>(weaponId.value()).weapon;
+
+        if(uuid == UUID::fromBytes(update.currentWeaponIdBytes)) {
+            actor.setCurrentWeapon(weaponId.value());
+        }
+
+        WeaponStateUpdate::deserialize(weaponUpdate, weapon.get());
     }
 }
 

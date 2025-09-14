@@ -33,7 +33,7 @@ public:
 
     ActionVariant getPublishData(void) override;
 
-    bool passesPrecondition(void);
+    bool passesPrecondition(ApplicationContext* context);
     Type getType(void);
 
     Item* getItem(void);

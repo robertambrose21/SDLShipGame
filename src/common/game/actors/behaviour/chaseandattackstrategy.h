@@ -1,5 +1,8 @@
 #pragma once
 
+#include <thread>
+#include <optional>
+
 #include "behaviourstrategy.h"
 #include "game/actors/actor.h"
 #include "game/actors/actorpool.h"
@@ -8,8 +11,6 @@
 #include "game/actions/action.h"
 #include "game/actions/moveaction.h"
 #include "game/actions/attackaction.h"
-
-#include <thread>
 
 class GameServerMessagesTransmitter;
 
@@ -24,7 +25,7 @@ private:
     bool canPassTurn;
     bool canDisengage;
 
-    Weapon* getBestInRangeWeapon(Actor* attacker, const glm::ivec2& target);
+    std::optional<entt::entity> getBestInRangeWeapon(Actor* attacker, const glm::ivec2& target);
     ActorTurnResult doTurnForActor(entt::entity entity, Participant* participant);
 
 public:

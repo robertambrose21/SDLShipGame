@@ -93,35 +93,41 @@ bool ActorPool::applyChunkedGameStateUpdate(const ChunkedGameStateUpdate& chunke
                 context->getGameController()->addActorToParticipant(actorUpdate.participantId, newEntity);   
             }
 
-            auto entity = getByExternalId(actorUpdate.id);
+            auto actorEntity = getByExternalId(actorUpdate.id);
 
-            if(!entity.has_value()) {
+            if(!actorEntity.has_value()) {
                 spdlog::warn("Cannot update non-existent actor {}", actorUpdate.id);
                 continue;
             }
 
-            auto& existing = context->getEntityRegistry().get<Actor>(entity.value());
+            auto& existing = context->getEntityRegistry().get<Actor>(actorEntity.value());
 
             // Weapons
             for(int j = 0; j < actorUpdate.numWeapons; j++) {
                 auto const& weaponUpdate = actorUpdate.weaponUpdates[j];
-                auto weaponId = UUID::fromBytes(weaponUpdate.idBytes);
+                // auto weaponId = UUID::fromBytes(weaponUpdate.idBytes);
+                auto uuid = UUID::fromBytes(weaponUpdate.idBytes);
+
+                auto existingWeaponId = context->getWeaponController()->getByExternalId(uuid).value_or(entt::null);
                 
-                if(!existing.hasWeapon(weaponId)) {
-                    spdlog::trace("Syncing weapon {} to actor {}", weaponId.getString(), existing.getId());
-                    auto weapon = context->getWeaponController()->createWeapon(weaponId, weaponUpdate.name, entity.value());
+                if(!existing.hasWeapon(existingWeaponId)) {
+                    spdlog::trace("Syncing weapon {} to actor {}", uuid.getString(), existing.getId());
+                    // auto weapon = context->getWeaponController()->createWeapon(weaponId, weaponUpdate.name, entity.value());
+                    auto weaponEntity = context->getWeaponController()->addWeapon(uuid, weaponUpdate.name, actorEntity.value());
+                    auto& weapon = context->getEntityRegistry().get<WeaponHolder>(weaponEntity).weapon;
                     
                     if(weapon->getItem() != nullptr && weaponUpdate.hasItem) {
                         weapon->getItem()->setId(weaponUpdate.itemId);
                     }
 
-                    existing.addWeapon(std::move(weapon));
+                    // existing.addWeapon(std::move(weapon));
+                    existing.addWeapon(weaponEntity);
                 }
             }
 
-            context->getActorController()->applyStats(entity.value());
+            context->getActorController()->applyStats(actorEntity.value());
 
-            ActorStateUpdate::deserialize(context, actorUpdate, entity.value());
+            ActorStateUpdate::deserialize(context, actorUpdate, actorEntity.value());
 
             if(actorUpdate.currentHP <= 0) {
                 actorsForDeletion.insert(actorUpdate.id);
@@ -250,6 +256,7 @@ entt::entity ActorPool::addActor(const std::string& name, uint32_t id) {
     registry.emplace<Stats::ActorStats>(entity, stats);
     registry.emplace<ActionChain>(entity);
 
+    // TODO: don't need to make a variable here anymore
     auto actor = &registry.emplace<Actor>(entity, id, definition.name, stats);
 
     actorByExternalId[id] = entity;

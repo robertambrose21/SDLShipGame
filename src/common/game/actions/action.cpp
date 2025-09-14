@@ -27,7 +27,7 @@ Action::Action(Participant* participant, entt::entity entity, int turnNumber) :
 }
 
 bool Action::validate(ApplicationContext* context) {
-    if(!passesPrecondition()) {
+    if(!passesPrecondition(context)) {
         spdlog::trace("[{}]: Failed to validate action, failed precondition", typeToString());
         return false;
     }
@@ -75,6 +75,7 @@ std::string Action::typeToString(void) {
         case TakeItem: return "TakeItem";
         case EquipItem: return "EquipItem";
         case EquipWeaponItem: return "EquipWeaponItem";
+        case UnequipWeaponItem: return "UnequipWeaponItem";
         default: return "Unknown type: " + getType();
     }
 }

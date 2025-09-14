@@ -44,5 +44,5 @@ private:
     void drawEquipment(GraphicsContext& graphicsContext);
     void drawWeapons(GraphicsContext& graphicsContext);
     void drawEquippedItem(GraphicsContext& graphicsContext, Item* item);
-    void drawEquippedWeapon(GraphicsContext& graphicsContext, Weapon* weapon);
+    void drawEquippedWeapon(GraphicsContext& graphicsContext, entt::entity weaponId);
 };

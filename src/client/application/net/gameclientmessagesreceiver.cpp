@@ -137,18 +137,30 @@ void GameClientMessagesReceiver::receiveAttackActor(AttackMessage* message) {
         return;
     }
 
-    auto weaponId = UUID::fromBytes(message->weaponIdBytes);
+    auto uuid = UUID::fromBytes(message->weaponIdBytes);
     auto& actor = context.getEntityRegistry().get<Actor>(entity.value());
     auto participant = context.getGameController()->getParticipant(actor.getParticipantId());
 
-    for(auto weapon : actor.getWeapons()) {
-        if(weapon->getId() == weaponId) {
+    auto weaponId = context.getWeaponController()->getByExternalId(uuid);
+
+    if(!weaponId.has_value()) {
+        spdlog::trace(
+            "Skipping AttackMessage - cannot find Weapon with UUID {}",
+            uuid.getString()
+        );
+        return;
+    }
+
+    auto& weapon = context.getEntityRegistry().get<WeaponHolder>(weaponId.value()).weapon;
+
+    for(auto actorWeapon : actor.getWeapons()) {
+        if(weapon->getId() == uuid) {
             auto isQueued = context.getGameController()->queueAction(
                 std::make_unique<AttackAction>(
                     participant,
                     entity.value(), 
                     message->turnNumber, 
-                    weapon, 
+                    actorWeapon, 
                     glm::ivec2(message->x, message->y), 
                     true
                 )
@@ -391,16 +403,20 @@ void GameClientMessagesReceiver::receiveAddActorVisibilityMessage(AddActorVisibi
 
     for(int j = 0; j < actorStateUpdate.numWeapons; j++) {
         auto const& weaponUpdate = actorStateUpdate.weaponUpdates[j];
-        auto weaponId = UUID::fromBytes(weaponUpdate.idBytes);
+        auto uuid = UUID::fromBytes(weaponUpdate.idBytes);
+
+        auto existingWeaponId = context.getWeaponController()->getByExternalId(uuid).value_or(entt::null);
         
-        if(!actor.hasWeapon(weaponId)) {
-            auto weapon = context.getWeaponController()->createWeapon(weaponId, weaponUpdate.name, entity);
+        if(!actor.hasWeapon(existingWeaponId)) {
+            // auto weapon = context.getWeaponController()->createWeapon(weaponId, weaponUpdate.name, entity);
+            auto weaponId = context.getWeaponController()->addWeapon(uuid, weaponUpdate.name, entity);
+            auto& weapon = context.getEntityRegistry().get<WeaponHolder>(weaponId).weapon;
             
             if(weapon->getItem() != nullptr && weaponUpdate.hasItem) {
                 weapon->getItem()->setId(weaponUpdate.itemId);
             }
 
-            actor.addWeapon(std::move(weapon));
+            actor.addWeapon(weaponId);
         }
     }
 

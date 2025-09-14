@@ -31,9 +31,11 @@ void ActorController::applyStats(entt::entity entity) {
         }
     }
 
-    for(auto weapon : actor.getWeapons()) {
-        if(weapon != nullptr) {
-            weapon->addTo(stats);
+    for(auto weaponId : actor.getWeapons()) {
+        auto weaponHolder = context->getEntityRegistry().try_get<WeaponHolder>(weaponId);
+
+        if(weaponHolder != nullptr && weaponHolder->weapon != nullptr) {
+            weaponHolder->weapon->addTo(stats);
         }
     }
 
@@ -65,7 +67,8 @@ void ActorController::endTurn(entt::entity entity) {
     stats.movesLeft = 0;
     actor.setPath({});
 
-    for(auto weapon : actor.getWeapons()) {
+    for(auto weaponId : actor.getWeapons()) {
+        auto& weapon = context->getEntityRegistry().get<WeaponHolder>(weaponId).weapon;
         weapon->setUsesLeft(0);
     }
 
@@ -75,8 +78,9 @@ void ActorController::endTurn(entt::entity entity) {
 bool ActorController::isTurnInProgress(entt::entity entity) {
     auto& stats = context->getEntityRegistry().get<Stats::ActorStats>(entity);
     auto& actor = context->getEntityRegistry().get<Actor>(entity);
+    auto weaponHolder = context->getEntityRegistry().try_get<WeaponHolder>(actor.getCurrentWeapon());
 
-    return (actor.getCurrentWeapon() != nullptr && !actor.getCurrentWeapon()->hasFinished()) || stats.movesLeft > 0;
+    return (weaponHolder != nullptr && weaponHolder->weapon != nullptr && !weaponHolder->weapon->hasFinished()) || stats.movesLeft > 0;
 }
 
 void ActorController::reset(entt::entity entity) {
@@ -89,9 +93,11 @@ void ActorController::reset(entt::entity entity) {
     actor.setFrozen(false);
     actor.setIsPoisoned(false);
 
-    for(auto weapon : actor.getWeapons()) {
-        if(weapon != nullptr) {
-            weapon->reset();
+    for(auto weaponId : actor.getWeapons()) {
+        auto weaponHolder = context->getEntityRegistry().try_get<WeaponHolder>(weaponId);
+
+        if(weaponHolder != nullptr && weaponHolder->weapon != nullptr) {
+            weaponHolder->weapon->reset();
         }
     }
 

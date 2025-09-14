@@ -354,14 +354,15 @@ void PlayerController::attack(const glm::ivec2& target) {
     for(auto const& entity : selectedActors) {
         auto const& externalId = context.getEntityRegistry().get<ExternalId>(entity);
         auto& actor = context.getEntityRegistry().get<Actor>(entity);
-        auto const& weapon = actor.getCurrentWeapon();
+        auto weaponId = actor.getCurrentWeapon();
+        auto& weapon = context.getEntityRegistry().get<WeaponHolder>(weaponId).weapon;
         
         // TODO: ClientGameController actions
         if(doAction(
             std::make_unique<AttackAction>(
                 participant, 
                 entity, 
-                weapon, 
+                weaponId, 
                 target, 
                 true
             ))
@@ -382,7 +383,13 @@ void PlayerController::setHoverTiles(void) {
         return;
     }
     auto& actor = context.getEntityRegistry().get<Actor>(selectedActors[0]);
-    auto weapon = actor.getCurrentWeapon();
+    auto weaponHolder = context.getEntityRegistry().try_get<WeaponHolder>(actor.getCurrentWeapon());
+
+    if(weaponHolder == nullptr) {
+        return;
+    }
+
+    auto& weapon = weaponHolder->weapon;
 
     if(weapon == nullptr || weapon->getType() != Stats::WeaponStats::PROJECTILE) {
         return;

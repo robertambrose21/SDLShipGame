@@ -126,7 +126,7 @@ bool EquipGearAction::hasFinished(ApplicationContext* context) {
     return true;
 }
 
-bool EquipGearAction::passesPrecondition(void) {
+bool EquipGearAction::passesPrecondition(ApplicationContext* context) {
     return !participant->hasAnyEngagement();
 }
 

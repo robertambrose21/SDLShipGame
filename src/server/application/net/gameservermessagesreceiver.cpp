@@ -162,9 +162,9 @@ void GameServerMessagesReceiver::receieveAttackMessage(
     auto participant = gameController->getParticipant(participantId);
 
     for(auto weapon : actor.getWeapons()) {
-        if(weapon->getId() != weaponId) {
-            continue;
-        }
+        // if(weapon->getId() != weaponId) {
+        //     continue;
+        // }
         
         if(turnNumber != -1) {
             context.getGameController()->queueAction(

@@ -33,8 +33,12 @@ void ActorUpdateSystem::updateActor(
     const Position& position, 
     int64_t timeSinceLastFrame
 ) {
-    for(auto weapon : actor.getWeapons()) {
+    // TODO: Move weapon update to separate system
+    for(auto weaponId : actor.getWeapons()) {
+        auto& weapon = context.getEntityRegistry().get<WeaponHolder>(weaponId).weapon;
         weapon->update(timeSinceLastFrame);
+
+        // weapon->update(timeSinceLastFrame);
     }
 
     if(actor.getIsFrozen()) {

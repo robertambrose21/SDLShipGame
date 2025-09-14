@@ -88,7 +88,7 @@ void GameController::executeActorActions(Engagement* engagement, entt::entity en
             moreActionsToProcess = !chain.at(turnNumber).empty();
         }
         // TODO: If precondition fails - just drop?
-        else if(action->passesPrecondition() && !action->isExecuted()) {
+        else if(action->passesPrecondition(context) && !action->isExecuted()) {
             action->execute(context);
             moreActionsToProcess = false;
         }
@@ -206,7 +206,7 @@ bool GameController::executeActionImmediately(std::unique_ptr<Action> action) {
         return false;
     }
 
-    if(!action->passesPrecondition()) {
+    if(!action->passesPrecondition(context)) {
         spdlog::warn("Execute [{}]: Cannot execute immediately - action fails precondition", action->typeToString());
         return false;
     }

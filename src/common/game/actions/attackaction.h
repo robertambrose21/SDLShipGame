@@ -8,7 +8,7 @@ public:
     AttackAction(
         Participant* participant,
         entt::entity entity,
-        Weapon* weapon,
+        entt::entity weaponId,
         const glm::ivec2& target,
         bool isAnimationOnly = false
     );
@@ -16,21 +16,21 @@ public:
         Participant* participant,
         entt::entity entity,
         int turnNumber,
-        Weapon* weapon,
+        entt::entity weaponId,
         const glm::ivec2& target,
         bool isAnimationOnly = false
     );
 
     ActionVariant getPublishData(void) override;
 
-    bool passesPrecondition(void);
-    Weapon* getWeapon(void);
+    bool passesPrecondition(ApplicationContext* context);
+    entt::entity getWeapon(void);
     glm::ivec2 getTarget(void) const;
     Type getType(void);
     bool getIsAnimationOnly(void) const;
 
 private:
-    Weapon* weapon;
+    entt::entity weaponId;
     glm::ivec2 target;
     bool isAnimationOnly;
 

@@ -58,7 +58,9 @@ std::optional<Array2D<WFCTileSet::WFCTile>> WFCStrategy::run(
     auto walkableTiles = tileSet.getWalkableTiles();
 
     for(int i = 0; i < numAttempts; i++) {
-        seed = randomRange(0, INT_MAX);
+        // seed = randomRange(0, INT_MAX);
+        seed = 1969591651;
+        setRandomGeneratorSeed(seed);
         auto success = runAttempt(seed);
 
         if(success.has_value()) {

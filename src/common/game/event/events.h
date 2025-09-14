@@ -69,7 +69,7 @@ struct MoveActionEventData : public ActionEventData {
 
 struct AttackActionEventData : public ActionEventData {
     glm::ivec2 target;
-    Weapon* weapon;
+    entt::entity weapon;
 };
 
 struct TakeItemActionEventData : public ActionEventData {
@@ -84,7 +84,12 @@ struct EquipItemActionEventData : public ActionEventData {
 
 struct EquipWeaponActionEventData : public ActionEventData {
     Item* item;
-    UUID weaponId;
+    entt::entity weaponId;
+};
+
+struct UnequipWeaponActionEventData : public ActionEventData {
+    Item* item;
+    entt::entity weaponId;
 };
 // ----------------------------------------------
 

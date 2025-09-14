@@ -45,6 +45,7 @@ add_library(
     actions/takeitemaction.cpp
     actions/equipgearaction.cpp
     actions/equipweaponaction.cpp
+    actions/unequipweaponaction.cpp
     event/events.h
     stats/stats.h
     spawn/spawncontroller.cpp

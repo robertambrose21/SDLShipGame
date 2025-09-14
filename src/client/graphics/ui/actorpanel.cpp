@@ -120,7 +120,9 @@ void ActorPanel::drawEquippedItem(GraphicsContext& graphicsContext, Item* item) 
     ImGui::TextColored(ItemRarityColours.at(item->getRarity()), "[%s]", item->getName().c_str());
 }
 
-void ActorPanel::drawEquippedWeapon(GraphicsContext& graphicsContext, Weapon* weapon) {
+void ActorPanel::drawEquippedWeapon(GraphicsContext& graphicsContext, entt::entity weaponId) {
+    auto& weapon = context->getEntityRegistry().get<WeaponHolder>(weaponId).weapon;
+
     auto item = weapon->getItem();
     auto texture = graphicsContext.getTextureLoader().loadTexture(item->getTextureId())->getSDLTexture();
     auto selectableLabel = "##SelectableWeapon" + weapon->getId().getString();
@@ -129,7 +131,7 @@ void ActorPanel::drawEquippedWeapon(GraphicsContext& graphicsContext, Weapon* we
     ImGui::Selectable(selectableLabel.c_str());
     if(ImGui::BeginPopupContextItem()) {
         if(ImGui::Button("Unequip")) {
-            onUnequipWeaponClicked(weapon);
+            onUnequipWeaponClicked(weapon.get());
         }
         if(ImGui::Button("Examine")) {
             onExamineClicked(item);

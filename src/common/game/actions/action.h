@@ -18,7 +18,8 @@ using ActionVariant = std::variant<
     AttackActionEventData,
     TakeItemActionEventData,
     EquipItemActionEventData,
-    EquipWeaponActionEventData
+    EquipWeaponActionEventData,
+    UnequipWeaponActionEventData
 >; 
 
 class Action {
@@ -29,6 +30,7 @@ public:
         TakeItem,
         EquipItem,
         EquipWeaponItem,
+        UnequipWeaponItem,
         // Freeze,
         Count
     };
@@ -43,7 +45,7 @@ public:
     bool isFinished(ApplicationContext* context);
     void execute(ApplicationContext* context);
 
-    virtual bool passesPrecondition(void) = 0;
+    virtual bool passesPrecondition(ApplicationContext* context) = 0;
     virtual Type getType(void) = 0;
 
     Participant* getParticipant(void);

@@ -107,7 +107,7 @@ std::string TakeItemAction::getItemsAsStringList(void) {
     return itemList;
 }
 
-bool TakeItemAction::passesPrecondition(void) {
+bool TakeItemAction::passesPrecondition(ApplicationContext* context) {
     return true;
 }
 

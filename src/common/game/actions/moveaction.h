@@ -24,7 +24,7 @@ public:
 
     ActionVariant getPublishData(void) override;
 
-    bool passesPrecondition(void);
+    bool passesPrecondition(ApplicationContext* context);
     Type getType(void);
 
     glm::ivec2 getPosition(void) const;

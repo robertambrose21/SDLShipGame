@@ -9,7 +9,7 @@ Actor::Actor(
     id(id),
     name(name),
     baseStats(stats),
-    currentWeapon(nullptr),
+    currentWeapon(entt::null),
     timeSinceLastMoved(0),
     selected(false),
     engaged(false),
@@ -64,75 +64,119 @@ Gear* Actor::getGear(Equippable<Stats::GearStats>::Slot slot) {
 }
 
 void Actor::attack(const glm::ivec2& from, const glm::ivec2& target, const UUID& weaponId, bool isAnimationOnly) {
-    weapons[weaponId]->use(from, target, isAnimationOnly);
+    // weapons[weaponId]->use(from, target, isAnimationOnly);
 }
 
 // TODO: Remove me
-std::vector<Weapon*> Actor::getWeapons(void) const {
-    std::vector<Weapon*> vWeapons;
+// std::vector<Weapon*> Actor::getWeapons(void) const {
+//     std::vector<Weapon*> vWeapons;
     
-    for(auto& [_, weapon] : weapons) {
-        if(weapon != nullptr) {
-            vWeapons.push_back(weapon.get());
-        }
-    }
+//     for(auto& [_, weapon] : weapons) {
+//         if(weapon != nullptr) {
+//             vWeapons.push_back(weapon.get());
+//         }
+//     }
 
-    return vWeapons;
-}
+//     return vWeapons;
+// }
 
 const std::map<Equippable<Stats::GearStats>::Slot, std::unique_ptr<Gear>>& Actor::getEquippedGear(void) const {
     return equippedGear;
 }
 
-Weapon* Actor::getWeapon(const UUID& weaponId) {
-    return weapons[weaponId].get();
-}
+// Weapon* Actor::getWeapon(const UUID& weaponId) {
+//     return weapons[weaponId].get();
+// }
 
-bool Actor::hasWeapon(const UUID& weaponId) {
+// bool Actor::hasWeapon(const UUID& weaponId) {
+//     return weapons.contains(weaponId);
+// }
+
+// Weapon* Actor::addWeapon(std::unique_ptr<Weapon> weapon) {
+//     auto id = weapon->getId();
+//     weapons[id] = std::move(weapon);
+
+//     if(weapons.empty()) {
+//         currentWeapon = weapons[id].get();
+//     }
+
+//     return weapons[id].get();
+// }
+
+// void Actor::removeWeapon(const UUID& weaponId) {
+//     if(weaponId == currentWeapon->getId()) {
+//         currentWeapon = nullptr;
+//     }
+
+//     weapons.erase(weaponId);
+// }
+
+// void Actor::removeAllWeapons(void) {
+//     weapons.clear();
+// }
+
+// void Actor::setCurrentWeapon(const UUID& weaponId) {
+//     if(!hasWeapon(weaponId)) {
+//         return;
+//     }
+
+//     currentWeapon = weapons[weaponId].get();
+// }
+
+// Weapon* Actor::getCurrentWeapon(void) {
+//     if(weapons.empty()) {
+//         return nullptr;
+//     }
+
+//     if(currentWeapon == nullptr) {
+//         setCurrentWeapon(weapons.begin()->first);
+//     }
+
+//     return currentWeapon;
+// }
+
+bool Actor::hasWeapon(entt::entity weaponId) {
     return weapons.contains(weaponId);
 }
 
-Weapon* Actor::addWeapon(std::unique_ptr<Weapon> weapon) {
-    auto id = weapon->getId();
-    weapons[id] = std::move(weapon);
-
-    if(weapons.empty()) {
-        currentWeapon = weapons[id].get();
-    }
-
-    return weapons[id].get();
+entt::entity Actor::addWeapon(entt::entity weaponId) {
+    weapons.insert(weaponId);
+    return weaponId;
 }
 
-void Actor::removeWeapon(const UUID& weaponId) {
-    if(weaponId == currentWeapon->getId()) {
-        currentWeapon = nullptr;
+void Actor::removeWeapon(entt::entity weaponId) {
+    if(hasWeapon(weaponId)) {
+        weapons.erase(weaponId);
     }
-
-    weapons.erase(weaponId);
 }
 
 void Actor::removeAllWeapons(void) {
     weapons.clear();
 }
 
-void Actor::setCurrentWeapon(const UUID& weaponId) {
+void Actor::setCurrentWeapon(entt::entity weaponId) {
     if(!hasWeapon(weaponId)) {
+        spdlog::warn("Actor::setCurrentWeapon: Actor {} does not have weapon {}", id, static_cast<entt::id_type>(weaponId));
         return;
     }
 
-    currentWeapon = weapons[weaponId].get();
+    currentWeapon = weaponId;
 }
 
-Weapon* Actor::getCurrentWeapon(void) {
+entt::entity Actor::getCurrentWeapon(void) {
     if(weapons.empty()) {
-        return nullptr;
+        return entt::null;
     }
 
-    if(currentWeapon == nullptr) {
-        setCurrentWeapon(weapons.begin()->first);
+    if(currentWeapon == entt::null) {
+        setCurrentWeapon(*weapons.begin());
     }
 
     return currentWeapon;
+}
+
+const std::set<entt::entity>& Actor::getWeapons(void) const {
+    return weapons;
 }
 
 uint32_t Actor::getId(void) const {
@@ -189,18 +233,21 @@ int Actor::getDisengagementRange(void) const {
     return 15; // temp hardcoded for now
 }
 
+// TODO: Offload to caller
 bool Actor::hasAnimationsInProgress(void) {
-    return getCurrentWeapon() != nullptr && getCurrentWeapon()->isAnimationInProgress();
+    return false;
+    // return getCurrentWeapon() != nullptr && getCurrentWeapon()->isAnimationInProgress();
 }
 
 void Actor::setParticipantId(int participantId) {
     this->participantId = participantId;
 
-    for(auto& [id, weapon] : weapons) {
-        if(weapon->getItem() != nullptr) {
-            weapon->getItem()->setParticipantId(participantId);
-        }
-    }
+    // TODO: Offload to caller
+    // for(auto& [id, weapon] : weapons) {
+    //     if(weapon->getItem() != nullptr) {
+    //         weapon->getItem()->setParticipantId(participantId);
+    //     }
+    // }
  }
 
 int Actor::getParticipantId(void) const {

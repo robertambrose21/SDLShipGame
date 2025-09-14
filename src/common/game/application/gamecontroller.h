@@ -36,7 +36,8 @@ class GameController : public EventPublisher<
     AttackActionEventData,
     TakeItemActionEventData,
     EquipItemActionEventData,
-    EquipWeaponActionEventData
+    EquipWeaponActionEventData,
+    UnequipWeaponActionEventData
 > {
 public:
     GameController();

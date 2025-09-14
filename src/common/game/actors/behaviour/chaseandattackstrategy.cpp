@@ -84,21 +84,29 @@ ChaseAndAttackStrategy::ActorTurnResult ChaseAndAttackStrategy::doTurnForActor(
             actor.getCurrentWeapon(), 
             targetPosition
         );
+
+        auto weaponHolder = getContext().getEntityRegistry().try_get<WeaponHolder>(actor.getCurrentWeapon());
+
+        if(weaponHolder == nullptr || weaponHolder->weapon == nullptr) {
+            return { true, false };
+        }
         
-        if(actor.getCurrentWeapon()->getUsesLeft() <= 0 || !gameController->queueAction(std::move(action))) {
+        if(weaponHolder->weapon->getUsesLeft() <= 0 || !gameController->queueAction(std::move(action))) {
             return { true, false };
         }
     }
-    else if(bWeapon != nullptr) {
+    else if(bWeapon.has_value()) {
         auto action = std::make_unique<AttackAction>(
             participant, 
             entity, 
             turnNumber,
-            bWeapon, 
+            bWeapon.value(),
             targetPosition
         );
 
-        if(bWeapon->getUsesLeft() <= 0 || !gameController->queueAction(std::move(action))) {
+        auto& weapon = getContext().getEntityRegistry().get<WeaponHolder>(bWeapon.value()).weapon;
+
+        if(weapon->getUsesLeft() <= 0 || !gameController->queueAction(std::move(action))) {
             return { true, false };
         }
     }
@@ -120,17 +128,19 @@ ChaseAndAttackStrategy::ActorTurnResult ChaseAndAttackStrategy::doTurnForActor(
     return { false, false };
 }
 
-Weapon* ChaseAndAttackStrategy::getBestInRangeWeapon(
+std::optional<entt::entity> ChaseAndAttackStrategy::getBestInRangeWeapon(
     Actor* attacker, 
     const glm::ivec2& target
 ) {
-    for(auto weapon : attacker->getWeapons()) {
+    for(auto weaponId : attacker->getWeapons()) {
+        auto& weapon = getContext().getEntityRegistry().get<WeaponHolder>(weaponId).weapon;
+
         if(weapon->getType() == Stats::WeaponStats::PROJECTILE && weapon->isInRange(target)) {
-            return weapon;
+            return weaponId;
         }
     }
 
-    return nullptr;
+    return std::nullopt;
 }
 
 void ChaseAndAttackStrategy::onNextTurn(void) {

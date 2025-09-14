@@ -10,7 +10,7 @@ public:
 
     ActionVariant getPublishData(void) override;
 
-    bool passesPrecondition(void);
+    bool passesPrecondition(ApplicationContext* context);
     Type getType(void);
 
     const std::vector<Item*>& getItems(void) const;
