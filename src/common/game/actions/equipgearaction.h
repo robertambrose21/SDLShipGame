@@ -8,7 +8,7 @@ class EquipGearAction : public Action {
 private:
     bool onValidate(ApplicationContext* context);
     void onExecute(ApplicationContext* context);
-    bool hasFinished(void);
+    bool hasFinished(ApplicationContext* context);
 
     Item* item;
     Equippable<Stats::GearStats>::Slot slot;
@@ -17,14 +17,14 @@ private:
 public:
     EquipGearAction(
         Participant* participant, 
-        Actor* actor, 
+        entt::entity entity, 
         Item* item, 
         Equippable<Stats::GearStats>::Slot slot, 
         bool isUnequip = false
     );
     EquipGearAction(
         Participant* participant, 
-        Actor* actor,
+        entt::entity entity,
         int turnNumber,
         Item* item, 
         Equippable<Stats::GearStats>::Slot slot, 
@@ -33,7 +33,7 @@ public:
 
     ActionVariant getPublishData(void) override;
 
-    bool passesPrecondition(void);
+    bool passesPrecondition(ApplicationContext* context);
     Type getType(void);
 
     Item* getItem(void);

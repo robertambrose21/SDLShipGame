@@ -3,12 +3,12 @@
 
 EquipGearAction::EquipGearAction(
     Participant* participant,
-    Actor* actor, 
+    entt::entity entity, 
     Item* item, 
     Equippable<Stats::GearStats>::Slot slot, 
     bool isUnequip
 ) :
-    Action(participant, actor),
+    Action(participant, entity),
     item(item),
     slot(slot),
     isUnequip(isUnequip)
@@ -16,25 +16,32 @@ EquipGearAction::EquipGearAction(
 
 EquipGearAction::EquipGearAction(
     Participant* participant, 
-    Actor* actor,
+    entt::entity entity,
     int turnNumber,
     Item* item, 
     Equippable<Stats::GearStats>::Slot slot, 
     bool isUnequip
 ) :
-    Action(participant, actor, turnNumber),
+    Action(participant, entity, turnNumber),
     item(item),
     slot(slot),
     isUnequip(isUnequip)
 { }
 
 ActionVariant EquipGearAction::getPublishData(void) {
-    return EquipItemActionEventData { turnNumber, actor, item, slot, isUnequip };
+    return EquipItemActionEventData { turnNumber, entity, item, slot, isUnequip };
 }
 
 bool EquipGearAction::onValidate(ApplicationContext* context) {
     if(item == nullptr) {
         spdlog::trace("[EquipItem]: Failed to validate action, item is null");
+        return false;
+    }
+
+    auto actor = context->getEntityRegistry().try_get<Actor>(entity);
+
+    if(!actor) {
+        spdlog::trace("[{}]: Failed to validate action, actor is null", typeToString());
         return false;
     }
 
@@ -90,6 +97,13 @@ bool EquipGearAction::onValidate(ApplicationContext* context) {
 }
 
 void EquipGearAction::onExecute(ApplicationContext* context) {
+    auto actor = context->getEntityRegistry().try_get<Actor>(entity);
+
+    if(!actor) {
+        spdlog::trace("[{}]: Failed to execute action, actor is null", typeToString());
+        return;
+    }
+
     auto participant = context->getGameController()->getParticipant(actor->getParticipantId());
     auto existingGear = actor->getGear(slot);
 
@@ -104,13 +118,15 @@ void EquipGearAction::onExecute(ApplicationContext* context) {
         participant->removeItem(item);
         actor->setGear(std::make_unique<Gear>(slot, item));
     }
+
+    context->getActorController()->applyStats(entity);
 }
 
-bool EquipGearAction::hasFinished(void) {
+bool EquipGearAction::hasFinished(ApplicationContext* context) {
     return true;
 }
 
-bool EquipGearAction::passesPrecondition(void) {
+bool EquipGearAction::passesPrecondition(ApplicationContext* context) {
     return !participant->hasAnyEngagement();
 }
 

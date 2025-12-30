@@ -1,6 +1,6 @@
 #include "effect.h"
 
-Effect::Effect(Actor* target, int ownerId, const Stats::EffectStats& stats) :
+Effect::Effect(entt::entity target, int ownerId, const Stats::EffectStats& stats) :
     target(target),
     ownerId(ownerId),
     stats(stats),
@@ -8,9 +8,9 @@ Effect::Effect(Actor* target, int ownerId, const Stats::EffectStats& stats) :
     timeSinceLastTick(0)
 { }
 
-void Effect::apply(void) {
+void Effect::apply(ApplicationContext* context) {
     if(ticksLeft > 0) {
-        doApply();
+        doApply(context);
     }
 }
 
@@ -32,7 +32,7 @@ void Effect::nextTurn(void) {
     timeSinceLastTick = 0;
 }
 
-Actor* Effect::getTarget(void) {
+entt::entity Effect::getTarget(void) {
     return target;
 }
 
@@ -46,37 +46,42 @@ int64_t Effect::getTimeSinceLastTick(void) const {
 
 
 
-FreezeEffect::FreezeEffect(Actor* target, int ownerId, const Stats::EffectStats& stats) :
+FreezeEffect::FreezeEffect(entt::entity target, int ownerId, const Stats::EffectStats& stats) :
     Effect(target, ownerId, stats)
 { }
 
-void FreezeEffect::doApply(void) {
-    target->setFrozen(true);
+void FreezeEffect::doApply(ApplicationContext* context) {
+    auto& actor = context->getEntityRegistry().get<Actor>(target);
+    actor.setFrozen(true);
 }
 
 EffectType FreezeEffect::getType(void) const {
     return EffectType::FREEZE;
 }
 
-void FreezeEffect::onEffectEnd(void) {
-    target->setFrozen(false);
+void FreezeEffect::onEffectEnd(ApplicationContext* context) {
+    auto& actor = context->getEntityRegistry().get<Actor>(target);
+    actor.setFrozen(false);
 }
 
 
-PoisonEffect::PoisonEffect(Actor* target, int ownerId, const Stats::EffectStats& stats) :
+PoisonEffect::PoisonEffect(entt::entity target, int ownerId, const Stats::EffectStats& stats) :
     Effect(target, ownerId, stats)
 { }
 
-void PoisonEffect::doApply(void) {
+void PoisonEffect::doApply(ApplicationContext* context) {
     game_assert(stats.duration - ticksLeft >= 0);
-    target->setIsPoisoned(true);
-    target->takeDamage(stats.damageTicks[stats.duration - ticksLeft]);
+    auto& actor = context->getEntityRegistry().get<Actor>(target);
+
+    actor.setIsPoisoned(true);
+    context->getActorController()->applyDamage(target, stats.damageTicks[stats.duration - ticksLeft]);
 }
 
 EffectType PoisonEffect::getType(void) const {
     return EffectType::POISON;
 }
 
-void PoisonEffect::onEffectEnd(void) {
-    target->setIsPoisoned(false);
+void PoisonEffect::onEffectEnd(ApplicationContext* context) {
+    auto& actor = context->getEntityRegistry().get<Actor>(target);
+    actor.setIsPoisoned(false);
 }

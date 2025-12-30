@@ -7,7 +7,6 @@
 #include "clientstatemachine.h"
 #include "clientstates.h"
 #include "graphics/window.h"
-#include "graphics/drawstrategies/actordrawstrategy.h"
 #include "graphics/drawstrategies/weapondrawstrategy.h"
 #include "graphics/drawstrategies/projectiledrawstrategy.h"
 #include "graphics/drawstrategies/areaofeffectdrawstrategy.h"
@@ -17,6 +16,9 @@
 #include "core/grid/generation/wfctileset.h"
 #include "game/spawn/spawncontroller.h"
 #include "game/application/visibilitycontroller.h"
+#include "game/ecs/drawsystemregistry.h"
+#include "graphics/ecs/systems/actordrawsystem.h"
+#include "game/ecs/systems/actorupdatesystem.h"
 
 class ClientApplication {
 private:
@@ -27,11 +29,13 @@ private:
     std::unique_ptr<GameClientMessagesReceiver> clientMessagesReceiver;
     std::unique_ptr<GameClient> client;
     std::unique_ptr<Window> window;
-    StdOutSubscriber stdoutSubscriber;
+    std::unique_ptr<StdOutSubscriber> stdoutSubscriber;
 
     std::unique_ptr<ClientStateMachine> clientStateMachine;
 
-    std::unique_ptr<ActorDrawStrategy> actorDrawStrategy;
+    std::unique_ptr<DrawSystemRegistry> drawSystemRegistry;
+    std::unique_ptr<LogicSystemRegistry> logicSystemRegistry;
+
     std::unique_ptr<WeaponDrawStrategy> weaponDrawStrategy;
     std::unique_ptr<ProjectileDrawStrategy> projectileDrawStrategy;
     std::unique_ptr<AreaOfEffectDrawStrategy> areaOfEffectDrawStrategy;

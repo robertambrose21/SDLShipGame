@@ -11,7 +11,7 @@
   },
   "stats": {
     "movesPerTurn": 3,
-    "hp": 100,
+    "hp": 256,
     "armour": 1
   },
   "lootTable": []

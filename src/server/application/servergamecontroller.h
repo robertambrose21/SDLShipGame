@@ -37,5 +37,5 @@ private:
     void checkForItems(int participantId);
     void assignEngagements(int participantIdToCheck);
     void compareAndEngageParticipants(Participant* participantA, Participant* participantB);
-    bool hasActorEngagement(Actor* target, Participant* participant);
+    bool hasActorEngagement(entt::entity target, Participant* participant);
 };

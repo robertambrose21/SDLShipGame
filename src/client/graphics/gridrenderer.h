@@ -15,6 +15,7 @@
 #include "ui/text.h"
 
 class GraphicsContext;
+class ApplicationContext;
 
 // TODO: This is potentially overloaded - actors/projectiles and everything else call the 'draw' function
 // This is currently the 'GameRenderer' not the grid renderer. Split up at some point
@@ -25,57 +26,9 @@ class GridRenderer :
     public EventSubscriber<TilesRevealedEventData>,
     public EventSubscriber<ActorSetPositionEventData>
 {
-private:
-    typedef struct _chunk {
-        int id;
-        glm::ivec2 min, max;
-        std::unique_ptr<Texture> texture;
-        bool textureNeedsRebuilding;
-    } Chunk;
-
-    const int ChunkSize = 32;
-
-    int windowHeight;
-    int tileSize;
-
-    std::unique_ptr<Texture> fogTexture;
-    bool fogTextureNeedsRebuilding;
-    std::unique_ptr<Texture> debugTexture;
-
-    std::vector<std::unique_ptr<Text>> coords;
-
-    std::map<int, uint32_t> tileTexturesIds;
-    std::vector<std::unique_ptr<Chunk>> chunks;
-    Grid* grid;
-    VisiblityController* visiblityController;
-    ActorPool* actorPool;
-
-    std::vector<std::unique_ptr<Chunk>> createChunks(void);
-    void buildChunkTexture(GraphicsContext& graphicsContext, Chunk* chunk);
-    bool isTileInChunk(Chunk* chunk, int x, int y);
-
-    void buildFogBorders(GraphicsContext& graphicsContext, int xMin, int xMax, int yMin, int yMax);
-    void buildFogTiles(
-        GraphicsContext& graphicsContext, 
-        Actor* actor, 
-        int xMin, 
-        int xMax, 
-        int yMin, 
-        int yMax
-    );
-    void buildFogTexture(GraphicsContext& graphicsContext);
-    void buildDebugTexture(GraphicsContext& graphicsContext);
-    void drawDebugTexture(GraphicsContext& graphicsContext);
-
-    // TODO: Why on earth is the camera on the GridRenderer???? Move this!
-    std::unique_ptr<Camera> camera;
-    Participant* participant;
-
 public:
     GridRenderer(
-        Grid* grid, 
-        VisiblityController* visiblityController,
-        ActorPool* actorPool,
+        ApplicationContext* context,
         int windowHeight
     );
 
@@ -105,4 +58,48 @@ public:
     glm::ivec2 getTilePosition(int x, int y) const;
     std::pair<int, int> getTileIndices(const glm::ivec2& position);
     int getTileSize(void) const;
+
+private:
+    typedef struct _chunk {
+        int id;
+        glm::ivec2 min, max;
+        std::unique_ptr<Texture> texture;
+        bool textureNeedsRebuilding;
+    } Chunk;
+
+    const int ChunkSize = 32;
+
+    int windowHeight;
+    int tileSize;
+
+    std::unique_ptr<Texture> fogTexture;
+    bool fogTextureNeedsRebuilding;
+    std::unique_ptr<Texture> debugTexture;
+
+    std::vector<std::unique_ptr<Text>> coords;
+
+    std::map<int, uint32_t> tileTexturesIds;
+    std::vector<std::unique_ptr<Chunk>> chunks;
+    ApplicationContext* context;
+
+    std::vector<std::unique_ptr<Chunk>> createChunks(void);
+    void buildChunkTexture(GraphicsContext& graphicsContext, Chunk* chunk);
+    bool isTileInChunk(Chunk* chunk, int x, int y);
+
+    void buildFogBorders(GraphicsContext& graphicsContext, int xMin, int xMax, int yMin, int yMax);
+    void buildFogTiles(
+        GraphicsContext& graphicsContext, 
+        entt::entity entity, 
+        int xMin, 
+        int xMax, 
+        int yMin, 
+        int yMax
+    );
+    void buildFogTexture(GraphicsContext& graphicsContext);
+    void buildDebugTexture(GraphicsContext& graphicsContext);
+    void drawDebugTexture(GraphicsContext& graphicsContext);
+
+    // TODO: Why on earth is the camera on the GridRenderer???? Move this!
+    std::unique_ptr<Camera> camera;
+    Participant* participant;
 };

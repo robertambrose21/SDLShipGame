@@ -24,6 +24,7 @@ void ClientApplication::initialise(void) {
     application = std::make_unique<Application>(
         std::make_unique<Grid>(128, 128), // TODO: This should be defined by the server
         std::make_unique<ActorPool>(),
+        std::make_unique<ActorController>(),
         std::make_unique<WeaponController>(),
         std::make_unique<ProjectilePool>(),
         std::make_unique<AreaOfEffectPool>(),
@@ -36,28 +37,34 @@ void ClientApplication::initialise(void) {
 
     auto& context = application->getContext();
 
+    stdoutSubscriber = std::make_unique<StdOutSubscriber>(context);
+
     context.getGameController()->initialise(application->getContext());
     context.getAreaOfEffectPool()->initialise(application->getContext());
     context.getProjectilePool()->initialise(application->getContext());
     context.getWeaponController()->initialise(application->getContext());
     context.getActorPool()->initialise(application->getContext());
+    context.getActorController()->initialise(application->getContext());
     context.getItemController()->initialise(application->getContext());
     context.getSpawnController()->initialise(application->getContext());
     context.getVisibilityController()->initialise(application->getContext());
     context.getEffectController()->initialise(application->getContext());
-    context.getActorPool()->subscribe<ActorEventData>(&stdoutSubscriber);
-    context.getWeaponController()->subscribe<MeleeWeaponEventData>(&stdoutSubscriber);
-    context.getProjectilePool()->subscribe<ProjectileEventData>(&stdoutSubscriber);
-    context.getAreaOfEffectPool()->subscribe<AreaOfEffectEventData>(&stdoutSubscriber);
-    context.getItemController()->subscribe<ItemEventData>(&stdoutSubscriber);
-    context.getGameController()->subscribe<TakeItemActionEventData>(&stdoutSubscriber);
-    context.getGameController()->subscribe<EquipItemActionEventData>(&stdoutSubscriber);
+    context.getWeaponController()->subscribe<MeleeWeaponEventData>(stdoutSubscriber.get());
+    context.getProjectilePool()->subscribe<ProjectileEventData>(stdoutSubscriber.get());
+    context.getAreaOfEffectPool()->subscribe<AreaOfEffectEventData>(stdoutSubscriber.get());
+    context.getItemController()->subscribe<ItemEventData>(stdoutSubscriber.get());
+    context.getGameController()->subscribe<TakeItemActionEventData>(stdoutSubscriber.get());
+    context.getGameController()->subscribe<EquipItemActionEventData>(stdoutSubscriber.get());
     // TODO: Gross af - fix these subscriptions
     context.getGameController()->getEngagementController()
         ->subscribe<RemoveEngagementEventData>(dynamic_cast<ClientGameController*>(context.getGameController()));
 
+    drawSystemRegistry = std::make_unique<DrawSystemRegistry>(context.getEntityRegistry());
+    logicSystemRegistry = std::make_unique<LogicSystemRegistry>(context.getEntityRegistry());
+
+    drawSystemRegistry->addSystem(std::make_unique<ActorDrawSystem>("ActorDrawSystem"));
+
     weaponDrawStrategy = std::make_unique<WeaponDrawStrategy>();
-    actorDrawStrategy = std::make_unique<ActorDrawStrategy>(weaponDrawStrategy.get());
     projectileDrawStrategy = std::make_unique<ProjectileDrawStrategy>();
     areaOfEffectDrawStrategy = std::make_unique<AreaOfEffectDrawStrategy>();
     itemDrawStrategy = std::make_unique<ItemDrawStrategy>();
@@ -87,7 +94,7 @@ void ClientApplication::initialise(void) {
     clientMessagesTransmitter = std::make_unique<GameClientMessagesTransmitter>(*client);
 
     clientMessagesReceiver->setTransmitter(clientMessagesTransmitter.get());
-    clientMessagesReceiver->subscribe<ApplyDamageEventData>(&stdoutSubscriber);
+    clientMessagesReceiver->subscribe<ApplyDamageEventData>(stdoutSubscriber.get());
 
     context.getGameController()->setOnAllParticipantsSetFunction([&]() {
         clientStateMachine->setState(std::make_unique<ClientGameLoopState>());
@@ -98,11 +105,22 @@ void ClientApplication::initialise(void) {
     window = std::make_unique<Window>(
         1920, 
         1080, 
-        grid, 
-        context.getVisibilityController(),
-        context.getActorPool()
+        &context
     );
+
     window->initialiseWindow();
+
+    playerController = std::make_unique<PlayerController>(
+        *clientMessagesTransmitter,
+        application->getContext(), 
+        window->getGraphicsContext()
+    );
+
+    auto actorUpdateSystem = std::make_unique<ActorUpdateSystem>("ActorUpdateSystem");
+    actorUpdateSystem->subscribe<ActorEventData>(playerController->getPlayerPanel());
+    actorUpdateSystem->subscribe<ActorEventData>(stdoutSubscriber.get());
+    actorUpdateSystem->subscribe<ActorSetPositionEventData>(&window->getGridRenderer());
+    logicSystemRegistry->addSystem(std::move(actorUpdateSystem));
 
     for(auto const& [_, tile] : tileSet.getTileMapping()) {
         window->setGridTileTexture(tile.id, tile.textureId);
@@ -115,12 +133,7 @@ void ClientApplication::initialise(void) {
     }
 
     context.getEffectController()->subscribe<GridEffectEvent>(&window->getGraphicsContext().getGridRenderer());
-
-    playerController = std::make_unique<PlayerController>(
-        *clientMessagesTransmitter,
-        application->getContext(), 
-        window->getGraphicsContext()
-    );
+    
     clientMessagesReceiver->setPlayerController(playerController.get());
     clientMessagesReceiver->subscribe<ApplyDamageEventData>(playerController->getPlayerPanel());
 
@@ -163,10 +176,11 @@ void ClientApplication::drawGameLoop(GraphicsContext& graphicsContext) {
     auto areaOfEffectPool = context.getAreaOfEffectPool();
     auto itemController = context.getItemController();
 
+    drawSystemRegistry->draw(graphicsContext);
+
     for(auto& item : itemController->getWorldItems()) {
         itemDrawStrategy->draw(item, graphicsContext);
     }
-
 
     for(auto const& [_, aoes] : areaOfEffectPool->getEngagementAoEs()) {
         for(auto const& aoe : aoes) {
@@ -176,10 +190,6 @@ void ClientApplication::drawGameLoop(GraphicsContext& graphicsContext) {
     
     for(auto const& aoe : areaOfEffectPool->getAdhocAoEs()) {
         areaOfEffectDrawStrategy->draw(aoe.get(), graphicsContext);
-    }
-
-    for(auto actor : actorPool->getActors()) {
-        actorDrawStrategy->draw(actor, graphicsContext);
     }
 
     for(auto projectile : projectilePool->getAllProjectiles()) {
@@ -222,8 +232,10 @@ void ClientApplication::update(int64_t timeSinceLastFrame, bool& quit) {
             break;
 
         case ClientStateMachine::GameLoop:
+            logicSystemRegistry->update(context, timeSinceLastFrame, quit);
+
             gameController->update(timeSinceLastFrame, quit);
-            actorPool->updateActors(timeSinceLastFrame, quit);
+            actorPool->update(timeSinceLastFrame, quit);
             playerController->update(timeSinceLastFrame);
             projectilePool->update(timeSinceLastFrame);
             areaOfEffectPool->update(timeSinceLastFrame);

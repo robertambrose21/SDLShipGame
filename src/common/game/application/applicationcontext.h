@@ -1,5 +1,7 @@
 #pragma once
 
+#include <entt/entt.hpp>
+
 #include "game/net/messages.h"
 #include "core/net/servermessagestransmitter.h"
 #include "core/util/gameassert.h"
@@ -14,25 +16,14 @@ class ItemController;
 class EffectController;
 class SpawnController;
 class VisiblityController;
+class ActorController;
 
 class ApplicationContext {
-private:
-    Grid* grid;
-    ActorPool* actorPool;
-    WeaponController* weaponController;
-    ProjectilePool* projectilePool;
-    AreaOfEffectPool* areaOfEffectPool;
-    GameController* gameController;
-    ItemController* itemController;
-    EffectController* effectController;
-    SpawnController* spawnController;
-    VisiblityController* visiblityController;
-    ServerMessagesTransmitter* transmitter;
-
 public:
     ApplicationContext(
         Grid* grid,
         ActorPool* actorPool,
+        ActorController* actorController,
         WeaponController* weaponController,
         ProjectilePool* projectilePool,
         AreaOfEffectPool* areaOfEffectPool,
@@ -45,6 +36,7 @@ public:
 
     Grid* getGrid(void);
     ActorPool* getActorPool(void);
+    ActorController* getActorController(void);
     WeaponController* getWeaponController(void);
     ProjectilePool* getProjectilePool(void);
     AreaOfEffectPool* getAreaOfEffectPool(void);
@@ -56,4 +48,22 @@ public:
 
     void setServerMessagesTransmitter(ServerMessagesTransmitter* transmitter);
     ServerMessagesTransmitter* getServerMessagesTransmitter(void);
+
+    entt::registry& getEntityRegistry(void);
+
+private:
+    Grid* grid;
+    ActorPool* actorPool;
+    ActorController* actorController;
+    WeaponController* weaponController;
+    ProjectilePool* projectilePool;
+    AreaOfEffectPool* areaOfEffectPool;
+    GameController* gameController;
+    ItemController* itemController;
+    EffectController* effectController;
+    SpawnController* spawnController;
+    VisiblityController* visiblityController;
+    ServerMessagesTransmitter* transmitter;
+
+    entt::registry registry;
 };

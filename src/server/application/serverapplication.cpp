@@ -23,6 +23,7 @@ void ServerApplication::initialise(void) {
     application = std::make_unique<Application>(
         std::make_unique<Grid>(128, 128),
         std::make_unique<ActorPool>(),
+        std::make_unique<ActorController>(),
         std::make_unique<WeaponController>(),
         std::make_unique<ProjectilePool>(),
         std::make_unique<AreaOfEffectPool>(),
@@ -35,22 +36,24 @@ void ServerApplication::initialise(void) {
 
     auto& context = application->getContext();
 
+    stdoutSubscriber = std::make_unique<StdOutSubscriber>(context);
+
     context.getGameController()->initialise(application->getContext());
     context.getAreaOfEffectPool()->initialise(application->getContext());
     context.getProjectilePool()->initialise(application->getContext());
     context.getWeaponController()->initialise(application->getContext());
     context.getActorPool()->initialise(application->getContext());
+    context.getActorController()->initialise(application->getContext());
     context.getItemController()->initialise(application->getContext());
     context.getSpawnController()->initialise(application->getContext());
     context.getVisibilityController()->initialise(application->getContext());
     context.getEffectController()->initialise(application->getContext());
-    context.getActorPool()->subscribe<ActorEventData>(&stdoutSubscriber);
-    context.getWeaponController()->subscribe<MeleeWeaponEventData>(&stdoutSubscriber);
-    context.getProjectilePool()->subscribe<ProjectileEventData>(&stdoutSubscriber);
-    context.getAreaOfEffectPool()->subscribe<AreaOfEffectEventData>(&stdoutSubscriber);
-    context.getItemController()->subscribe<ItemEventData>(&stdoutSubscriber);
-    context.getGameController()->subscribe<TakeItemActionEventData>(&stdoutSubscriber);
-    context.getGameController()->subscribe<EquipItemActionEventData>(&stdoutSubscriber);
+    context.getWeaponController()->subscribe<MeleeWeaponEventData>(stdoutSubscriber.get());
+    context.getProjectilePool()->subscribe<ProjectileEventData>(stdoutSubscriber.get());
+    context.getAreaOfEffectPool()->subscribe<AreaOfEffectEventData>(stdoutSubscriber.get());
+    context.getItemController()->subscribe<ItemEventData>(stdoutSubscriber.get());
+    context.getGameController()->subscribe<TakeItemActionEventData>(stdoutSubscriber.get());
+    context.getGameController()->subscribe<EquipItemActionEventData>(stdoutSubscriber.get());
 
     server = std::make_unique<GameServer>(
         std::make_unique<GameMessageLogger>("server_messages.log"),
@@ -61,8 +64,7 @@ void ServerApplication::initialise(void) {
     transmitter = std::make_unique<GameServerMessagesTransmitter>(
         *server, 
         dynamic_cast<ServerGameController*>(context.getGameController()),
-        context.getVisibilityController(),
-        context.getItemController(),
+        &context,
         [&](int clientIndex) { onClientConnect(clientIndex); },
         [&](int clientIndex) { onClientDisconnect(clientIndex); }
     );
@@ -74,7 +76,6 @@ void ServerApplication::initialise(void) {
     server->setTransmitter(transmitter.get());
     context.setServerMessagesTransmitter(transmitter.get());
     context.getItemController()->subscribe<ItemEventData>(transmitter.get());
-    context.getActorPool()->subscribe(context.getItemController());
     context.getGameController()->subscribe<MoveActionEventData>(transmitter.get());
     context.getGameController()->subscribe<AttackActionEventData>(transmitter.get());
     context.getGameController()->subscribe<TakeItemActionEventData>(transmitter.get());
@@ -84,9 +85,6 @@ void ServerApplication::initialise(void) {
     context.getEffectController()->subscribe<ActorEffectEvent>(transmitter.get());
     context.getEffectController()->subscribe<GridEffectEvent>(transmitter.get());
     context.getVisibilityController()->subscribe<TilesRevealedEventData>(transmitter.get());
-    context.getActorPool()->subscribe<ActorSetPositionEventData>(context.getVisibilityController());
-    context.getActorPool()->subscribe<ActorSetPositionEventData>(transmitter.get());
-    context.getActorPool()->subscribe<ActorSetPositionEventData>(dynamic_cast<ServerGameController*>(context.getGameController()));
     context.getVisibilityController()->subscribe<ActorVisibilityToParticipantData>(transmitter.get());
     context.getGameController()->getEngagementController()->subscribe<CreateEngagementEventData>(transmitter.get());
     context.getGameController()->getEngagementController()->subscribe<AddToEngagementEventData>(transmitter.get());
@@ -98,10 +96,22 @@ void ServerApplication::initialise(void) {
     context.getGameController()->getFactionController()->subscribe<AddFactionEventData>(transmitter.get());
     context.getGameController()->getFactionController()->subscribe<ChangeFactionAlignmentEventData>(transmitter.get());
 
+    logicSystemRegistry = std::make_unique<LogicSystemRegistry>(context.getEntityRegistry());
+
+    auto actorUpdateSystem = std::make_unique<ActorUpdateSystem>("ActorUpdateSystem");
+    actorUpdateSystem->subscribe<ActorEventData>(stdoutSubscriber.get());
+    actorUpdateSystem->subscribe<ActorEventData>(context.getItemController());
+    actorUpdateSystem->subscribe<ActorSetPositionEventData>(context.getVisibilityController());
+    actorUpdateSystem->subscribe<ActorSetPositionEventData>(transmitter.get());
+    actorUpdateSystem->subscribe<ActorSetPositionEventData>(dynamic_cast<ServerGameController*>(context.getGameController()));
+    logicSystemRegistry->addSystem(std::move(actorUpdateSystem));
+
     application->addLogicWorker([&](ApplicationContext& c, auto const& timeSinceLastFrame, auto& quit) {
         server->update(timeSinceLastFrame);
+        logicSystemRegistry->update(c, timeSinceLastFrame, quit);
+        
         c.getGameController()->update(timeSinceLastFrame, quit);
-        c.getActorPool()->updateActors(timeSinceLastFrame, quit);
+        c.getActorPool()->update(timeSinceLastFrame, quit);
         c.getProjectilePool()->update(timeSinceLastFrame);
         c.getAreaOfEffectPool()->update(timeSinceLastFrame);
         c.getEffectController()->update(timeSinceLastFrame);
@@ -134,7 +144,8 @@ void ServerApplication::onClientConnect(int clientIndex) {
         spdlog::trace("Client {} reconnected and is attaching to participant {}", clientIndex, participant->getId());
     }
     else {
-        participant = gameController->addParticipant(true, { addPlayer(false) });
+        auto actor = addPlayer(false);
+        participant = gameController->addParticipant(true, { actor });
 
         transmitter->sendFactionUpdates(clientIndex, factionController->getAlignedFactions());
         auto basedFaction = factionController->getFactionByName("Based");
@@ -152,18 +163,6 @@ void ServerApplication::onClientConnect(int clientIndex) {
     // TOOD: Send just unready participants to all clients
     for(auto& p : gameController->getParticipants()) {
         transmitter->sendSetParticipantToAllClients(p);
-    }
-
-    // Temp hack to trigger a grid tile reveal
-    for(auto actor : participant->getActors()) {
-        actor->setPosition(actor->getPosition());
-        spdlog::trace(
-            "Actor {} spawned at position ({}, {}) for participant {}", 
-            actor->toString(), 
-            actor->getPosition().x,
-            actor->getPosition().y,
-            participant->getId()
-        );
     }
     
     transmitter->sendLoadGameToClient(clientIndex);
@@ -243,17 +242,20 @@ void ServerApplication::sendGameStateUpdatesToParticipant(int clientIndex) {
         expectedNumChunks++;
     }
 
-    for(auto actor : visibleActors) {
-        if(actor->getStats().hp <= 0) {
+    for(auto entity : visibleActors) {
+        auto& actor = application->getContext().getEntityRegistry().get<Actor>(entity);
+        auto const& stats = application->getContext().getEntityRegistry().get<Stats::ActorStats>(entity);
+
+        if(stats.hp <= 0) {
             std::cout << "Actor with 0 hp, should not happen" << std::endl;
         }
 
-        actorsBlock.push_back(actor);
+        actorsBlock.push_back(&actor);
 
         if(actorsBlock.size() == MaxActors) {
             transmitter->sendGameStateUpdate(
                 clientIndex, 
-                GameStateUpdate::serialize(participantId, actorsBlock, chunkId, expectedNumChunks)
+                GameStateUpdate::serialize(&context, participantId, actorsBlock, chunkId, expectedNumChunks)
             );
             spdlog::trace("Sent GameStateUpdate [{}] to participant {}", actorsBlock.size(), participantId);
             actorsBlock.clear();
@@ -263,7 +265,7 @@ void ServerApplication::sendGameStateUpdatesToParticipant(int clientIndex) {
     if(!actorsBlock.empty()) {
         transmitter->sendGameStateUpdate(
             clientIndex, 
-            GameStateUpdate::serialize(participantId, actorsBlock, chunkId, expectedNumChunks)
+            GameStateUpdate::serialize(&context, participantId, actorsBlock, chunkId, expectedNumChunks)
         );
         spdlog::trace("Sent GameStateUpdate [{}] to participant {}", actorsBlock.size(), participantId);
     }
@@ -301,7 +303,7 @@ std::vector<GenerationStrategy::Room> ServerApplication::loadMap(void) {
 // TODO: Eventually move to some kind of map generator class
 void ServerApplication::loadGame(const std::vector<GenerationStrategy::Room>& rooms) {
     auto& context = application->getContext();
-    std::vector<Actor*> enemies;
+    std::vector<entt::entity> enemies;
 
     for(auto& room : rooms) {
         if(randomD6() > 3) {
@@ -345,7 +347,7 @@ void ServerApplication::loadGame(const std::vector<GenerationStrategy::Room>& ro
     context.getGameController()->reset();
 }
 
-Actor* ServerApplication::addPlayer(bool hasFreezeGun) {
+entt::entity ServerApplication::addPlayer(bool hasFreezeGun) {
     auto& context = application->getContext();
 
     static int i = 0;

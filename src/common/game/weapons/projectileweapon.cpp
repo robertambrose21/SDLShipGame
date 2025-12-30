@@ -1,7 +1,7 @@
 #include "projectileweapon.h"
 
 ProjectileWeapon::ProjectileWeapon(
-    Actor* owner,
+    entt::entity owner,
     ApplicationContext* context,
     Item* item,
     EventPublisher<MeleeWeaponEventData>& publisher,
@@ -16,7 +16,7 @@ ProjectileWeapon::ProjectileWeapon(
 { }
 
 ProjectileWeapon::ProjectileWeapon(
-    Actor* owner,
+    entt::entity owner,
     ApplicationContext* context,
     Item* item,
     EventPublisher<MeleeWeaponEventData>& publisher,
@@ -34,11 +34,13 @@ bool ProjectileWeapon::onUse(const glm::ivec2& position, const glm::ivec2& targe
         return false;
     }
 
+    auto& ownerActor = context->getEntityRegistry().get<Actor>(owner);
+
     context->getProjectilePool()->add(
         Projectile::create(
             context,
             *context->getProjectilePool(), 
-            owner->getParticipantId(), 
+            ownerActor.getParticipantId(), 
             projectileBlueprint, 
             position, 
             target,
@@ -64,7 +66,9 @@ bool ProjectileWeapon::isInRange(const glm::ivec2& target) {
         return false;
     }
 
-    glm::vec2 ownerCentrePos = glm::vec2(owner->getPosition()) + glm::vec2(.5f, .5f);
+    auto const& ownerPosition = context->getEntityRegistry().get<Position>(owner);
+
+    glm::vec2 ownerCentrePos = glm::vec2(ownerPosition) + glm::vec2(.5f, .5f);
     glm::vec2 targetCentrePos = glm::vec2(target) + glm::vec2(.5f, .5f);
 
     return !context->getGrid()->hasIntersection(ownerCentrePos, targetCentrePos);

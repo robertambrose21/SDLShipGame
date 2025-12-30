@@ -9,16 +9,14 @@ PlayerController::PlayerController(
     clientMessagesTransmitter(clientMessagesTransmitter),
     graphicsContext(graphicsContext),
     gridRenderer(graphicsContext.getGridRenderer()),
-    gameController(context.getGameController()),
-    actorPool(context.getActorPool()),
-    grid(context.getGrid()),
+    context(context),
     camera(graphicsContext.getGridRenderer().getCamera()),
     isLeftShiftPressed(false),
     isCurrentWeaponInRange(true),
     cameraVector(glm::ivec2(0, 0)),
     participant(nullptr)
 {
-    playerPanel = std::make_unique<PlayerPanel>(1920, 1080);
+    playerPanel = std::make_unique<PlayerPanel>(context, 1920, 1080);
     inventoryPanel = std::make_unique<InventoryPanel>(400, 600);
     diagnosticsPanel = std::make_unique<DiagnosticsPanel>();
 
@@ -34,7 +32,6 @@ PlayerController::PlayerController(
         }
     });
     
-    actorPool->subscribe<ActorEventData>(playerPanel.get());
     context.getWeaponController()->subscribe<MeleeWeaponEventData>(playerPanel.get());
     context.getProjectilePool()->subscribe<ProjectileEventData>(playerPanel.get());
     context.getAreaOfEffectPool()->subscribe<AreaOfEffectEventData>(playerPanel.get());
@@ -43,10 +40,13 @@ PlayerController::PlayerController(
 }
 
 void PlayerController::update(int64_t timeSinceLastFrame) {
-    for(auto actor : selectedActors) {
-        if(actor == nullptr || actor->getCurrentHP() <= 0) {
+    for(auto entity : selectedActors) {
+        auto actor = context.getEntityRegistry().try_get<Actor>(entity);
+        auto stats = context.getEntityRegistry().get<Stats::ActorStats>(entity);
+
+        if(actor == nullptr || stats.hp <= 0) {
             selectedActors.erase(
-                std::remove(selectedActors.begin(), selectedActors.end(), actor), selectedActors.end());
+                std::remove(selectedActors.begin(), selectedActors.end(), entity), selectedActors.end());
         }
     }
 
@@ -55,7 +55,8 @@ void PlayerController::update(int64_t timeSinceLastFrame) {
     if(selectedActors.size() == 1) {
         auto windowWidth = graphicsContext.getWindowWidth();
         auto windowHeight = graphicsContext.getWindowHeight();
-        auto position = selectedActors[0]->getPosition();
+
+        auto const& position = context.getEntityRegistry().get<Position>(selectedActors[0]);
         
         camera.setPosition(gridRenderer.getTilePosition(-position.x, -position.y) +
             glm::ivec2(windowWidth / 2, windowHeight / 2));
@@ -106,7 +107,7 @@ void PlayerController::drawUI(GraphicsContext& graphicsContext) {
         bool isOpen = actorPanel->getIsOpen();
 
         if(!isOpen) {
-            actorPool->unsubscribe<ActorUpdateStatsEventData>(actorPanel.get());
+            context.getActorController()->unsubscribe<ActorUpdateStatsEventData>(actorPanel.get());
         }
 
         return !isOpen;
@@ -135,8 +136,8 @@ void PlayerController::handleKeyPress(const SDL_Event& event) {
             }
 
             case SDLK_c: {
-                for(auto actor : selectedActors) {
-                    addActorPanel(actor);
+                for(auto entity : selectedActors) {
+                    addActorPanel(entity);
                 }
                 break;
             }
@@ -233,10 +234,10 @@ void PlayerController::handleMouseDown(const SDL_Event& event) {
                 break;
             }
 
-            auto actor = Actor::filterByTile(x, y, participant->getActors());
+            auto entities = context.getActorPool()->filterByTile(x, y, participant->getActors());
 
-            if(actor != nullptr) {
-                toggleSelection({ actor });
+            if(!entities.empty()) {
+                toggleSelection(entities);
             }
             else {
                 selection.isActive = true;
@@ -249,9 +250,9 @@ void PlayerController::handleMouseDown(const SDL_Event& event) {
         }
 
         case SDL_BUTTON_RIGHT: {
-            auto const& target = Actor::filterByTile(x, y, actorPool->getActors());
+            auto const& target = context.getActorPool()->filterByTile(x, y);
 
-            if(target != nullptr || isLeftShiftPressed) {
+            if(!target.empty() || isLeftShiftPressed) {
                 attack(position);
             }
             else {
@@ -285,28 +286,39 @@ void PlayerController::handleMouseUp(const SDL_Event& event) {
 
                 auto tiles = gridRenderer.getGrid()->getTilesInSquare(x, y, sizeX, sizeY);
                 
-                toggleSelection(Actor::filterByTiles(tiles, participant->getActors()));
+                toggleSelection(context.getActorPool()->filterByTiles(participant->getActors(), tiles));
             }
             break;
         }
     }
 }
 
-void PlayerController::toggleSelection(const std::vector<Actor*>& actors) {
+void PlayerController::toggleSelection(const std::vector<entt::entity>& actors) {
     if(actors.empty()) {
         return;
     }
 
-    if(actors.size() == 1 && actors[0] != nullptr && actors[0]->isSelected()) {
-        selectedActors.erase(std::find(selectedActors.begin(), selectedActors.end(), actors[0]));
-        actors[0]->setSelected(false);
-        return;
+    // ??
+    // if(actors.size() == 1 && actors[0] != nullptr && actors[0]->isSelected()) {
+    //     selectedActors.erase(std::find(selectedActors.begin(), selectedActors.end(), actors[0]));
+    //     actors[0]->setSelected(false);
+    //     return;
+    // }
+    if(actors.size() == 1) {
+        auto actor = context.getEntityRegistry().try_get<Actor>(actors[0]);
+
+        if(actor != nullptr && actor->isSelected()) {
+            selectedActors.erase(std::find(selectedActors.begin(), selectedActors.end(), actors[0]));
+            actor->setSelected(false);
+            return;
+        }
     }
 
-    for(auto actor : actors) {
-        clientMessagesTransmitter.sendSelectActorMessage(actor->getId());
-        selectedActors.push_back(actor);
-        actor->setSelected(true);
+    for(auto entity : actors) {
+        auto& actor = context.getEntityRegistry().get<Actor>(entity);
+        clientMessagesTransmitter.sendSelectActorMessage(actor.getId());
+        selectedActors.push_back(entity);
+        actor.setSelected(true);
     }
 }
 
@@ -315,8 +327,9 @@ void PlayerController::selectAll(void) {
 }
 
 void PlayerController::deselectAll(void) {
-    for(auto actor : selectedActors) {
-        actor->setSelected(false);
+    for(auto entity : selectedActors) {
+        auto& actor = context.getEntityRegistry().get<Actor>(entity);
+        actor.setSelected(false);
     }
 
     selectedActors.clear();
@@ -325,9 +338,12 @@ void PlayerController::deselectAll(void) {
 void PlayerController::move(const glm::ivec2& position) {
     int turnNumber = participant->hasAnyEngagement() ? participant->getEngagement()->getTurnNumber() : -1;
 
-    for(auto const& actor : selectedActors) {
-        if(!grid->findPath(actor->getPosition(), position).empty()) {
-            clientMessagesTransmitter.sendFindPathMessage(actor->getId(), position, 0, turnNumber);
+    for(auto entity : selectedActors) {
+        auto const& externalId = context.getEntityRegistry().get<ExternalId>(entity);
+        auto const& actorPosition = context.getEntityRegistry().get<Position>(entity);
+
+        if(!context.getGrid()->findPath(actorPosition, position).empty()) {
+            clientMessagesTransmitter.sendFindPathMessage(externalId, position, 0, turnNumber);
         }
     }
 }
@@ -335,21 +351,24 @@ void PlayerController::move(const glm::ivec2& position) {
 void PlayerController::attack(const glm::ivec2& target) {
     int turnNumber = participant->hasAnyEngagement() ? participant->getEngagement()->getTurnNumber() : -1;
 
-    for(auto const& actor : selectedActors) {
-        auto const& weapon = actor->getCurrentWeapon();
+    for(auto const& entity : selectedActors) {
+        auto const& externalId = context.getEntityRegistry().get<ExternalId>(entity);
+        auto& actor = context.getEntityRegistry().get<Actor>(entity);
+        auto weaponId = actor.getCurrentWeapon();
+        auto& weapon = context.getEntityRegistry().get<WeaponHolder>(weaponId).weapon;
         
         // TODO: ClientGameController actions
         if(doAction(
             std::make_unique<AttackAction>(
                 participant, 
-                actor, 
-                weapon, 
+                entity, 
+                weaponId, 
                 target, 
                 true
             ))
         ) {
             clientMessagesTransmitter.sendAttackMessage(
-                actor->getId(), 
+                externalId, 
                 target, 
                 weapon->getId(),
                 turnNumber
@@ -363,13 +382,20 @@ void PlayerController::setHoverTiles(void) {
         hoverTiles.clear();
         return;
     }
+    auto& actor = context.getEntityRegistry().get<Actor>(selectedActors[0]);
+    auto weaponHolder = context.getEntityRegistry().try_get<WeaponHolder>(actor.getCurrentWeapon());
 
-    auto actor = selectedActors[0];
-    auto weapon = actor->getCurrentWeapon();
+    if(weaponHolder == nullptr) {
+        return;
+    }
+
+    auto& weapon = weaponHolder->weapon;
 
     if(weapon == nullptr || weapon->getType() != Stats::WeaponStats::PROJECTILE) {
         return;
     }
+
+    auto const& position = context.getEntityRegistry().get<Position>(selectedActors[0]);
 
     glm::ivec2 mousePosition;
     SDL_GetMouseState(&mousePosition.x, &mousePosition.y);
@@ -378,14 +404,14 @@ void PlayerController::setHoverTiles(void) {
     auto grid = gridRenderer.getGrid();
 
     isCurrentWeaponInRange = weapon->isInRange(glm::vec2(x, y));
-    p1 = (actor->getPosition() * 32) + glm::ivec2(16, 16) + camera.getPosition();
+    p1 = (position * 32) + glm::ivec2(16, 16) + camera.getPosition();
     p2 = (glm::ivec2(x, y) * 32) + glm::ivec2(16, 16) + camera.getPosition();
 
     if(weapon->getName() == "Grenade Launcher") {
         hoverTiles = gridRenderer.getGrid()->getTilesInCircle(x, y, 2);
     }
     else if(weapon->getName()== "Freeze Gun") {
-        glm::ivec2 dir = actor->getPosition() - glm::ivec2(x, y);
+        glm::ivec2 dir = position - glm::ivec2(x, y);
         auto perp = glm::normalize(glm::vec2(dir.y, -dir.x));
         auto pX = std::min(grid->getWidth() - 1, (int) std::round(perp.x));
         auto pY = std::min(grid->getHeight() - 1, (int) std::round(perp.y));
@@ -399,97 +425,93 @@ void PlayerController::setHoverTiles(void) {
 }
 
 void PlayerController::equipItem(Item* item, Equippable<Stats::GearStats>::Slot slot) {
-    auto actor = selectedActors[0];
+    auto const& externalId = context.getEntityRegistry().get<ExternalId>(selectedActors[0]);
 
     if(doAction(
         std::make_unique<EquipGearAction>(
             participant, 
-            actor, 
+            selectedActors[0], 
             item, 
             slot, 
             false
         ))
     ) {
-        clientMessagesTransmitter.sendEquipItemMessage(item->getId(), actor->getId(), slot, false);
+        clientMessagesTransmitter.sendEquipItemMessage(item->getId(), externalId, slot, false);
     }
 }
 
 void PlayerController::unequipItem(Item* item, Equippable<Stats::GearStats>::Slot slot) {
-    auto actor = selectedActors[0];
+    auto const& externalId = context.getEntityRegistry().get<ExternalId>(selectedActors[0]);
 
     if(doAction(
         std::make_unique<EquipGearAction>(
             participant, 
-            actor, 
+            selectedActors[0], 
             item, 
             slot, 
             true
         ))
     ) {
-        clientMessagesTransmitter.sendEquipItemMessage(item->getId(), actor->getId(), slot, true);
+        clientMessagesTransmitter.sendEquipItemMessage(item->getId(), externalId, slot, true);
     }
 }
 
 void PlayerController::equipWeapon(Item* item) {
-    auto actor = selectedActors[0];
+    auto const& externalId = context.getEntityRegistry().get<ExternalId>(selectedActors[0]);
     auto weaponId = UUID::getNewUUID();
 
     if(doAction(
         std::make_unique<EquipWeaponAction>(
             participant, 
-            actor, 
+            selectedActors[0], 
             item, 
             weaponId,
             false
         ))
     ) {
-        spdlog::trace("Player equipping weapon {} to actor {}", weaponId.getString(), actor->getId());
-        clientMessagesTransmitter.sendEquipWeaponMessage(item->getId(), actor->getId(), weaponId, false);
+        spdlog::trace("Player equipping weapon {} to actor {}", weaponId.getString(), externalId);
+        clientMessagesTransmitter.sendEquipWeaponMessage(item->getId(), externalId, weaponId, false);
     }
 }
 
 void PlayerController::unequipWeapon(Weapon* weapon) {
-    auto actor = selectedActors[0];
+    auto const& externalId = context.getEntityRegistry().get<ExternalId>(selectedActors[0]);
     auto weaponId = weapon->getId();
     auto itemId = weapon->getItem()->getId();
 
     if(doAction(
         std::make_unique<EquipWeaponAction>(
             participant,
-            actor,
+            selectedActors[0],
             weapon->getItem(),
             weaponId,
             true
         ))
     ) {
-        spdlog::trace("Player unequipping weapon {} from actor {}", weaponId.getString(), actor->getId());
-        clientMessagesTransmitter.sendEquipWeaponMessage(itemId, actor->getId(), weaponId, true);
+        spdlog::trace("Player unequipping weapon {} from actor {}", weaponId.getString(), externalId);
+        clientMessagesTransmitter.sendEquipWeaponMessage(itemId, externalId, weaponId, true);
     }
 }
 
 bool PlayerController::doAction(std::unique_ptr<Action> action) {
     if(participant->hasAnyEngagement()) {
-        return gameController->queueAction(std::move(action));
+        return context.getGameController()->queueAction(std::move(action));
     }
 
 
-    return gameController->executeActionImmediately(std::move(action));
+    return context.getGameController()->executeActionImmediately(std::move(action));
 }
 
-const std::vector<Actor*>& PlayerController::getSelectedActors(void) const {
+const std::vector<entt::entity>& PlayerController::getSelectedActors(void) const {
     return selectedActors;
 }
 
-void PlayerController::addActorPanel(Actor* actor) {
-    if(actor == nullptr) {
+void PlayerController::addActorPanel(entt::entity entity) {
+    if(actorPanels.contains(entity)) {
         return;
     }
 
-    if(actorPanels.contains(actor->getId())) {
-        return;
-    }
-
-    auto panel = std::make_unique<ActorPanel>(400, 400, actor);
+    auto panel = std::make_unique<ActorPanel>(&context, 400, 400, entity);
 
     panel->addOnUnequipCallback([&](auto item, auto slot) {
         unequipItem(item, slot);
@@ -505,9 +527,9 @@ void PlayerController::addActorPanel(Actor* actor) {
         }
     });
 
-    actorPool->subscribe<ActorUpdateStatsEventData>(panel.get());
+    context.getActorController()->subscribe<ActorUpdateStatsEventData>(panel.get());
 
-    actorPanels[actor->getId()] = std::move(panel);
+    actorPanels[entity] = std::move(panel);
 }
 
 void PlayerController::setParticipant(Participant* participant) {

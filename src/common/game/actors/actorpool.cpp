@@ -68,48 +68,10 @@ void ActorPool::loadActorDefinitions(void) {
     game_assert(!actorDefinitions.empty());
 }
 
-void ActorPool::updateActors(int64_t timeSinceLastFrame, bool& quit) {
+void ActorPool::update(int64_t timeSinceLastFrame, bool& quit) {
     game_assert(initialised);
 
     synchronize();
-
-    for(auto const& actorId : actorsForDeletion) {
-        killActor(actorId);
-    }
-    
-    actorsForDeletion.clear();
-
-    for(auto& [actorId, actor] : actors) {
-        updateActor(actor.get(), timeSinceLastFrame, quit);
-    }
-}
-
-void ActorPool::updateActor(Actor* actor, int64_t timeSinceLastFrame, bool& quit) {
-    game_assert(initialised);
-
-    if(actor->getCurrentHP() <= 0) {
-        actorsForDeletion.insert(actor->getId());
-        return;
-    }
-
-    actor->update(timeSinceLastFrame, quit);
-}
-
-void ActorPool::killActor(uint32_t actorId) {
-    auto gameController = context->getGameController();
-    auto actor = getActor(actorId);
-
-    // Remove actor from participant
-    gameController->getParticipant(actor->getParticipantId())->removeActor(actor);
-
-    // Remove visibility of actor from participants (and prevent a seg-fault)
-    for(auto participant : gameController->getParticipants()) {
-        participant->removeVisibleActor(actor);
-    }
-
-    publish<ActorEventData>({ actor, "Death" });
-
-    actors.erase(actorId);
 }
 
 // TODO: Doing too much, break this up
@@ -126,36 +88,51 @@ bool ActorPool::applyChunkedGameStateUpdate(const ChunkedGameStateUpdate& chunke
         for(int i = 0; i < update.numActors; i++) {
             auto const& actorUpdate = update.actors[i];
 
-            if(!actors.contains(actorUpdate.id)) {
-                auto const& actor = addActor(actorUpdate.name, actorUpdate.id);
-                context->getGameController()->addActorToParticipant(actorUpdate.participantId, actor);   
+            if(!actorByExternalId.contains(actorUpdate.id)) {
+                auto newEntity = addActor(actorUpdate.name, actorUpdate.id);
+                context->getGameController()->addActorToParticipant(actorUpdate.participantId, newEntity);   
             }
 
-            auto& existing = actors[actorUpdate.id];
+            auto actorEntity = getByExternalId(actorUpdate.id);
+
+            if(!actorEntity.has_value()) {
+                spdlog::warn("Cannot update non-existent actor {}", actorUpdate.id);
+                continue;
+            }
+
+            auto& existing = context->getEntityRegistry().get<Actor>(actorEntity.value());
 
             // Weapons
             for(int j = 0; j < actorUpdate.numWeapons; j++) {
                 auto const& weaponUpdate = actorUpdate.weaponUpdates[j];
-                auto weaponId = UUID::fromBytes(weaponUpdate.idBytes);
+                // auto weaponId = UUID::fromBytes(weaponUpdate.idBytes);
+                auto uuid = UUID::fromBytes(weaponUpdate.idBytes);
+
+                auto existingWeaponId = context->getWeaponController()->getByExternalId(uuid).value_or(entt::null);
                 
-                if(!existing->hasWeapon(weaponId)) {
-                    spdlog::trace("Syncing weapon {} to actor {}", weaponId.getString(), existing->getId());
-                    auto weapon = context->getWeaponController()->createWeapon(weaponId, weaponUpdate.name, existing.get());
+                if(!existing.hasWeapon(existingWeaponId)) {
+                    spdlog::trace("Syncing weapon {} to actor {}", uuid.getString(), existing.getId());
+                    // auto weapon = context->getWeaponController()->createWeapon(weaponId, weaponUpdate.name, entity.value());
+                    auto weaponEntity = context->getWeaponController()->addWeapon(uuid, weaponUpdate.name, actorEntity.value());
+                    auto& weapon = context->getEntityRegistry().get<WeaponHolder>(weaponEntity).weapon;
                     
                     if(weapon->getItem() != nullptr && weaponUpdate.hasItem) {
                         weapon->getItem()->setId(weaponUpdate.itemId);
                     }
 
-                    existing->addWeapon(std::move(weapon));
+                    // existing.addWeapon(std::move(weapon));
+                    existing.addWeapon(weaponEntity);
                 }
             }
 
-            ActorStateUpdate::deserialize(actorUpdate, existing.get());
+            context->getActorController()->applyStats(actorEntity.value());
+
+            ActorStateUpdate::deserialize(context, actorUpdate, actorEntity.value());
 
             if(actorUpdate.currentHP <= 0) {
                 actorsForDeletion.insert(actorUpdate.id);
             } else {
-                updatedActors[actorUpdate.id] = actors[actorUpdate.id].get();
+                updatedActors[actorUpdate.id] = &existing;
             }
 
             // std::cout << "Actor [" << update.actors[i].participantId << "] " << update.actors[i].name << "#" 
@@ -168,9 +145,9 @@ bool ActorPool::applyChunkedGameStateUpdate(const ChunkedGameStateUpdate& chunke
     }
 
     // Remove any actors which weren't present in the updates
-    for(auto& [actorId, actor] : actors) {
-        if(!updatedActors.contains(actorId)) {
-            actorsForDeletion.insert(actorId);
+    for(auto [_, actor]: context->getEntityRegistry().view<Actor>().each()) {
+         if(!updatedActors.contains(actor.getId())) {
+            actorsForDeletion.insert(actor.getId());
         }
     }
 
@@ -187,6 +164,10 @@ bool ActorPool::applyChunkedGameStateUpdate(const ChunkedGameStateUpdate& chunke
 
 void ActorPool::synchronize() {
     game_assert(initialised);
+
+    for(auto const& actorId : actorsForDeletion) {
+        removeActorByExternalId(actorId);
+    }
 
     if(pendingChunkedUpdates.empty()) {
         return;
@@ -246,16 +227,7 @@ void ActorPool::addGameStateUpdate(const GameStateUpdate& update) {
     }
 }
 
-Actor* ActorPool::addActor(std::unique_ptr<Actor> actor) {
-    game_assert(initialised);
-    game_assert(!actors.contains(actor->getId()));
-
-    auto id = actor->getId();
-    actors[id] = std::move(actor);
-    return actors[id].get();
-}
-
-Actor* ActorPool::addActor(const std::string& name, uint32_t id) {
+entt::entity ActorPool::addActor(const std::string& name, uint32_t id) {
     game_assert(initialised);
     game_assert(actorDefinitions.contains(name));
 
@@ -268,76 +240,89 @@ Actor* ActorPool::addActor(const std::string& name, uint32_t id) {
     stats.movesPerTurn = definition.movesPerTurn;
     stats.movesLeft = definition.movesPerTurn;
     stats.armour = definition.armour;
-    
-    auto actor = std::make_unique<Actor>(
-        context->getGrid(),
-        id,
-        *this,
-        definition.name,
-        stats
-    );
-    actor->setTextureId(definition.textureId);
-    actor->setColour({
-        definition.r,
-        definition.g,
-        definition.b,
-        definition.a
-    });
-    actor->setSelectedTextureId(6);
 
-    return addActor(std::move(actor));
+    auto& registry = context->getEntityRegistry();
+
+    auto entity = registry.create();
+    registry.emplace<ExternalId>(entity, id);
+    registry.emplace<Drawable>(
+        entity, 
+        definition.textureId, 
+        UINT32_C(6),
+        Colour { definition.r, definition.g, definition.b, definition.a}
+    );
+    registry.emplace<Position>(entity, glm::ivec2(0, 0));
+    registry.emplace<PositionDirty>(entity);
+    registry.emplace<Stats::ActorStats>(entity, stats);
+    registry.emplace<ActionChain>(entity);
+
+    // TODO: don't need to make a variable here anymore
+    auto actor = &registry.emplace<Actor>(entity, id, definition.name, stats);
+
+    actorByExternalId[id] = entity;
+
+    return entity;
 }
 
-Actor* ActorPool::addActor(const std::string& name) {
+entt::entity ActorPool::addActor(const std::string& name) {
     game_assert(initialised);
     return addActor(name, getNewId());
 }
 
-void ActorPool::removeActor(uint32_t id) {
-    auto participant = context->getGameController()->getParticipant(actors[id]->getParticipantId());
-    
-    participant->removeActor(actors[id].get());
-    actors.erase(id);
-}
+void ActorPool::removeActor(entt::entity entity) {
+    auto gameController = context->getGameController();
+    auto& actor = context->getEntityRegistry().get<Actor>(entity);
 
-std::vector<Actor*> ActorPool::getActors(void) {
-    game_assert(initialised);
-    std::vector<Actor*> vActors;
-    
-    for(auto& [_, actor] : actors) {
-        if(actor != nullptr) {
-            vActors.push_back(actor.get());
-        }
+    auto participant = context->getGameController()->getParticipant(actor.getParticipantId());
+
+    // Remove visibility of actor from participants (and prevent a seg-fault)
+    for(auto participant : gameController->getParticipants()) {
+        participant->removeVisibleActor(entity);
     }
 
-    return vActors;
+    participant->removeActor(entity);
+
+    context->getEntityRegistry().destroy(actorByExternalId[actor.getId()]);
+    actorByExternalId.erase(actor.getId());
 }
 
-Actor* ActorPool::getActor(uint32_t id) {
-    game_assert(initialised);
-    game_assert(actors.contains(id));
-    return actors[id].get();
+void ActorPool::removeActorByExternalId(ExternalId id) {
+    auto entity = getByExternalId(id);
+
+    if(!entity.has_value()) {
+        spdlog::warn("Cannot remove non-existent actor with external id '{}'", id);
+        return;
+    }
+
+    removeActor(entity.value());
 }
 
-bool ActorPool::hasActor(uint32_t id) {
-    game_assert(initialised);
-    return actors.contains(id);
+std::optional<entt::entity> ActorPool::getByExternalId(ExternalId externalId) const {
+    if(!actorByExternalId.contains(externalId)) {
+        return std::nullopt;
+    }
+
+    return actorByExternalId.at(externalId);
 }
 
-Actor* ActorPool::findClosestTarget(Actor* attacker, int participantId) {
-    Actor* closestActor = nullptr;
-    auto shortestDistance = attacker->getDisengagementRange();
+std::optional<entt::entity> ActorPool::findClosestTarget(entt::entity attacker, int participantId) {
+    std::optional<entt::entity> closestActor = std::nullopt;
     
-    for(auto& [_, actor] : actors) {
-        if(actor->getParticipantId() == participantId) {
+    auto& attackerActor = context->getEntityRegistry().get<Actor>(attacker);
+    auto const& attackerPosition = context->getEntityRegistry().get<Position>(attacker);
+
+    auto shortestDistance = attackerActor.getDisengagementRange();
+    
+    for(auto [entity, actor, position]: context->getEntityRegistry().view<Actor, Position>().each()) {
+        if(actor.getParticipantId() == participantId) {
             continue;
         }
 
-        auto distance = glm::distance(glm::vec2(attacker->getPosition()), glm::vec2(actor->getPosition()));
+        auto distance = glm::distance(glm::vec2(attackerPosition), glm::vec2(position));
 
         if(distance < shortestDistance) {
             shortestDistance = distance;
-            closestActor = actor.get();
+            closestActor = entity;
         }
     }
 
@@ -346,4 +331,88 @@ Actor* ActorPool::findClosestTarget(Actor* attacker, int participantId) {
 
 LootTable ActorPool::getLootTable(const std::string& actorName) {
     return actorDefinitions[actorName].lootTable;
+}
+
+std::vector<entt::entity> ActorPool::filterByTile(int x, int y, int excludedParticipantId) {
+    std::vector<entt::entity> entities;
+
+    for(auto [entity, actor, position]: context->getEntityRegistry().view<Actor, Position>().each()) {
+        if(actor.getParticipantId() == excludedParticipantId) {
+            continue;
+        }
+
+        if(position == glm::ivec2(x, y)) {
+            entities.push_back(entity);
+        }
+    }
+
+    return entities;
+}
+
+std::vector<entt::entity> ActorPool::filterByTile(
+    int x, 
+    int y, 
+    const std::vector<entt::entity>& actors, 
+    int excludedParticipantId
+) {
+    std::vector<entt::entity> entities;
+
+    for(auto entity : actors) {
+        auto [actor, position] = context->getEntityRegistry().try_get<Actor, Position>(entity);
+
+        if(actor == nullptr) {
+            spdlog::debug(
+                "ActorPool#filterByTile: Cannot find actor for entity {}", 
+                static_cast<entt::id_type>(entity)
+            );
+            continue;
+        }
+
+        if(position == nullptr) {
+            spdlog::debug(
+                "ActorPool#filterByTile: Cannot find position for entity {}", 
+                static_cast<entt::id_type>(entity)
+            );
+            continue;
+        }
+
+        if(actor->getParticipantId() == excludedParticipantId) {
+            continue;
+        }
+
+        if(*position == glm::ivec2(x, y)) {
+            entities.push_back(entity);
+        }
+    }
+
+    return entities;
+}
+
+std::vector<entt::entity> ActorPool::filterByTiles(
+    const std::vector<glm::ivec2>& tiles, 
+    int excludedParticipantId
+) {
+    std::vector<entt::entity> entities;
+
+    for(auto const& tile : tiles) {
+        auto entitiesByTile = filterByTile(tile.x, tile.y, excludedParticipantId);
+        entities.insert(entities.end(), entitiesByTile.begin(), entitiesByTile.end());
+    }
+
+    return entities;
+}
+
+std::vector<entt::entity> ActorPool::filterByTiles(
+    const std::vector<entt::entity>& actors,
+    const std::vector<glm::ivec2>& tiles, 
+    int excludedParticipantId
+) {
+    std::vector<entt::entity> entities;
+
+    for(auto const& tile : tiles) {
+        auto entitiesByTile = filterByTile(tile.x, tile.y, actors, excludedParticipantId);
+        entities.insert(entities.end(), entitiesByTile.begin(), entitiesByTile.end());
+    }
+
+    return entities;
 }

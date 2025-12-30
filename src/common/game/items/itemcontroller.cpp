@@ -261,13 +261,14 @@ std::vector<Item*> ItemController::getWorldItems(void) {
     return worldItems;
 }
 
+// TODO: This shouldn't work if actor is null, send actor name in event instead
 void ItemController::onPublish(const Event<ActorEventData>& event) {
-    auto actor = event.data.actor;
+    auto actor = context->getEntityRegistry().try_get<Actor>(event.data.entity);
     auto itemsDropped = context->getActorPool()->getLootTable(actor->getName()).generateItems();
 
     if(itemsDropped.empty()) {
         return;
-    }    
+    }
 
-    addItems(itemsDropped, actor->getPosition(), actor == nullptr ? Item::UnknownOwner : actor->toString());
+    addItems(itemsDropped, event.data.position, actor == nullptr ? Item::UnknownOwner : actor->toString());
 }

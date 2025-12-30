@@ -85,10 +85,16 @@ bool ServerGameController::canProgressToNextTurn(Engagement* engagement) {
 
     bool haveActorsTurnsFinished = true;
     bool haveActorsActionsFinished = true;
-    for(auto actor : participant->getActors()) {
-        haveActorsTurnsFinished = haveActorsTurnsFinished && !actor->isTurnInProgress();
-        haveActorsActionsFinished = haveActorsActionsFinished && !actor->hasAnimationsInProgress() 
-            && actor->getActionsChain(turnNumber).empty();
+    for(auto entity : participant->getActors()) {
+        auto& actor = context->getEntityRegistry().get<Actor>(entity);
+        auto& chain = context->getEntityRegistry().get<ActionChain>(entity).chain;
+        auto isTurnInProgress = context->getActorController()->isTurnInProgress(entity);
+
+        bool doesActorHaveActionsInChain = chain.contains(turnNumber) && !chain.at(turnNumber).empty();
+
+        haveActorsTurnsFinished = haveActorsTurnsFinished && !isTurnInProgress;
+        haveActorsActionsFinished = haveActorsActionsFinished && !actor.hasAnimationsInProgress() 
+            && !doesActorHaveActionsInChain;
     }
 
     if(!haveActorsActionsFinished) {
@@ -120,7 +126,7 @@ void ServerGameController::onParticipantTurnEnd(Engagement* engagement) {
             }
 
             // TODO: Determine actual disengagement range properly
-            canDisengage = canDisengage && participant->distanceToOtherParticipant(other) > 15;
+            canDisengage = canDisengage && participant->distanceToOtherParticipant(context, other) > 15;
         }
     }
     else {
@@ -145,25 +151,26 @@ void ServerGameController::checkForItems(int participantId) {
         return;
     }
 
-    for(auto actor : participant->getActors()) {
-        auto items = itemController->getItemsAt(actor->getPosition());
+    for(auto entity : participant->getActors()) {
+        auto const& position = context->getEntityRegistry().get<Position>(entity);
+        auto items = itemController->getItemsAt(position);
 
         if(items.empty()) {
             return;
         }
-        
+
         if(participant->hasAnyEngagement()) {
             queueAction(
                 std::make_unique<TakeItemAction>(
                     participant,
-                    actor,
+                    entity,
                     participant->getEngagement()->getTurnNumber(),
                     items
                 )
             );
         }
         else {
-            executeActionImmediately(std::make_unique<TakeItemAction>(participant, actor, items));
+            executeActionImmediately(std::make_unique<TakeItemAction>(participant, entity, items));
         }
     }
 }
@@ -191,8 +198,8 @@ void ServerGameController::compareAndEngageParticipants(Participant* participant
     }
 
     bool canEngage = false;
-    for(auto actorToCheck : participantA->getActors()) {
-        if(hasActorEngagement(actorToCheck, participantB)) {
+    for(auto entity : participantA->getActors()) {
+        if(hasActorEngagement(entity, participantB)) {
             canEngage = true;
             break;
         }
@@ -224,9 +231,9 @@ void ServerGameController::compareAndEngageParticipants(Participant* participant
     }
 }
 
-bool ServerGameController::hasActorEngagement(Actor* target, Participant* participant) {
-    for(auto actor : participant->getActors()) {
-        if(context->getVisibilityController()->isVisible(actor, target)) {
+bool ServerGameController::hasActorEngagement(entt::entity target, Participant* participant) {
+    for(auto entity : participant->getActors()) {
+        if(context->getVisibilityController()->isVisible(entity, target)) {
             return true;
         }
     }
@@ -243,5 +250,7 @@ void ServerGameController::onPublish(const Event<ActorSetPositionEventData>& eve
         assignEngagements(participantId);
     }
 
-    checkForItems(event.data.actor->getParticipantId());
+    auto participantId = context->getEntityRegistry().get<Actor>(event.data.entity).getParticipantId();
+
+    checkForItems(participantId);
 }

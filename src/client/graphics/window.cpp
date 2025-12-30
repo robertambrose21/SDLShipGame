@@ -3,14 +3,12 @@
 Window::Window(
     int width, 
     int height, 
-    Grid* grid, 
-    VisiblityController* visiblityController, 
-    ActorPool* actorPool
+    ApplicationContext* context
 ) :
     width(width),
     height(height)
 {
-    gridRenderer = std::make_unique<GridRenderer>(grid, visiblityController, actorPool, height);
+    gridRenderer = std::make_unique<GridRenderer>(context, height);
 }
 
 Window::~Window() {

@@ -4,8 +4,7 @@
 GameServerMessagesTransmitter::GameServerMessagesTransmitter(
     GameServer& server,
     ServerGameController* gameController,
-    VisiblityController* visibilityController,
-    ItemController* itemController,
+    ApplicationContext* context,
     std::function<void(int)> onClientConnectFunc,
     std::function<void(int)> onClientDisconnectFunc
 ) :
@@ -13,8 +12,7 @@ GameServerMessagesTransmitter::GameServerMessagesTransmitter(
     onClientConnectFunc(onClientConnectFunc),
     onClientDisconnectFunc(onClientDisconnectFunc),
     gameController(gameController),
-    visibilityController(visibilityController),
-    itemController(itemController)
+    context(context)
 { }
 
 void GameServerMessagesTransmitter::onClientConnected(int clientIndex) {
@@ -38,13 +36,15 @@ void GameServerMessagesTransmitter::onPublish(const Event<ItemEventData>& event)
 // TODO: Remove?
 void GameServerMessagesTransmitter::onPublish(const Event<MoveActionEventData>& event) {
     for(auto [participantId, clientIndex] : gameController->getAllAttachedClients()) {
-        if(gameController->getAttachedClient(event.data.actor->getParticipantId()) == clientIndex) {
+        auto& actor = context->getEntityRegistry().get<Actor>(event.data.entity);
+
+        if(gameController->getAttachedClient(actor.getParticipantId()) == clientIndex) {
             return;
         }
 
         FindPathMessage* message = (FindPathMessage*) server.createMessage(clientIndex, GameMessageType::FIND_PATH);
 
-        message->actorId = event.data.actor->getId();
+        message->actorId = actor.getId();
         message->x = event.data.position.x;
         message->y = event.data.position.y;
         message->shortStopSteps = event.data.shortStopSteps;
@@ -56,28 +56,31 @@ void GameServerMessagesTransmitter::onPublish(const Event<MoveActionEventData>& 
 
 void GameServerMessagesTransmitter::onPublish(const Event<AttackActionEventData>& event) {
     for(auto [participantId, clientIndex] : gameController->getAllAttachedClients()) {
-        if(gameController->getAttachedClient(event.data.owner->getParticipantId()) == clientIndex) {
+        auto& owner = context->getEntityRegistry().get<Actor>(event.data.entity);
+        auto& weapon = context->getEntityRegistry().get<WeaponHolder>(event.data.weapon).weapon;
+
+        if(gameController->getAttachedClient(owner.getParticipantId()) == clientIndex) {
             spdlog::trace(
                 "Not sending attack to participant {}, owning actor {}/{} sent the attack",
                 participantId,
-                event.data.owner->getParticipantId(),
-                event.data.owner->toString()
+                owner.getParticipantId(),
+                owner.toString()
             );
             continue;
         }
 
         AttackMessage* message = (AttackMessage*) server.createMessage(clientIndex, GameMessageType::ATTACK_ENTITY);
 
-        message->actorId = event.data.owner->getId();
+        message->actorId = owner.getId();
         message->x = event.data.target.x;
         message->y = event.data.target.y;
-        memcpy(message->weaponIdBytes, &event.data.weapon->getId().getBytes()[0], 16);
+        memcpy(message->weaponIdBytes, &weapon->getId().getBytes()[0], 16);
         message->turnNumber = event.data.turnNumber.value_or(-1);
 
         spdlog::trace("Sending attack to participant {}, owning actor {}/{} sent the attack",
             participantId,
-            event.data.owner->getParticipantId(),
-            event.data.owner->toString()
+            owner.getParticipantId(),
+            owner.toString()
         );
         server.sendMessage(clientIndex, message);
     }
@@ -87,8 +90,10 @@ void GameServerMessagesTransmitter::onPublish(const Event<TakeItemActionEventDat
     for(auto [_, clientIndex] : gameController->getAllAttachedClients()) {
         TakeItemsMessage* message = (TakeItemsMessage*) server.createMessage(clientIndex, GameMessageType::TAKE_ITEMS);
 
+        auto& actor = context->getEntityRegistry().get<Actor>(event.data.entity);
+
         message->turnNumber = event.data.turnNumber.value_or(-1);
-        message->actorId = event.data.actor->getId();
+        message->actorId = actor.getId();
         message->numItems = event.data.items.size();
 
         for(int i = 0; i < event.data.items.size(); i++) {
@@ -101,11 +106,13 @@ void GameServerMessagesTransmitter::onPublish(const Event<TakeItemActionEventDat
 }
 
 void GameServerMessagesTransmitter::onPublish(const Event<AreaOfEffectEventData>& event) {
+    auto targetId = context->getEntityRegistry().get<Actor>(event.data.target).getId();
+
     for(auto [participantId, clientIndex] : gameController->getAllAttachedClients()) {
         ApplyDamageMessage* message = (ApplyDamageMessage*) server.createMessage(clientIndex, GameMessageType::APPLY_DAMAGE);
 
         message->fromId = event.data.aoe->getOwnerId();
-        message->targetId = event.data.target->getId();
+        message->targetId = targetId;
         message->source = (uint8_t) DamageType::AOE;
         message->damage = event.data.damage;
 
@@ -115,15 +122,17 @@ void GameServerMessagesTransmitter::onPublish(const Event<AreaOfEffectEventData>
 
 void GameServerMessagesTransmitter::onPublish(const Event<ProjectileEventData>& event) {
     // TODO: Handle status effects
-    if(event.data.target == nullptr) {
+    if(!event.data.target.has_value()) {
         return;
     }
+
+    auto targetId = context->getEntityRegistry().get<Actor>(event.data.target.value()).getId();
 
     for(auto [participantId, clientIndex] : gameController->getAllAttachedClients()) {
         ApplyDamageMessage* message = (ApplyDamageMessage*) server.createMessage(clientIndex, GameMessageType::APPLY_DAMAGE);
 
         message->fromId = event.data.projectile->getOwnerId();
-        message->targetId = event.data.target->getId();
+        message->targetId = targetId;
         message->source = (uint8_t) DamageType::PROJECTILE;
         message->damage = event.data.damage;
 
@@ -132,11 +141,14 @@ void GameServerMessagesTransmitter::onPublish(const Event<ProjectileEventData>& 
 }
 
 void GameServerMessagesTransmitter::onPublish(const Event<MeleeWeaponEventData>& event) {
+    auto fromId = context->getEntityRegistry().get<Actor>(event.data.owner).getParticipantId();
+    auto targetId = context->getEntityRegistry().get<Actor>(event.data.target).getId();
+
     for(auto [participantId, clientIndex] : gameController->getAllAttachedClients()) {
         ApplyDamageMessage* message = (ApplyDamageMessage*) server.createMessage(clientIndex, GameMessageType::APPLY_DAMAGE);
 
-        message->fromId = event.data.owner->getParticipantId();
-        message->targetId = event.data.target->getId();
+        message->fromId = fromId;
+        message->targetId = targetId;
         message->source = (uint8_t) DamageType::MELEE;
         message->damage = event.data.damage;
 
@@ -145,12 +157,14 @@ void GameServerMessagesTransmitter::onPublish(const Event<MeleeWeaponEventData>&
 }
 
 void GameServerMessagesTransmitter::onPublish(const Event<ActorEffectEvent>& event) {
+    auto targetId = context->getEntityRegistry().get<Actor>(event.data.target).getId();
+
     for(auto [participantId, clientIndex] : gameController->getAllAttachedClients()) {
         ApplyActorEffectMessage* message = 
             (ApplyActorEffectMessage*) server.createMessage(clientIndex, GameMessageType::APPLY_ENTITY_EFFECT);
         
         message->type = event.data.type;
-        message->targetId = event.data.target->getId();
+        message->targetId = targetId;
         message->participantId = event.data.participantId;
         message->effectStats.duration = event.data.stats.duration;
         message->effectStats.effectType = event.data.stats.type;
@@ -184,12 +198,14 @@ void GameServerMessagesTransmitter::onPublish(const Event<TilesRevealedEventData
 }
 
 void GameServerMessagesTransmitter::onPublish(const Event<ActorSetPositionEventData>& event) {
+    auto actorId = context->getEntityRegistry().get<Actor>(event.data.entity).getId();
+
     for(auto [participantId, clientIndex] : gameController->getAllAttachedClients()) {
         SetActorPositionMessage* message =
             (SetActorPositionMessage*) server.createMessage(clientIndex, GameMessageType::SET_ENTITY_POSITION);
 
-        message->actorId = event.data.actor->getId();
-        message->movesLeft = event.data.actor->getMovesLeft();
+        message->actorId = actorId;
+        message->movesLeft = context->getEntityRegistry().get<Stats::ActorStats>(event.data.entity).movesLeft;
         message->x = event.data.position.x;
         message->y = event.data.position.y;
 
@@ -205,15 +221,17 @@ void GameServerMessagesTransmitter::onPublish(const Event<ActorVisibilityToParti
         return;
     }
 
+    auto& actor = context->getEntityRegistry().get<Actor>(event.data.entity);
+
     if(event.data.isVisible) {
         AddActorVisibilityMessage* message =
             (AddActorVisibilityMessage*) server.createMessage(clientIndex, GameMessageType::ADD_ENTITY_VISIBILITY);
 
-        message->actor = ActorStateUpdate::serialize(event.data.actor);
+        message->actor = ActorStateUpdate::serialize(context, event.data.entity);
         message->visibleToParticipantId = event.data.visibleToParticipantId;
         spdlog::trace(
             "Sending AddActorVisibilityMessage for actor {} to {}", 
-            event.data.actor->toString(), 
+            actor.toString(), 
             event.data.visibleToParticipantId
         );
         server.sendMessage(clientIndex, message);
@@ -222,11 +240,11 @@ void GameServerMessagesTransmitter::onPublish(const Event<ActorVisibilityToParti
         RemoveActorVisibilityMessage* message = 
             (RemoveActorVisibilityMessage*) server.createMessage(clientIndex, GameMessageType::REMOVE_ENTITY_VISIBILITY);
 
-        message->actorId = event.data.actor->getId();
+        message->actorId = actor.getId();
         message->visibleToParticipantId = event.data.visibleToParticipantId;
         spdlog::trace(
             "Sending AddActorVisibilityMessage for actor {} to {}", 
-            event.data.actor->toString(), 
+            actor.toString(), 
             event.data.visibleToParticipantId
         );
         server.sendMessage(clientIndex, message);
@@ -539,7 +557,7 @@ void GameServerMessagesTransmitter::sendLoadGameToClient(int clientIndex) {
     }
 
     // -- TILES --
-    auto tilesWithVisibility = visibilityController->getTilesWithVisibility(participantId);
+    auto tilesWithVisibility = context->getVisibilityController()->getTilesWithVisibility(participantId);
 
     std::vector<RevealedTile> revealedTiles;
 
@@ -575,7 +593,7 @@ void GameServerMessagesTransmitter::sendLoadGameToClient(int clientIndex) {
     // spdlog::trace("Sent engagements to client {} for participant {}", clientIndex, participantId);
 
     // -- ITEMS --
-    sendItems(clientIndex, itemController->getWorldItems());
+    sendItems(clientIndex, context->getItemController()->getWorldItems());
 
     // -- ACTORS --
 

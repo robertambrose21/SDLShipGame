@@ -2,9 +2,11 @@
 
 #include <set>
 #include <map>
+#include <unordered_map>
 #include <fstream>
 #include <filesystem>
 #include <string>
+#include <optional>
 
 #include "core/json.hpp"
 #include "actor.h"
@@ -12,15 +14,50 @@
 #include "game/weapons/weaponcontroller.h"
 #include "game/items/itemcontroller.h"
 #include "game/net/messages.h"
-#include "core/event/eventpublisher.h"
 #include "game/application/applicationcontext.h"
 #include "game/items/loottable.h"
+#include "game/ecs/components/common.h"
 
 using json = nlohmann::json;
 
 struct GameStateUpdate;
 
-class ActorPool : public EventPublisher<ActorEventData, ActorSetPositionEventData, ActorUpdateStatsEventData> {
+class ActorPool {
+public:
+    ActorPool();
+    
+    void initialise(ApplicationContext& context);
+    void update(int64_t timeSinceLastFrame, bool& quit);
+    void addGameStateUpdate(const GameStateUpdate& update);
+
+    entt::entity addActor(const std::string& name);
+    entt::entity addActor(const std::string& name, uint32_t id);
+    void removeActor(entt::entity entity);
+    void removeActorByExternalId(ExternalId id);
+    
+    std::optional<entt::entity> getByExternalId(ExternalId externalId) const;
+    
+    std::optional<entt::entity> findClosestTarget(entt::entity attacker, int participantId);
+
+    LootTable getLootTable(const std::string& actorName);
+
+    std::vector<entt::entity> filterByTile(int x, int y, int excludedParticipantId = -1);
+    std::vector<entt::entity> filterByTile(
+        int x, 
+        int y, 
+        const std::vector<entt::entity>& actors, 
+        int excludedParticipantId = -1
+    );
+    std::vector<entt::entity> filterByTiles(
+        const std::vector<glm::ivec2>& tiles, 
+        int excludedParticipantId = -1
+    );
+    std::vector<entt::entity> filterByTiles(
+        const std::vector<entt::entity>& actors,
+        const std::vector<glm::ivec2>& tiles, 
+        int excludedParticipantId = -1
+    );
+
 private:
     typedef struct _actorDefinition {
         std::string filename;
@@ -41,37 +78,14 @@ private:
     std::map<std::string, ActorDefinition> actorDefinitions;
 
     std::set<uint32_t> actorsForDeletion;
-    std::map<uint32_t, std::unique_ptr<Actor>> actors;
+    std::unordered_map<ExternalId, entt::entity> actorByExternalId;
 
     std::map<uint8_t, ChunkedGameStateUpdate> pendingChunkedUpdates;
 
     ApplicationContext* context;
     bool initialised;
 
-    void updateActor(Actor* actor, int64_t timeSinceLastFrame, bool& quit);
     void loadActorDefinitions(void);
     void synchronize(void);
     bool applyChunkedGameStateUpdate(const ChunkedGameStateUpdate& chunked);
-    void killActor(uint32_t actorId);
-
-public:
-    ActorPool();
-
-    void initialise(ApplicationContext& context);
-
-    void updateActors(int64_t timeSinceLastFrame, bool& quit);
-
-    void addGameStateUpdate(const GameStateUpdate& update);
-
-    Actor* addActor(std::unique_ptr<Actor> actor);
-    Actor* addActor(const std::string& name);
-    Actor* addActor(const std::string& name, uint32_t id);
-    void removeActor(uint32_t id);
-    std::vector<Actor*> getActors(void);
-    Actor* getActor(uint32_t id);
-    bool hasActor(uint32_t id);
-
-    Actor* findClosestTarget(Actor* attacker, int participantId);
-
-    LootTable getLootTable(const std::string& actorName);
 };

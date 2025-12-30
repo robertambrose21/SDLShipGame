@@ -1,13 +1,14 @@
 #include "moveaction.h"
 #include "game/participant/participant.h"
+#include "game/actors/actorpool.h"
 
 MoveAction::MoveAction(
     Participant* participant,
-    Actor* actor, 
+    entt::entity entity, 
     const glm::ivec2& position,
     int shortStopSteps
 ) : 
-    Action(participant, actor),
+    Action(participant, entity),
     position(position),
     shortStopSteps(shortStopSteps)
 {
@@ -16,12 +17,12 @@ MoveAction::MoveAction(
 
 MoveAction::MoveAction(
     Participant* participant,
-    Actor* actor,
+    entt::entity entity,
     int turnNumber,
     const glm::ivec2& position,
     int shortStopSteps
 ) : 
-    Action(participant, actor, turnNumber),
+    Action(participant, entity, turnNumber),
     position(position),
     shortStopSteps(shortStopSteps)
 {
@@ -29,20 +30,27 @@ MoveAction::MoveAction(
 }
 
 ActionVariant MoveAction::getPublishData(void) {
-    return MoveActionEventData { turnNumber, actor, position, shortStopSteps };
+    return MoveActionEventData { turnNumber, entity, position, shortStopSteps };
 }
 
 Action::Type MoveAction::getType(void) {
     return Action::Type::Move;
 }
 
-bool MoveAction::passesPrecondition(void) {
+bool MoveAction::passesPrecondition(ApplicationContext* context) {
     return true;
 }
 
 bool MoveAction::onValidate(ApplicationContext* context) {
+    auto actor = context->getEntityRegistry().try_get<Actor>(entity);
+
+    if(!actor) {
+        spdlog::trace("[{}]: Failed to validate action, actor is null", typeToString());
+        return false;
+    }
+
     if(!actor->isEngaged()) {
-        auto hasPath = !getPath().empty();
+        auto hasPath = !getPath(context).empty();
 
         if(!hasPath) {
             spdlog::trace(
@@ -55,17 +63,19 @@ bool MoveAction::onValidate(ApplicationContext* context) {
         return hasPath;
     }
 
-    if(actor->getMovesLeft() <= 0) {
+    auto const& stats = context->getEntityRegistry().get<Stats::ActorStats>(entity);
+
+    if(stats.movesLeft <= 0) {
         spdlog::trace(
             "[Move]: Failed to validate action, Actor[{}#{}] has (0/{}) moves left",
             actor->getName(),
             actor->getId(),
-            actor->getStats().movesPerTurn
+            stats.movesPerTurn
         );
         return false;
     }
 
-    if(getPath().empty()) {
+    if(getPath(context).empty()) {
         spdlog::trace(
             "[Move]: Failed to validate action, Actor[{}#{}] has no path",
             actor->getName(),
@@ -75,13 +85,13 @@ bool MoveAction::onValidate(ApplicationContext* context) {
     }
 
 
-    if(!hasAvailableMoves()) {
+    if(!hasAvailableMoves(context)) {
         spdlog::trace(
             "[Move]: Failed to validate action, Actor[{}#{}] has ({}/{}) moves left but not enough left in chain",
             actor->getName(),
             actor->getId(),
-            actor->getMovesLeft(),
-            actor->getStats().movesPerTurn
+            stats.movesLeft,
+            stats.movesPerTurn
         );
         return false;
     }
@@ -90,35 +100,93 @@ bool MoveAction::onValidate(ApplicationContext* context) {
 }
 
 void MoveAction::onExecute(ApplicationContext* context) {
-    actor->setPath(getPath(true));
+    auto actor = context->getEntityRegistry().try_get<Actor>(entity);
+
+    if(!actor) {
+        spdlog::trace("[{}]: Failed to execute action, actor is null", typeToString());
+        return;
+    }
+
+    actor->setPath(getPath(context, true));
 }
 
-bool MoveAction::hasFinished(void) {
-    return actor->getMovesLeft() <= 0 || actor->getPosition() == path[path.size() - shortStopSteps - 1];
+bool MoveAction::hasFinished(ApplicationContext* context) {
+    auto actor = context->getEntityRegistry().try_get<Actor>(entity);
+
+    if(!actor) {
+        spdlog::trace("[{}]: Failed to finish action, actor is null", typeToString());
+        return false;
+    }
+
+    auto const& stats = context->getEntityRegistry().get<Stats::ActorStats>(entity);
+
+    if(stats.movesLeft <= 0) {
+        return true;
+    }
+
+    if(path.empty()) {
+        return true;
+    }
+
+    auto const& actorPosition = context->getEntityRegistry().get<Position>(entity);
+
+    return actorPosition == path[std::min(path.size() - shortStopSteps - 1, 0UL)];
 }
 
-std::deque<glm::ivec2> MoveAction::getPath(bool recalculate) {
+std::deque<glm::ivec2> MoveAction::getPath(ApplicationContext* context, bool recalculate) {
     if(recalculate || path.empty()) {
-        path = actor->calculatePath(position, shortStopSteps);
+        path = calculatePath(context, position, shortStopSteps);
     }
 
     return path;
 }
 
-bool MoveAction::hasAvailableMoves(void) {
+std::deque<glm::ivec2> MoveAction::calculatePath(
+    ApplicationContext* context,
+    const glm::ivec2& target, 
+    int stopShortSteps
+) {
+    auto const& actorPosition = context->getEntityRegistry().get<Position>(entity);
+    auto path = context->getGrid()->findPath(actorPosition, target);
+
+    if(path.empty()) {
+        return std::deque<glm::ivec2>();
+    }
+
+    // Remove the initial path node which is just the actors current position
+    path.pop_front(); 
+
+    if(path.size() >= stopShortSteps) {
+        for(auto i = 0; i < stopShortSteps; i++) {
+            path.pop_back();
+        }
+    }
+
+    return path;
+}
+
+bool MoveAction::hasAvailableMoves(ApplicationContext* context) {
+    auto const& stats = context->getEntityRegistry().get<Stats::ActorStats>(entity);
+
     if(participant->getEngagement() == nullptr || !turnNumber.has_value()) {
+        return true;
+    }
+
+    auto& chain = context->getEntityRegistry().get<ActionChain>(entity).chain;
+
+    if(!chain.contains(turnNumber.value())) {
         return true;
     }
 
     int numMoves = 0;
  
-    for(auto& action : actor->getActionsChain(turnNumber.value())) {
+    for(auto& action : chain.at(turnNumber.value())) {
         if(action->getType() == Action::Type::Move) {
-            numMoves += dynamic_cast<MoveAction*>(action)->getPath().size();
+            numMoves += dynamic_cast<MoveAction*>(action.get())->getPath(context).size();
         }
     }
 
-    return actor->getMovesLeft() >= numMoves;
+    return stats.movesLeft >= numMoves;
 }
 
 glm::ivec2 MoveAction::getPosition(void) const {

@@ -1,22 +1,22 @@
 #include "takeitemaction.h"
 
-TakeItemAction::TakeItemAction(Participant* participant, Actor* actor, const std::vector<Item*>& items) :
-    Action(participant, actor),
+TakeItemAction::TakeItemAction(Participant* participant, entt::entity entity, const std::vector<Item*>& items) :
+    Action(participant, entity),
     items(items)
 { }
 
 TakeItemAction::TakeItemAction(
     Participant* participant, 
-    Actor* actor,
+    entt::entity entity,
     int turnNumber,
     const std::vector<Item*>& items
 ) :
-    Action(participant, actor, turnNumber),
+    Action(participant, entity, turnNumber),
     items(items)
 { }
 
 ActionVariant TakeItemAction::getPublishData(void) {
-    return TakeItemActionEventData { turnNumber, actor, items };
+    return TakeItemActionEventData { turnNumber, entity, items };
 }
 
 bool TakeItemAction::onValidate(ApplicationContext* context) {
@@ -29,10 +29,16 @@ bool TakeItemAction::onValidate(ApplicationContext* context) {
         return true;
     }
 
-    for(auto action : actor->getActionsChain(turnNumber.value())) {
+    auto& chain = context->getEntityRegistry().get<ActionChain>(entity).chain;
+
+    if(!chain.contains(turnNumber.value())) {
+        return true;
+    }
+
+    for(auto& action : chain.at(turnNumber.value())) {
         if(
             action->getType() == Action::Type::TakeItem && 
-            containsAny(items, dynamic_cast<TakeItemAction*>(action)->getItems())
+            containsAny(items, dynamic_cast<TakeItemAction*>(action.get())->getItems())
         ) {
             spdlog::trace(
                 "[{}, TakeItem]: Failed to validate action, there are already actions on the chain to take these items [{}]",
@@ -47,6 +53,13 @@ bool TakeItemAction::onValidate(ApplicationContext* context) {
 }
 
 void TakeItemAction::onExecute(ApplicationContext* context) {
+    auto actor = context->getEntityRegistry().try_get<Actor>(entity);
+
+    if(!actor) {
+        spdlog::trace("[{}]: Failed to execute action, actor is null", typeToString());
+        return;
+    }
+
     auto participant = context->getGameController()->getParticipant(actor->getParticipantId());
 
     if(!participant->getIsPlayer()) {
@@ -61,7 +74,7 @@ void TakeItemAction::onExecute(ApplicationContext* context) {
     context->getItemController()->flagWorldItemsDirty();
 }
 
-bool TakeItemAction::hasFinished(void) {
+bool TakeItemAction::hasFinished(ApplicationContext* context) {
     return true;
 }
 
@@ -94,7 +107,7 @@ std::string TakeItemAction::getItemsAsStringList(void) {
     return itemList;
 }
 
-bool TakeItemAction::passesPrecondition(void) {
+bool TakeItemAction::passesPrecondition(ApplicationContext* context) {
     return true;
 }
 

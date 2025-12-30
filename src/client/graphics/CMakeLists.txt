@@ -23,11 +23,11 @@ add_library(
     ui/diagnosticspanel.cpp
     camera.cpp
     drawstrategies/drawstrategy.h
-    drawstrategies/actordrawstrategy.cpp
     drawstrategies/weapondrawstrategy.cpp
     drawstrategies/projectiledrawstrategy.cpp
     drawstrategies/areaofeffectdrawstrategy.cpp
     drawstrategies/itemdrawstrategy.cpp
+    ecs/systems/actordrawsystem.cpp
 )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX CXX_STANDARD 20)

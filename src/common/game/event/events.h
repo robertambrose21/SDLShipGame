@@ -2,13 +2,15 @@
 
 #include <vector>
 #include <optional>
+#include <entt/entt.hpp>
 
 #include "core/glmimport.h"
 #include "core/util/idgenerator.h"
-#include "core/components/factioned.h"
+#include "core/ecs/components/factioned.h"
 #include "game/effects/effecttypes.h"
 #include "game/stats/stats.h"
 #include "game/data/tiles.h"
+#include "game/ecs/components/common.h"
 
 class Actor;
 class Item;
@@ -30,57 +32,64 @@ struct ItemEventData {
 
 struct AreaOfEffectEventData {
     AreaOfEffect* aoe;
-    Actor* target;
+    entt::entity target;
     int damage;
 };
 
 struct ProjectileEventData {
     Projectile* projectile;
-    Actor* target;
+    std::optional<entt::entity> target;
     glm::ivec2 hitPosition;
     int damage;
 };
 
 struct MeleeWeaponEventData {
-    Actor* owner;
-    Actor* target;
+    entt::entity owner;
+    entt::entity target;
     Weapon* weapon;
     int damage;
+};
+
+struct ActorEventData {
+    entt::entity entity;
+    Position position;
+    std::string type;
 };
 
 // -- Actions -----------------------------------
 struct ActionEventData {
     std::optional<int> turnNumber;
+    entt::entity entity;
 };
 
 struct MoveActionEventData : public ActionEventData {
-    Actor* actor;
     glm::ivec2 position;
     int shortStopSteps;
 };
 
 struct AttackActionEventData : public ActionEventData {
-    Actor* owner;
     glm::ivec2 target;
-    Weapon* weapon;
+    entt::entity weapon;
 };
 
 struct TakeItemActionEventData : public ActionEventData {
-    Actor* actor;
     std::vector<Item*> items;
 };
 
 struct EquipItemActionEventData : public ActionEventData {
-    Actor* actor;
     Item* item;
     int slot;
     bool isUnequip;
 };
 
 struct EquipWeaponActionEventData : public ActionEventData {
-    Actor* actor;
     Item* item;
-    UUID weaponId;
+    entt::entity weaponId;
+};
+
+struct UnequipWeaponActionEventData : public ActionEventData {
+    Item* item;
+    entt::entity weaponId;
 };
 // ----------------------------------------------
 
@@ -92,7 +101,7 @@ enum DamageType {
 
 struct ApplyDamageEventData {
     int participantId;
-    Actor* target;
+    entt::entity target;
     DamageType source;
     int damage;
 };
@@ -159,7 +168,7 @@ struct TileEventData {
 
 struct ActorEffectEvent {
     EffectType type;
-    Actor* target;
+    entt::entity target;
     int participantId;
     Stats::EffectStats stats;
 };
@@ -181,16 +190,16 @@ struct TilesRevealedEventData {
 };
 
 struct ActorSetPositionEventData {
-    Actor* actor;
+    entt::entity entity;
     glm::ivec2 position;
 };
 
 struct ActorVisibilityToParticipantData {
-    Actor* actor;
+    entt::entity entity;
     int visibleToParticipantId;
     bool isVisible;
 };
 
 struct ActorUpdateStatsEventData {
-    Actor* actor;
+    entt::entity entity;
 };

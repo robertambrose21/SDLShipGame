@@ -11,7 +11,8 @@ add_library(
     effects/grideffect.cpp
     effects/effectcontroller.cpp
     actors/actor.cpp 
-    actors/actorpool.cpp 
+    actors/actorpool.cpp
+    actors/actorcontroller.cpp
     actors/behaviour/behaviourstrategy.cpp
     actors/behaviour/chaseandattackstrategy.cpp
     items/item.cpp
@@ -44,12 +45,17 @@ add_library(
     actions/takeitemaction.cpp
     actions/equipgearaction.cpp
     actions/equipweaponaction.cpp
+    actions/unequipweaponaction.cpp
     event/events.h
     stats/stats.h
     spawn/spawncontroller.cpp
     net/gamemessagelogger.cpp
     participant/participant.cpp
     data/tiles.h
+    ecs/components/common.h
+    ecs/logicsystemregistry.cpp
+    ecs/drawsystemregistry.cpp
+    ecs/systems/actorupdatesystem.cpp
 )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX CXX_STANDARD 20)

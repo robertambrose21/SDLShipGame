@@ -1,7 +1,7 @@
 #include "meleeweapon.h"
 
 MeleeWeapon::MeleeWeapon(
-    Actor* owner, 
+    entt::entity owner, 
     ApplicationContext* context,
     Item* item,
     EventPublisher<MeleeWeaponEventData>& publisher,
@@ -14,7 +14,7 @@ MeleeWeapon::MeleeWeapon(
 { }
 
 MeleeWeapon::MeleeWeapon(
-    Actor* owner, 
+    entt::entity owner, 
     ApplicationContext* context,
     Item* item,
     EventPublisher<MeleeWeaponEventData>& publisher,
@@ -36,11 +36,16 @@ bool MeleeWeapon::onUse(const glm::ivec2& position, const glm::ivec2& target, bo
 }
 
 void MeleeWeapon::apply(const glm::ivec2& position, const glm::ivec2& target) {
-    auto actors = context->getActorPool()->getActors();
-    auto actor = Actor::filterByTile(target.x, target.y, actors, owner->getParticipantId());
+    auto& ownerActor = context->getEntityRegistry().get<Actor>(owner);
+
+    auto entities = context->getActorPool()->filterByTile(target.x, target.y, ownerActor.getParticipantId());
     
-    if(actor != nullptr) {
-        publisher.publish<MeleeWeaponEventData>({ owner, actor, this, damageSource.apply(actor) });
+    for(auto entity : entities) {
+        auto const& stats = context->getEntityRegistry().get<Stats::ActorStats>(entity);
+        auto damage = damageSource.rollActorDamage(stats);
+        context->getActorController()->applyDamage(entity, damage);
+
+        publisher.publish<MeleeWeaponEventData>({ owner, entity, this, damage });
     }
 }
 

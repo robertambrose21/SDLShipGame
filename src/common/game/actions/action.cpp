@@ -1,8 +1,8 @@
 #include "action.h"
 
-Action::Action(Participant* participant, Actor* actor) :
+Action::Action(Participant* participant, entt::entity entity) :
     participant(participant),
-    actor(actor),
+    entity(entity),
     _isExecuted(false), 
     turnNumber(participant->getEngagement() != nullptr ? 
         std::optional<int>(participant->getEngagement()->getTurnNumber()) : 
@@ -10,9 +10,9 @@ Action::Action(Participant* participant, Actor* actor) :
     )
 { }
 
-Action::Action(Participant* participant, Actor* actor, int turnNumber) :
+Action::Action(Participant* participant, entt::entity entity, int turnNumber) :
     participant(participant),
-    actor(actor),
+    entity(entity),
     _isExecuted(false),
     turnNumber(std::optional<int>(turnNumber))
 {
@@ -27,23 +27,7 @@ Action::Action(Participant* participant, Actor* actor, int turnNumber) :
 }
 
 bool Action::validate(ApplicationContext* context) {
-    if(actor == nullptr) {
-        spdlog::trace("[{}]: Failed to validate action, actor is null", typeToString());
-        return false;
-    }
-
-    if(actor->getCurrentHP() <= 0) {
-        spdlog::trace(
-            "[{}]: Failed to validate action, Actor[{}#{}] hp is {}", 
-            typeToString(),
-            actor->getName(),
-            actor->getId(), 
-            actor->getCurrentHP()
-        );
-        return false;
-    }
-
-    if(!passesPrecondition()) {
+    if(!passesPrecondition(context)) {
         spdlog::trace("[{}]: Failed to validate action, failed precondition", typeToString());
         return false;
     }
@@ -60,20 +44,20 @@ void Action::execute(ApplicationContext* context) {
     _isExecuted = true;
 }
 
-bool Action::isFinished(void) {
+bool Action::isFinished(ApplicationContext* context) {
     if(!isExecuted()) {
         return false;
     }
 
-    return hasFinished();
+    return hasFinished(context);
 }
 
 Participant* Action::getParticipant(void) {
     return participant;
 }
 
-Actor* Action::getActor(void) {
-    return actor;
+entt::entity Action::getEntity(void) const {
+    return entity;
 }
 
 bool Action::isExecuted(void) const {
@@ -91,6 +75,7 @@ std::string Action::typeToString(void) {
         case TakeItem: return "TakeItem";
         case EquipItem: return "EquipItem";
         case EquipWeaponItem: return "EquipWeaponItem";
+        case UnequipWeaponItem: return "UnequipWeaponItem";
         default: return "Unknown type: " + getType();
     }
 }

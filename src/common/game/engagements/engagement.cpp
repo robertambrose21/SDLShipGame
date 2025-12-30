@@ -50,9 +50,18 @@ void Engagement::addParticipant(Participant* participant) {
 }
 
 void Engagement::removeParticipant(int participantId) {
+    auto currentParticipantId = getCurrentParticipant()->getId();
+
     std::erase_if(participants, [&](const auto& item) {
         return participantId == item->getId();
     });
+
+    if(participantId == currentParticipantId) {
+        spdlog::debug(
+            "Participant {} was the current participant but they have been removed. Progressing to next participant",
+            participantId);
+        nextTurn();
+    }
 }
 
 void Engagement::addOnNextTurnWorker(std::function<void(int, int, uint32_t)> worker) {

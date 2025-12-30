@@ -15,13 +15,22 @@ bool ClientGameController::canProgressToNextTurn(Engagement* engagement) {
 
     auto participant = engagement->getCurrentParticipant();
 
-    for(auto actor : participant->getActors()) {
-        if(actor->hasAnimationsInProgress() || !actor->getActionsChain(engagement->getTurnNumber()).empty()) {
+    for(auto entity : participant->getActors()) {
+        auto actor = context->getEntityRegistry().try_get<Actor>(entity);
+        auto& chain = context->getEntityRegistry().get<ActionChain>(entity).chain;
+        auto turnNumber = engagement->getTurnNumber();
+
+        if(chain.contains(turnNumber) && !chain.at(turnNumber).empty()) {
+            return false;
+        }
+
+        if(actor->hasAnimationsInProgress()) {
             return false;
         }
     }
 
     nextTurnFlags[engagement->getId()].pop();
+
     return true;
 }
 

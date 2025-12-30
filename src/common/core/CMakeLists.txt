@@ -21,12 +21,14 @@ add_library(
     util/vectorutils.h
     util/setutils.h
     util/timing.h
+    util/hashing.h
     state/state.h
     state/statemachine.cpp
     event/event.h
     event/eventpublisher.h
     event/eventsubscriber.h
-    components/factioned.cpp
+    ecs/components/factioned.cpp
+    ecs/systemregistry.h
 )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX CXX_STANDARD 20)

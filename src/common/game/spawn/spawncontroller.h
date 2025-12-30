@@ -37,7 +37,7 @@ public:
 
     void initialise(ApplicationContext& context);
 
-    std::vector<Actor*> spawnActors(const std::string& name, const SpawnBox& spawnBox, int count = 1);
-    std::vector<Actor*> spawnActors(const SpawnableActors& spawnables, const SpawnBox& spawnBox, int count = 1);
-    Actor* spawnActor(const std::string& name, const glm::ivec2& position);
+    std::vector<entt::entity> spawnActors(const std::string& name, const SpawnBox& spawnBox, int count = 1);
+    std::vector<entt::entity> spawnActors(const SpawnableActors& spawnables, const SpawnBox& spawnBox, int count = 1);
+    entt::entity spawnActor(const std::string& name, const glm::ivec2& position);
 };

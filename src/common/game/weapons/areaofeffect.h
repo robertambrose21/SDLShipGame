@@ -8,14 +8,14 @@
 
 class ActorPool;
 class AreaOfEffect;
+class ApplicationContext;
 
 class AreaOfEffect {
 public:
     static const int64_t RealTimeTick = 1000;
 
     AreaOfEffect(
-        Grid* grid,
-        ActorPool* actorPool,
+        ApplicationContext* context,
         EventPublisher<AreaOfEffectEventData>& publisher,
         uint32_t textureId,
         int ownerId,
@@ -43,8 +43,7 @@ public:
     bool hasElapsedAdhocDuration(void);
 
 private:
-    Grid* grid;
-    ActorPool* actorPool;
+    ApplicationContext* context;
     EventPublisher<AreaOfEffectEventData>& publisher;
 
     uint32_t textureId;

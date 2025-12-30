@@ -1,16 +1,18 @@
 #include "actorpanel.h"
 
-ActorPanel::ActorPanel(int width, int height, Actor* actor) :
+ActorPanel::ActorPanel(ApplicationContext* context, int width, int height, entt::entity entity) :
+    context(context),
     width(width),
     height(height),
-    actor(actor),
+    entity(entity),
     isOpen(true)
 {
-    stats = Stats::calculateActorStatCategories(actor->getStats());
+    auto const& stats = context->getEntityRegistry().get<Stats::ActorStats>(entity);
+    statsMapping = Stats::calculateActorStatCategories(stats);
 }
 
 void ActorPanel::draw(GraphicsContext& graphicsContext) {
-    if(!isOpen || actor == nullptr) {
+    if(!isOpen) {
         return;
     }
 
@@ -30,7 +32,7 @@ void ActorPanel::drawStats(GraphicsContext& graphicsContext) {
     ImGuiTableFlags flags = ImGuiTableFlags_SizingFixedFit;
 
     if(ImGui::BeginTable("StatsTable", 2, flags)) {
-        for(auto& [_, pairs] : stats) {
+        for(auto& [_, pairs] : statsMapping) {
             for(auto& stat : pairs) {
                 drawStat(stat.name, stat.value);
             }
@@ -52,13 +54,15 @@ void ActorPanel::drawEquipment(GraphicsContext& graphicsContext) {
     ImGuiTableFlags flags = ImGuiTableFlags_SizingFixedFit;
 
     if(ImGui::BeginTable("EquipmentTable", 2, flags)) {
+        auto& actor = context->getEntityRegistry().get<Actor>(entity);
+
         for(auto slot : Gear::VALID_SLOTS) {
             ImGui::TableNextRow();
             ImGui::TableNextColumn();
             ImGui::TextColored(ImVec4(1, 1, 1, 1), "%s", Equippable<Stats::GearStats>::SLOT_NAMES[slot].c_str());
             ImGui::TableNextColumn();
 
-            auto gear = actor->getGear(slot);
+            auto gear = actor.getGear(slot);
 
             if(gear != nullptr) {
                 drawEquippedItem(graphicsContext, gear->getItem());
@@ -76,8 +80,10 @@ void ActorPanel::drawWeapons(GraphicsContext& graphicsContext) {
     ImGuiTableFlags flags = ImGuiTableFlags_SizingFixedFit;
 
     if(ImGui::BeginTable("WeaponsTable", 2, flags)) {
+        auto& actor = context->getEntityRegistry().get<Actor>(entity);
+
         int weaponNumber = 1;
-        for(auto weapon : actor->getWeapons()) {
+        for(auto weapon : actor.getWeapons()) {
             ImGui::TableNextRow();
             ImGui::TableNextColumn();
             ImGui::TextColored(ImVec4(1, 1, 1, 1), "Weapon %d", weaponNumber++);
@@ -114,7 +120,9 @@ void ActorPanel::drawEquippedItem(GraphicsContext& graphicsContext, Item* item) 
     ImGui::TextColored(ItemRarityColours.at(item->getRarity()), "[%s]", item->getName().c_str());
 }
 
-void ActorPanel::drawEquippedWeapon(GraphicsContext& graphicsContext, Weapon* weapon) {
+void ActorPanel::drawEquippedWeapon(GraphicsContext& graphicsContext, entt::entity weaponId) {
+    auto& weapon = context->getEntityRegistry().get<WeaponHolder>(weaponId).weapon;
+
     auto item = weapon->getItem();
     auto texture = graphicsContext.getTextureLoader().loadTexture(item->getTextureId())->getSDLTexture();
     auto selectableLabel = "##SelectableWeapon" + weapon->getId().getString();
@@ -123,7 +131,7 @@ void ActorPanel::drawEquippedWeapon(GraphicsContext& graphicsContext, Weapon* we
     ImGui::Selectable(selectableLabel.c_str());
     if(ImGui::BeginPopupContextItem()) {
         if(ImGui::Button("Unequip")) {
-            onUnequipWeaponClicked(weapon);
+            onUnequipWeaponClicked(weapon.get());
         }
         if(ImGui::Button("Examine")) {
             onExamineClicked(item);
@@ -154,9 +162,6 @@ bool ActorPanel::getIsOpen(void) const {
 }
 
 void ActorPanel::onPublish(const Event<ActorUpdateStatsEventData>& event) {
-    if(event.data.actor->getId() != actor->getId()) {
-        return;
-    }
-
-    stats = Stats::calculateActorStatCategories(actor->getStats());
+    auto const& stats = context->getEntityRegistry().get<Stats::ActorStats>(event.data.entity);
+    statsMapping = Stats::calculateActorStatCategories(stats);
 }

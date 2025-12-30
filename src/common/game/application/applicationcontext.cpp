@@ -3,6 +3,7 @@
 ApplicationContext::ApplicationContext(
     Grid* grid,
     ActorPool* actorPool,
+    ActorController* actorController,
     WeaponController* weaponController,
     ProjectilePool* projectilePool,
     AreaOfEffectPool* areaOfEffectPool,
@@ -14,6 +15,7 @@ ApplicationContext::ApplicationContext(
 ) :
     grid(grid),
     actorPool(actorPool),
+    actorController(actorController),
     weaponController(weaponController),
     projectilePool(projectilePool),
     areaOfEffectPool(areaOfEffectPool),
@@ -26,6 +28,10 @@ ApplicationContext::ApplicationContext(
 
 ActorPool* ApplicationContext::getActorPool(void) {
     return actorPool;
+}
+
+ActorController* ApplicationContext::getActorController(void) {
+    return actorController;
 }
 
 WeaponController* ApplicationContext::getWeaponController(void) {
@@ -72,4 +78,8 @@ void ApplicationContext::setServerMessagesTransmitter(ServerMessagesTransmitter*
 ServerMessagesTransmitter* ApplicationContext::getServerMessagesTransmitter(void) {
     game_assert(transmitter != NULL);
     return transmitter;
+}
+
+entt::registry& ApplicationContext::getEntityRegistry(void) {
+    return registry;
 }

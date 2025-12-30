@@ -73,18 +73,22 @@ void GameController::executeActions(uint32_t engagementId) {
     }
 }
 
-void GameController::executeActorActions(Engagement* engagement, Actor* actor) {
-    bool moreActionsToProcess = !actor->getActionsChain(engagement->getTurnNumber()).empty();
+void GameController::executeActorActions(Engagement* engagement, entt::entity entity) {
+    auto& actor = context->getEntityRegistry().get<Actor>(entity);
+    auto& chain = context->getEntityRegistry().get<ActionChain>(entity).chain;
+
+    auto turnNumber = engagement->getTurnNumber();
+    bool moreActionsToProcess = chain.contains(turnNumber) && !chain.at(turnNumber).empty();
 
     while(moreActionsToProcess) {
-        auto action = actor->getActionsChain(engagement->getTurnNumber()).front();
+        auto& action = chain.at(turnNumber).front();
 
-        if(action->isFinished()) {
-            actor->popAction(engagement->getTurnNumber());
-            moreActionsToProcess = !actor->getActionsChain(engagement->getTurnNumber()).empty();
+        if(action->isFinished(context)) {
+            chain.at(turnNumber).pop_front();
+            moreActionsToProcess = !chain.at(turnNumber).empty();
         }
         // TODO: If precondition fails - just drop?
-        else if(action->passesPrecondition() && !action->isExecuted()) {
+        else if(action->passesPrecondition(context) && !action->isExecuted()) {
             action->execute(context);
             moreActionsToProcess = false;
         }
@@ -96,7 +100,7 @@ void GameController::executeActorActions(Engagement* engagement, Actor* actor) {
 
 Participant* GameController::addParticipant(
     bool isPlayer,
-    const std::vector<Actor*>& actors, 
+    const std::vector<entt::entity>& actors, 
     std::unique_ptr<BehaviourStrategy> behaviourStrategy,
     bool isReady
 ) {
@@ -110,13 +114,13 @@ Participant* GameController::addParticipant(
 Participant* GameController::addParticipant(
     int id,
     bool isPlayer,
-    const std::vector<Actor*>& actors, 
+    const std::vector<entt::entity>& actors, 
     std::unique_ptr<BehaviourStrategy> behaviourStrategy,
     bool isReady
 ) {
     game_assert(initialised);
 
-    Participant participant(id, factionController->getUnalignedFactionId());
+    Participant participant(context, id, factionController->getUnalignedFactionId());
     participant.setIsReady(isReady);
     participant.setIsPlayer(isPlayer);
     participant.setBehaviourStrategy(std::move(behaviourStrategy));
@@ -127,14 +131,13 @@ Participant* GameController::addParticipant(
     return participants[id].get();
 }
 
-void GameController::addActorToParticipant(int participantId, Actor* actor) {
+void GameController::addActorToParticipant(int participantId, entt::entity actor) {
     game_assert(initialised);
-    game_assert(actor != nullptr);
 
     if(!participants.contains(participantId)) {
         spdlog::error(
             "Could not add actor {} to participant with id {} participant does not exist", 
-            actor->toString(),
+            static_cast<entt::id_type>(actor),
             participantId
         );
         return;
@@ -172,8 +175,8 @@ void GameController::reset(void) {
     game_assert(initialised);
 
     for(auto& [participantId, participant] : participants) {
-        for(auto actor : participant->getActors()) {
-            actor->nextTurn();
+        for(auto entity : participant->getActors()) {
+            context->getActorController()->nextTurn(entity);
         }
     }
 }
@@ -203,7 +206,7 @@ bool GameController::executeActionImmediately(std::unique_ptr<Action> action) {
         return false;
     }
 
-    if(!action->passesPrecondition()) {
+    if(!action->passesPrecondition(context)) {
         spdlog::warn("Execute [{}]: Cannot execute immediately - action fails precondition", action->typeToString());
         return false;
     }
@@ -240,12 +243,16 @@ bool GameController::queueAction(std::unique_ptr<Action> action) {
         );
     }
 
-    return action->getActor()->queueAction(
-        context,
-        std::move(action),
-        [&](auto& action) { publishAction(&action); },
-        skipValidation
-    );
+    if(!skipValidation && !action->validate(context)) {
+        return false;
+    }
+
+    publishAction(action.get());
+
+    auto& chain = context->getEntityRegistry().get<ActionChain>(action->getEntity()).chain;
+    chain[action->getTurnNumber().value()].push_back(std::move(action));
+
+    return true;
 }
 
 void GameController::setOnAllParticipantsSetFunction(std::function<void()> onAllParticipantsSet) {

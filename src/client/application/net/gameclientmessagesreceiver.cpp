@@ -108,16 +108,19 @@ void GameClientMessagesReceiver::receiveLoadMap(LoadMapMessage* message) {
 }
 
 void GameClientMessagesReceiver::receiveFindPath(FindPathMessage* message) {
-    if(!context.getActorPool()->hasActor(message->actorId)) {
+    auto entity = context.getActorPool()->getByExternalId(message->actorId);
+
+    if(!entity.has_value()) {
         return;
     }
 
-    auto const& actor = context.getActorPool()->getActor(message->actorId);
-    auto participant = context.getGameController()->getParticipant(actor->getParticipantId());
+    auto& actor = context.getEntityRegistry().get<Actor>(entity.value());
+
+    auto participant = context.getGameController()->getParticipant(actor.getParticipantId());
     
     context.getGameController()->queueAction(std::make_unique<MoveAction>(
         participant,
-        actor, 
+        entity.value(), 
         message->turnNumber, 
         glm::ivec2(message->x, message->y), 
         message->shortStopSteps
@@ -128,22 +131,36 @@ void GameClientMessagesReceiver::receiveAttackActor(AttackMessage* message) {
     spdlog::trace("Received attack actor message {} -> ({}, {})", message->actorId, message->x, message->y);
     auto actorPool = context.getActorPool();
 
-    if(!actorPool->hasActor(message->actorId)) {
+    auto entity = context.getActorPool()->getByExternalId(message->actorId);
+
+    if(!entity.has_value()) {
         return;
     }
 
-    auto weaponId = UUID::fromBytes(message->weaponIdBytes);
-    auto const& actor = actorPool->getActor(message->actorId);
-    auto participant = context.getGameController()->getParticipant(actor->getParticipantId());
+    auto uuid = UUID::fromBytes(message->weaponIdBytes);
+    auto& actor = context.getEntityRegistry().get<Actor>(entity.value());
+    auto participant = context.getGameController()->getParticipant(actor.getParticipantId());
 
-    for(auto weapon : actor->getWeapons()) {
-        if(weapon->getId() == weaponId) {
+    auto weaponId = context.getWeaponController()->getByExternalId(uuid);
+
+    if(!weaponId.has_value()) {
+        spdlog::trace(
+            "Skipping AttackMessage - cannot find Weapon with UUID {}",
+            uuid.getString()
+        );
+        return;
+    }
+
+    auto& weapon = context.getEntityRegistry().get<WeaponHolder>(weaponId.value()).weapon;
+
+    for(auto actorWeapon : actor.getWeapons()) {
+        if(weapon->getId() == uuid) {
             auto isQueued = context.getGameController()->queueAction(
                 std::make_unique<AttackAction>(
                     participant,
-                    actor, 
+                    entity.value(), 
                     message->turnNumber, 
-                    weapon, 
+                    actorWeapon, 
                     glm::ivec2(message->x, message->y), 
                     true
                 )
@@ -173,12 +190,14 @@ void GameClientMessagesReceiver::receiveSpawnItems(SpawnItemsMessage* message) {
 void GameClientMessagesReceiver::receiveTakeItems(TakeItemsMessage* message) {
     auto actorPool = context.getActorPool();
 
-    if(!actorPool->hasActor(message->actorId)) {
+    auto entity = context.getActorPool()->getByExternalId(message->actorId);
+
+    if(!entity.has_value()) {
         return;
     }
 
-    auto const& actor = actorPool->getActor(message->actorId);
-    auto participant = context.getGameController()->getParticipant(actor->getParticipantId());
+    auto& actor = context.getEntityRegistry().get<Actor>(entity.value());
+    auto participant = context.getGameController()->getParticipant(actor.getParticipantId());
 
     std::vector<Item*> itemsToTake;
 
@@ -194,7 +213,7 @@ void GameClientMessagesReceiver::receiveTakeItems(TakeItemsMessage* message) {
         context.getGameController()->executeActionImmediately(
             std::make_unique<TakeItemAction>(
                 participant,
-                actor,
+                entity.value(),
                 itemsToTake
             )
         );
@@ -203,7 +222,7 @@ void GameClientMessagesReceiver::receiveTakeItems(TakeItemsMessage* message) {
         context.getGameController()->queueAction(
             std::make_unique<TakeItemAction>(
                 participant,
-                actor,
+                entity.value(),
                 message->turnNumber,
                 itemsToTake
             )
@@ -212,27 +231,29 @@ void GameClientMessagesReceiver::receiveTakeItems(TakeItemsMessage* message) {
 }
 
 void GameClientMessagesReceiver::receiveApplyDamageMessage(ApplyDamageMessage* message) {
-    auto actorPool = context.getActorPool();
+    auto entity = context.getActorPool()->getByExternalId(message->targetId);
 
-    if(!actorPool->hasActor(message->targetId)) {
+    if(!entity.has_value()) {
         return;
     }
 
-    auto const& actor = actorPool->getActor(message->targetId);
+    auto& actor = context.getEntityRegistry().get<Actor>(entity.value());
 
-    actor->takeDamage(message->damage);
+    context.getActorController()->applyDamage(entity.value(), message->damage);
 
-    publish<ApplyDamageEventData>({ message->fromId, actor, (DamageType) message->source, message->damage });
+    publish<ApplyDamageEventData>({ message->fromId, entity.value(), (DamageType) message->source, message->damage });
 }
 
 void GameClientMessagesReceiver::receiveApplyActorEffectMessage(ApplyActorEffectMessage* message) {
     auto actorPool = context.getActorPool();
 
-    if(!actorPool->hasActor(message->targetId)) {
+   auto entity = context.getActorPool()->getByExternalId(message->targetId);
+
+    if(!entity.has_value()) {
         return;
     }
-
-    auto const& target = actorPool->getActor(message->targetId);
+    
+    auto& target = context.getEntityRegistry().get<Actor>(entity.value());
 
     std::vector<uint32_t> damageTicks;
     for(int i = 0; i < message->effectStats.numDamageTicks; i++) {
@@ -247,12 +268,12 @@ void GameClientMessagesReceiver::receiveApplyActorEffectMessage(ApplyActorEffect
     switch((EffectType) message->type) {
         case FREEZE:
             context.getEffectController()->addEffect(
-                std::make_unique<FreezeEffect>(target, message->participantId, stats));
+                std::make_unique<FreezeEffect>(entity.value(), message->participantId, stats));
             break;
 
         case POISON:
             context.getEffectController()->addEffect(
-                std::make_unique<PoisonEffect>(target, message->participantId, stats));
+                std::make_unique<PoisonEffect>(entity.value(), message->participantId, stats));
             break;
 
         default:
@@ -293,17 +314,19 @@ void GameClientMessagesReceiver::receiveTilesRevealedMessage(TilesRevealedMessag
 }
 
 void GameClientMessagesReceiver::receiveSetActorPositionMessage(SetActorPositionMessage* message) {
-    if(!context.getActorPool()->hasActor(message->actorId)) {
+    auto entity = context.getActorPool()->getByExternalId(message->actorId);
+
+    if(!entity.has_value()) {
         spdlog::debug("Cannot set position for unrecognized actor with id {}", message->actorId);
         return;
     }
 
-    auto actor = context.getActorPool()->getActor(message->actorId);
+    auto& actor = context.getEntityRegistry().get<Actor>(entity.value());
 
-    actor->setPosition(glm::ivec2(message->x, message->y));
-    actor->setMovesLeft(message->movesLeft);
+    context.getEntityRegistry().replace<Position>(entity.value(), glm::ivec2(message->x, message->y));
+    context.getEntityRegistry().get_or_emplace<PositionDirty>(entity.value());
+    context.getEntityRegistry().get<Stats::ActorStats>(entity.value()).movesLeft = message->movesLeft;
 }
-
 
 void GameClientMessagesReceiver::receiveRemoveActorVisibilityMessage(RemoveActorVisibilityMessage* message) {
     auto clientParticipant = playerController->getParticipant();
@@ -326,12 +349,10 @@ void GameClientMessagesReceiver::receiveRemoveActorVisibilityMessage(RemoveActor
         return;
     }
 
-
-    if(context.getActorPool()->hasActor(message->actorId)) {
-        auto actorToRemove = context.getActorPool()->getActor(message->actorId);
-        clientParticipant->removeVisibleActor(actorToRemove);
-
-        context.getActorPool()->removeActor(message->actorId);
+    auto actorToRemove = context.getActorPool()->getByExternalId(message->actorId);
+    if(actorToRemove.has_value()) {
+        clientParticipant->removeVisibleActor(actorToRemove.value());
+        context.getActorPool()->removeActorByExternalId(message->actorId);
     }
     else {
         std::cout << std::format("Warning: removing actor which doesn't exist {}", message->actorId) << std::endl;
@@ -361,46 +382,52 @@ void GameClientMessagesReceiver::receiveAddActorVisibilityMessage(AddActorVisibi
 
     auto actorStateUpdate = message->actor;
 
-    if(context.getActorPool()->hasActor(actorStateUpdate.id)) {
+    if(context.getActorPool()->getByExternalId(actorStateUpdate.id).has_value()) {
         std::cout << "Actor with id " << actorStateUpdate.id << " already exists and is visible" << std::endl;
         return;
     }
 
-    auto actor = context.getActorPool()->addActor(message->actor.name, message->actor.id);
+    auto entity = context.getActorPool()->addActor(message->actor.name, message->actor.id);
+    auto& actor = context.getEntityRegistry().get<Actor>(entity);
 
     if(!context.getGameController()->hasParticipant(message->actor.participantId)) {
         spdlog::warn(
             "Cannot add actor {} which has a non-existant participant {}",
-            actor->toString(),
+            actor.toString(),
             message->actor.participantId
         );
         return;
     }
 
-    context.getGameController()->getParticipant(message->actor.participantId)->addActor(actor);
+    context.getGameController()->getParticipant(message->actor.participantId)->addActor(entity);
 
     for(int j = 0; j < actorStateUpdate.numWeapons; j++) {
         auto const& weaponUpdate = actorStateUpdate.weaponUpdates[j];
-        auto weaponId = UUID::fromBytes(weaponUpdate.idBytes);
+        auto uuid = UUID::fromBytes(weaponUpdate.idBytes);
+
+        auto existingWeaponId = context.getWeaponController()->getByExternalId(uuid).value_or(entt::null);
         
-        if(!actor->hasWeapon(weaponId)) {
-            auto weapon = context.getWeaponController()->createWeapon(weaponId, weaponUpdate.name, actor);
+        if(!actor.hasWeapon(existingWeaponId)) {
+            // auto weapon = context.getWeaponController()->createWeapon(weaponId, weaponUpdate.name, entity);
+            auto weaponId = context.getWeaponController()->addWeapon(uuid, weaponUpdate.name, entity);
+            auto& weapon = context.getEntityRegistry().get<WeaponHolder>(weaponId).weapon;
             
             if(weapon->getItem() != nullptr && weaponUpdate.hasItem) {
                 weapon->getItem()->setId(weaponUpdate.itemId);
             }
 
-            actor->addWeapon(std::move(weapon));
+            actor.addWeapon(weaponId);
         }
     }
 
-    ActorStateUpdate::deserialize(message->actor, actor);
+    ActorStateUpdate::deserialize(&context, message->actor, entity);
+    context.getActorController()->applyStats(entity);
 
-    if(clientParticipant->hasVisibleActor(actor)) {
-        std::cout << std::format("Warning: received already visible actor {}", actor->getId()) << std::endl;
+    if(clientParticipant->hasVisibleActor(entity)) {
+        std::cout << std::format("Warning: received already visible actor {}", actor.getId()) << std::endl;
     }
     
-    clientParticipant->addVisibleActor(actor);
+    clientParticipant->addVisibleActor(entity);
 }
 
 void GameClientMessagesReceiver::receiveCreateEngagementMessage(CreateEngagementMessage* message) {

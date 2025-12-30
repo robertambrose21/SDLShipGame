@@ -1,5 +1,7 @@
 #pragma once
 
+#include <unordered_map>
+
 #include "weapon.h"
 #include "game/actors/actor.h"
 #include "core/json.hpp"
@@ -10,6 +12,19 @@
 using json = nlohmann::json;
 
 class WeaponController : public EventPublisher<MeleeWeaponEventData> {
+public:
+    WeaponController();
+
+    void initialise(ApplicationContext& context);
+
+    // TODO: Rename to add weapon
+    // std::unique_ptr<Weapon> createWeapon(const std::string& name, entt::entity owner);
+    // std::unique_ptr<Weapon> createWeapon(const UUID& id, const std::string& name, entt::entity owner);
+    entt::entity addWeapon(const std::string& name, entt::entity owner);
+    entt::entity addWeapon(const UUID& id, const std::string& name, entt::entity owner);
+
+    std::optional<entt::entity> getByExternalId(const UUID& externalId) const;
+
 private:
     typedef struct _weaponDefinition {
         std::string filename;
@@ -25,11 +40,13 @@ private:
 
     std::map<std::string, WeaponDefinition> weaponDefinitions;
 
+    std::unordered_map<UUID, entt::entity> weaponByExternalId;
+
     ApplicationContext* context;
     bool initialised;
 
     void loadWeaponDefinitions(void);
-    Item* getItem(const std::string& itemName, Actor* owner);
+    Item* getItem(const std::string& itemName, entt::entity owner);
     
     Stats::WeaponStats buildProjectileWeaponStats(
         const WeaponDefinition& definition, 
@@ -44,13 +61,4 @@ private:
     );
 
     void synchronizeWithItemStats(Item* item, Stats::WeaponStats& weaponStats);
-
-public:
-    WeaponController();
-
-    void initialise(ApplicationContext& context);
-
-    // TODO: Rename to add weapon
-    std::unique_ptr<Weapon> createWeapon(const std::string& name, Actor* owner);
-    std::unique_ptr<Weapon> createWeapon(const UUID& id, const std::string& name, Actor* owner);
 };

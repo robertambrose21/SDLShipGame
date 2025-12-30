@@ -2,6 +2,8 @@
 
 #include <optional>
 #include <any>
+#include <variant>
+#include <entt/entt.hpp>
 
 #include "spdlog/spdlog.h"
 
@@ -9,14 +11,15 @@
 #include "game/participant/participant.h"
 #include "game/engagements/engagement.h"
 #include "game/actors/actor.h"
-
+#include "game/ecs/components/common.h"
 
 using ActionVariant = std::variant<
     MoveActionEventData,
     AttackActionEventData,
     TakeItemActionEventData,
     EquipItemActionEventData,
-    EquipWeaponActionEventData
+    EquipWeaponActionEventData,
+    UnequipWeaponActionEventData
 >; 
 
 class Action {
@@ -27,25 +30,26 @@ public:
         TakeItem,
         EquipItem,
         EquipWeaponItem,
+        UnequipWeaponItem,
         // Freeze,
         Count
     };
 
-    Action(Participant* participant, Actor* actor);
-    Action(Participant* participant, Actor* actor, int turnNumber);
+    Action(Participant* participant, entt::entity entity);
+    Action(Participant* participant, entt::entity entity, int turnNumber);
     virtual ~Action() = default;
 
     virtual ActionVariant getPublishData(void) = 0;
 
     bool validate(ApplicationContext* context);
-    bool isFinished(void);
+    bool isFinished(ApplicationContext* context);
     void execute(ApplicationContext* context);
 
-    virtual bool passesPrecondition(void) = 0;
+    virtual bool passesPrecondition(ApplicationContext* context) = 0;
     virtual Type getType(void) = 0;
 
     Participant* getParticipant(void);
-    Actor* getActor(void);
+    entt::entity getEntity(void) const;
     bool isExecuted(void) const;
     std::string typeToString(void);
 
@@ -53,11 +57,11 @@ public:
 
 protected:
     Participant* participant;
-    Actor* actor;
+    entt::entity entity;
     bool _isExecuted;
     std::optional<int> turnNumber;
 
     virtual bool onValidate(ApplicationContext* context) = 0;
     virtual void onExecute(ApplicationContext* context) = 0;
-    virtual bool hasFinished(void) = 0;
+    virtual bool hasFinished(ApplicationContext* context) = 0;
 };

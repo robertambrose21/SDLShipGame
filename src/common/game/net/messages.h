@@ -14,6 +14,7 @@ class Actor;
 class Enemy;
 class Player;
 class Weapon;
+class ApplicationContext;
 
 struct WeaponStateUpdate {
     uint8_t idBytes[16];
@@ -53,8 +54,8 @@ struct ActorStateUpdate {
         memset(this, 0, sizeof(ActorStateUpdate));
     }
 
-    static ActorStateUpdate serialize(Actor* actor);
-    static void deserialize(const ActorStateUpdate& update, Actor* existing);
+    static ActorStateUpdate serialize(ApplicationContext* context, entt::entity entity);
+    static void deserialize(ApplicationContext* context, const ActorStateUpdate& update, entt::entity existing);
 };
 
 struct GameStateUpdate {
@@ -69,24 +70,12 @@ struct GameStateUpdate {
     }
 
     static GameStateUpdate serialize(
+        ApplicationContext* context,
         int currentParticipantId, 
         const std::vector<Actor*>& actors,
         uint32_t chunkId,
         uint8_t numExpectedChunks = 1
-    ) {
-        GameStateUpdate update;
-        update.numActors = actors.size();
-
-        int index = 0;
-        for(auto actor : actors) {
-            update.actors[index++] = ActorStateUpdate::serialize(actor);
-        }
-
-        update.currentParticipantId = currentParticipantId;
-        update.numExpectedChunks = numExpectedChunks;
-
-        return update;
-    }
+    );
 };
 
 const int MaxMapBlockSize = 512;

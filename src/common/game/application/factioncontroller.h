@@ -5,7 +5,7 @@
 
 #include "spdlog/spdlog.h"
 #include "core/util/idgenerator.h"
-#include "core/components/factioned.h"
+#include "core/ecs/components/factioned.h"
 #include "game/participant/participant.h"
 #include "core/event/eventpublisher.h"
 #include "game/event/events.h"

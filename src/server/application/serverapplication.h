@@ -14,6 +14,7 @@
 #include "game/net/gamemessagelogger.h"
 #include "game/application/visibilitycontroller.h"
 #include "game/items/equippable.h"
+#include "game/ecs/systems/actorupdatesystem.h"
 
 class ServerApplication {
 private:
@@ -22,7 +23,9 @@ private:
     std::unique_ptr<GameServerMessagesTransmitter> transmitter;
     std::unique_ptr<GameServer> server;
     std::unique_ptr<GameServerMessagesReceiver> receiver;
-    StdOutSubscriber stdoutSubscriber;
+    std::unique_ptr<StdOutSubscriber> stdoutSubscriber;
+
+    std::unique_ptr<LogicSystemRegistry> logicSystemRegistry;
 
     void sendLoadMapToClient(int clientIndex);
     void sendGameStateUpdatesToParticipant(int clientIndex);
@@ -44,5 +47,5 @@ public:
     // Temp
     void loadGame(const std::vector<GenerationStrategy::Room>& rooms);
     // Temp
-    Actor* addPlayer(bool hasFreezeGun);
+    entt::entity addPlayer(bool hasFreezeGun);
 };

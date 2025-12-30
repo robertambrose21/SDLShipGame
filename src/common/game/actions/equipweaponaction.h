@@ -8,37 +8,38 @@ class EquipWeaponAction : public Action{
 public:
     EquipWeaponAction(
         Participant* participant, 
-        Actor* actor, 
+        entt::entity entity, 
         Item* item, 
-        const UUID& weaponId,
+        const UUID& weaponUUID,
         bool isUnequip = false
     );
     EquipWeaponAction(
         Participant* participant, 
-        Actor* actor, 
+        entt::entity entity, 
         int turnNumber, 
         Item* item, 
-        const UUID& weaponId,
+        const UUID& weaponUUID,
         bool isUnequip = false
     );
 
     ActionVariant getPublishData(void) override;
 
-    bool passesPrecondition(void);
+    bool passesPrecondition(ApplicationContext* context);
     Type getType(void);
 
     Item* getItem(void);
-    UUID getWeaponId(void) const;
+    UUID getWeaponUUID(void) const;
 
 private:
     bool onValidate(ApplicationContext* context);
     void onExecute(ApplicationContext* context);
-    bool hasFinished(void);
+    bool hasFinished(ApplicationContext* context);
 
-    bool validateEquip(ApplicationContext* context);
-    bool validateUnequip(ApplicationContext* context);
+    bool validateEquip(ApplicationContext* context, Actor* actor);
+    bool validateUnequip(ApplicationContext* context, Actor* actor);
 
     Item* item;
-    UUID weaponId;
+    UUID weaponUUID;
+    entt::entity weaponId;
     bool isUnequip;
 };

@@ -27,7 +27,7 @@ struct UUID {
         uuid = id.value();
     }
 
-    std::string getString(void) {
+    std::string getString(void) const {
         return uuids::to_string(uuid);
     }
 
@@ -70,4 +70,21 @@ struct UUID {
         return uuid;
     }
 };
+
+// Thanks ChatGPT
+namespace std {
+    template<>
+    struct hash<UUID> {
+        std::size_t operator()(const UUID& id) const noexcept {
+            auto bytes = id.uuid.as_bytes();
+
+            std::size_t h = 1469598103934665603ull;
+            for (auto b : bytes) {
+                h ^= static_cast<std::size_t>(b);
+                h *= 1099511628211ull;
+            }
+            return h;
+        }
+    };
+}
 
